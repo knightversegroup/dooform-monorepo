@@ -1,21 +1,11 @@
-import { Breadcrumb } from "@/app/components/ui/Breadcrumb";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 
-const breadcrumbItems = [
-    { label: "Home", href: "/" },
-    { label: "Documents", href: "/documents" },
-    { label: "Getting Started" },
-];
-
 export default function DocumentsPage() {
     return (
-        <article className="font-sans">
-            {/* Breadcrumb */}
-            <Breadcrumb items={breadcrumbItems} />
-
+        <>
             {/* Page Title */}
-            <h1 className="text-h1 text-foreground mt-6 mb-6">
+            <h1 className="text-h1 text-foreground mb-6">
                 Getting Started
             </h1>
 
@@ -187,6 +177,6 @@ export default function DocumentsPage() {
                     <ExternalLink className="w-4 h-4" />
                 </a>
             </div>
-        </article>
+        </>
     );
 }
