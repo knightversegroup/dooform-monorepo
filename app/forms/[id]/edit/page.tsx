@@ -17,7 +17,7 @@ import {
     X,
 } from "lucide-react";
 import { apiClient } from "@/lib/api/client";
-import { Template, TemplateType, Tier, TemplateUpdateData, FieldDefinition, MergeableGroup } from "@/lib/api/types";
+import { Template, TemplateType, Tier, TemplateUpdateData, FieldDefinition, MergeableGroup, DataType } from "@/lib/api/types";
 import { DATA_TYPE_LABELS, detectMergeableGroups, createMergedFieldDefinition } from "@/lib/utils/fieldTypes";
 import { Button } from "@/app/components/ui/Button";
 import { Input } from "@/app/components/ui/Input";
@@ -260,6 +260,37 @@ export default function EditFormPage({ params }: PageProps) {
             );
         } finally {
             setRegenerating(false);
+        }
+    };
+
+    // Handle manual data type change for a field
+    const handleFieldDataTypeChange = async (fieldKey: string, newDataType: DataType) => {
+        if (!fieldDefinitions) return;
+
+        try {
+            setError(null);
+
+            // Update local state
+            const updatedDefinitions = {
+                ...fieldDefinitions,
+                [fieldKey]: {
+                    ...fieldDefinitions[fieldKey],
+                    dataType: newDataType,
+                },
+            };
+
+            // Save to backend
+            await apiClient.updateFieldDefinitions(templateId, updatedDefinitions);
+            setFieldDefinitions(updatedDefinitions);
+
+            // Show brief success feedback
+            setFieldDefSuccess(true);
+            setTimeout(() => setFieldDefSuccess(false), 2000);
+        } catch (err) {
+            console.error("Failed to update field data type:", err);
+            setError(
+                err instanceof Error ? err.message : "ไม่สามารถอัปเดตประเภทช่องได้"
+            );
         }
     };
 
@@ -633,19 +664,27 @@ export default function EditFormPage({ params }: PageProps) {
                                 )}
 
                                 {fieldDefinitions && Object.keys(fieldDefinitions).length > 0 ? (
-                                    <div className="space-y-2 max-h-60 overflow-y-auto">
-                                        {Object.entries(fieldDefinitions).map(([key, def]) => (
+                                    <div className="space-y-2 max-h-80 overflow-y-auto">
+                                        {Object.entries(fieldDefinitions)
+                                            .filter(([, def]) => !def.group?.startsWith('merged_hidden_'))
+                                            .map(([key, def]) => (
                                             <div
                                                 key={key}
-                                                className="flex items-center justify-between p-2 bg-surface-alt rounded-lg"
+                                                className="flex items-center justify-between p-2 bg-surface-alt rounded-lg gap-2"
                                             >
-                                                <span className="text-body-sm text-foreground font-mono">
+                                                <span className="text-body-sm text-foreground font-mono truncate flex-shrink min-w-0" title={key}>
                                                     {key}
                                                 </span>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded">
-                                                        {DATA_TYPE_LABELS[def.dataType] || def.dataType}
-                                                    </span>
+                                                <div className="flex items-center gap-2 flex-shrink-0">
+                                                    <select
+                                                        value={def.dataType}
+                                                        onChange={(e) => handleFieldDataTypeChange(key, e.target.value as keyof typeof DATA_TYPE_LABELS)}
+                                                        className="text-xs px-2 py-1 bg-white border border-primary/30 text-primary rounded cursor-pointer hover:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                                                    >
+                                                        {Object.entries(DATA_TYPE_LABELS).map(([value, label]) => (
+                                                            <option key={value} value={value}>{label}</option>
+                                                        ))}
+                                                    </select>
                                                     <span className="text-xs px-2 py-0.5 bg-surface-alt text-text-muted rounded border border-border-default">
                                                         {def.inputType}
                                                     </span>

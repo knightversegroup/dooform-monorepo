@@ -668,6 +668,44 @@ class ApiClient {
     });
     return this.handleResponse<{ message: string }>(response);
   }
+
+  // OCR Methods
+
+  async extractTextFromImage(imageFile: File, templateId?: string): Promise<OCRResponse> {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    if (templateId) {
+      formData.append('template_id', templateId);
+    }
+
+    const response = await fetch(`${this.baseUrl}/ocr/extract`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: formData,
+    });
+    return this.handleResponse<OCRResponse>(response);
+  }
+
+  async extractTextForTemplate(templateId: string, imageFile: File): Promise<OCRResponse> {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+
+    const response = await fetch(`${this.baseUrl}/templates/${templateId}/ocr`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: formData,
+    });
+    return this.handleResponse<OCRResponse>(response);
+  }
+}
+
+// OCR Response type
+export interface OCRResponse {
+  raw_text: string;
+  extracted_data: Record<string, string>;
+  mapped_fields?: Record<string, string>;
+  detection_score: number;
+  message: string;
 }
 
 // Export singleton instance

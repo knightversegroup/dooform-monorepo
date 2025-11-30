@@ -4,6 +4,7 @@ import { useState, useEffect, use } from "react";
 import { ArrowLeft, Loader2, AlertCircle } from "lucide-react";
 import { apiClient } from "@/lib/api/client";
 import { Button } from "@/app/components/ui/Button";
+import { DocumentPreview } from "@/app/components/ui/DocumentPreview";
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -118,21 +119,18 @@ export default function TemplatePreviewPage({ params }: PageProps) {
 
             {/* Preview Content */}
             <div className="container-main section-padding">
-                <div className="max-w-4xl mx-auto">
-                    <div className="bg-background rounded-lg shadow-lg overflow-hidden">
-                        {htmlContent ? (
-                            <iframe
-                                srcDoc={htmlContent}
-                                className="w-full min-h-[800px] border-0"
-                                title="Template Preview"
-                                sandbox="allow-same-origin"
-                            />
-                        ) : (
-                            <div className="p-8 text-center text-text-muted">
-                                ไม่มีตัวอย่างสำหรับเทมเพลตนี้
-                            </div>
-                        )}
-                    </div>
+                <div className="max-w-5xl mx-auto">
+                    {htmlContent ? (
+                        <DocumentPreview
+                            htmlContent={htmlContent}
+                            title="ตัวอย่างเอกสาร"
+                            showHeader={false}
+                        />
+                    ) : (
+                        <div className="bg-background rounded-lg shadow-lg p-8 text-center text-text-muted">
+                            ไม่มีตัวอย่างสำหรับเทมเพลตนี้
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

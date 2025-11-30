@@ -9,11 +9,14 @@ import {
     Download,
     CheckCircle,
     AlertCircle,
+    Scan,
 } from "lucide-react";
 import { apiClient } from "@/lib/api/client";
 import { Template, FieldDefinition, Entity } from "@/lib/api/types";
 import { Button } from "@/app/components/ui/Button";
 import { SmartInput } from "@/app/components/ui/SmartInput";
+import { OCRScanner } from "@/app/components/ui/OCRScanner";
+import { DocumentPreview } from "@/app/components/ui/DocumentPreview";
 import { useAuth } from "@/lib/auth/context";
 import {
     groupFieldsByEntity,
@@ -40,25 +43,6 @@ const parseAliases = (aliasesJson: string): Record<string, string> => {
     }
 };
 
-// HTML Preview Component
-function HtmlPreview({ htmlContent, title = "ตัวอย่างเอกสาร" }: { htmlContent: string; title?: string }) {
-    return (
-        <div className="h-full flex flex-col">
-            <h2 className="text-h4 text-foreground mb-4">{title}</h2>
-            <div className="bg-white border border-border-default rounded-lg shadow-sm overflow-hidden flex-1 flex flex-col">
-                <div className="bg-surface-alt px-4 py-2 border-b border-border-default">
-                    <span className="text-caption text-text-muted">Document Preview</span>
-                </div>
-                <div className="p-4 flex-1 overflow-auto">
-                    <div
-                        className="w-full max-w-full overflow-hidden prose prose-sm max-w-none [&>*]:max-w-full [&_table]:w-full [&_table]:table-fixed"
-                        dangerouslySetInnerHTML={{ __html: htmlContent }}
-                    />
-                </div>
-            </div>
-        </div>
-    );
-}
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -93,6 +77,9 @@ export default function FillFormPage({ params }: PageProps) {
 
     // Active field for highlighting
     const [activeField, setActiveField] = useState<string | null>(null);
+
+    // OCR Scanner state
+    const [showOCRScanner, setShowOCRScanner] = useState(false);
 
     // Redirect to login if not authenticated (use replace to avoid back button loop)
     useEffect(() => {
@@ -145,8 +132,8 @@ export default function FillFormPage({ params }: PageProps) {
                         visibleDefinitions[key] = def;
                     });
 
-                    // Group fields by entity
-                    const grouped = groupFieldsByEntity(visibleDefinitions);
+                    // Group fields by entity, preserving original placeholder order
+                    const grouped = groupFieldsByEntity(visibleDefinitions, placeholders);
                     setGroupedFields(grouped);
                 } catch (err) {
                     console.error("Failed to load field definitions:", err);
@@ -255,6 +242,15 @@ export default function FillFormPage({ params }: PageProps) {
             ...prev,
             [key]: value,
         }));
+    };
+
+    // Handle OCR data extraction - apply mapped fields to form
+    const handleOCRDataExtracted = (mappedFields: Record<string, string>) => {
+        setFormData((prev) => ({
+            ...prev,
+            ...mappedFields,
+        }));
+        setShowOCRScanner(false);
     };
 
     // Handle address selection - auto-fill related province/district/subdistrict fields
@@ -462,27 +458,47 @@ export default function FillFormPage({ params }: PageProps) {
                     </Button>
                 </div>
 
-                <div className={hasPreview ? "flex gap-8" : ""}>
+                <div className={hasPreview ? "flex gap-6" : ""}>
                     {/* Left Column: Form */}
-                    <div className={hasPreview ? "flex-1" : "max-w-2xl mx-auto w-full"}>
+                    <div className={hasPreview ? "w-[380px] flex-shrink-0" : "max-w-2xl mx-auto w-full"}>
                         {/* Header */}
-                        <div className="bg-background border border-border-default rounded-lg p-6 mb-6">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                                    <FileText className="w-6 h-6 text-primary" />
+                        <div className="bg-background border border-border-default rounded-lg p-4 mb-4">
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <FileText className="w-5 h-5 text-primary" />
                                 </div>
-                                <div>
-                                    <h1 className="text-h3 text-foreground">
+                                <div className="min-w-0 flex-1">
+                                    <h1 className="text-h4 text-foreground">
                                         กรอกแบบฟอร์ม
                                     </h1>
-                                    <p className="text-body-sm text-text-muted">
+                                    <p className="text-caption text-text-muted truncate">
                                         {template?.display_name ||
                                             template?.name ||
                                             template?.filename}
                                     </p>
                                 </div>
                             </div>
+                            <Button
+                                onClick={() => setShowOCRScanner(!showOCRScanner)}
+                                variant={showOCRScanner ? "primary" : "secondary"}
+                                size="sm"
+                                className="w-full justify-center"
+                            >
+                                <Scan className="w-4 h-4 mr-2" />
+                                สแกนเอกสาร
+                            </Button>
                         </div>
+
+                        {/* OCR Scanner */}
+                        {showOCRScanner && (
+                            <div className="mb-6">
+                                <OCRScanner
+                                    templateId={templateId}
+                                    onDataExtracted={handleOCRDataExtracted}
+                                    onClose={() => setShowOCRScanner(false)}
+                                />
+                            </div>
+                        )}
 
                         {/* Success State */}
                         {success && (
@@ -554,7 +570,7 @@ export default function FillFormPage({ params }: PageProps) {
                         {!success && (
                             <form onSubmit={handleSubmit}>
                                 {groupedFields && Object.keys(fieldDefinitions).length > 0 ? (
-                                    <div className="space-y-6">
+                                    <div className="space-y-4">
                                         {/* Render fields grouped by entity */}
                                         {(Object.keys(groupedFields) as Entity[]).map((entity) => {
                                             const fields = groupedFields[entity];
@@ -563,14 +579,14 @@ export default function FillFormPage({ params }: PageProps) {
                                             return (
                                                 <div
                                                     key={entity}
-                                                    className="bg-background border border-border-default rounded-lg p-6"
+                                                    className="bg-background border border-border-default rounded-lg p-4"
                                                 >
-                                                    <h2 className="text-h4 text-foreground mb-6 flex items-center gap-2">
+                                                    <h2 className="text-body font-semibold text-foreground mb-4 flex items-center gap-2">
                                                         <span className="w-2 h-2 rounded-full bg-primary" />
-                                                        {ENTITY_LABELS[entity]} ({fields.length} ช่อง)
+                                                        {ENTITY_LABELS[entity]} ({fields.length})
                                                     </h2>
 
-                                                    <div className="space-y-5">
+                                                    <div className="space-y-3">
                                                         {fields.map((definition) => {
                                                             const key = definition.placeholder.replace(/\{\{|\}\}/g, '');
                                                             return (
@@ -584,6 +600,7 @@ export default function FillFormPage({ params }: PageProps) {
                                                                     onAddressSelect={(address) => handleAddressSelect(key, address)}
                                                                     alias={aliases[definition.placeholder]}
                                                                     disabled={processing}
+                                                                    compact={hasPreview}
                                                                 />
                                                             );
                                                         })}
@@ -593,7 +610,7 @@ export default function FillFormPage({ params }: PageProps) {
                                         })}
 
                                         {/* Submit Button */}
-                                        <div className="bg-background border border-border-default rounded-lg p-6">
+                                        <div className="bg-background border border-border-default rounded-lg p-4">
                                             <Button
                                                 type="submit"
                                                 variant="primary"
@@ -624,22 +641,28 @@ export default function FillFormPage({ params }: PageProps) {
                             </form>
                         )}
 
-                        {/* Instructions */}
-                        <div className="bg-surface-alt border border-border-default rounded-lg p-6 mt-6">
-                            <h4 className="text-body font-semibold text-foreground mb-3">วิธีใช้งาน</h4>
-                            <ul className="text-body-sm text-text-muted space-y-2">
-                                <li>1. กรอกข้อมูลในแต่ละช่องตามที่ต้องการ</li>
-                                <li>2. ดูตัวอย่างเอกสารแบบ Real-time ทางด้านขวา (ถ้ามี)</li>
-                                <li>3. กดปุ่ม &quot;สร้างเอกสาร&quot; เพื่อสร้างไฟล์</li>
-                                <li>4. ดาวน์โหลดเอกสารในรูปแบบ DOCX หรือ PDF</li>
-                            </ul>
-                        </div>
+                        {/* Instructions - hide when preview is shown to save space */}
+                        {!hasPreview && (
+                            <div className="bg-surface-alt border border-border-default rounded-lg p-4 mt-4">
+                                <h4 className="text-body-sm font-semibold text-foreground mb-2">วิธีใช้งาน</h4>
+                                <ul className="text-caption text-text-muted space-y-1">
+                                    <li>1. กรอกข้อมูลในแต่ละช่องตามที่ต้องการ</li>
+                                    <li>2. ดูตัวอย่างเอกสารแบบ Real-time ทางด้านขวา (ถ้ามี)</li>
+                                    <li>3. กดปุ่ม &quot;สร้างเอกสาร&quot; เพื่อสร้างไฟล์</li>
+                                    <li>4. ดาวน์โหลดเอกสารในรูปแบบ DOCX หรือ PDF</li>
+                                </ul>
+                            </div>
+                        )}
                     </div>
 
                     {/* Right Column: Live Preview */}
                     {hasPreview && (
-                        <div className="flex-1 sticky top-24 h-[calc(100vh-8rem)] overflow-hidden">
-                            <HtmlPreview htmlContent={previewHtml} title="ตัวอย่างเอกสาร (Live)" />
+                        <div className="flex-1 min-w-0 sticky top-24 h-[calc(100vh-8rem)]">
+                            <DocumentPreview
+                                htmlContent={previewHtml}
+                                title="ตัวอย่างเอกสาร (Live)"
+                                showHeader={true}
+                            />
                         </div>
                     )}
                 </div>

@@ -44,22 +44,41 @@ function buildRegexFromPattern(state: PatternBuilderState): string {
         return value; // User provides raw regex
     }
 
-    // Escape special regex characters
-    const escaped = value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    // Split by comma to support multiple values (OR logic)
+    const values = value.split(",").map(v => v.trim()).filter(v => v.length > 0);
+
+    if (values.length === 0) {
+        return "";
+    }
+
     const casePrefix = caseSensitive ? "" : "(?i)";
 
+    // Escape special regex characters for each value
+    const escapedValues = values.map(v => v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+
+    // Build pattern based on match type
+    let patterns: string[];
     switch (matchType) {
         case "starts_with":
-            return `${casePrefix}^${escaped}`;
+            patterns = escapedValues.map(v => `^${v}`);
+            break;
         case "ends_with":
-            return `${casePrefix}${escaped}$`;
+            patterns = escapedValues.map(v => `${v}$`);
+            break;
         case "contains":
-            return `${casePrefix}${escaped}`;
+            patterns = escapedValues; // Just the escaped value
+            break;
         case "exact":
-            return `${casePrefix}^${escaped}$`;
+            patterns = escapedValues.map(v => `^${v}$`);
+            break;
         default:
-            return escaped;
+            patterns = escapedValues;
     }
+
+    // Join with OR (|) if multiple values
+    const combinedPattern = patterns.length > 1 ? `(${patterns.join("|")})` : patterns[0];
+
+    return `${casePrefix}${combinedPattern}`;
 }
 
 // Try to parse regex back to pattern builder state
@@ -141,23 +160,23 @@ function PatternBuilder({
     const matchTypeLabels: Record<MatchType, { label: string; description: string; example: string }> = {
         starts_with: {
             label: "เริ่มต้นด้วย",
-            description: "ชื่อช่องต้องเริ่มต้นด้วยคำนี้",
-            example: "เช่น: m_ จะตรงกับ m_name, m_date"
+            description: "ชื่อช่องต้องเริ่มต้นด้วยคำนี้ (ใส่หลายคำคั่นด้วย , ได้)",
+            example: "เช่น: m_, p_ จะตรงกับ m_name, p_date"
         },
         ends_with: {
             label: "ลงท้ายด้วย",
-            description: "ชื่อช่องต้องลงท้ายด้วยคำนี้",
-            example: "เช่น: _date จะตรงกับ birth_date, m_date"
+            description: "ชื่อช่องต้องลงท้ายด้วยคำนี้ (ใส่หลายคำคั่นด้วย , ได้)",
+            example: "เช่น: _date, _time จะตรงกับ birth_date, start_time"
         },
         contains: {
             label: "มีคำว่า",
-            description: "ชื่อช่องต้องมีคำนี้อยู่ในนั้น",
-            example: "เช่น: name จะตรงกับ first_name, lastname"
+            description: "ชื่อช่องต้องมีคำนี้อยู่ (ใส่หลายคำคั่นด้วย , ได้)",
+            example: "เช่น: country, nation จะตรงกับ _country, nationality"
         },
         exact: {
             label: "ตรงทั้งหมด",
-            description: "ชื่อช่องต้องตรงเป๊ะ",
-            example: "เช่น: id จะตรงกับ id เท่านั้น"
+            description: "ชื่อช่องต้องตรงเป๊ะ (ใส่หลายคำคั่นด้วย , ได้)",
+            example: "เช่น: id, code จะตรงกับ id หรือ code เท่านั้น"
         },
         regex: {
             label: "Regex (ขั้นสูง)",
@@ -225,12 +244,12 @@ function PatternBuilder({
 
                     {/* Value Input */}
                     <Input
-                        label="คำที่ต้องการจับคู่"
+                        label="คำที่ต้องการจับคู่ (คั่นด้วย , สำหรับหลายคำ)"
                         type="text"
-                        placeholder={state.matchType === "starts_with" ? "เช่น m_, p_, $" :
+                        placeholder={state.matchType === "starts_with" ? "เช่น m_, p_ (คั่นด้วย , สำหรับหลายคำ)" :
                                      state.matchType === "ends_with" ? "เช่น _date, _id, _name" :
-                                     state.matchType === "contains" ? "เช่น name, date, id" :
-                                     "เช่น id, date"}
+                                     state.matchType === "contains" ? "เช่น country, nation, _country" :
+                                     "เช่น id, code"}
                         value={state.value}
                         onChange={(e) => setState({ ...state, value: e.target.value })}
                     />

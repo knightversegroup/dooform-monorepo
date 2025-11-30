@@ -384,8 +384,8 @@ export function getGroupLabel(group: string): string {
     return group;
 }
 
-// Group fields by entity
-export function groupFieldsByEntity(definitions: Record<string, FieldDefinition>): Record<Entity, FieldDefinition[]> {
+// Group fields by entity, preserving original order based on placeholder keys
+export function groupFieldsByEntity(definitions: Record<string, FieldDefinition>, placeholderOrder?: string[]): Record<Entity, FieldDefinition[]> {
     const grouped: Record<Entity, FieldDefinition[]> = {
         child: [],
         mother: [],
@@ -395,9 +395,24 @@ export function groupFieldsByEntity(definitions: Record<string, FieldDefinition>
         general: [],
     };
 
-    Object.values(definitions).forEach((def) => {
-        grouped[def.entity].push(def);
-    });
+    // If placeholderOrder is provided, use it to maintain order
+    if (placeholderOrder && placeholderOrder.length > 0) {
+        placeholderOrder.forEach((placeholder) => {
+            const key = placeholder.replace(/\{\{|\}\}/g, '');
+            const def = definitions[key];
+            if (def) {
+                grouped[def.entity].push(def);
+            }
+        });
+    } else {
+        // Fallback: sort by placeholder name to ensure consistent order
+        const sortedEntries = Object.entries(definitions).sort((a, b) =>
+            a[0].localeCompare(b[0])
+        );
+        sortedEntries.forEach(([, def]) => {
+            grouped[def.entity].push(def);
+        });
+    }
 
     return grouped;
 }

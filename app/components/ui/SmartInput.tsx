@@ -19,10 +19,11 @@ interface SmartInputProps {
     alias?: string;
     disabled?: boolean;
     showPlaceholderKey?: boolean;
+    compact?: boolean;
 }
 
 export const SmartInput = forwardRef<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement, SmartInputProps>(
-    ({ definition, value, onChange, onFocus, onBlur, onAddressSelect, alias, disabled, showPlaceholderKey = true }, ref) => {
+    ({ definition, value, onChange, onFocus, onBlur, onAddressSelect, alias, disabled, showPlaceholderKey = true, compact = false }, ref) => {
         const [touched, setTouched] = useState(false);
         const [error, setError] = useState<string | null>(null);
 
@@ -48,7 +49,7 @@ export const SmartInput = forwardRef<HTMLInputElement | HTMLSelectElement | HTML
             onFocus?.();
         };
 
-        const baseInputClass = `w-full p-2.5 text-sm text-foreground bg-background border rounded-xl focus:outline-none focus:border-primary transition-colors placeholder:text-text-muted disabled:opacity-50 disabled:bg-surface-alt ${error ? "border-red-500" : "border-border-default"
+        const baseInputClass = `w-full ${compact ? 'p-2 text-sm' : 'p-2.5 text-sm'} text-foreground bg-background border rounded-xl focus:outline-none focus:border-primary transition-colors placeholder:text-text-muted disabled:opacity-50 disabled:bg-surface-alt ${error ? "border-red-500" : "border-border-default"
             }`;
 
         const renderInput = () => {
@@ -281,32 +282,37 @@ export const SmartInput = forwardRef<HTMLInputElement | HTMLSelectElement | HTML
         };
 
         return (
-            <div className="flex flex-col gap-1 w-full">
+            <div className={`flex flex-col ${compact ? 'gap-0.5' : 'gap-1'} w-full`}>
                 <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium text-foreground">
+                    <label className={`${compact ? 'text-xs' : 'text-sm'} font-medium text-foreground truncate`}>
                         {label}
                     </label>
-                    <span className="text-xs text-text-muted px-1.5 py-0.5 bg-surface-alt rounded">
+                    <span className={`${compact ? 'text-[10px]' : 'text-xs'} text-text-muted px-1.5 py-0.5 bg-surface-alt rounded flex-shrink-0`}>
                         {DATA_TYPE_LABELS[definition.dataType] || definition.dataType}
                     </span>
                 </div>
 
                 {renderInput()}
 
-                <div className="flex items-center justify-between">
-                    {error ? (
-                        <span className="text-xs text-red-500">{error}</span>
-                    ) : definition.description ? (
-                        <span className="text-xs text-text-muted">{definition.description}</span>
-                    ) : (
-                        <span />
-                    )}
-                    {showPlaceholderKey && alias && (
-                        <span className="text-xs text-text-muted font-mono">
-                            {definition.placeholder}
-                        </span>
-                    )}
-                </div>
+                {!compact && (
+                    <div className="flex items-center justify-between">
+                        {error ? (
+                            <span className="text-xs text-red-500">{error}</span>
+                        ) : definition.description ? (
+                            <span className="text-xs text-text-muted">{definition.description}</span>
+                        ) : (
+                            <span />
+                        )}
+                        {showPlaceholderKey && alias && (
+                            <span className="text-xs text-text-muted font-mono">
+                                {definition.placeholder}
+                            </span>
+                        )}
+                    </div>
+                )}
+                {compact && error && (
+                    <span className="text-xs text-red-500">{error}</span>
+                )}
             </div>
         );
     }
