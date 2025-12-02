@@ -37,7 +37,9 @@ export function SectionList({ fieldDefinitions, aliases, onOpenCanvas }: Section
             .filter(([, def]) => !def.group?.startsWith("merged_hidden_"))
             .sort((a, b) => (a[1].order ?? 0) - (b[1].order ?? 0))
             .forEach(([key, def]) => {
-                groups[def.entity].push({
+                // Use entity if it exists in groups, otherwise fallback to "general"
+                const entity = def.entity && groups[def.entity] ? def.entity : "general";
+                groups[entity].push({
                     key,
                     label: aliases?.[key] || key,
                 });

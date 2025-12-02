@@ -269,6 +269,15 @@ class ApiClient {
     return response.blob();
   }
 
+  // Regenerate document from history
+  async regenerateDocument(documentId: string): Promise<ProcessResponse> {
+    const response = await fetch(`${this.baseUrl}/documents/${documentId}/regenerate`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse<ProcessResponse>(response);
+  }
+
   // Activity Logs
 
   async getActivityLogs(
@@ -385,6 +394,38 @@ class ApiClient {
     });
 
     return this.handleResponse<{ message: string }>(response);
+  }
+
+  // Replace template files (DOCX and/or HTML)
+  async replaceTemplateFiles(
+    templateId: string,
+    options: {
+      docxFile?: File;
+      htmlFile?: File;
+      regenerateFields?: boolean;
+    }
+  ): Promise<{ message: string; template_id: string; filename: string; placeholders: string[]; template: Template }> {
+    const formData = new FormData();
+
+    if (options.docxFile) {
+      formData.append('docx', options.docxFile);
+    }
+
+    if (options.htmlFile) {
+      formData.append('html', options.htmlFile);
+    }
+
+    if (options.regenerateFields) {
+      formData.append('regenerate_fields', 'true');
+    }
+
+    const response = await fetch(`${this.baseUrl}/templates/${templateId}/files`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: formData,
+    });
+
+    return this.handleResponse<{ message: string; template_id: string; filename: string; placeholders: string[]; template: Template }>(response);
   }
 
   // Health Check

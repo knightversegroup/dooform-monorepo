@@ -16,6 +16,9 @@ import {
     ChevronUp,
     X,
     Workflow,
+    Upload,
+    File,
+    FileCode,
 } from "lucide-react";
 import { apiClient } from "@/lib/api/client";
 import { Template, TemplateType, Tier, TemplateUpdateData, FieldDefinition, MergeableGroup, DataType, Entity } from "@/lib/api/types";
@@ -73,6 +76,13 @@ export default function EditFormPage({ params }: PageProps) {
 
     // Flow canvas state
     const [showFlowCanvas, setShowFlowCanvas] = useState(false);
+
+    // File replacement state
+    const [docxFile, setDocxFile] = useState<File | null>(null);
+    const [htmlFile, setHtmlFile] = useState<File | null>(null);
+    const [uploadingFiles, setUploadingFiles] = useState(false);
+    const [fileUploadSuccess, setFileUploadSuccess] = useState(false);
+    const [regenerateFieldsOnUpload, setRegenerateFieldsOnUpload] = useState(true);
 
     // Form state
     const [formData, setFormData] = useState({
@@ -389,6 +399,52 @@ export default function EditFormPage({ params }: PageProps) {
         }
     };
 
+    // Handle file replacement
+    const handleFileUpload = async () => {
+        if (!docxFile && !htmlFile) {
+            setError("กรุณาเลือกไฟล์อย่างน้อย 1 ไฟล์");
+            return;
+        }
+
+        try {
+            setUploadingFiles(true);
+            setError(null);
+            setFileUploadSuccess(false);
+
+            const result = await apiClient.replaceTemplateFiles(templateId, {
+                docxFile: docxFile || undefined,
+                htmlFile: htmlFile || undefined,
+                regenerateFields: regenerateFieldsOnUpload,
+            });
+
+            // Update template state with new data
+            if (result.template) {
+                setTemplate(result.template);
+            }
+
+            // Reload field definitions if regenerated
+            if (regenerateFieldsOnUpload && docxFile) {
+                try {
+                    const definitions = await apiClient.getFieldDefinitions(templateId);
+                    setFieldDefinitions(definitions);
+                } catch (err) {
+                    console.error("Failed to reload field definitions:", err);
+                }
+            }
+
+            // Clear file inputs
+            setDocxFile(null);
+            setHtmlFile(null);
+            setFileUploadSuccess(true);
+            setTimeout(() => setFileUploadSuccess(false), 3000);
+        } catch (err) {
+            console.error("Failed to upload files:", err);
+            setError(err instanceof Error ? err.message : "ไม่สามารถอัปโหลดไฟล์ได้");
+        } finally {
+            setUploadingFiles(false);
+        }
+    };
+
     // Show loading while checking auth
     if (authLoading) {
         return (
@@ -584,6 +640,197 @@ export default function EditFormPage({ params }: PageProps) {
                                             className="w-full p-2.5 text-sm text-foreground bg-background border border-border-default rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50 disabled:bg-surface-alt resize-none"
                                         />
                                     </div>
+                                </div>
+                            </div>
+
+                            {/* File Replacement Section */}
+                            <div className="bg-background border border-border-default rounded-lg p-6">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <Upload className="w-5 h-5 text-primary" />
+                                    <h2 className="text-h4 text-foreground">อัปโหลดไฟล์ใหม่</h2>
+                                </div>
+                                <p className="text-body-sm text-text-muted mb-4">
+                                    แทนที่ไฟล์เทมเพลต DOCX หรือไฟล์ตัวอย่าง HTML
+                                </p>
+
+                                <div className="space-y-4">
+                                    {/* DOCX File Upload */}
+                                    <div>
+                                        <label className="text-sm font-medium text-foreground mb-2 block">
+                                            ไฟล์เทมเพลต (.docx)
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type="file"
+                                                accept=".docx"
+                                                onChange={(e) => setDocxFile(e.target.files?.[0] || null)}
+                                                className="hidden"
+                                                id="docx-upload"
+                                                disabled={uploadingFiles}
+                                            />
+                                            <label
+                                                htmlFor="docx-upload"
+                                                className={`flex items-center gap-3 p-3 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
+                                                    docxFile
+                                                        ? 'border-primary bg-primary/5'
+                                                        : 'border-border-default hover:border-primary/50 hover:bg-surface-alt'
+                                                } ${uploadingFiles ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            >
+                                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                                                    docxFile ? 'bg-primary/10' : 'bg-surface-alt'
+                                                }`}>
+                                                    <File className={`w-5 h-5 ${docxFile ? 'text-primary' : 'text-text-muted'}`} />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    {docxFile ? (
+                                                        <>
+                                                            <p className="text-sm font-medium text-foreground truncate">
+                                                                {docxFile.name}
+                                                            </p>
+                                                            <p className="text-xs text-text-muted">
+                                                                {(docxFile.size / 1024).toFixed(1)} KB
+                                                            </p>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <p className="text-sm text-text-muted">
+                                                                คลิกเพื่อเลือกไฟล์ DOCX
+                                                            </p>
+                                                            <p className="text-xs text-text-muted">
+                                                                ไฟล์ปัจจุบัน: {template?.filename || '-'}
+                                                            </p>
+                                                        </>
+                                                    )}
+                                                </div>
+                                                {docxFile && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            setDocxFile(null);
+                                                        }}
+                                                        className="p-1 hover:bg-red-100 rounded text-red-500"
+                                                    >
+                                                        <X className="w-4 h-4" />
+                                                    </button>
+                                                )}
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {/* HTML File Upload */}
+                                    <div>
+                                        <label className="text-sm font-medium text-foreground mb-2 block">
+                                            ไฟล์ตัวอย่าง (.html)
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type="file"
+                                                accept=".html,.htm"
+                                                onChange={(e) => setHtmlFile(e.target.files?.[0] || null)}
+                                                className="hidden"
+                                                id="html-upload"
+                                                disabled={uploadingFiles}
+                                            />
+                                            <label
+                                                htmlFor="html-upload"
+                                                className={`flex items-center gap-3 p-3 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
+                                                    htmlFile
+                                                        ? 'border-primary bg-primary/5'
+                                                        : 'border-border-default hover:border-primary/50 hover:bg-surface-alt'
+                                                } ${uploadingFiles ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            >
+                                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                                                    htmlFile ? 'bg-primary/10' : 'bg-surface-alt'
+                                                }`}>
+                                                    <FileCode className={`w-5 h-5 ${htmlFile ? 'text-primary' : 'text-text-muted'}`} />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    {htmlFile ? (
+                                                        <>
+                                                            <p className="text-sm font-medium text-foreground truncate">
+                                                                {htmlFile.name}
+                                                            </p>
+                                                            <p className="text-xs text-text-muted">
+                                                                {(htmlFile.size / 1024).toFixed(1)} KB
+                                                            </p>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <p className="text-sm text-text-muted">
+                                                                คลิกเพื่อเลือกไฟล์ HTML
+                                                            </p>
+                                                            <p className="text-xs text-text-muted">
+                                                                สำหรับแสดงตัวอย่าง
+                                                            </p>
+                                                        </>
+                                                    )}
+                                                </div>
+                                                {htmlFile && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            setHtmlFile(null);
+                                                        }}
+                                                        className="p-1 hover:bg-red-100 rounded text-red-500"
+                                                    >
+                                                        <X className="w-4 h-4" />
+                                                    </button>
+                                                )}
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {/* Regenerate Fields Checkbox */}
+                                    {docxFile && (
+                                        <div className="flex items-center gap-3 p-3 bg-surface-alt rounded-lg">
+                                            <input
+                                                type="checkbox"
+                                                id="regenerateFields"
+                                                checked={regenerateFieldsOnUpload}
+                                                onChange={(e) => setRegenerateFieldsOnUpload(e.target.checked)}
+                                                disabled={uploadingFiles}
+                                                className="w-4 h-4 text-primary bg-background border-border-default rounded focus:ring-primary"
+                                            />
+                                            <label htmlFor="regenerateFields" className="text-sm text-foreground">
+                                                สร้าง Field Definitions ใหม่จาก placeholders
+                                            </label>
+                                        </div>
+                                    )}
+
+                                    {/* Upload Success Message */}
+                                    {fileUploadSuccess && (
+                                        <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-xl">
+                                            <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                                            <p className="text-body-sm text-green-700">
+                                                อัปโหลดไฟล์สำเร็จ!
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {/* Upload Button */}
+                                    <Button
+                                        type="button"
+                                        variant="secondary"
+                                        className="w-full justify-center"
+                                        onClick={handleFileUpload}
+                                        disabled={uploadingFiles || (!docxFile && !htmlFile)}
+                                    >
+                                        {uploadingFiles ? (
+                                            <>
+                                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                กำลังอัปโหลด...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Upload className="w-4 h-4 mr-2" />
+                                                อัปโหลดไฟล์
+                                            </>
+                                        )}
+                                    </Button>
                                 </div>
                             </div>
                         </div>
