@@ -39,7 +39,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             const currentPath = window.location.pathname;
             if (currentPath !== '/profile/setup' &&
                 !currentPath.startsWith('/login') &&
-                !currentPath.startsWith('/auth/line/callback')) {
+                !currentPath.startsWith('/auth/google/callback')) {
               window.location.href = '/profile/setup';
             }
           }

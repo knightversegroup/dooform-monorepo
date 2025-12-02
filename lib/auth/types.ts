@@ -8,7 +8,7 @@ export interface User {
   picture_url?: string;
   phone?: string;
   organization?: string;
-  line_user_id?: string;
+  google_id?: string;
   auth_provider: string;
   is_active: boolean;
   profile_completed: boolean;

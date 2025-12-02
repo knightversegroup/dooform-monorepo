@@ -29,10 +29,12 @@ import {
     Trash2,
     Edit3,
     Loader2,
+    Wand2,
 } from "lucide-react";
 import type { FieldDefinition, DataType, Entity, ConfigurableDataType } from "@/lib/api/types";
 import { ENTITY_LABELS } from "@/lib/utils/fieldTypes";
 import { apiClient } from "@/lib/api/client";
+import { EntityRulesToolbar } from "./EntityRulesToolbar";
 
 // Dropdown Portal Component
 function DropdownPortal({
@@ -391,8 +393,7 @@ function SectionNode({ data }: { data: SectionNodeData }) {
 
             {/* Fields */}
             <div
-                className="nodrag px-2 py-2 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
-                style={{ maxHeight: "400px" }}
+                className="nodrag px-2 py-2 space-y-1"
                 onWheel={(e) => e.stopPropagation()}
                 onMouseDown={(e) => e.stopPropagation()}
                 onPointerDown={(e) => e.stopPropagation()}
@@ -554,6 +555,7 @@ export function PlaceholderFlowCanvas({
     const [sections, setSections] = useState<Section[]>([]);
     const [dataTypes, setDataTypes] = useState<ConfigurableDataType[]>([]);
     const [loadingDataTypes, setLoadingDataTypes] = useState(false);
+    const [showRulesToolbar, setShowRulesToolbar] = useState(false);
 
     // Fetch data types from API
     useEffect(() => {
@@ -581,8 +583,8 @@ export function PlaceholderFlowCanvas({
             .map(([key, def]) => ({
                 key,
                 label: aliases?.[key] || key,
-                dataType: def.dataType,
-                entity: def.entity,
+                dataType: def.dataType || "text",
+                entity: def.entity || "general",
             }));
     }, [fieldDefinitions, aliases]);
 
@@ -593,7 +595,10 @@ export function PlaceholderFlowCanvas({
             child: [], mother: [], father: [], informant: [], registrar: [], general: [],
         };
 
-        allFields.forEach((field) => { entityGroups[field.entity].push(field.key); });
+        allFields.forEach((field) => {
+            const entity = field.entity && entityGroups[field.entity] ? field.entity : "general";
+            entityGroups[entity].push(field.key);
+        });
 
         const initialSections: Section[] = [];
         let colorIndex = 0;
@@ -675,6 +680,61 @@ export function PlaceholderFlowCanvas({
         onFieldUpdate(fieldKey, { dataType: dataType as DataType });
     }, [onFieldUpdate]);
 
+    // Handle bulk entity updates from rules toolbar
+    const handleBulkEntityUpdate = useCallback((updates: Record<string, Entity>) => {
+        // Update field definitions
+        Object.entries(updates).forEach(([fieldKey, entity]) => {
+            onFieldUpdate(fieldKey, { entity });
+        });
+
+        // Update sections to reflect new entity assignments
+        setSections((prevSections) => {
+            // First, collect all field keys and their new entities
+            const fieldEntityMap: Record<string, Entity> = {};
+            Object.keys(fieldDefinitions).forEach((key) => {
+                fieldEntityMap[key] = updates[key] || fieldDefinitions[key]?.entity || "general";
+            });
+
+            // Create new sections based on entity grouping
+            const entityGroups: Record<Entity, string[]> = {
+                child: [], mother: [], father: [], informant: [], registrar: [], general: [],
+            };
+
+            // Get all assigned fields across sections
+            const allAssignedFields = prevSections.flatMap((s) => s.fields);
+
+            // Reassign fields to their new entity groups
+            allAssignedFields.forEach((fieldKey) => {
+                const rawEntity = fieldEntityMap[fieldKey] || "general";
+                const entity = entityGroups[rawEntity] ? rawEntity : "general";
+                entityGroups[entity].push(fieldKey);
+            });
+
+            // Update existing sections or create new ones
+            const newSections: Section[] = [];
+            let colorIndex = 0;
+
+            (Object.entries(entityGroups) as [Entity, string[]][]).forEach(([entity, fields]) => {
+                if (fields.length > 0) {
+                    // Check if section already exists
+                    const existingSection = prevSections.find((s) => s.name === ENTITY_LABELS[entity]);
+                    if (existingSection) {
+                        newSections.push({ ...existingSection, fields });
+                    } else {
+                        newSections.push({
+                            id: `section-${entity}`,
+                            name: ENTITY_LABELS[entity],
+                            fields,
+                            colorIndex: colorIndex++,
+                        });
+                    }
+                }
+            });
+
+            return newSections;
+        });
+    }, [onFieldUpdate, fieldDefinitions]);
+
     const [nodes, setNodes, onNodesChange] = useNodesState<any>([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
@@ -745,6 +805,13 @@ export function PlaceholderFlowCanvas({
                     {unassignedCount > 0 && (
                         <span className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-full">{unassignedCount} ช่องยังไม่ได้จัดกลุ่ม</span>
                     )}
+                    <button
+                        onClick={() => setShowRulesToolbar(true)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors border border-purple-200"
+                    >
+                        <Wand2 className="w-4 h-4" />
+                        กฎจัดกลุ่ม
+                    </button>
                     <button onClick={addSection} className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
                         <Plus className="w-4 h-4" />
                         เพิ่มส่วน
@@ -772,6 +839,14 @@ export function PlaceholderFlowCanvas({
                     <Controls showInteractive={false} className="!bg-white !border !border-gray-200 !rounded-lg !shadow-sm" />
                 </ReactFlow>
             </div>
+
+            {/* Entity Rules Toolbar */}
+            <EntityRulesToolbar
+                fieldDefinitions={fieldDefinitions}
+                onBulkEntityUpdate={handleBulkEntityUpdate}
+                isOpen={showRulesToolbar}
+                onClose={() => setShowRulesToolbar(false)}
+            />
         </div>
     );
 }
