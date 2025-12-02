@@ -88,7 +88,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       let data: AuthResponse;
       try {
         data = JSON.parse(responseText);
-      } catch (parseError) {
+      } catch {
         throw new Error(`Server returned invalid response (${response.status}): ${responseText}`);
       }
 

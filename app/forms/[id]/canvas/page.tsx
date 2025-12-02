@@ -38,21 +38,12 @@ import {
     CheckCircle,
     Palette,
 } from "lucide-react";
-import type { FieldDefinition, DataType, Entity, ConfigurableDataType } from "@/lib/api/types";
+import type { DataType, ConfigurableDataType, Entity } from "@/lib/api/types";
 import { ENTITY_LABELS } from "@/lib/utils/fieldTypes";
 // Section type is imported from context
 import { EntityRulesToolbar } from "@/app/components/ui/EntityRulesToolbar";
 import { useTemplate, type Section } from "../TemplateContext";
 
-// Entity colors for highlighting
-const ENTITY_HIGHLIGHT_COLORS: Record<Entity, { bg: string; accent: string }> = {
-    child: { bg: "#fce7f3", accent: "#db2777" },
-    mother: { bg: "#f3e8ff", accent: "#9333ea" },
-    father: { bg: "#dbeafe", accent: "#2563eb" },
-    informant: { bg: "#fef3c7", accent: "#d97706" },
-    registrar: { bg: "#dcfce7", accent: "#16a34a" },
-    general: { bg: "#f3f4f6", accent: "#4b5563" },
-};
 
 // Section colors - user selectable
 export const SECTION_COLORS = [
@@ -511,13 +502,6 @@ export default function CanvasPage() {
         });
     }, [setFieldDefinitions]);
 
-    const handleFieldUpdate = useCallback((fieldKey: string, updates: Partial<FieldDefinition>) => {
-        setFieldDefinitions((prev) => {
-            if (!prev) return prev;
-            return { ...prev, [fieldKey]: { ...prev[fieldKey], ...updates } };
-        });
-    }, [setFieldDefinitions]);
-
     // Save sections to database
     const handleSave = useCallback(async () => {
         if (!template || !fieldDefinitions) return;
@@ -599,7 +583,7 @@ export default function CanvasPage() {
         const startX = 100;
         const startY = 100;
 
-        const newNodes: any[] = [];
+        const newNodes: Parameters<typeof setNodes>[0] = [];
         const newEdges: Edge[] = [];
 
         newNodes.push({ id: "start", type: "startNode", position: { x: startX, y: startY + 100 }, data: {}, draggable: false });

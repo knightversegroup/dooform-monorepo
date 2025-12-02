@@ -10,8 +10,6 @@ import {
   ProcessLogsResponse,
   HistoryResponse,
   Template,
-  TemplateType,
-  Tier,
   TemplateUpdateData,
   FieldDefinition,
   FieldDefinitionsResponse,

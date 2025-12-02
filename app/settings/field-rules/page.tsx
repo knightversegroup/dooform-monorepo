@@ -10,15 +10,11 @@ import {
     Loader2,
     AlertCircle,
     CheckCircle,
-    ChevronDown,
-    ChevronUp,
-    Play,
     Settings,
     RefreshCw,
     HelpCircle,
     Wand2,
     Users,
-    FileText,
     Database,
 } from "lucide-react";
 import { apiClient } from "@/lib/api/client";
@@ -424,8 +420,9 @@ export default function FieldRulesPage() {
         is_active: true,
     });
 
-    // Input Type modal state
-    const [showInputTypeModal, setShowInputTypeModal] = useState(false);
+    // Input Type modal state (reserved for future use)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_showInputTypeModal, _setShowInputTypeModal] = useState(false);
     const [editingInputType, setEditingInputType] = useState<ConfigurableInputType | null>(null);
     const [inputTypeFormData, setInputTypeFormData] = useState({
         code: "",
@@ -435,10 +432,13 @@ export default function FieldRulesPage() {
         is_active: true,
     });
 
-    // Test pattern state
-    const [testPlaceholders, setTestPlaceholders] = useState("");
-    const [testResults, setTestResults] = useState<Record<string, boolean> | null>(null);
-    const [testing, setTesting] = useState(false);
+    // Test pattern state (reserved for future use)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_testPlaceholders, _setTestPlaceholders] = useState("");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_testResults, _setTestResults] = useState<Record<string, boolean> | null>(null);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_testing, _setTesting] = useState(false);
 
     // Form state
     const [formData, setFormData] = useState({
@@ -537,7 +537,8 @@ export default function FieldRulesPage() {
         }
     }, [isAuthenticated]);
 
-    const handleCreateNew = () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _handleCreateNew = () => {
         setEditingRule(null);
         setFormData({
             name: "",
@@ -794,7 +795,9 @@ export default function FieldRulesPage() {
     // Input Type Handlers
     // =====================
 
-    const handleCreateInputType = () => {
+    // Input type handlers (reserved for future use)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _handleCreateInputType = () => {
         setEditingInputType(null);
         setInputTypeFormData({
             code: "",
@@ -803,10 +806,11 @@ export default function FieldRulesPage() {
             priority: 0,
             is_active: true,
         });
-        setShowInputTypeModal(true);
+        _setShowInputTypeModal(true);
     };
 
-    const handleEditInputType = (it: ConfigurableInputType) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _handleEditInputType = (it: ConfigurableInputType) => {
         setEditingInputType(it);
         setInputTypeFormData({
             code: it.code,
@@ -815,10 +819,11 @@ export default function FieldRulesPage() {
             priority: it.priority,
             is_active: it.is_active,
         });
-        setShowInputTypeModal(true);
+        _setShowInputTypeModal(true);
     };
 
-    const handleSaveInputType = async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _handleSaveInputType = async () => {
         try {
             setSaving(true);
             setError(null);
@@ -838,7 +843,7 @@ export default function FieldRulesPage() {
 
             const data = await apiClient.getConfigurableInputTypes();
             setConfigurableInputTypes(data);
-            setShowInputTypeModal(false);
+            _setShowInputTypeModal(false);
         } catch (err) {
             console.error("Failed to save input type:", err);
             setError(err instanceof Error ? err.message : "ไม่สามารถบันทึกได้");
@@ -847,7 +852,8 @@ export default function FieldRulesPage() {
         }
     };
 
-    const handleDeleteInputType = async (id: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _handleDeleteInputType = async (id: string) => {
         if (!confirm("คุณต้องการลบ Input Type นี้หรือไม่?")) return;
 
         try {
@@ -860,7 +866,8 @@ export default function FieldRulesPage() {
         }
     };
 
-    const handleToggleInputTypeActive = async (it: ConfigurableInputType) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _handleToggleInputTypeActive = async (it: ConfigurableInputType) => {
         try {
             await apiClient.updateConfigurableInputType(it.id, { is_active: !it.is_active });
             setConfigurableInputTypes(configurableInputTypes.map((i) =>
@@ -872,7 +879,8 @@ export default function FieldRulesPage() {
         }
     };
 
-    const handleInitializeInputTypeDefaults = async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _handleInitializeInputTypeDefaults = async () => {
         if (!confirm("ต้องการสร้าง Input Type เริ่มต้นหรือไม่?")) return;
 
         try {
@@ -886,7 +894,8 @@ export default function FieldRulesPage() {
         }
     };
 
-    const handleEdit = (rule: FieldRule) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _handleEdit = (rule: FieldRule) => {
         setEditingRule(rule);
         setFormData({
             name: rule.name,
@@ -948,7 +957,9 @@ export default function FieldRulesPage() {
         }
     };
 
-    const handleDelete = async (ruleId: string) => {
+    // Rule handlers (reserved for future use)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _handleDelete = async (ruleId: string) => {
         if (!confirm("คุณต้องการลบกฎนี้หรือไม่?")) return;
 
         try {
@@ -961,7 +972,8 @@ export default function FieldRulesPage() {
         }
     };
 
-    const handleToggleActive = async (rule: FieldRule) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _handleToggleActive = async (rule: FieldRule) => {
         try {
             await apiClient.updateFieldRule(rule.id, { is_active: !rule.is_active });
             setRules(rules.map((r) =>
@@ -973,28 +985,30 @@ export default function FieldRulesPage() {
         }
     };
 
-    const handleTestWithRule = async (rule: FieldRule) => {
-        if (!testPlaceholders) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _handleTestWithRule = async (rule: FieldRule) => {
+        if (!_testPlaceholders) {
             setError("กรุณากรอก Placeholders สำหรับทดสอบ");
             return;
         }
 
         try {
-            setTesting(true);
-            const placeholders = testPlaceholders.split(",").map((p) => p.trim()).filter(Boolean);
+            _setTesting(true);
+            const placeholders = _testPlaceholders.split(",").map((p) => p.trim()).filter(Boolean);
             const result = await apiClient.testFieldRule(rule.pattern, placeholders);
-            setTestResults(result.results);
+            _setTestResults(result.results);
             // Expand the rule to show results
             setExpandedRules(new Set([rule.id]));
         } catch (err) {
             console.error("Failed to test pattern:", err);
             setError(err instanceof Error ? err.message : "ไม่สามารถทดสอบ Pattern ได้");
         } finally {
-            setTesting(false);
+            _setTesting(false);
         }
     };
 
-    const handleInitializeDefaults = async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _handleInitializeDefaults = async () => {
         if (!confirm("ต้องการสร้างกฎเริ่มต้นหรือไม่? (จะไม่ทับกฎที่มีอยู่)")) return;
 
         try {
@@ -1008,7 +1022,8 @@ export default function FieldRulesPage() {
         }
     };
 
-    const toggleExpanded = (ruleId: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _toggleExpanded = (ruleId: string) => {
         const newExpanded = new Set(expandedRules);
         if (newExpanded.has(ruleId)) {
             newExpanded.delete(ruleId);
@@ -1031,8 +1046,9 @@ export default function FieldRulesPage() {
         }
     }, [success]);
 
-    // Helper function to describe pattern in Thai
-    const describePattern = (pattern: string): string => {
+    // Helper function to describe pattern in Thai (reserved for future use)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _describePattern = (pattern: string): string => {
         const parsed = parseRegexToPattern(pattern);
         if (!parsed) return pattern;
 

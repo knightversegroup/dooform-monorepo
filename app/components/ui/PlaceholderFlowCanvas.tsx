@@ -815,7 +815,7 @@ export function PlaceholderFlowCanvas({
         onFieldUpdate(fieldKey, { dataType: dataType as DataType });
     }, [onFieldUpdate]);
 
-    const [nodes, setNodes, onNodesChange] = useNodesState<any>([]);
+    const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
     useEffect(() => {
@@ -824,7 +824,7 @@ export function PlaceholderFlowCanvas({
         const startX = 100;
         const startY = 100;
 
-        const newNodes: any[] = [];
+        const newNodes: Parameters<typeof setNodes>[0] = [];
         const newEdges: Edge[] = [];
 
         newNodes.push({ id: "start", type: "startNode", position: { x: startX, y: startY + 100 }, data: {}, draggable: false });

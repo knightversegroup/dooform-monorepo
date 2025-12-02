@@ -12,7 +12,6 @@ import {
     Zap,
     FileText,
     Check,
-    X,
 } from "lucide-react";
 import type { FieldDefinition, DataType, Entity } from "@/lib/api/types";
 import { DATA_TYPE_LABELS, ENTITY_LABELS } from "@/lib/utils/fieldTypes";
@@ -32,10 +31,6 @@ interface FlowNode {
     selected?: boolean;
 }
 
-interface Connection {
-    from: string;
-    to: string;
-}
 
 // Entity colors
 const ENTITY_COLORS: Record<Entity, { bg: string; border: string; text: string }> = {

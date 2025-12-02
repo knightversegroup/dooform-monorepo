@@ -44,6 +44,18 @@ const parseAliases = (aliasesJson: string): Record<string, string> => {
 };
 
 
+// Section color palette for preview highlighting (outside component to avoid dependency issues)
+const SECTION_COLORS = [
+    { bg: "#FEF3C7", text: "#92400E" },  // 0: yellow
+    { bg: "#DBEAFE", text: "#1E40AF" },  // 1: blue
+    { bg: "#FCE7F3", text: "#9D174D" },  // 2: pink
+    { bg: "#D1FAE5", text: "#065F46" },  // 3: green
+    { bg: "#E0E7FF", text: "#3730A3" },  // 4: purple
+    { bg: "#FEE2E2", text: "#991B1B" },  // 5: red
+    { bg: "#F3F4F6", text: "#374151" },  // 6: gray
+    { bg: "#CFFAFE", text: "#155E75" },  // 7: cyan
+];
+
 interface PageProps {
     params: Promise<{ id: string }>;
 }
@@ -171,18 +183,6 @@ export default function FillFormPage({ params }: PageProps) {
             loadTemplate();
         }
     }, [templateId]);
-
-    // Section color palette for preview highlighting
-    const SECTION_COLORS = [
-        { bg: "#FEF3C7", text: "#92400E" },  // 0: yellow
-        { bg: "#DBEAFE", text: "#1E40AF" },  // 1: blue
-        { bg: "#FCE7F3", text: "#9D174D" },  // 2: pink
-        { bg: "#D1FAE5", text: "#065F46" },  // 3: green
-        { bg: "#E0E7FF", text: "#3730A3" },  // 4: purple
-        { bg: "#FEE2E2", text: "#991B1B" },  // 5: red
-        { bg: "#F3F4F6", text: "#374151" },  // 6: gray
-        { bg: "#CFFAFE", text: "#155E75" },  // 7: cyan
-    ];
 
     // Build field to color map from sections
     const fieldColorMap = useMemo(() => {

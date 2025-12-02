@@ -300,7 +300,7 @@ export function EntityPreviewCanvas({
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   useEffect(() => {
-    const newNodes: any[] = [];
+    const newNodes: Parameters<typeof setNodes>[0] = [];
     const newEdges: Edge[] = [];
 
     // Position entity nodes on the left with dynamic spacing
