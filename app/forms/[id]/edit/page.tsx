@@ -15,12 +15,19 @@ import {
     ChevronDown,
     ChevronUp,
     X,
+    Workflow,
+    Upload,
+    File,
+    FileCode,
 } from "lucide-react";
 import { apiClient } from "@/lib/api/client";
-import { Template, TemplateType, Tier, TemplateUpdateData, FieldDefinition, MergeableGroup, DataType } from "@/lib/api/types";
+import { Template, TemplateType, Tier, TemplateUpdateData, FieldDefinition, MergeableGroup, DataType, Entity } from "@/lib/api/types";
 import { DATA_TYPE_LABELS, detectMergeableGroups, createMergedFieldDefinition } from "@/lib/utils/fieldTypes";
 import { Button } from "@/app/components/ui/Button";
 import { Input } from "@/app/components/ui/Input";
+import { PlaceholderFlowMapper } from "@/app/components/ui/PlaceholderFlowMapper";
+import { PlaceholderFlowCanvas } from "@/app/components/ui/PlaceholderFlowCanvas";
+import { SectionList } from "@/app/components/ui/SectionList";
 import { useAuth } from "@/lib/auth/context";
 
 // Helper to parse aliases
@@ -66,6 +73,16 @@ export default function EditFormPage({ params }: PageProps) {
     const [showMergeSuggestions, setShowMergeSuggestions] = useState(true);
     const [mergedGroups, setMergedGroups] = useState<Set<string>>(new Set()); // Patterns that user has merged
     const [pendingMerges, setPendingMerges] = useState<Map<string, { label: string; separator: string }>>(new Map());
+
+    // Flow canvas state
+    const [showFlowCanvas, setShowFlowCanvas] = useState(false);
+
+    // File replacement state
+    const [docxFile, setDocxFile] = useState<File | null>(null);
+    const [htmlFile, setHtmlFile] = useState<File | null>(null);
+    const [uploadingFiles, setUploadingFiles] = useState(false);
+    const [fileUploadSuccess, setFileUploadSuccess] = useState(false);
+    const [regenerateFieldsOnUpload, setRegenerateFieldsOnUpload] = useState(true);
 
     // Form state
     const [formData, setFormData] = useState({
@@ -294,6 +311,37 @@ export default function EditFormPage({ params }: PageProps) {
         }
     };
 
+    // Handle field update from flow mapper (dataType, entity, etc.)
+    const handleFieldUpdate = async (fieldKey: string, updates: Partial<FieldDefinition>) => {
+        if (!fieldDefinitions) return;
+
+        try {
+            setError(null);
+
+            // Update local state
+            const updatedDefinitions = {
+                ...fieldDefinitions,
+                [fieldKey]: {
+                    ...fieldDefinitions[fieldKey],
+                    ...updates,
+                },
+            };
+
+            // Save to backend
+            await apiClient.updateFieldDefinitions(templateId, updatedDefinitions);
+            setFieldDefinitions(updatedDefinitions);
+
+            // Show brief success feedback
+            setFieldDefSuccess(true);
+            setTimeout(() => setFieldDefSuccess(false), 2000);
+        } catch (err) {
+            console.error("Failed to update field:", err);
+            setError(
+                err instanceof Error ? err.message : "ไม่สามารถอัปเดตช่องได้"
+            );
+        }
+    };
+
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
     ) => {
@@ -348,6 +396,52 @@ export default function EditFormPage({ params }: PageProps) {
             );
         } finally {
             setSaving(false);
+        }
+    };
+
+    // Handle file replacement
+    const handleFileUpload = async () => {
+        if (!docxFile && !htmlFile) {
+            setError("กรุณาเลือกไฟล์อย่างน้อย 1 ไฟล์");
+            return;
+        }
+
+        try {
+            setUploadingFiles(true);
+            setError(null);
+            setFileUploadSuccess(false);
+
+            const result = await apiClient.replaceTemplateFiles(templateId, {
+                docxFile: docxFile || undefined,
+                htmlFile: htmlFile || undefined,
+                regenerateFields: regenerateFieldsOnUpload,
+            });
+
+            // Update template state with new data
+            if (result.template) {
+                setTemplate(result.template);
+            }
+
+            // Reload field definitions if regenerated
+            if (regenerateFieldsOnUpload && docxFile) {
+                try {
+                    const definitions = await apiClient.getFieldDefinitions(templateId);
+                    setFieldDefinitions(definitions);
+                } catch (err) {
+                    console.error("Failed to reload field definitions:", err);
+                }
+            }
+
+            // Clear file inputs
+            setDocxFile(null);
+            setHtmlFile(null);
+            setFileUploadSuccess(true);
+            setTimeout(() => setFileUploadSuccess(false), 3000);
+        } catch (err) {
+            console.error("Failed to upload files:", err);
+            setError(err instanceof Error ? err.message : "ไม่สามารถอัปโหลดไฟล์ได้");
+        } finally {
+            setUploadingFiles(false);
         }
     };
 
@@ -410,7 +504,7 @@ export default function EditFormPage({ params }: PageProps) {
     const placeholders = template ? parsePlaceholders(template.placeholders) : [];
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background font-sans">
             <div className="container-main section-padding">
                 {/* Back button */}
                 <div className="mb-6">
@@ -548,6 +642,197 @@ export default function EditFormPage({ params }: PageProps) {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* File Replacement Section */}
+                            <div className="bg-background border border-border-default rounded-lg p-6">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <Upload className="w-5 h-5 text-primary" />
+                                    <h2 className="text-h4 text-foreground">อัปโหลดไฟล์ใหม่</h2>
+                                </div>
+                                <p className="text-body-sm text-text-muted mb-4">
+                                    แทนที่ไฟล์เทมเพลต DOCX หรือไฟล์ตัวอย่าง HTML
+                                </p>
+
+                                <div className="space-y-4">
+                                    {/* DOCX File Upload */}
+                                    <div>
+                                        <label className="text-sm font-medium text-foreground mb-2 block">
+                                            ไฟล์เทมเพลต (.docx)
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type="file"
+                                                accept=".docx"
+                                                onChange={(e) => setDocxFile(e.target.files?.[0] || null)}
+                                                className="hidden"
+                                                id="docx-upload"
+                                                disabled={uploadingFiles}
+                                            />
+                                            <label
+                                                htmlFor="docx-upload"
+                                                className={`flex items-center gap-3 p-3 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
+                                                    docxFile
+                                                        ? 'border-primary bg-primary/5'
+                                                        : 'border-border-default hover:border-primary/50 hover:bg-surface-alt'
+                                                } ${uploadingFiles ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            >
+                                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                                                    docxFile ? 'bg-primary/10' : 'bg-surface-alt'
+                                                }`}>
+                                                    <File className={`w-5 h-5 ${docxFile ? 'text-primary' : 'text-text-muted'}`} />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    {docxFile ? (
+                                                        <>
+                                                            <p className="text-sm font-medium text-foreground truncate">
+                                                                {docxFile.name}
+                                                            </p>
+                                                            <p className="text-xs text-text-muted">
+                                                                {(docxFile.size / 1024).toFixed(1)} KB
+                                                            </p>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <p className="text-sm text-text-muted">
+                                                                คลิกเพื่อเลือกไฟล์ DOCX
+                                                            </p>
+                                                            <p className="text-xs text-text-muted">
+                                                                ไฟล์ปัจจุบัน: {template?.filename || '-'}
+                                                            </p>
+                                                        </>
+                                                    )}
+                                                </div>
+                                                {docxFile && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            setDocxFile(null);
+                                                        }}
+                                                        className="p-1 hover:bg-red-100 rounded text-red-500"
+                                                    >
+                                                        <X className="w-4 h-4" />
+                                                    </button>
+                                                )}
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {/* HTML File Upload */}
+                                    <div>
+                                        <label className="text-sm font-medium text-foreground mb-2 block">
+                                            ไฟล์ตัวอย่าง (.html)
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type="file"
+                                                accept=".html,.htm"
+                                                onChange={(e) => setHtmlFile(e.target.files?.[0] || null)}
+                                                className="hidden"
+                                                id="html-upload"
+                                                disabled={uploadingFiles}
+                                            />
+                                            <label
+                                                htmlFor="html-upload"
+                                                className={`flex items-center gap-3 p-3 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
+                                                    htmlFile
+                                                        ? 'border-primary bg-primary/5'
+                                                        : 'border-border-default hover:border-primary/50 hover:bg-surface-alt'
+                                                } ${uploadingFiles ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            >
+                                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                                                    htmlFile ? 'bg-primary/10' : 'bg-surface-alt'
+                                                }`}>
+                                                    <FileCode className={`w-5 h-5 ${htmlFile ? 'text-primary' : 'text-text-muted'}`} />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    {htmlFile ? (
+                                                        <>
+                                                            <p className="text-sm font-medium text-foreground truncate">
+                                                                {htmlFile.name}
+                                                            </p>
+                                                            <p className="text-xs text-text-muted">
+                                                                {(htmlFile.size / 1024).toFixed(1)} KB
+                                                            </p>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <p className="text-sm text-text-muted">
+                                                                คลิกเพื่อเลือกไฟล์ HTML
+                                                            </p>
+                                                            <p className="text-xs text-text-muted">
+                                                                สำหรับแสดงตัวอย่าง
+                                                            </p>
+                                                        </>
+                                                    )}
+                                                </div>
+                                                {htmlFile && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            setHtmlFile(null);
+                                                        }}
+                                                        className="p-1 hover:bg-red-100 rounded text-red-500"
+                                                    >
+                                                        <X className="w-4 h-4" />
+                                                    </button>
+                                                )}
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {/* Regenerate Fields Checkbox */}
+                                    {docxFile && (
+                                        <div className="flex items-center gap-3 p-3 bg-surface-alt rounded-lg">
+                                            <input
+                                                type="checkbox"
+                                                id="regenerateFields"
+                                                checked={regenerateFieldsOnUpload}
+                                                onChange={(e) => setRegenerateFieldsOnUpload(e.target.checked)}
+                                                disabled={uploadingFiles}
+                                                className="w-4 h-4 text-primary bg-background border-border-default rounded focus:ring-primary"
+                                            />
+                                            <label htmlFor="regenerateFields" className="text-sm text-foreground">
+                                                สร้าง Field Definitions ใหม่จาก placeholders
+                                            </label>
+                                        </div>
+                                    )}
+
+                                    {/* Upload Success Message */}
+                                    {fileUploadSuccess && (
+                                        <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-xl">
+                                            <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                                            <p className="text-body-sm text-green-700">
+                                                อัปโหลดไฟล์สำเร็จ!
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {/* Upload Button */}
+                                    <Button
+                                        type="button"
+                                        variant="secondary"
+                                        className="w-full justify-center"
+                                        onClick={handleFileUpload}
+                                        disabled={uploadingFiles || (!docxFile && !htmlFile)}
+                                    >
+                                        {uploadingFiles ? (
+                                            <>
+                                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                กำลังอัปโหลด...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Upload className="w-4 h-4 mr-2" />
+                                                อัปโหลดไฟล์
+                                            </>
+                                        )}
+                                    </Button>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Right Column - Settings & Aliases */}
@@ -624,74 +909,53 @@ export default function EditFormPage({ params }: PageProps) {
                                 </div>
                             </div>
 
-                            {/* Field Definitions */}
+                            {/* Field Definitions - Section List */}
                             <div className="bg-background border border-border-default rounded-lg p-6">
                                 <div className="flex items-center justify-between mb-4">
                                     <div className="flex items-center gap-2">
-                                        <Sparkles className="w-5 h-5 text-primary" />
+                                        <Workflow className="w-5 h-5 text-primary" />
                                         <h2 className="text-h4 text-foreground">
-                                            การตรวจจับประเภทช่องอัตโนมัติ
+                                            ส่วนของฟอร์ม
                                         </h2>
                                     </div>
-                                    <Button
-                                        type="button"
-                                        variant="secondary"
-                                        size="sm"
-                                        onClick={handleRegenerateFieldDefinitions}
-                                        disabled={regenerating}
-                                    >
-                                        {regenerating ? (
-                                            <>
-                                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                                กำลังสร้าง...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <RefreshCw className="w-4 h-4 mr-2" />
-                                                สร้างใหม่
-                                            </>
-                                        )}
-                                    </Button>
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            type="button"
+                                            variant="secondary"
+                                            size="sm"
+                                            onClick={handleRegenerateFieldDefinitions}
+                                            disabled={regenerating}
+                                        >
+                                            {regenerating ? (
+                                                <>
+                                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                    กำลังสร้าง...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <RefreshCw className="w-4 h-4 mr-2" />
+                                                    สร้างใหม่
+                                                </>
+                                            )}
+                                        </Button>
+                                    </div>
                                 </div>
 
                                 {fieldDefSuccess && (
                                     <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-xl mb-4">
                                         <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
                                         <p className="text-body-sm text-green-700">
-                                            สร้าง Field Definitions สำเร็จ!
+                                            อัปเดต Field Definitions สำเร็จ!
                                         </p>
                                     </div>
                                 )}
 
                                 {fieldDefinitions && Object.keys(fieldDefinitions).length > 0 ? (
-                                    <div className="space-y-2 max-h-80 overflow-y-auto">
-                                        {Object.entries(fieldDefinitions)
-                                            .filter(([, def]) => !def.group?.startsWith('merged_hidden_'))
-                                            .map(([key, def]) => (
-                                            <div
-                                                key={key}
-                                                className="flex items-center justify-between p-2 bg-surface-alt rounded-lg gap-2"
-                                            >
-                                                <span className="text-body-sm text-foreground font-mono truncate flex-shrink min-w-0" title={key}>
-                                                    {key}
-                                                </span>
-                                                <div className="flex items-center gap-2 flex-shrink-0">
-                                                    <select
-                                                        value={def.dataType}
-                                                        onChange={(e) => handleFieldDataTypeChange(key, e.target.value as keyof typeof DATA_TYPE_LABELS)}
-                                                        className="text-xs px-2 py-1 bg-white border border-primary/30 text-primary rounded cursor-pointer hover:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                                                    >
-                                                        {Object.entries(DATA_TYPE_LABELS).map(([value, label]) => (
-                                                            <option key={value} value={value}>{label}</option>
-                                                        ))}
-                                                    </select>
-                                                    <span className="text-xs px-2 py-0.5 bg-surface-alt text-text-muted rounded border border-border-default">
-                                                        {def.inputType}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    <SectionList
+                                        fieldDefinitions={fieldDefinitions}
+                                        aliases={aliases}
+                                        onOpenCanvas={() => setShowFlowCanvas(true)}
+                                    />
                                 ) : (
                                     <div className="text-center py-6 bg-surface-alt rounded-lg">
                                         <AlertCircle className="w-8 h-8 text-text-muted mx-auto mb-2" />
@@ -704,6 +968,17 @@ export default function EditFormPage({ params }: PageProps) {
                                     </div>
                                 )}
                             </div>
+
+                            {/* Flow Canvas Modal */}
+                            {fieldDefinitions && (
+                                <PlaceholderFlowCanvas
+                                    fieldDefinitions={fieldDefinitions}
+                                    onFieldUpdate={handleFieldUpdate}
+                                    aliases={aliases}
+                                    isOpen={showFlowCanvas}
+                                    onClose={() => setShowFlowCanvas(false)}
+                                />
+                            )}
 
                             {/* Merge Suggestions */}
                             {mergeableGroups.length > 0 && (
@@ -747,11 +1022,10 @@ export default function EditFormPage({ params }: PageProps) {
                                                 return (
                                                     <div
                                                         key={group.pattern}
-                                                        className={`p-4 rounded-lg border ${
-                                                            isMerged
+                                                        className={`p-4 rounded-lg border ${isMerged
                                                                 ? 'bg-green-50 border-green-200'
                                                                 : 'bg-amber-50 border-amber-200'
-                                                        }`}
+                                                            }`}
                                                     >
                                                         <div className="flex items-start justify-between gap-4">
                                                             <div className="flex-1">

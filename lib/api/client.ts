@@ -163,13 +163,20 @@ class ApiClient {
   }
 
   async getHTMLPreview(templateId: string): Promise<string> {
-    const response = await fetch(`${this.baseUrl}/templates/${templateId}/preview`, {
-      headers: this.getAuthHeaders(),
-    });
-    if (!response.ok) {
-      throw new Error(`Failed to fetch HTML preview: ${response.statusText}`);
+    try {
+      const response = await fetch(`${this.baseUrl}/templates/${templateId}/preview`, {
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) {
+        // Return empty string instead of throwing if preview doesn't exist or server error
+        console.warn(`HTML preview not available: ${response.status}`);
+        return '';
+      }
+      return response.text();
+    } catch (error) {
+      console.warn('Failed to fetch HTML preview:', error);
+      return '';
     }
-    return response.text();
   }
 
   async getAllTemplates(): Promise<TemplatesResponse> {
@@ -260,6 +267,15 @@ class ApiClient {
       throw new Error(`Download failed: ${response.statusText}`);
     }
     return response.blob();
+  }
+
+  // Regenerate document from history
+  async regenerateDocument(documentId: string): Promise<ProcessResponse> {
+    const response = await fetch(`${this.baseUrl}/documents/${documentId}/regenerate`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse<ProcessResponse>(response);
   }
 
   // Activity Logs
@@ -378,6 +394,38 @@ class ApiClient {
     });
 
     return this.handleResponse<{ message: string }>(response);
+  }
+
+  // Replace template files (DOCX and/or HTML)
+  async replaceTemplateFiles(
+    templateId: string,
+    options: {
+      docxFile?: File;
+      htmlFile?: File;
+      regenerateFields?: boolean;
+    }
+  ): Promise<{ message: string; template_id: string; filename: string; placeholders: string[]; template: Template }> {
+    const formData = new FormData();
+
+    if (options.docxFile) {
+      formData.append('docx', options.docxFile);
+    }
+
+    if (options.htmlFile) {
+      formData.append('html', options.htmlFile);
+    }
+
+    if (options.regenerateFields) {
+      formData.append('regenerate_fields', 'true');
+    }
+
+    const response = await fetch(`${this.baseUrl}/templates/${templateId}/files`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: formData,
+    });
+
+    return this.handleResponse<{ message: string; template_id: string; filename: string; placeholders: string[]; template: Template }>(response);
   }
 
   // Health Check

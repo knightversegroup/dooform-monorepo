@@ -12,7 +12,7 @@ import {
     Calendar,
     X,
     Loader2,
-    AlertCircle,
+    RefreshCw,
 } from "lucide-react";
 import { apiClient } from "@/lib/api/client";
 import { useAuth } from "@/lib/auth/context";
@@ -63,6 +63,7 @@ export default function HistoryPage() {
     const [total, setTotal] = useState(0);
     const [selectedDocument, setSelectedDocument] = useState<DocumentHistory | null>(null);
     const [downloading, setDownloading] = useState<string | null>(null);
+    const [regenerating, setRegenerating] = useState<string | null>(null);
 
     useEffect(() => {
         if (!authLoading && !isAuthenticated) {
@@ -109,9 +110,26 @@ export default function HistoryPage() {
             document.body.removeChild(a);
         } catch (err) {
             console.error("Failed to download:", err);
-            alert("ไม่สามารถดาวน์โหลดไฟล์ได้ ไฟล์อาจหมดอายุแล้ว");
+            alert("ไม่สามารถดาวน์โหลดไฟล์ได้ ไฟล์อาจหมดอายุแล้ว กรุณากด 'สร้างใหม่' เพื่อสร้างเอกสารอีกครั้ง");
+            // Reload history to update status
+            await loadHistory();
         } finally {
             setDownloading(null);
+        }
+    };
+
+    const handleRegenerate = async (doc: DocumentHistory) => {
+        try {
+            setRegenerating(doc.id);
+            await apiClient.regenerateDocument(doc.id);
+
+            // Reload history to show DOCX/PDF buttons
+            await loadHistory();
+        } catch (err) {
+            console.error("Failed to regenerate:", err);
+            alert("ไม่สามารถสร้างเอกสารใหม่ได้ กรุณาลองอีกครั้ง");
+        } finally {
+            setRegenerating(null);
         }
     };
 
@@ -165,32 +183,22 @@ export default function HistoryPage() {
         }
     };
 
-    const getStatusBadge = (status: string) => {
-        switch (status) {
-            case "completed":
-                return (
-                    <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">
-                        พร้อมดาวน์โหลด
-                    </span>
-                );
-            case "downloaded":
-                return (
-                    <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700">
-                        ดาวน์โหลดแล้ว
-                    </span>
-                );
-            case "expired":
-                return (
-                    <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700">
-                        หมดอายุ
-                    </span>
-                );
-            default:
-                return (
-                    <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700">
-                        {status}
-                    </span>
-                );
+    const getStatusBadge = (doc: DocumentHistory) => {
+        // Check if files are available based on paths
+        const hasFiles = doc.gcs_path_docx || doc.gcs_path_pdf;
+
+        if (hasFiles) {
+            return (
+                <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">
+                    พร้อมดาวน์โหลด
+                </span>
+            );
+        } else {
+            return (
+                <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700">
+                    ต้องสร้างใหม่
+                </span>
+            );
         }
     };
 
@@ -322,7 +330,7 @@ export default function HistoryPage() {
                                                         </div>
                                                     </td>
                                                     <td className="py-4 px-4">
-                                                        {getStatusBadge(doc.status)}
+                                                        {getStatusBadge(doc)}
                                                     </td>
                                                     <td className="py-4 px-4">
                                                         <div className="flex items-center justify-end gap-2">
@@ -333,41 +341,56 @@ export default function HistoryPage() {
                                                                 <Eye className="w-4 h-4 mr-1" />
                                                                 ดูข้อมูล
                                                             </button>
-                                                            <button
-                                                                onClick={() => handleDownload(doc, "docx")}
-                                                                disabled={
-                                                                    downloading === `${doc.id}-docx` ||
-                                                                    doc.status === "expired"
-                                                                }
-                                                                className="inline-flex items-center px-3 py-1.5 text-body-sm border border-border-default rounded-lg hover:bg-surface-alt transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                            >
-                                                                {downloading === `${doc.id}-docx` ? (
-                                                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                                                ) : (
-                                                                    <>
-                                                                        <Download className="w-4 h-4 mr-1" />
-                                                                        DOCX
-                                                                    </>
-                                                                )}
-                                                            </button>
-                                                            {doc.gcs_path_pdf && (
+                                                            {!doc.gcs_path_docx && !doc.gcs_path_pdf ? (
                                                                 <button
-                                                                    onClick={() => handleDownload(doc, "pdf")}
-                                                                    disabled={
-                                                                        downloading === `${doc.id}-pdf` ||
-                                                                        doc.status === "expired"
-                                                                    }
-                                                                    className="inline-flex items-center px-3 py-1.5 text-body-sm border border-red-200 bg-red-50 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                                    onClick={() => handleRegenerate(doc)}
+                                                                    disabled={regenerating === doc.id}
+                                                                    className="inline-flex items-center px-3 py-1.5 text-body-sm border border-blue-200 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                                 >
-                                                                    {downloading === `${doc.id}-pdf` ? (
+                                                                    {regenerating === doc.id ? (
                                                                         <Loader2 className="w-4 h-4 animate-spin" />
                                                                     ) : (
                                                                         <>
-                                                                            <Download className="w-4 h-4 mr-1" />
-                                                                            PDF
+                                                                            <RefreshCw className="w-4 h-4 mr-1" />
+                                                                            สร้างใหม่
                                                                         </>
                                                                     )}
                                                                 </button>
+                                                            ) : (
+                                                                <>
+                                                                    {doc.gcs_path_docx && (
+                                                                        <button
+                                                                            onClick={() => handleDownload(doc, "docx")}
+                                                                            disabled={downloading === `${doc.id}-docx`}
+                                                                            className="inline-flex items-center px-3 py-1.5 text-body-sm border border-border-default rounded-lg hover:bg-surface-alt transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                                        >
+                                                                            {downloading === `${doc.id}-docx` ? (
+                                                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                                            ) : (
+                                                                                <>
+                                                                                    <Download className="w-4 h-4 mr-1" />
+                                                                                    DOCX
+                                                                                </>
+                                                                            )}
+                                                                        </button>
+                                                                    )}
+                                                                    {doc.gcs_path_pdf && (
+                                                                        <button
+                                                                            onClick={() => handleDownload(doc, "pdf")}
+                                                                            disabled={downloading === `${doc.id}-pdf`}
+                                                                            className="inline-flex items-center px-3 py-1.5 text-body-sm border border-red-200 bg-red-50 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                                        >
+                                                                            {downloading === `${doc.id}-pdf` ? (
+                                                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                                            ) : (
+                                                                                <>
+                                                                                    <Download className="w-4 h-4 mr-1" />
+                                                                                    PDF
+                                                                                </>
+                                                                            )}
+                                                                        </button>
+                                                                    )}
+                                                                </>
                                                             )}
                                                         </div>
                                                     </td>
@@ -452,7 +475,7 @@ export default function HistoryPage() {
                                 </div>
                                 <div>
                                     <p className="text-caption text-text-muted">สถานะ</p>
-                                    {getStatusBadge(selectedDocument.status)}
+                                    {getStatusBadge(selectedDocument)}
                                 </div>
                                 <div>
                                     <p className="text-caption text-text-muted">รหัสเอกสาร</p>
@@ -490,33 +513,55 @@ export default function HistoryPage() {
                                 </div>
                             </div>
 
-                            {/* Download Buttons */}
+                            {/* Download/Regenerate Buttons */}
                             <div className="flex gap-3 pt-4 border-t border-border-default">
-                                <Button
-                                    onClick={() => handleDownload(selectedDocument, "docx")}
-                                    variant="primary"
-                                    className="flex-1 justify-center"
-                                    disabled={
-                                        downloading === `${selectedDocument.id}-docx` ||
-                                        selectedDocument.status === "expired"
-                                    }
-                                >
-                                    <Download className="w-4 h-4 mr-2" />
-                                    ดาวน์โหลด DOCX
-                                </Button>
-                                {selectedDocument.gcs_path_pdf && (
+                                {!selectedDocument.gcs_path_docx && !selectedDocument.gcs_path_pdf ? (
                                     <Button
-                                        onClick={() => handleDownload(selectedDocument, "pdf")}
-                                        variant="secondary"
+                                        onClick={() => handleRegenerate(selectedDocument)}
+                                        variant="primary"
                                         className="flex-1 justify-center"
-                                        disabled={
-                                            downloading === `${selectedDocument.id}-pdf` ||
-                                            selectedDocument.status === "expired"
-                                        }
+                                        disabled={regenerating === selectedDocument.id}
                                     >
-                                        <Download className="w-4 h-4 mr-2" />
-                                        ดาวน์โหลด PDF
+                                        {regenerating === selectedDocument.id ? (
+                                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                        ) : (
+                                            <RefreshCw className="w-4 h-4 mr-2" />
+                                        )}
+                                        สร้างเอกสารใหม่
                                     </Button>
+                                ) : (
+                                    <>
+                                        {selectedDocument.gcs_path_docx && (
+                                            <Button
+                                                onClick={() => handleDownload(selectedDocument, "docx")}
+                                                variant="primary"
+                                                className="flex-1 justify-center"
+                                                disabled={downloading === `${selectedDocument.id}-docx`}
+                                            >
+                                                {downloading === `${selectedDocument.id}-docx` ? (
+                                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                ) : (
+                                                    <Download className="w-4 h-4 mr-2" />
+                                                )}
+                                                ดาวน์โหลด DOCX
+                                            </Button>
+                                        )}
+                                        {selectedDocument.gcs_path_pdf && (
+                                            <Button
+                                                onClick={() => handleDownload(selectedDocument, "pdf")}
+                                                variant="secondary"
+                                                className="flex-1 justify-center"
+                                                disabled={downloading === `${selectedDocument.id}-pdf`}
+                                            >
+                                                {downloading === `${selectedDocument.id}-pdf` ? (
+                                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                ) : (
+                                                    <Download className="w-4 h-4 mr-2" />
+                                                )}
+                                                ดาวน์โหลด PDF
+                                            </Button>
+                                        )}
+                                    </>
                                 )}
                             </div>
                         </div>

@@ -172,7 +172,7 @@ export default function TemplateDetailPage({ params }: PageProps) {
 
     if (error || !template) {
         return (
-            <div className="min-h-screen bg-background">
+            <div className="min-h-screen bg-background font-sans">
                 <div className="container-main section-padding">
                     <div className="text-center py-24">
                         <h1 className="text-h2 text-foreground mb-4">
@@ -194,7 +194,7 @@ export default function TemplateDetailPage({ params }: PageProps) {
     const TypeIcon = typeInfo.icon;
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background font-sans">
             <div className="container-main section-padding">
                 {/* Back button */}
                 <div className="mb-6">
