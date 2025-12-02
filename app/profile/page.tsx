@@ -211,11 +211,9 @@ export default function ProfilePage() {
                         <div className="bg-background border border-border-default rounded-xl p-6">
                             <div className="flex flex-col items-center text-center">
                                 <div className="relative mb-4">
-                                    <Image
+                                    <img
                                         src={user.picture_url || DEFAULT_PROFILE_IMAGE}
                                         alt={user.display_name || user.email || "Profile"}
-                                        width={96}
-                                        height={96}
                                         className="rounded-full object-cover w-24 h-24"
                                     />
                                     {user.picture_url && (

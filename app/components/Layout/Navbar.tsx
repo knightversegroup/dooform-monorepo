@@ -139,11 +139,9 @@ export default function Navbar() {
               ) : isAuthenticated && user ? (
                 <Menu as="div" className="relative">
                   <MenuButton className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-surface-alt transition-colors">
-                    <Image
+                    <img
                         src={user.picture_url || DEFAULT_PROFILE_IMAGE}
                         alt={user.display_name || user.email || "Profile"}
-                        width={32}
-                        height={32}
                         className="rounded-full object-cover w-8 h-8"
                       />
                     <span className="text-sm font-medium text-text-default">
