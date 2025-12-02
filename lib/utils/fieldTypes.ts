@@ -384,7 +384,7 @@ export function getGroupLabel(group: string): string {
     return group;
 }
 
-// Group fields by entity, preserving original order based on placeholder keys
+// Group fields by entity, respecting the order field
 export function groupFieldsByEntity(definitions: Record<string, FieldDefinition>, placeholderOrder?: string[]): Record<Entity, FieldDefinition[]> {
     const grouped: Record<Entity, FieldDefinition[]> = {
         child: [],
@@ -395,24 +395,37 @@ export function groupFieldsByEntity(definitions: Record<string, FieldDefinition>
         general: [],
     };
 
-    // If placeholderOrder is provided, use it to maintain order
-    if (placeholderOrder && placeholderOrder.length > 0) {
-        placeholderOrder.forEach((placeholder) => {
-            const key = placeholder.replace(/\{\{|\}\}/g, '');
-            const def = definitions[key];
-            if (def) {
-                grouped[def.entity].push(def);
+    // Convert to array and sort by order field (if present), then by placeholderOrder, then by key
+    const entries = Object.entries(definitions);
+
+    // Sort primarily by order field
+    entries.sort((a, b) => {
+        const orderA = a[1].order ?? Number.MAX_SAFE_INTEGER;
+        const orderB = b[1].order ?? Number.MAX_SAFE_INTEGER;
+
+        if (orderA !== orderB) {
+            return orderA - orderB;
+        }
+
+        // Fallback to placeholder order if order is the same
+        if (placeholderOrder && placeholderOrder.length > 0) {
+            const keyA = a[0];
+            const keyB = b[0];
+            const indexA = placeholderOrder.findIndex(p => p.replace(/\{\{|\}\}/g, '') === keyA);
+            const indexB = placeholderOrder.findIndex(p => p.replace(/\{\{|\}\}/g, '') === keyB);
+            if (indexA !== -1 && indexB !== -1) {
+                return indexA - indexB;
             }
-        });
-    } else {
-        // Fallback: sort by placeholder name to ensure consistent order
-        const sortedEntries = Object.entries(definitions).sort((a, b) =>
-            a[0].localeCompare(b[0])
-        );
-        sortedEntries.forEach(([, def]) => {
-            grouped[def.entity].push(def);
-        });
-    }
+        }
+
+        // Final fallback: alphabetical
+        return a[0].localeCompare(b[0]);
+    });
+
+    // Group by entity
+    entries.forEach(([, def]) => {
+        grouped[def.entity].push(def);
+    });
 
     return grouped;
 }

@@ -57,6 +57,7 @@ export interface FieldDefinition {
   description?: string;
   group?: string;      // Group name for related fields (e.g., "dollar_numbers", "4d_codes")
   groupOrder?: number; // Order within the group
+  order?: number;      // Global display order for the field (user can reorder)
   defaultValue?: string; // Default value for the field (e.g., "/" for checkbox)
   // Merged field properties
   isMerged?: boolean;           // Whether this is a merged field

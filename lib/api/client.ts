@@ -163,13 +163,20 @@ class ApiClient {
   }
 
   async getHTMLPreview(templateId: string): Promise<string> {
-    const response = await fetch(`${this.baseUrl}/templates/${templateId}/preview`, {
-      headers: this.getAuthHeaders(),
-    });
-    if (!response.ok) {
-      throw new Error(`Failed to fetch HTML preview: ${response.statusText}`);
+    try {
+      const response = await fetch(`${this.baseUrl}/templates/${templateId}/preview`, {
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) {
+        // Return empty string instead of throwing if preview doesn't exist or server error
+        console.warn(`HTML preview not available: ${response.status}`);
+        return '';
+      }
+      return response.text();
+    } catch (error) {
+      console.warn('Failed to fetch HTML preview:', error);
+      return '';
     }
-    return response.text();
   }
 
   async getAllTemplates(): Promise<TemplatesResponse> {
