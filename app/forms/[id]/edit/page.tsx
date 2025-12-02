@@ -10,7 +10,6 @@ import {
     AlertCircle,
     CheckCircle,
     RefreshCw,
-    Sparkles,
     Layers,
     ChevronDown,
     ChevronUp,
@@ -21,12 +20,10 @@ import {
     FileCode,
 } from "lucide-react";
 import { apiClient } from "@/lib/api/client";
-import { Template, TemplateType, Tier, TemplateUpdateData, FieldDefinition, MergeableGroup, DataType, Entity } from "@/lib/api/types";
-import { DATA_TYPE_LABELS, detectMergeableGroups, createMergedFieldDefinition } from "@/lib/utils/fieldTypes";
+import { Template, TemplateType, Tier, TemplateUpdateData, FieldDefinition, MergeableGroup } from "@/lib/api/types";
+import { detectMergeableGroups, createMergedFieldDefinition } from "@/lib/utils/fieldTypes";
 import { Button } from "@/app/components/ui/Button";
 import { Input } from "@/app/components/ui/Input";
-import { PlaceholderFlowMapper } from "@/app/components/ui/PlaceholderFlowMapper";
-import { PlaceholderFlowCanvas } from "@/app/components/ui/PlaceholderFlowCanvas";
 import { SectionList } from "@/app/components/ui/SectionList";
 import { useAuth } from "@/lib/auth/context";
 
@@ -74,8 +71,6 @@ export default function EditFormPage({ params }: PageProps) {
     const [mergedGroups, setMergedGroups] = useState<Set<string>>(new Set()); // Patterns that user has merged
     const [pendingMerges, setPendingMerges] = useState<Map<string, { label: string; separator: string }>>(new Map());
 
-    // Flow canvas state
-    const [showFlowCanvas, setShowFlowCanvas] = useState(false);
 
     // File replacement state
     const [docxFile, setDocxFile] = useState<File | null>(null);
@@ -277,68 +272,6 @@ export default function EditFormPage({ params }: PageProps) {
             );
         } finally {
             setRegenerating(false);
-        }
-    };
-
-    // Handle manual data type change for a field
-    const handleFieldDataTypeChange = async (fieldKey: string, newDataType: DataType) => {
-        if (!fieldDefinitions) return;
-
-        try {
-            setError(null);
-
-            // Update local state
-            const updatedDefinitions = {
-                ...fieldDefinitions,
-                [fieldKey]: {
-                    ...fieldDefinitions[fieldKey],
-                    dataType: newDataType,
-                },
-            };
-
-            // Save to backend
-            await apiClient.updateFieldDefinitions(templateId, updatedDefinitions);
-            setFieldDefinitions(updatedDefinitions);
-
-            // Show brief success feedback
-            setFieldDefSuccess(true);
-            setTimeout(() => setFieldDefSuccess(false), 2000);
-        } catch (err) {
-            console.error("Failed to update field data type:", err);
-            setError(
-                err instanceof Error ? err.message : "ไม่สามารถอัปเดตประเภทช่องได้"
-            );
-        }
-    };
-
-    // Handle field update from flow mapper (dataType, entity, etc.)
-    const handleFieldUpdate = async (fieldKey: string, updates: Partial<FieldDefinition>) => {
-        if (!fieldDefinitions) return;
-
-        try {
-            setError(null);
-
-            // Update local state
-            const updatedDefinitions = {
-                ...fieldDefinitions,
-                [fieldKey]: {
-                    ...fieldDefinitions[fieldKey],
-                    ...updates,
-                },
-            };
-
-            // Save to backend
-            await apiClient.updateFieldDefinitions(templateId, updatedDefinitions);
-            setFieldDefinitions(updatedDefinitions);
-
-            // Show brief success feedback
-            setFieldDefSuccess(true);
-            setTimeout(() => setFieldDefSuccess(false), 2000);
-        } catch (err) {
-            console.error("Failed to update field:", err);
-            setError(
-                err instanceof Error ? err.message : "ไม่สามารถอัปเดตช่องได้"
-            );
         }
     };
 
@@ -923,6 +856,15 @@ export default function EditFormPage({ params }: PageProps) {
                                             type="button"
                                             variant="secondary"
                                             size="sm"
+                                            onClick={() => router.push(`/forms/${templateId}/canvas`)}
+                                        >
+                                            <Workflow className="w-4 h-4 mr-2" />
+                                            จัดการฟอร์ม
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="secondary"
+                                            size="sm"
                                             onClick={handleRegenerateFieldDefinitions}
                                             disabled={regenerating}
                                         >
@@ -954,7 +896,6 @@ export default function EditFormPage({ params }: PageProps) {
                                     <SectionList
                                         fieldDefinitions={fieldDefinitions}
                                         aliases={aliases}
-                                        onOpenCanvas={() => setShowFlowCanvas(true)}
                                     />
                                 ) : (
                                     <div className="text-center py-6 bg-surface-alt rounded-lg">
@@ -969,16 +910,6 @@ export default function EditFormPage({ params }: PageProps) {
                                 )}
                             </div>
 
-                            {/* Flow Canvas Modal */}
-                            {fieldDefinitions && (
-                                <PlaceholderFlowCanvas
-                                    fieldDefinitions={fieldDefinitions}
-                                    onFieldUpdate={handleFieldUpdate}
-                                    aliases={aliases}
-                                    isOpen={showFlowCanvas}
-                                    onClose={() => setShowFlowCanvas(false)}
-                                />
-                            )}
 
                             {/* Merge Suggestions */}
                             {mergeableGroups.length > 0 && (

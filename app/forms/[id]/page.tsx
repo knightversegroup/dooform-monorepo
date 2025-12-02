@@ -2,7 +2,6 @@
 
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
     ArrowLeft,
     FileText,
@@ -119,7 +118,6 @@ interface PageProps {
 
 export default function TemplateDetailPage({ params }: PageProps) {
     const { id: templateId } = use(params);
-    const router = useRouter();
     const { isAuthenticated, isLoading: authLoading } = useAuth();
     const [template, setTemplate] = useState<Template | null>(null);
     const [loading, setLoading] = useState(true);

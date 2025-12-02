@@ -3,7 +3,6 @@
 import { useState, useRef } from "react";
 import {
     Camera,
-    Upload,
     Loader2,
     CheckCircle,
     AlertCircle,

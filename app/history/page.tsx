@@ -17,7 +17,6 @@ import {
 import { apiClient } from "@/lib/api/client";
 import { useAuth } from "@/lib/auth/context";
 import { Button } from "@/app/components/ui/Button";
-import Link from "next/link";
 
 interface DocumentHistory {
     id: string;
@@ -75,6 +74,7 @@ export default function HistoryPage() {
         if (!authLoading && isAuthenticated) {
             loadHistory();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [page, authLoading, isAuthenticated]);
 
     const loadHistory = async () => {

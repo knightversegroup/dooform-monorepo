@@ -88,7 +88,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       let data: AuthResponse;
       try {
         data = JSON.parse(responseText);
-      } catch (parseError) {
+      } catch {
         throw new Error(`Server returned invalid response (${response.status}): ${responseText}`);
       }
 
@@ -150,6 +150,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     });
   }, []);
 
+  // Set full auth state (used after Google login)
+  const setAuthState = useCallback((userData: User, access: string, refresh: string) => {
+    setUser(userData);
+    setAccessToken(access);
+    setRefreshToken(refresh);
+  }, []);
+
   const value: AuthContextType = {
     user,
     accessToken,
@@ -160,6 +167,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     logout,
     refreshAccessToken,
     updateUser,
+    setAuthState,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

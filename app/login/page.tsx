@@ -16,7 +16,7 @@ function LoginContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const redirectTo = searchParams.get("redirect") || "/";
-    const { login, updateUser, isAuthenticated, isLoading: authLoading } = useAuth();
+    const { login, setAuthState, isAuthenticated, isLoading: authLoading } = useAuth();
 
     const [formData, setFormData] = useState({
         email: "",
@@ -88,19 +88,12 @@ function LoginContent() {
                 throw new Error(data.message || "Google authentication failed");
             }
 
-            // Store tokens in localStorage
-            const authData = {
-                user: data.data.user,
-                accessToken: data.data.access_token,
-                refreshToken: data.data.refresh_token,
-            };
-
-            localStorage.setItem("dooform_auth", JSON.stringify(authData));
-
-            // Update auth context
-            if (data.data.user) {
-                updateUser(data.data.user);
-            }
+            // Update auth context (this will also save to localStorage)
+            setAuthState(
+                data.data.user,
+                data.data.access_token,
+                data.data.refresh_token
+            );
 
             // Check if profile needs to be completed
             if (data.data.user && !data.data.user.profile_completed) {
@@ -108,13 +101,43 @@ function LoginContent() {
             } else {
                 router.push(redirectTo);
             }
-        } catch (err) {
+        } catch (err: unknown) {
             console.error("Google login error:", err);
-            setError(
-                err instanceof Error
-                    ? err.message
-                    : "เกิดข้อผิดพลาดในการเข้าสู่ระบบด้วย Google"
-            );
+
+            // Handle Firebase/Google auth errors with user-friendly messages
+            let errorMessage = "เกิดข้อผิดพลาดในการเข้าสู่ระบบด้วย Google";
+
+            if (err && typeof err === 'object' && 'code' in err) {
+                const errorCode = (err as { code: string }).code;
+                switch (errorCode) {
+                    case 'auth/popup-closed-by-user':
+                        errorMessage = "การเข้าสู่ระบบถูกยกเลิก";
+                        break;
+                    case 'auth/popup-blocked':
+                        errorMessage = "Popup ถูกบล็อก กรุณาอนุญาต popup สำหรับเว็บไซต์นี้";
+                        break;
+                    case 'auth/cancelled-popup-request':
+                        errorMessage = "การเข้าสู่ระบบถูกยกเลิก";
+                        break;
+                    case 'auth/admin-restricted-operation':
+                    case 'auth/operation-not-allowed':
+                        errorMessage = "การเข้าสู่ระบบด้วย Google ยังไม่พร้อมใช้งาน";
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMessage = "ไม่สามารถเชื่อมต่อได้ กรุณาตรวจสอบอินเทอร์เน็ต";
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = "มีการร้องขอมากเกินไป กรุณาลองใหม่ภายหลัง";
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage = "บัญชีนี้ถูกระงับการใช้งาน";
+                        break;
+                    default:
+                        errorMessage = "เกิดข้อผิดพลาดในการเข้าสู่ระบบ กรุณาลองใหม่อีกครั้ง";
+                }
+            }
+
+            setError(errorMessage);
         } finally {
             setGoogleLoading(false);
         }

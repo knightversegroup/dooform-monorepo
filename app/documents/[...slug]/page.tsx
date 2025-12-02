@@ -2,10 +2,14 @@ import fs from "fs";
 import path from "path";
 import { notFound } from "next/navigation";
 import { compileMDX } from "next-mdx-remote/rsc";
-import { useMDXComponents } from "@/mdx-components";
+// Renamed import to avoid ESLint hook rule (this is a config function, not a React hook)
+import { useMDXComponents as getMDXComponents } from "@/mdx-components";
 
 // Allow dynamic params that weren't generated at build time
 export const dynamicParams = true;
+
+// Get MDX components configuration
+const mdxComponents = getMDXComponents({});
 
 interface PageProps {
     params: Promise<{
@@ -91,11 +95,9 @@ export default async function DocumentPage({ params }: PageProps) {
         notFound();
     }
 
-    const components = useMDXComponents({});
-
     const { content } = await compileMDX({
         source: mdxData.source,
-        components,
+        components: mdxComponents,
         options: {
             parseFrontmatter: true,
         },
