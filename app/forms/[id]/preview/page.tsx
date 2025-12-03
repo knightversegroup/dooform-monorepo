@@ -6,10 +6,10 @@ import { apiClient } from "@/lib/api/client";
 import { Button } from "@/app/components/ui/Button";
 import { DocumentPreview } from "@/app/components/ui/DocumentPreview";
 
-// Helper to hide placeholders in preview
-const hidePlaceholders = (html: string): string => {
-    // Replace all {{...}} patterns with empty string
-    return html.replace(/\{\{[^}]+\}\}/g, "");
+// Helper to remove curly braces from placeholders in preview
+const cleanPlaceholders = (html: string): string => {
+    // Replace {{placeholder}} with just placeholder
+    return html.replace(/\{\{([^}]+)\}\}/g, '$1');
 };
 
 interface PageProps {
@@ -128,7 +128,7 @@ export default function TemplatePreviewPage({ params }: PageProps) {
                 <div className="max-w-5xl mx-auto">
                     {htmlContent ? (
                         <DocumentPreview
-                            htmlContent={hidePlaceholders(htmlContent)}
+                            htmlContent={cleanPlaceholders(htmlContent)}
                             title="ตัวอย่างเอกสาร"
                             showHeader={false}
                         />
