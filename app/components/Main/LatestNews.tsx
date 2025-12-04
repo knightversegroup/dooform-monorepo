@@ -75,7 +75,7 @@ function NewsCard({ item }: { item: NewsItem }) {
     const [imageError, setImageError] = useState(false);
 
     return (
-        <article className="group flex flex-col gap-6 border-b border-border-default py-8 first:pt-0 last:border-b-0 md:flex-row md:gap-8">
+        <article className="group flex flex-col gap-6 border-b border-border-default py-8 last:border-b-0 md:flex-row md:gap-8">
             {/* Content - Left side on desktop */}
             <div className="order-2 flex flex-1 flex-col gap-4 md:order-1">
                 {/* Date */}

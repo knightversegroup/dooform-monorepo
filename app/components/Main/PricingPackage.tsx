@@ -68,7 +68,7 @@ const pricingTiers: PricingTier[] = [
   {
     name: "Enterprise",
     description: "Advanced security for enterprises",
-    price: "ติดต่อเรา",
+    price: "",
     features: [
       "SSO & SAML",
       "Dedicated account manager",
@@ -131,17 +131,23 @@ export default function PricingPackage({
                 </p>
               </div>
 
-              {/* Price */}
-              <div className="mb-6">
-                <div className="flex items-baseline gap-1">
-                  <span className="text-h1 text-text-default">
-                    {tier.price}
-                  </span>
-                </div>
-                {tier.priceNote && (
-                  <p className="text-body-sm text-text-muted">
-                    {tier.priceNote}
-                  </p>
+              {/* Price - fixed height to maintain consistent layout */}
+              <div className="mb-6 min-h-[72px]">
+                {tier.price ? (
+                  <>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-h1 text-text-default">
+                        {tier.price}
+                      </span>
+                    </div>
+                    {tier.priceNote && (
+                      <p className="text-body-sm text-text-muted">
+                        {tier.priceNote}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <div className="h-full" />
                 )}
               </div>
 
