@@ -30,6 +30,7 @@ import {
     groupFieldsBySavedGroup,
     type GroupedSection,
     splitMergedValue,
+    formatDateToDisplay,
 } from "@/lib/utils/fieldTypes";
 import { AddressSelection } from "@/lib/api/addressService";
 
@@ -244,13 +245,19 @@ export default function FillFormPage({ params }: PageProps) {
 
             Object.keys(formData).forEach((key) => {
                 const definition = fieldDefinitions[key];
-                const value = formData[key] || "";
+                const rawValue = formData[key] || "";
                 const isActive = activeField === key;
                 const sectionColor = fieldColorMap[key] || { bg: "#F3F4F6", text: "#374151" };
 
+                // Format date values for display (only for non-merged fields)
+                let displayValue = rawValue;
+                if (definition?.inputType === 'date' && rawValue && !definition.isMerged) {
+                    displayValue = formatDateToDisplay(rawValue, definition.dateFormat || 'dd/mm/yyyy');
+                }
+
                 if (definition?.isMerged && definition.mergedFields) {
                     const splitValues = splitMergedValue(
-                        value,
+                        rawValue,
                         definition.mergedFields,
                         definition.separator || ''
                     );
@@ -281,11 +288,11 @@ export default function FillFormPage({ params }: PageProps) {
                     const escapedPlaceholder = placeholder.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
                     const regex = new RegExp(escapedPlaceholder, "gi");
 
-                    if (value) {
+                    if (displayValue) {
                         if (isActive) {
-                            updatedHtml = updatedHtml.replace(regex, `<mark style="background-color: ${sectionColor.bg}; color: ${sectionColor.text}; padding: 2px 6px; border-radius: 4px; font-weight: 500;">${value}</mark>`);
+                            updatedHtml = updatedHtml.replace(regex, `<mark style="background-color: ${sectionColor.bg}; color: ${sectionColor.text}; padding: 2px 6px; border-radius: 4px; font-weight: 500;">${displayValue}</mark>`);
                         } else {
-                            updatedHtml = updatedHtml.replace(regex, value);
+                            updatedHtml = updatedHtml.replace(regex, displayValue);
                         }
                     } else {
                         if (isActive) {
@@ -302,7 +309,13 @@ export default function FillFormPage({ params }: PageProps) {
                     k => k.toLowerCase() === key.toLowerCase()
                 );
                 if (formDataKey && formData[formDataKey]) {
-                    return formData[formDataKey];
+                    let fallbackValue = formData[formDataKey];
+                    // Format date values in fallback replacement
+                    const fallbackDef = fieldDefinitions[formDataKey];
+                    if (fallbackDef?.inputType === 'date' && fallbackValue) {
+                        fallbackValue = formatDateToDisplay(fallbackValue, fallbackDef.dateFormat || 'dd/mm/yyyy');
+                    }
+                    return fallbackValue;
                 }
                 return '';
             });

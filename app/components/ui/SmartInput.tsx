@@ -1,6 +1,7 @@
 "use client";
 
 import { forwardRef, useState, useRef, useEffect } from "react";
+import { Calendar } from "lucide-react";
 import { FieldDefinition, DateFormat } from "@/lib/api/types";
 import {
     validateField,
@@ -105,6 +106,14 @@ export const SmartInput = forwardRef<HTMLInputElement | HTMLSelectElement | HTML
             if (inputType === 'date') {
                 const displayValue = formatDateToDisplay(value, dateFormat);
 
+                const openDatePicker = () => {
+                    if (datePickerRef.current && !disabled) {
+                        datePickerRef.current.showPicker?.();
+                        datePickerRef.current.focus();
+                        datePickerRef.current.click();
+                    }
+                };
+
                 return (
                     <div className="flex gap-2 items-center">
                         {/* Date display/input with calendar picker */}
@@ -121,16 +130,26 @@ export const SmartInput = forwardRef<HTMLInputElement | HTMLSelectElement | HTML
                                 onBlur={handleBlur}
                                 disabled={disabled}
                                 placeholder={getDatePlaceholder(dateFormat)}
-                                className={baseInputClass}
+                                className={`${baseInputClass} pr-10`}
                             />
+                            {/* Calendar button */}
+                            <button
+                                type="button"
+                                onClick={openDatePicker}
+                                disabled={disabled}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-[#007398] transition-colors disabled:opacity-50"
+                            >
+                                <Calendar className="w-4 h-4" />
+                            </button>
                             {/* Hidden date picker for calendar selection */}
                             <input
                                 ref={datePickerRef}
                                 type="date"
                                 value={value}
                                 onChange={(e) => handleChange(e.target.value)}
-                                className="absolute inset-0 opacity-0 cursor-pointer"
+                                className="absolute top-0 right-0 w-0 h-0 opacity-0 pointer-events-none"
                                 disabled={disabled}
+                                tabIndex={-1}
                             />
                         </div>
 
