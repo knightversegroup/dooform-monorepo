@@ -1,8 +1,32 @@
 import { MetadataRoute } from "next";
 import fs from "fs";
 import path from "path";
+import { API_BASE_URL } from "@/lib/api/types";
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dooform.com";
+
+// Template type for sitemap (minimal fields needed)
+interface SitemapTemplate {
+  id: string;
+  updated_at?: string;
+  created_at?: string;
+}
+
+// Fetch all templates from API for sitemap
+async function getTemplatesForSitemap(): Promise<SitemapTemplate[]> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/templates`, {
+      next: { revalidate: 3600 }, // Cache for 1 hour
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    // Handle both array response and wrapped response
+    return Array.isArray(data) ? data : data.templates || [];
+  } catch (error) {
+    console.error("Failed to fetch templates for sitemap:", error);
+    return [];
+  }
+}
 
 // Get file modification time
 function getFileModTime(filePath: string): Date {
@@ -73,7 +97,7 @@ function getDocPriority(slug: string): number {
   return 0.6;
 }
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const currentDate = new Date().toISOString();
 
   // Static public pages with high priority
@@ -114,15 +138,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: getDocPriority(page.slug),
   }));
 
-  // Image sitemap entries for OG images (helps Google discover dynamic images)
-  const ogImagePages: MetadataRoute.Sitemap = [
-    {
-      url: `${baseUrl}/api/og?page=home&title=Dooform`,
-      lastModified: currentDate,
-      changeFrequency: "monthly" as const,
-      priority: 0.3,
-    },
-  ];
+  // Dynamic form/template pages from API
+  const templates = await getTemplatesForSitemap();
+  const formsSitemap: MetadataRoute.Sitemap = templates.map((template) => ({
+    url: `${baseUrl}/forms/${template.id}`,
+    lastModified: template.updated_at || template.created_at || currentDate,
+    changeFrequency: "weekly" as const,
+    priority: 0.8,
+  }));
 
-  return [...staticPages, ...documentSitemap];
+  return [...staticPages, ...documentSitemap, ...formsSitemap];
 }
