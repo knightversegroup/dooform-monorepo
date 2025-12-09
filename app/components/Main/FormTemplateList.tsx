@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, X, ChevronDown, ChevronUp, CheckCircle, Sparkles, Globe, Building2, Users, Loader2, Plus } from "lucide-react";
+import { Search, X, ChevronDown, ChevronUp, CheckCircle, Sparkles, Globe, Building2, Users, Loader2, Plus, FolderOpen, ChevronRight, Settings } from "lucide-react";
 import { apiClient } from "@/lib/api/client";
-import { Template, TemplateType, Tier } from "@/lib/api/types";
+import { Template, TemplateType, Tier, DocumentType } from "@/lib/api/types";
 
 // Types
 interface FilterSection {
@@ -229,12 +229,97 @@ function TemplateCard({ template }: { template: Template }) {
     );
 }
 
+// Document Type Group Component
+function DocumentTypeGroup({
+    documentType,
+    templates,
+    expanded,
+    onToggle,
+}: {
+    documentType: DocumentType;
+    templates: Template[];
+    expanded: boolean;
+    onToggle: () => void;
+}) {
+    return (
+        <div className="border border-border-default rounded-lg overflow-hidden mb-4">
+            <button
+                onClick={onToggle}
+                className="w-full flex items-center gap-3 p-4 bg-surface-alt hover:bg-surface-alt/80 transition-colors"
+            >
+                <div
+                    className="w-3 h-3 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: documentType.color || '#6B7280' }}
+                />
+                {expanded ? (
+                    <ChevronDown className="w-5 h-5 text-text-muted flex-shrink-0" />
+                ) : (
+                    <ChevronRight className="w-5 h-5 text-text-muted flex-shrink-0" />
+                )}
+                <div className="flex-1 text-left">
+                    <div className="flex items-center gap-2">
+                        <span className="font-semibold text-foreground">{documentType.name}</span>
+                        {documentType.name_en && (
+                            <span className="text-sm text-text-muted">({documentType.name_en})</span>
+                        )}
+                    </div>
+                    {documentType.description && (
+                        <p className="text-body-sm text-text-muted mt-0.5">{documentType.description}</p>
+                    )}
+                </div>
+                <span className="px-2 py-1 bg-primary/10 text-primary text-caption rounded-full">
+                    {templates.length} เทมเพลต
+                </span>
+            </button>
+            {expanded && (
+                <div className="p-4 space-y-3 bg-background">
+                    {templates.map((template) => (
+                        <Link
+                            key={template.id}
+                            href={`/forms/${template.id}`}
+                            className="flex items-center gap-3 p-3 rounded-lg hover:bg-surface-alt transition-colors"
+                        >
+                            <div className="w-8 h-8 rounded bg-primary/10 flex items-center justify-center text-primary text-sm font-medium">
+                                {template.variant_order + 1}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                    <span className="font-medium text-foreground truncate">
+                                        {template.display_name || template.filename}
+                                    </span>
+                                    {template.variant_name && (
+                                        <span className="px-2 py-0.5 text-xs bg-blue-100 text-blue-700 rounded flex-shrink-0">
+                                            {template.variant_name}
+                                        </span>
+                                    )}
+                                    {template.is_verified && (
+                                        <CheckCircle className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                                    )}
+                                </div>
+                                {template.description && (
+                                    <p className="text-body-sm text-text-muted truncate mt-0.5">
+                                        {template.description}
+                                    </p>
+                                )}
+                            </div>
+                        </Link>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
 // Main Component
 export default function FormTemplateList() {
     const [templates, setTemplates] = useState<Template[]>([]);
+    const [documentTypes, setDocumentTypes] = useState<DocumentType[]>([]);
+    const [orphanTemplates, setOrphanTemplates] = useState<Template[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
+    const [viewMode] = useState<'list' | 'grouped'>('grouped');
+    const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
     const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({
         category: [],
         type: [],
@@ -247,8 +332,23 @@ export default function FormTemplateList() {
             try {
                 setLoading(true);
                 setError(null);
-                const response = await apiClient.getAllTemplates();
-                setTemplates(response.templates || []);
+
+                if (viewMode === 'grouped') {
+                    const response = await apiClient.getTemplatesGrouped();
+                    setDocumentTypes(response.document_types || []);
+                    setOrphanTemplates(response.orphan_templates || []);
+                    // Also set all templates for filtering
+                    const allTemplates = [
+                        ...(response.document_types || []).flatMap(dt => dt.templates || []),
+                        ...(response.orphan_templates || [])
+                    ];
+                    setTemplates(allTemplates);
+                    // Expand all groups by default
+                    setExpandedGroups(new Set((response.document_types || []).map(dt => dt.id)));
+                } else {
+                    const response = await apiClient.getAllTemplates();
+                    setTemplates(response.templates || []);
+                }
             } catch (err) {
                 console.error('Failed to load templates:', err);
                 setError(err instanceof Error ? err.message : 'Failed to load templates');
@@ -258,7 +358,19 @@ export default function FormTemplateList() {
         };
 
         loadTemplates();
-    }, []);
+    }, [viewMode]);
+
+    const toggleGroup = (id: string) => {
+        setExpandedGroups(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(id)) {
+                newSet.delete(id);
+            } else {
+                newSet.add(id);
+            }
+            return newSet;
+        });
+    };
 
     // Build dynamic filter sections from template data
     const filterSections: FilterSection[] = [
@@ -409,22 +521,34 @@ export default function FormTemplateList() {
                     {/* Right Content - Template List */}
                     <main className="flex-1">
                         {/* Results Header */}
-                        <div className="mb-6 flex items-start justify-between">
-                            <div>
-                                <h1 className="text-h2 text-foreground mb-2">
-                                    เทมเพลตเอกสาร
-                                </h1>
-                                <p className="text-body text-text-muted">
-                                    {loading ? 'กำลังโหลด...' : `พบ ${filteredTemplates.length} รายการ`}
-                                </p>
+                        <div className="mb-6">
+                            <div className="flex items-start justify-between mb-4">
+                                <div>
+                                    <h1 className="text-h2 text-foreground mb-2">
+                                        เทมเพลตเอกสาร
+                                    </h1>
+                                    <p className="text-body text-text-muted">
+                                        {loading ? 'กำลังโหลด...' : `พบ ${filteredTemplates.length} รายการ`}
+                                    </p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Link
+                                        href="/settings/document-types"
+                                        className="inline-flex items-center gap-2 px-3 py-2 text-text-muted hover:text-foreground border border-border-default rounded-lg hover:bg-surface-alt transition-colors text-body-sm"
+                                        title="จัดการประเภทเอกสาร"
+                                    >
+                                        <Settings className="w-4 h-4" />
+                                    </Link>
+                                    <Link
+                                        href="/forms/new"
+                                        className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-body-sm font-medium"
+                                    >
+                                        <Plus className="w-4 h-4" />
+                                        เพิ่มเทมเพลต
+                                    </Link>
+                                </div>
                             </div>
-                            <Link
-                                href="/forms/new"
-                                className="inline-flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-body-sm font-medium"
-                            >
-                                <Plus className="w-4 h-4" />
-                                เพิ่มเทมเพลต
-                            </Link>
+
                         </div>
 
                         {/* Loading State */}
@@ -449,26 +573,52 @@ export default function FormTemplateList() {
                             </div>
                         )}
 
-                        {/* Template Cards */}
+                        {/* Template Cards - Grouped View */}
                         {!loading && !error && (
-                            <div className="space-y-4">
-                                {filteredTemplates.length > 0 ? (
-                                    filteredTemplates.map((template) => (
-                                        <TemplateCard key={template.id} template={template} />
-                                    ))
-                                ) : (
+                            <div>
+                                {/* Document Type Groups */}
+                                {documentTypes.length > 0 && (
+                                    <div className="space-y-2">
+                                        {documentTypes.map((docType) => (
+                                            <DocumentTypeGroup
+                                                key={docType.id}
+                                                documentType={docType}
+                                                templates={docType.templates || []}
+                                                expanded={expandedGroups.has(docType.id)}
+                                                onToggle={() => toggleGroup(docType.id)}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Ungrouped Templates */}
+                                {orphanTemplates.length > 0 && (
+                                    <div className="mt-6">
+                                        <h3 className="text-h4 text-text-muted mb-4 flex items-center gap-2">
+                                            <FolderOpen className="w-5 h-5" />
+                                            เทมเพลตที่ยังไม่ได้จัดกลุ่ม ({orphanTemplates.length})
+                                        </h3>
+                                        <div className="space-y-4">
+                                            {orphanTemplates.map((template) => (
+                                                <TemplateCard key={template.id} template={template} />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Empty State */}
+                                {documentTypes.length === 0 && orphanTemplates.length === 0 && (
                                     <div className="text-center py-12 bg-surface-alt rounded-lg">
-                                        <p className="text-body text-text-muted">
-                                            ไม่พบเทมเพลตที่ตรงกับการค้นหา
+                                        <FolderOpen className="w-12 h-12 text-text-muted mx-auto mb-4" />
+                                        <p className="text-body text-text-muted mb-4">
+                                            ยังไม่มีการจัดกลุ่มเทมเพลต
                                         </p>
-                                        {hasActiveFilters && (
-                                            <button
-                                                onClick={clearFilters}
-                                                className="mt-4 text-primary hover:underline"
-                                            >
-                                                ล้างตัวกรองทั้งหมด
-                                            </button>
-                                        )}
+                                        <Link
+                                            href="/settings/document-types"
+                                            className="text-primary hover:underline"
+                                        >
+                                            จัดการประเภทเอกสาร
+                                        </Link>
                                     </div>
                                 )}
                             </div>
