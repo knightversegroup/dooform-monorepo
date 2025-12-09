@@ -511,3 +511,74 @@ export interface StatsTimeSeriesResponse {
   days: number;
   data: TimeSeriesData;
 }
+
+// Filter Types
+export interface FilterOption {
+  id: string;
+  filter_category_id: string;
+  value: string;
+  label: string;
+  label_en?: string;
+  description?: string;
+  color?: string;
+  icon?: string;
+  sort_order: number;
+  is_active: boolean;
+  is_default: boolean;
+  count?: number; // Only present in GetFiltersWithCounts response
+}
+
+export interface FilterCategory {
+  id: string;
+  code: string;
+  name: string;
+  name_en?: string;
+  description?: string;
+  field_name: string;
+  sort_order: number;
+  is_active: boolean;
+  is_system: boolean;
+  options?: FilterOption[];
+}
+
+export interface FilterCategoryCreateRequest {
+  code: string;
+  name: string;
+  name_en?: string;
+  description?: string;
+  field_name: string;
+  sort_order?: number;
+}
+
+export interface FilterCategoryUpdateRequest {
+  name?: string;
+  name_en?: string;
+  description?: string;
+  field_name?: string;
+  sort_order?: number;
+  is_active?: boolean;
+}
+
+export interface FilterOptionCreateRequest {
+  filter_category_id: string;
+  value: string;
+  label: string;
+  label_en?: string;
+  description?: string;
+  color?: string;
+  icon?: string;
+  sort_order?: number;
+  is_default?: boolean;
+}
+
+export interface FilterOptionUpdateRequest {
+  value?: string;
+  label?: string;
+  label_en?: string;
+  description?: string;
+  color?: string;
+  icon?: string;
+  sort_order?: number;
+  is_active?: boolean;
+  is_default?: boolean;
+}

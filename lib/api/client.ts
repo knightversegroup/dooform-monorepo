@@ -41,6 +41,12 @@ import {
   GroupedTemplatesResponse,
   SuggestedGroup,
   SuggestionsResponse,
+  FilterCategory,
+  FilterOption,
+  FilterCategoryCreateRequest,
+  FilterCategoryUpdateRequest,
+  FilterOptionCreateRequest,
+  FilterOptionUpdateRequest,
 } from './types';
 
 class ApiClient {
@@ -1213,6 +1219,137 @@ class ApiClient {
 
     const response = await makeRequest();
     return this.handleResponseWithRetry<{ message: string; created_document_types: DocumentType[] }>(response, makeRequest);
+  }
+
+  // =====================
+  // Filter Management
+  // =====================
+
+  async getFilters(): Promise<FilterCategory[]> {
+    const makeRequest = () => fetch(`${this.baseUrl}/filters`, {
+      headers: this.getAuthHeaders(),
+    });
+
+    const response = await makeRequest();
+    const result = await this.handleResponseWithRetry<{ filters: FilterCategory[] }>(response, makeRequest);
+    return result.filters || [];
+  }
+
+  async getFilterCategories(activeOnly = false): Promise<FilterCategory[]> {
+    const params = activeOnly ? '?active_only=true' : '';
+    const makeRequest = () => fetch(`${this.baseUrl}/filters/categories${params}`, {
+      headers: this.getAuthHeaders(),
+    });
+
+    const response = await makeRequest();
+    const result = await this.handleResponseWithRetry<{ categories: FilterCategory[] }>(response, makeRequest);
+    return result.categories || [];
+  }
+
+  async getFilterCategory(id: string): Promise<FilterCategory> {
+    const makeRequest = () => fetch(`${this.baseUrl}/filters/categories/${id}`, {
+      headers: this.getAuthHeaders(),
+    });
+
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<FilterCategory>(response, makeRequest);
+  }
+
+  async createFilterCategory(data: FilterCategoryCreateRequest): Promise<FilterCategory> {
+    const makeRequest = () => fetch(`${this.baseUrl}/filters/categories`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.getAuthHeaders(),
+      },
+      body: JSON.stringify(data),
+    });
+
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<FilterCategory>(response, makeRequest);
+  }
+
+  async updateFilterCategory(id: string, data: FilterCategoryUpdateRequest): Promise<FilterCategory> {
+    const makeRequest = () => fetch(`${this.baseUrl}/filters/categories/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.getAuthHeaders(),
+      },
+      body: JSON.stringify(data),
+    });
+
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<FilterCategory>(response, makeRequest);
+  }
+
+  async deleteFilterCategory(id: string): Promise<{ message: string }> {
+    const makeRequest = () => fetch(`${this.baseUrl}/filters/categories/${id}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
+    });
+
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<{ message: string }>(response, makeRequest);
+  }
+
+  async getFilterOptions(categoryId: string, activeOnly = false): Promise<FilterOption[]> {
+    const params = activeOnly ? '?active_only=true' : '';
+    const makeRequest = () => fetch(`${this.baseUrl}/filters/categories/${categoryId}/options${params}`, {
+      headers: this.getAuthHeaders(),
+    });
+
+    const response = await makeRequest();
+    const result = await this.handleResponseWithRetry<{ options: FilterOption[] }>(response, makeRequest);
+    return result.options || [];
+  }
+
+  async createFilterOption(data: FilterOptionCreateRequest): Promise<FilterOption> {
+    const makeRequest = () => fetch(`${this.baseUrl}/filters/options`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.getAuthHeaders(),
+      },
+      body: JSON.stringify(data),
+    });
+
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<FilterOption>(response, makeRequest);
+  }
+
+  async updateFilterOption(id: string, data: FilterOptionUpdateRequest): Promise<FilterOption> {
+    const makeRequest = () => fetch(`${this.baseUrl}/filters/options/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.getAuthHeaders(),
+      },
+      body: JSON.stringify(data),
+    });
+
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<FilterOption>(response, makeRequest);
+  }
+
+  async deleteFilterOption(id: string): Promise<{ message: string }> {
+    const makeRequest = () => fetch(`${this.baseUrl}/filters/options/${id}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
+    });
+
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<{ message: string }>(response, makeRequest);
+  }
+
+  async initializeDefaultFilters(): Promise<{ message: string }> {
+    const makeRequest = () => fetch(`${this.baseUrl}/filters/initialize`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+    });
+
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<{ message: string }>(response, makeRequest);
   }
 
   // OCR Methods
