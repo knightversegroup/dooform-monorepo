@@ -1,7 +1,34 @@
 "use client";
 
 import { forwardRef, useState, useRef, useEffect } from "react";
+import { Calendar, Type } from "lucide-react";
 import { FieldDefinition, DateFormat } from "@/lib/api/types";
+
+// Text case format options
+type TextCaseFormat = 'none' | 'uppercase' | 'lowercase' | 'capitalize';
+
+const TEXT_CASE_OPTIONS: { value: TextCaseFormat; label: string }[] = [
+    { value: 'none', label: 'ปกติ' },
+    { value: 'capitalize', label: 'Aa Bb' },
+    { value: 'uppercase', label: 'AA BB' },
+    { value: 'lowercase', label: 'aa bb' },
+];
+
+// Format text based on case format
+function formatTextCase(text: string, format: TextCaseFormat): string {
+    if (!text) return text;
+    switch (format) {
+        case 'uppercase':
+            return text.toUpperCase();
+        case 'lowercase':
+            return text.toLowerCase();
+        case 'capitalize':
+            // First convert to lowercase, then capitalize first letter of each word
+            return text.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
+        default:
+            return text;
+    }
+}
 import {
     validateField,
     DATA_TYPE_LABELS,
@@ -32,6 +59,7 @@ export const SmartInput = forwardRef<HTMLInputElement | HTMLSelectElement | HTML
         const [error, setError] = useState<string | null>(null);
         const [dateFormat, setDateFormat] = useState<DateFormat>(definition.dateFormat || 'dd/mm/yyyy');
         const [showDatePicker, setShowDatePicker] = useState(false);
+        const [textCaseFormat, setTextCaseFormat] = useState<TextCaseFormat>('none');
         const datePickerRef = useRef<HTMLInputElement>(null);
 
         const label = alias || definition.placeholder.replace(/\{\{|\}\}/g, '');
@@ -105,6 +133,14 @@ export const SmartInput = forwardRef<HTMLInputElement | HTMLSelectElement | HTML
             if (inputType === 'date') {
                 const displayValue = formatDateToDisplay(value, dateFormat);
 
+                const openDatePicker = () => {
+                    if (datePickerRef.current && !disabled) {
+                        datePickerRef.current.showPicker?.();
+                        datePickerRef.current.focus();
+                        datePickerRef.current.click();
+                    }
+                };
+
                 return (
                     <div className="flex gap-2 items-center">
                         {/* Date display/input with calendar picker */}
@@ -121,16 +157,26 @@ export const SmartInput = forwardRef<HTMLInputElement | HTMLSelectElement | HTML
                                 onBlur={handleBlur}
                                 disabled={disabled}
                                 placeholder={getDatePlaceholder(dateFormat)}
-                                className={baseInputClass}
+                                className={`${baseInputClass} pr-10`}
                             />
+                            {/* Calendar button */}
+                            <button
+                                type="button"
+                                onClick={openDatePicker}
+                                disabled={disabled}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-[#007398] transition-colors disabled:opacity-50"
+                            >
+                                <Calendar className="w-4 h-4" />
+                            </button>
                             {/* Hidden date picker for calendar selection */}
                             <input
                                 ref={datePickerRef}
                                 type="date"
                                 value={value}
                                 onChange={(e) => handleChange(e.target.value)}
-                                className="absolute inset-0 opacity-0 cursor-pointer"
+                                className="absolute top-0 right-0 w-0 h-0 opacity-0 pointer-events-none"
                                 disabled={disabled}
+                                tabIndex={-1}
                             />
                         </div>
 
@@ -233,16 +279,57 @@ export const SmartInput = forwardRef<HTMLInputElement | HTMLSelectElement | HTML
                 );
             }
 
-            // Address input with autocomplete
+            // Address input with autocomplete and text case format
             if (dataType === 'address' || dataType === 'province') {
+                const handleAddressChange = (newValue: string) => {
+                    const formattedValue = formatTextCase(newValue, textCaseFormat);
+                    handleChange(formattedValue);
+                };
+
+                const handleAddressSelectWithFormat = (address: AddressSelection) => {
+                    // Format the address values based on text case
+                    const formattedAddress: AddressSelection = {
+                        ...address,
+                        province: formatTextCase(address.province, textCaseFormat),
+                        district: formatTextCase(address.district, textCaseFormat),
+                        subDistrict: formatTextCase(address.subDistrict, textCaseFormat),
+                    };
+                    onAddressSelect?.(formattedAddress);
+                };
+
                 return (
-                    <AddressAutocomplete
-                        value={value}
-                        onChange={handleChange}
-                        onAddressSelect={onAddressSelect}
-                        placeholder={dataType === 'province' ? 'พิมพ์ชื่อจังหวัด...' : 'พิมพ์ชื่อตำบล อำเภอ หรือจังหวัด...'}
-                        disabled={disabled}
-                    />
+                    <div className="flex gap-2 items-start">
+                        <div className="flex-1">
+                            <AddressAutocomplete
+                                value={value}
+                                onChange={handleAddressChange}
+                                onAddressSelect={handleAddressSelectWithFormat}
+                                placeholder={dataType === 'province' ? 'พิมพ์ชื่อจังหวัด...' : 'พิมพ์ชื่อตำบล อำเภอ หรือจังหวัด...'}
+                                disabled={disabled}
+                            />
+                        </div>
+                        {/* Text case format selector */}
+                        <select
+                            value={textCaseFormat}
+                            onChange={(e) => {
+                                const newFormat = e.target.value as TextCaseFormat;
+                                setTextCaseFormat(newFormat);
+                                // Apply new format to current value
+                                if (value) {
+                                    handleChange(formatTextCase(value, newFormat));
+                                }
+                            }}
+                            disabled={disabled}
+                            className={`${compact ? 'p-1.5 text-xs' : 'p-2 text-xs'} text-text-muted bg-surface-alt border border-border-default rounded-lg focus:outline-none focus:border-primary transition-colors disabled:opacity-50 min-w-[70px]`}
+                            title="รูปแบบตัวอักษร"
+                        >
+                            {TEXT_CASE_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 );
             }
 
