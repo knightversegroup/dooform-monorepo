@@ -10,7 +10,6 @@ import Footer from "./components/Layout/Footer";
 import { AuthProvider } from "@/lib/auth/context";
 import { CookieConsentProvider } from "@/lib/cookie/context";
 import { CookieConsentBanner, Analytics } from "./components/CookieConsent";
-import { GoogleAnalytics } from "@next/third-parties/google";
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dooform.com";
 
