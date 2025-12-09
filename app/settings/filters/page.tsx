@@ -1,16 +1,28 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Plus, Pencil, Trash2, ChevronDown, ChevronUp, GripVertical, Loader2, Check, X, Settings } from "lucide-react";
 import { apiClient } from "@/lib/api/client";
 import { FilterCategory, FilterOption } from "@/lib/api/types";
+import { useAuth } from "@/lib/auth/context";
 
 export default function FilterSettingsPage() {
+    const router = useRouter();
+    const { isAuthenticated, isLoading: authLoading } = useAuth();
+
     const [categories, setCategories] = useState<FilterCategory[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+
+    // Redirect to login if not authenticated
+    useEffect(() => {
+        if (!authLoading && !isAuthenticated) {
+            router.replace("/login?redirect=/settings/filters");
+        }
+    }, [authLoading, isAuthenticated, router]);
 
     // Edit states
     const [editingCategory, setEditingCategory] = useState<string | null>(null);
@@ -152,6 +164,24 @@ export default function FilterSettingsPage() {
     const handleToggleCategoryActive = async (category: FilterCategory) => {
         await handleUpdateCategory(category.id, { is_active: !category.is_active });
     };
+
+    // Show loading while checking auth
+    if (authLoading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <Loader2 className="w-8 h-8 text-[#007398] animate-spin" />
+            </div>
+        );
+    }
+
+    // Don't render if not authenticated (will redirect)
+    if (!isAuthenticated) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <Loader2 className="w-8 h-8 text-[#007398] animate-spin" />
+            </div>
+        );
+    }
 
     if (loading) {
         return (
