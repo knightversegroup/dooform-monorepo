@@ -1,8 +1,34 @@
 "use client";
 
 import { forwardRef, useState, useRef, useEffect } from "react";
-import { Calendar } from "lucide-react";
+import { Calendar, Type } from "lucide-react";
 import { FieldDefinition, DateFormat } from "@/lib/api/types";
+
+// Text case format options
+type TextCaseFormat = 'none' | 'uppercase' | 'lowercase' | 'capitalize';
+
+const TEXT_CASE_OPTIONS: { value: TextCaseFormat; label: string }[] = [
+    { value: 'none', label: 'ปกติ' },
+    { value: 'capitalize', label: 'Aa Bb' },
+    { value: 'uppercase', label: 'AA BB' },
+    { value: 'lowercase', label: 'aa bb' },
+];
+
+// Format text based on case format
+function formatTextCase(text: string, format: TextCaseFormat): string {
+    if (!text) return text;
+    switch (format) {
+        case 'uppercase':
+            return text.toUpperCase();
+        case 'lowercase':
+            return text.toLowerCase();
+        case 'capitalize':
+            // First convert to lowercase, then capitalize first letter of each word
+            return text.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
+        default:
+            return text;
+    }
+}
 import {
     validateField,
     DATA_TYPE_LABELS,
@@ -33,6 +59,7 @@ export const SmartInput = forwardRef<HTMLInputElement | HTMLSelectElement | HTML
         const [error, setError] = useState<string | null>(null);
         const [dateFormat, setDateFormat] = useState<DateFormat>(definition.dateFormat || 'dd/mm/yyyy');
         const [showDatePicker, setShowDatePicker] = useState(false);
+        const [textCaseFormat, setTextCaseFormat] = useState<TextCaseFormat>('none');
         const datePickerRef = useRef<HTMLInputElement>(null);
 
         const label = alias || definition.placeholder.replace(/\{\{|\}\}/g, '');
@@ -252,16 +279,57 @@ export const SmartInput = forwardRef<HTMLInputElement | HTMLSelectElement | HTML
                 );
             }
 
-            // Address input with autocomplete
+            // Address input with autocomplete and text case format
             if (dataType === 'address' || dataType === 'province') {
+                const handleAddressChange = (newValue: string) => {
+                    const formattedValue = formatTextCase(newValue, textCaseFormat);
+                    handleChange(formattedValue);
+                };
+
+                const handleAddressSelectWithFormat = (address: AddressSelection) => {
+                    // Format the address values based on text case
+                    const formattedAddress: AddressSelection = {
+                        ...address,
+                        province: formatTextCase(address.province, textCaseFormat),
+                        district: formatTextCase(address.district, textCaseFormat),
+                        subDistrict: formatTextCase(address.subDistrict, textCaseFormat),
+                    };
+                    onAddressSelect?.(formattedAddress);
+                };
+
                 return (
-                    <AddressAutocomplete
-                        value={value}
-                        onChange={handleChange}
-                        onAddressSelect={onAddressSelect}
-                        placeholder={dataType === 'province' ? 'พิมพ์ชื่อจังหวัด...' : 'พิมพ์ชื่อตำบล อำเภอ หรือจังหวัด...'}
-                        disabled={disabled}
-                    />
+                    <div className="flex gap-2 items-start">
+                        <div className="flex-1">
+                            <AddressAutocomplete
+                                value={value}
+                                onChange={handleAddressChange}
+                                onAddressSelect={handleAddressSelectWithFormat}
+                                placeholder={dataType === 'province' ? 'พิมพ์ชื่อจังหวัด...' : 'พิมพ์ชื่อตำบล อำเภอ หรือจังหวัด...'}
+                                disabled={disabled}
+                            />
+                        </div>
+                        {/* Text case format selector */}
+                        <select
+                            value={textCaseFormat}
+                            onChange={(e) => {
+                                const newFormat = e.target.value as TextCaseFormat;
+                                setTextCaseFormat(newFormat);
+                                // Apply new format to current value
+                                if (value) {
+                                    handleChange(formatTextCase(value, newFormat));
+                                }
+                            }}
+                            disabled={disabled}
+                            className={`${compact ? 'p-1.5 text-xs' : 'p-2 text-xs'} text-text-muted bg-surface-alt border border-border-default rounded-lg focus:outline-none focus:border-primary transition-colors disabled:opacity-50 min-w-[70px]`}
+                            title="รูปแบบตัวอักษร"
+                        >
+                            {TEXT_CASE_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 );
             }
 
