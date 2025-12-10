@@ -1,17 +1,21 @@
 import { Metadata } from "next";
-import { API_BASE_URL } from "@/lib/api/types";
+import { API_BASE_URL, Template } from "@/lib/api/types";
 import FormDetailClient from "./FormDetailClient";
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dooform.com";
 
 // Fetch template data server-side for metadata
-async function getTemplate(id: string) {
+async function getTemplate(id: string): Promise<Template | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/templates/${id}`, {
+    // Fetch all templates and find the one we need (same approach as client)
+    const res = await fetch(`${API_BASE_URL}/templates`, {
       next: { revalidate: 3600 }, // Cache for 1 hour
     });
     if (!res.ok) return null;
-    return res.json();
+
+    const data = await res.json();
+    const templates: Template[] = data.templates || [];
+    return templates.find((t) => t.id === id) || null;
   } catch {
     return null;
   }
