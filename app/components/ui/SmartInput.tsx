@@ -47,6 +47,7 @@ interface SmartInputProps {
     onFocus?: () => void;
     onBlur?: () => void;
     onAddressSelect?: (address: AddressSelection) => void;
+    onDateFormatChange?: (format: DateFormat) => void;
     alias?: string;
     disabled?: boolean;
     showPlaceholderKey?: boolean;
@@ -54,7 +55,7 @@ interface SmartInputProps {
 }
 
 export const SmartInput = forwardRef<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement, SmartInputProps>(
-    ({ definition, value, onChange, onFocus, onBlur, onAddressSelect, alias, disabled, showPlaceholderKey = true, compact = false }, ref) => {
+    ({ definition, value, onChange, onFocus, onBlur, onAddressSelect, onDateFormatChange, alias, disabled, showPlaceholderKey = true, compact = false }, ref) => {
         const [touched, setTouched] = useState(false);
         const [error, setError] = useState<string | null>(null);
         const [dateFormat, setDateFormat] = useState<DateFormat>(definition.dateFormat || 'dd/mm/yyyy');
@@ -183,7 +184,11 @@ export const SmartInput = forwardRef<HTMLInputElement | HTMLSelectElement | HTML
                         {/* Format selector dropdown */}
                         <select
                             value={dateFormat}
-                            onChange={(e) => setDateFormat(e.target.value as DateFormat)}
+                            onChange={(e) => {
+                                const newFormat = e.target.value as DateFormat;
+                                setDateFormat(newFormat);
+                                onDateFormatChange?.(newFormat);
+                            }}
                             disabled={disabled}
                             className={`${compact ? 'p-1.5 text-xs' : 'p-2 text-xs'} text-text-muted bg-surface-alt border border-border-default rounded-lg focus:outline-none focus:border-primary transition-colors disabled:opacity-50 min-w-[100px]`}
                         >

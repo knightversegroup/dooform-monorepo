@@ -32,6 +32,7 @@ import {
   type GroupedSection,
   splitMergedValue,
   formatDateToDisplay,
+  type DateFormat,
 } from "@/lib/utils/fieldTypes";
 import { AddressSelection } from "@/lib/api/addressService";
 
@@ -426,6 +427,17 @@ export default function FillFormPage({ params }: PageProps) {
         ...updates,
       }));
     }
+  };
+
+  const handleDateFormatChange = (fieldKey: string, format: DateFormat) => {
+    // Update the field definition with the new date format
+    setFieldDefinitions((prev) => ({
+      ...prev,
+      [fieldKey]: {
+        ...prev[fieldKey],
+        dateFormat: format,
+      },
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -835,6 +847,9 @@ export default function FillFormPage({ params }: PageProps) {
                                 onBlur={() => setActiveField(null)}
                                 onAddressSelect={(address) =>
                                   handleAddressSelect(key, address)
+                                }
+                                onDateFormatChange={(format) =>
+                                  handleDateFormatChange(key, format)
                                 }
                                 alias={aliases[definition.placeholder]}
                                 disabled={processing}
