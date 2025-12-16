@@ -65,6 +65,7 @@ const DATA_TYPE_INPUT_MAP: Record<DataType, InputType> = {
     house_code: 'text',
     zodiac: 'select',
     lunar_month: 'select',
+    officer_name: 'select',
 };
 
 interface FieldItem {

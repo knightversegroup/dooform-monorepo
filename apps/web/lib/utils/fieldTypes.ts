@@ -293,6 +293,7 @@ export const DATA_TYPE_LABELS: Record<DataType, string> = {
     house_code: 'รหัสบ้าน',
     zodiac: 'ปีนักษัตร',
     lunar_month: 'เดือนจันทรคติ',
+    officer_name: 'ชื่อเจ้าหน้าที่',
 };
 
 // Auto-detect field type from placeholder name

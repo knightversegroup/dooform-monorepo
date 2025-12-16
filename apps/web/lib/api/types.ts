@@ -27,7 +27,8 @@ export type DataType =
   | 'email'
   | 'house_code'
   | 'zodiac'
-  | 'lunar_month';
+  | 'lunar_month'
+  | 'officer_name';
 
 export type Entity =
   | 'child'
