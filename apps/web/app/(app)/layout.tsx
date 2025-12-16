@@ -28,7 +28,7 @@ function MainContent({ children }: { children: React.ReactNode }) {
 function DesktopLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
-      <div className="hidden lg:block min-h-screen bg-[#f5f5f7]">
+      <div className="hidden lg:block min-h-screen bg-white">
         {/* Fixed Navbar at top */}
         <Navbar />
 

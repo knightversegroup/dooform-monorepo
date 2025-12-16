@@ -2,86 +2,278 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, Loader2, Plus, CirclePlus, FileText } from "lucide-react";
+import { Loader2, ChevronDown, Lightbulb, FileText } from "lucide-react";
 import { apiClient } from "@/lib/api/client";
 import { DocumentType, FilterCategory, Template } from "@/lib/api/types";
 
-// Document Preview Card Component
-function DocumentCard({ documentType }: { documentType: DocumentType }) {
-  const templateCount = documentType.templates?.length || 0;
+// ============================================================================
+// Types
+// ============================================================================
 
-  return (
-    <Link
-      href={`/templates/${documentType.id}`}
-      className="flex flex-col gap-3 items-center group flex-shrink-0"
-    >
-      {/* A4 Preview */}
-      <div className="bg-white w-[140px] h-[198px] rounded-xl overflow-hidden shadow-sm group-hover:shadow-md transition-shadow flex items-center justify-center">
-        <FileText className="w-12 h-12 text-gray-300" />
-      </div>
-      {/* Label */}
-      <div className="text-center">
-        <p className="text-sm font-medium text-gray-900 truncate max-w-[140px]">
-          {documentType.name}
-        </p>
-        <p className="text-xs text-gray-500">{templateCount} รูปแบบ</p>
-      </div>
-    </Link>
-  );
+interface Tab {
+  key: string;
+  label: string;
+  badge?: number;
 }
 
-// Category Card Component
-function CategoryCard({
+// ============================================================================
+// Constants
+// ============================================================================
+
+const TABS: Tab[] = [
+  { key: "recent", label: "ล่าสุด" },
+  { key: "all", label: "ทั้งหมด" },
+  { key: "favorites", label: "รายการโปรด" },
+  { key: "categories", label: "หมวดหมู่" },
+];
+
+const WORKSPACE_COLORS = [
+  "bg-blue-500",
+  "bg-yellow-400",
+  "bg-orange-400",
+  "bg-emerald-500",
+  "bg-violet-500",
+  "bg-pink-500",
+  "bg-cyan-500",
+];
+
+// ============================================================================
+// Workspace Card Component
+// ============================================================================
+
+function WorkspaceCard({
   title,
   subtitle,
+  color,
   href,
+  quickLinks,
+  footer,
 }: {
   title: string;
   subtitle: string;
+  color: string;
+  href: string;
+  quickLinks?: { label: string; href: string; count?: number }[];
+  footer?: string;
+}) {
+  return (
+    <div className="flex-shrink-0 w-[280px] bg-white rounded-lg border border-neutral-200 overflow-hidden hover:shadow-md transition-shadow">
+      {/* Color bar */}
+      <div className={`h-2 ${color}`} />
+
+      {/* Content */}
+      <div className="p-4">
+        {/* Header */}
+        <Link href={href} className="block group">
+          <h3 className="font-semibold text-neutral-900 group-hover:text-blue-600 transition-colors">
+            {title}
+          </h3>
+          <p className="text-sm text-neutral-500 mt-0.5">{subtitle}</p>
+        </Link>
+
+        {/* Quick Links */}
+        {quickLinks && quickLinks.length > 0 && (
+          <div className="mt-4">
+            <p className="text-xs font-medium text-neutral-400 uppercase tracking-wide mb-2">
+              Quick links
+            </p>
+            <div className="space-y-1">
+              {quickLinks.map((link, i) => (
+                <Link
+                  key={i}
+                  href={link.href}
+                  className="flex items-center justify-between text-sm text-neutral-600 hover:text-blue-600 transition-colors"
+                >
+                  <span>{link.label}</span>
+                  {link.count !== undefined && (
+                    <span className="text-xs bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded-full">
+                      {link.count > 99 ? "99+" : link.count}
+                    </span>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      {footer && (
+        <div className="px-4 py-3 border-t border-neutral-100">
+          <button className="flex items-center gap-1 text-sm text-neutral-500 hover:text-neutral-700 transition-colors">
+            <span>{footer}</span>
+            <ChevronDown className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================================
+// Activity Item Component
+// ============================================================================
+
+function ActivityItem({
+  icon,
+  iconColor,
+  title,
+  subtitle,
+  meta,
+  href,
+}: {
+  icon: React.ReactNode;
+  iconColor?: string;
+  title: string;
+  subtitle: string;
+  meta?: string;
   href: string;
 }) {
   return (
     <Link
       href={href}
-      className="bg-white rounded-xl p-6 flex items-end justify-between h-[140px] hover:shadow-md transition-shadow group flex-shrink-0 w-full sm:w-[280px]"
+      className="flex items-center gap-4 px-4 py-3 hover:bg-neutral-50 transition-colors rounded-lg group"
     >
-      <div>
-        <p className="text-base font-semibold text-gray-900">{title}</p>
-        <p className="text-sm text-gray-600">{subtitle}</p>
+      {/* Icon */}
+      <div
+        className={`w-8 h-8 rounded flex items-center justify-center ${iconColor || "bg-neutral-100 text-neutral-500"}`}
+      >
+        {icon}
       </div>
-      <CirclePlus className="w-7 h-7 text-gray-400 group-hover:text-gray-600 transition-colors flex-shrink-0" />
+
+      {/* Content */}
+      <div className="flex-1 min-w-0">
+        <h4 className="text-sm font-medium text-neutral-900 group-hover:text-blue-600 transition-colors truncate">
+          {title}
+        </h4>
+        <p className="text-xs text-neutral-500 truncate">{subtitle}</p>
+      </div>
+
+      {/* Meta */}
+      {meta && (
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-neutral-400">{meta}</span>
+        </div>
+      )}
     </Link>
   );
 }
 
-// Section Component
-function Section({
+// ============================================================================
+// Section Header Component
+// ============================================================================
+
+function SectionHeader({
   title,
-  children,
-  className = "",
+  action,
 }: {
   title: string;
-  children: React.ReactNode;
-  className?: string;
+  action?: { label: string; href: string };
 }) {
   return (
-    <section className={`px-8 py-8 ${className}`}>
-      <h2 className="text-2xl font-semibold text-gray-900 mb-6">{title}</h2>
-      {children}
-    </section>
+    <div className="flex items-center justify-between mb-4">
+      <h2 className="text-base font-semibold text-neutral-900">{title}</h2>
+      {action && (
+        <Link
+          href={action.href}
+          className="text-sm text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+        >
+          {action.label}
+        </Link>
+      )}
+    </div>
   );
 }
 
+// ============================================================================
+// Tabs Component
+// ============================================================================
+
+function TabBar({
+  tabs,
+  activeTab,
+  onTabChange,
+}: {
+  tabs: Tab[];
+  activeTab: string;
+  onTabChange: (key: string) => void;
+}) {
+  return (
+    <div className="border-b border-neutral-200">
+      <div className="flex gap-1">
+        {tabs.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => onTabChange(tab.key)}
+            className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+              activeTab === tab.key
+                ? "text-blue-600"
+                : "text-neutral-600 hover:text-neutral-900"
+            }`}
+          >
+            <span className="flex items-center gap-2">
+              {tab.label}
+              {tab.badge !== undefined && (
+                <span className="text-xs bg-neutral-200 text-neutral-600 px-1.5 py-0.5 rounded">
+                  {tab.badge > 99 ? "99+" : tab.badge}
+                </span>
+              )}
+            </span>
+            {activeTab === tab.key && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600" />
+            )}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// Activity Group Component
+// ============================================================================
+
+function ActivityGroup({
+  title,
+  items,
+}: {
+  title: string;
+  items: {
+    icon: React.ReactNode;
+    iconColor?: string;
+    title: string;
+    subtitle: string;
+    meta?: string;
+    href: string;
+  }[];
+}) {
+  return (
+    <div className="mb-6">
+      <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wide px-4 mb-2">
+        {title}
+      </h3>
+      <div className="space-y-1">
+        {items.map((item, i) => (
+          <ActivityItem key={i} {...item} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
 // Main Component
+// ============================================================================
+
 export default function TemplateGroupList() {
   const [documentTypes, setDocumentTypes] = useState<DocumentType[]>([]);
   const [orphanTemplates, setOrphanTemplates] = useState<Template[]>([]);
   const [filterCategories, setFilterCategories] = useState<FilterCategory[]>(
-    [],
+    []
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("recent");
 
   // Load document types from API
   useEffect(() => {
@@ -101,7 +293,7 @@ export default function TemplateGroupList() {
       } catch (err) {
         console.error("Failed to load data:", err);
         setError(
-          err instanceof Error ? err.message : "Failed to load document types",
+          err instanceof Error ? err.message : "Failed to load document types"
         );
       } finally {
         setLoading(false);
@@ -114,7 +306,7 @@ export default function TemplateGroupList() {
   // Build category labels map from API filter
   const apiCategoryLabels: Record<string, string> = {};
   const apiCategoryFilter = filterCategories.find(
-    (cat) => cat.field_name === "category",
+    (cat) => cat.field_name === "category"
   );
   if (apiCategoryFilter && apiCategoryFilter.options) {
     apiCategoryFilter.options.forEach((opt) => {
@@ -132,181 +324,184 @@ export default function TemplateGroupList() {
       acc[category].push(docType);
       return acc;
     },
-    {} as Record<string, DocumentType[]>,
+    {} as Record<string, DocumentType[]>
   );
 
-  // Filter document types by search
-  const filteredDocumentTypes = searchQuery
-    ? documentTypes.filter((docType) => {
-        const query = searchQuery.toLowerCase();
-        return (
-          docType.name.toLowerCase().includes(query) ||
-          (docType.name_en || "").toLowerCase().includes(query) ||
-          (docType.description || "").toLowerCase().includes(query)
-        );
-      })
-    : documentTypes;
-
-  // Get recent documents (first 7)
-  const recentDocuments = filteredDocumentTypes.slice(0, 7);
-
-  // Get unique categories for category cards
-  const categories = Object.keys(categorizedDocTypes).map((key) => ({
+  // Get categories for workspace cards
+  const categories = Object.keys(categorizedDocTypes).map((key, index) => ({
     key,
     label: apiCategoryLabels[key] || key,
     count: categorizedDocTypes[key].length,
+    color: WORKSPACE_COLORS[index % WORKSPACE_COLORS.length],
   }));
 
-  return (
-    <div className="min-h-screen rounded-3xl overflow-hidden font-sans">
-      {/* Hero Section - Recent Documents */}
-      <section className="bg-[#d5d5d5] rounded-t-3xl px-8 pt-10 pb-8">
-        {/* Header with search */}
-        <div className="flex items-center justify-between gap-6 mb-8">
-          <h1 className="text-2xl font-semibold text-gray-900">
-            เอกสารที่แปลล่าสุด
-          </h1>
-          <div className="relative w-full max-w-md">
-            <input
-              type="text"
-              placeholder="ค้นหาแบบฟอร์มทั้งหมด"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2.5 bg-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
-            />
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          </div>
-        </div>
+  // Get recent documents for activity list
+  const recentDocuments = documentTypes.slice(0, 10);
 
-        {/* Document Cards */}
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 text-gray-500 animate-spin" />
-          </div>
-        ) : error ? (
-          <div className="text-center py-12">
-            <p className="text-sm text-red-600 mb-4">{error}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="text-gray-700 hover:underline text-sm"
-            >
-              ลองใหม่อีกครั้ง
-            </button>
-          </div>
-        ) : (
-          <div className="flex gap-8 overflow-x-auto pb-4 scrollbar-hide">
-            {recentDocuments.map((docType) => (
-              <DocumentCard key={docType.id} documentType={docType} />
-            ))}
-            {recentDocuments.length === 0 && (
-              <div className="flex-1 text-center py-8">
-                <p className="text-gray-500">ไม่พบเอกสาร</p>
-              </div>
-            )}
-          </div>
-        )}
+  // Render loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 text-neutral-400 animate-spin" />
+      </div>
+    );
+  }
+
+  // Render error state
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
+        <p className="text-sm text-red-600 mb-4">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="text-sm text-blue-600 hover:underline"
+        >
+          ลองใหม่อีกครั้ง
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-6xl mx-auto font-sans">
+      {/* Page Title */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-neutral-900">สำหรับคุณ</h1>
+      </div>
+
+      {/* Divider */}
+      <div className="border-b border-neutral-200 mb-8" />
+
+      {/* Recent Workspaces Section */}
+      <section className="mb-10">
+        <SectionHeader
+          title="หมวดหมู่ล่าสุด"
+          action={{ label: "ดูทั้งหมด", href: "/templates?view=categories" }}
+        />
+
+        {/* Workspace Cards - Horizontal Scroll */}
+        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+          {categories.slice(0, 4).map((cat) => (
+            <WorkspaceCard
+              key={cat.key}
+              title={cat.label}
+              subtitle={`${cat.count} ประเภทเอกสาร`}
+              color={cat.color}
+              href={`/templates?category=${cat.key}`}
+              quickLinks={categorizedDocTypes[cat.key]?.slice(0, 3).map((doc) => ({
+                label: doc.name,
+                href: `/templates/${doc.id}`,
+                count: doc.templates?.length || 0,
+              }))}
+              footer={`${cat.count} รายการ`}
+            />
+          ))}
+        </div>
       </section>
 
-      {/* Category Sections */}
-      {categories.length > 0 && (
-        <Section title="เลือกตามหมวดหมู่" className="bg-[#c5c5c5]">
-          <div className="flex flex-wrap gap-6">
-            {categories.slice(0, 4).map((cat) => (
-              <CategoryCard
-                key={cat.key}
-                title={cat.label}
-                subtitle={`${cat.count} ประเภทเอกสาร`}
-                href={`/templates?category=${cat.key}`}
-              />
-            ))}
-          </div>
-        </Section>
-      )}
+      {/* Tabs Section */}
+      <TabBar tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* More Categories */}
-      {categories.length > 4 && (
-        <Section title="หมวดหมู่เพิ่มเติม" className="bg-[#e4e1e1]">
-          <div className="flex flex-wrap gap-6">
-            {categories.slice(4, 8).map((cat) => (
-              <CategoryCard
-                key={cat.key}
-                title={cat.label}
-                subtitle={`${cat.count} ประเภทเอกสาร`}
-                href={`/templates?category=${cat.key}`}
-              />
-            ))}
-          </div>
-        </Section>
-      )}
+      {/* Activity List */}
+      <div className="py-6">
+        {activeTab === "recent" && (
+          <>
+            {/* Today's Activity */}
+            <ActivityGroup
+              title="วันนี้"
+              items={recentDocuments.slice(0, 5).map((doc) => ({
+                icon: <Lightbulb className="w-4 h-4" />,
+                iconColor: "bg-yellow-100 text-yellow-600",
+                title: doc.name,
+                subtitle: `${doc.templates?.length || 0} รูปแบบ · ${apiCategoryLabels[doc.category || ""] || doc.category || "ทั่วไป"}`,
+                meta: "เพิ่มใหม่",
+                href: `/templates/${doc.id}`,
+              }))}
+            />
 
-      {/* All Document Types Section */}
-      {!loading && !error && documentTypes.length > 0 && (
-        <Section title="เอกสารทั้งหมด" className="bg-[#f1f1f1]">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredDocumentTypes.map((docType) => (
+            {/* Earlier Activity */}
+            {recentDocuments.length > 5 && (
+              <ActivityGroup
+                title="ก่อนหน้านี้"
+                items={recentDocuments.slice(5, 10).map((doc) => ({
+                  icon: <FileText className="w-4 h-4" />,
+                  iconColor: "bg-blue-100 text-blue-600",
+                  title: doc.name,
+                  subtitle: `${doc.templates?.length || 0} รูปแบบ · ${apiCategoryLabels[doc.category || ""] || doc.category || "ทั่วไป"}`,
+                  meta: "เพิ่มใหม่",
+                  href: `/templates/${doc.id}`,
+                }))}
+              />
+            )}
+
+            {/* Orphan Templates */}
+            {orphanTemplates.length > 0 && (
+              <ActivityGroup
+                title="แบบฟอร์มเดี่ยว"
+                items={orphanTemplates.slice(0, 5).map((template) => ({
+                  icon: <FileText className="w-4 h-4" />,
+                  iconColor: "bg-neutral-100 text-neutral-500",
+                  title: template.display_name || template.name,
+                  subtitle: template.original_source || "แบบฟอร์มทั่วไป",
+                  meta: "เพิ่มใหม่",
+                  href: `/forms/${template.id}`,
+                }))}
+              />
+            )}
+          </>
+        )}
+
+        {activeTab === "all" && (
+          <ActivityGroup
+            title="เอกสารทั้งหมด"
+            items={documentTypes.map((doc) => ({
+              icon: <FileText className="w-4 h-4" />,
+              iconColor: "bg-blue-100 text-blue-600",
+              title: doc.name,
+              subtitle: `${doc.templates?.length || 0} รูปแบบ · ${apiCategoryLabels[doc.category || ""] || doc.category || "ทั่วไป"}`,
+              href: `/templates/${doc.id}`,
+            }))}
+          />
+        )}
+
+        {activeTab === "favorites" && (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center mb-4">
+              <FileText className="w-6 h-6 text-neutral-400" />
+            </div>
+            <p className="text-sm text-neutral-500">ยังไม่มีรายการโปรด</p>
+            <p className="text-xs text-neutral-400 mt-1">
+              กดที่ไอคอนดาวเพื่อเพิ่มรายการโปรด
+            </p>
+          </div>
+        )}
+
+        {activeTab === "categories" && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 py-4">
+            {categories.map((cat) => (
               <Link
-                key={docType.id}
-                href={`/templates/${docType.id}`}
-                className="bg-white rounded-xl p-5 hover:shadow-md transition-shadow group"
+                key={cat.key}
+                href={`/templates?category=${cat.key}`}
+                className="flex items-center gap-4 p-4 bg-white border border-neutral-200 rounded-lg hover:shadow-md transition-shadow group"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-base font-medium text-gray-900 truncate group-hover:text-gray-700">
-                      {docType.name}
-                    </h3>
-                    {docType.original_source && (
-                      <p className="text-sm text-gray-500 mt-1 truncate">
-                        {docType.original_source}
-                      </p>
-                    )}
-                    <p className="text-xs text-gray-400 mt-2">
-                      {docType.templates?.length || 0} รูปแบบ
-                    </p>
-                  </div>
-                  <CirclePlus className="w-6 h-6 text-gray-300 group-hover:text-gray-500 flex-shrink-0 ml-2" />
+                <div
+                  className={`w-10 h-10 rounded-lg ${cat.color} flex items-center justify-center text-white font-semibold`}
+                >
+                  {cat.label.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-neutral-900 group-hover:text-blue-600 transition-colors truncate">
+                    {cat.label}
+                  </h4>
+                  <p className="text-sm text-neutral-500">
+                    {cat.count} ประเภทเอกสาร
+                  </p>
                 </div>
               </Link>
             ))}
           </div>
-        </Section>
-      )}
-
-      {/* Orphan Templates Section */}
-      {!loading && !error && orphanTemplates.length > 0 && (
-        <Section title="แบบฟอร์มเดี่ยว" className="bg-[#e8e8e8]">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {orphanTemplates.map((template) => (
-              <Link
-                key={template.id}
-                href={`/forms/${template.id}`}
-                className="bg-white rounded-xl p-5 hover:shadow-md transition-shadow group"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-base font-medium text-gray-900 truncate group-hover:text-gray-700">
-                      {template.display_name || template.name}
-                    </h3>
-                    {template.original_source && (
-                      <p className="text-sm text-gray-500 mt-1 truncate">
-                        {template.original_source}
-                      </p>
-                    )}
-                  </div>
-                  <CirclePlus className="w-6 h-6 text-gray-300 group-hover:text-gray-500 flex-shrink-0 ml-2" />
-                </div>
-              </Link>
-            ))}
-          </div>
-        </Section>
-      )}
-
-      {/* Quick Action FAB */}
-      <Link
-        href="/forms/new"
-        className="fixed bottom-6 right-6 w-14 h-14 bg-gray-900 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-800 transition-colors"
-      >
-        <Plus className="w-6 h-6" />
-      </Link>
+        )}
+      </div>
     </div>
   );
 }
