@@ -45,6 +45,28 @@ const ENTITY_COLOR_MAP: Record<Entity, number> = {
     general: 6,
 };
 
+// DataType to InputType mapping - each dataType has a default inputType
+const DATA_TYPE_INPUT_MAP: Record<DataType, InputType> = {
+    text: 'text',
+    id_number: 'text',
+    date: 'date',
+    time: 'time',
+    number: 'number',
+    address: 'text',
+    province: 'text',
+    district: 'text',
+    subdistrict: 'text',
+    country: 'select',
+    name_prefix: 'select',
+    name: 'text',
+    weekday: 'select',
+    phone: 'text',
+    email: 'text',
+    house_code: 'text',
+    zodiac: 'select',
+    lunar_month: 'select',
+};
+
 interface FieldItem {
     key: string;
     definition: FieldDefinition;
@@ -215,7 +237,12 @@ function FieldRow({
                             <label className="text-xs text-gray-500 mb-1 block">ประเภทข้อมูล</label>
                             <select
                                 value={field.definition.dataType}
-                                onChange={(e) => onFieldDefinitionChange({ dataType: e.target.value as DataType })}
+                                onChange={(e) => {
+                                    const newDataType = e.target.value as DataType;
+                                    // Auto-set inputType based on dataType
+                                    const newInputType = DATA_TYPE_INPUT_MAP[newDataType] || 'text';
+                                    onFieldDefinitionChange({ dataType: newDataType, inputType: newInputType });
+                                }}
                                 disabled={disabled}
                                 className="w-full px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-400 bg-white"
                             >
@@ -227,14 +254,14 @@ function FieldRow({
                             </select>
                         </div>
 
-                        {/* Input Type */}
+                        {/* Input Type - Read only, auto-determined by Data Type */}
                         <div>
                             <label className="text-xs text-gray-500 mb-1 block">ประเภท Input</label>
                             <select
                                 value={field.definition.inputType}
-                                onChange={(e) => onFieldDefinitionChange({ inputType: e.target.value as InputType })}
-                                disabled={disabled}
-                                className="w-full px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-400 bg-white"
+                                disabled={true}
+                                className="w-full px-2 py-1.5 text-xs border border-gray-200 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
+                                title="กำหนดอัตโนมัติตามประเภทข้อมูล"
                             >
                                 {inputTypes?.map((it) => (
                                     <option key={it.code} value={it.code}>

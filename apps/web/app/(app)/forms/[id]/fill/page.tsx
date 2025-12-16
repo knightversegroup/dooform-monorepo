@@ -670,6 +670,7 @@ export default function FillFormPage({ params }: PageProps) {
             onFocus={() => setActiveField(key)}
             onBlur={() => setActiveField(null)}
             onAddressSelect={(address) => handleAddressSelect(key, address)}
+            onDateFormatChange={(format) => handleDateFormatChange(key, format)}
             alias={aliases[definition.placeholder]}
             disabled={disabled || processing}
             showPlaceholderKey={false}
