@@ -429,7 +429,7 @@ export default function FillFormPage({ params }: PageProps) {
         lowerPlaceholder.includes("จังหวัด")
       ) {
         if (!formData[key]) {
-          updates[key] = address.province;
+          updates[key] = address.provinceEn;
         }
       } else if (
         lowerPlaceholder.includes("district") ||
@@ -438,7 +438,7 @@ export default function FillFormPage({ params }: PageProps) {
         lowerPlaceholder.includes("เขต")
       ) {
         if (!formData[key]) {
-          updates[key] = address.district;
+          updates[key] = address.districtEn;
         }
       } else if (
         lowerPlaceholder.includes("subdistrict") ||
@@ -447,7 +447,7 @@ export default function FillFormPage({ params }: PageProps) {
         lowerPlaceholder.includes("แขวง")
       ) {
         if (!formData[key]) {
-          updates[key] = address.subDistrict;
+          updates[key] = address.subDistrictEn;
         }
       }
     });

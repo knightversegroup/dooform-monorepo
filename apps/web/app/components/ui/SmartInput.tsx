@@ -319,12 +319,15 @@ export const SmartInput = forwardRef<HTMLInputElement | HTMLSelectElement | HTML
                 };
 
                 const handleAddressSelectWithFormat = (address: AddressSelection) => {
-                    // Format the address values based on text case
+                    // Format the address values based on text case (use English names)
                     const formattedAddress: AddressSelection = {
                         ...address,
                         province: formatTextCase(address.province, textCaseFormat),
+                        provinceEn: formatTextCase(address.provinceEn, textCaseFormat),
                         district: formatTextCase(address.district, textCaseFormat),
+                        districtEn: formatTextCase(address.districtEn, textCaseFormat),
                         subDistrict: formatTextCase(address.subDistrict, textCaseFormat),
+                        subDistrictEn: formatTextCase(address.subDistrictEn, textCaseFormat),
                     };
                     onAddressSelect?.(formattedAddress);
                 };
