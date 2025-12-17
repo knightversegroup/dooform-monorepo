@@ -647,7 +647,8 @@ export default function FillFormPage({ params }: PageProps) {
   ) => {
     const key = definition.placeholder.replace(/\{\{|\}\}/g, "");
     const value = formData[key] || "";
-    const displayLabel = aliases[definition.placeholder] || definition.label || key;
+    // Check both with and without braces since aliases can be stored either way
+    const displayLabel = aliases[key] || aliases[definition.placeholder] || definition.label || key;
     const description = definition.description;
 
     return (
@@ -686,7 +687,8 @@ export default function FillFormPage({ params }: PageProps) {
   const renderReviewField = (definition: FieldDefinition) => {
     const key = definition.placeholder.replace(/\{\{|\}\}/g, "");
     const value = formData[key] || "";
-    const displayLabel = aliases[definition.placeholder] || definition.label || key;
+    // Check both with and without braces since aliases can be stored either way
+    const displayLabel = aliases[key] || aliases[definition.placeholder] || definition.label || key;
     const description = definition.description;
 
     return (
