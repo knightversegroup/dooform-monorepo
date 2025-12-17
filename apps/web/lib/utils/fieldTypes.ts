@@ -402,6 +402,13 @@ export function detectFieldType(placeholder: string): FieldDefinition {
         return definition;
     }
 
+    // Officer name pattern - must be before generic _name pattern
+    if (lowerKey.includes('officer_name') || lowerKey === 'officer') {
+        definition.dataType = 'officer_name';
+        definition.inputType = 'select';
+        return definition;
+    }
+
     // Name patterns (first_name, last_name, etc.)
     if (lowerKey.includes('first_name') || lowerKey.includes('last_name') ||
         lowerKey.includes('maiden_name') || lowerKey.includes('_name')) {
