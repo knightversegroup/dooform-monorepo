@@ -1,18 +1,9 @@
 "use client";
 
 import { useState, useEffect, use } from "react";
-import { ArrowLeft, Loader2, AlertCircle } from "lucide-react";
+import { ArrowLeft, Loader2, AlertCircle, FileText } from "lucide-react";
 import { apiClient } from "@/lib/api/client";
 import { Button } from "@/app/components/ui/Button";
-import { DocumentPreview } from "@/app/components/ui/DocumentPreview";
-
-// Helper to remove curly braces from placeholders in preview
-const cleanPlaceholders = (html: string): string => {
-    // First, decode HTML entities for curly braces
-    let result = html.replace(/&#123;/g, '{').replace(/&#125;/g, '}');
-    // Replace {{placeholder}} with just placeholder
-    return result.replace(/\{\{([^}]+)\}\}/g, '$1');
-};
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -20,34 +11,22 @@ interface PageProps {
 
 export default function TemplatePreviewPage({ params }: PageProps) {
     const { id: templateId } = use(params);
-    const [htmlContent, setHtmlContent] = useState<string | null>(null);
+    const [pdfUrl, setPdfUrl] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const loadPreview = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-
-                const html = await apiClient.getHTMLPreview(templateId);
-                setHtmlContent(html);
-            } catch (err) {
-                console.error("Failed to load preview:", err);
-                setError(
-                    err instanceof Error
-                        ? err.message
-                        : "Failed to load preview"
-                );
-            } finally {
-                setLoading(false);
-            }
-        };
-
         if (templateId) {
-            loadPreview();
+            // Get PDF preview URL directly - the backend will generate on-the-fly if needed
+            const url = apiClient.getPDFPreviewUrl(templateId);
+            setPdfUrl(url);
+            setLoading(false);
         }
     }, [templateId]);
+
+    const handleIframeError = () => {
+        setError("ไม่สามารถโหลด PDF ได้ กรุณาลองใหม่อีกครั้ง");
+    };
 
     if (loading) {
         return (
@@ -112,7 +91,7 @@ export default function TemplatePreviewPage({ params }: PageProps) {
                             กลับ
                         </Button>
                         <span className="text-body-sm text-text-muted">
-                            ตัวอย่างเอกสาร
+                            ตัวอย่างเอกสาร (PDF)
                         </span>
                         <Button
                             href={`/forms/${templateId}/fill`}
@@ -125,18 +104,23 @@ export default function TemplatePreviewPage({ params }: PageProps) {
                 </div>
             </div>
 
-            {/* Preview Content */}
+            {/* PDF Preview Content */}
             <div className="container-main section-padding">
                 <div className="max-w-5xl mx-auto">
-                    {htmlContent ? (
-                        <DocumentPreview
-                            htmlContent={cleanPlaceholders(htmlContent)}
-                            title="ตัวอย่างเอกสาร"
-                            showHeader={false}
-                        />
+                    {pdfUrl ? (
+                        <div className="bg-background rounded-lg shadow-lg overflow-hidden">
+                            {/* PDF Viewer using iframe */}
+                            <iframe
+                                src={`${pdfUrl}#toolbar=1&navpanes=0&scrollbar=1`}
+                                className="w-full border-0"
+                                style={{ height: "calc(100vh - 180px)", minHeight: "600px" }}
+                                title="PDF Preview"
+                            />
+                        </div>
                     ) : (
                         <div className="bg-background rounded-lg shadow-lg p-8 text-center text-text-muted">
-                            ไม่มีตัวอย่างสำหรับเทมเพลตนี้
+                            <FileText className="w-12 h-12 mx-auto mb-4 text-neutral-300" />
+                            <p>ไม่มีตัวอย่าง PDF สำหรับเทมเพลตนี้</p>
                         </div>
                     )}
                 </div>

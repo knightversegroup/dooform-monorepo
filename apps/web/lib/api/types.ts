@@ -199,7 +199,9 @@ export interface Template {
   author: string;
   category: Category;
   gcs_path: string;
-  gcs_path_html: string;
+  gcs_path_html: string;      // HTML preview path (auto-generated from DOCX)
+  gcs_path_pdf: string;       // PDF preview path (auto-generated from DOCX)
+  gcs_path_thumbnail: string; // Thumbnail image path (auto-generated from PDF)
   file_size: number;
   mime_type: string;
   placeholders: string; // JSON array

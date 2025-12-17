@@ -322,6 +322,49 @@ class ApiClient {
     }
   }
 
+  // Get PDF preview URL for a template (returns the API endpoint URL)
+  getPDFPreviewUrl(templateId: string): string {
+    return `${this.baseUrl}/templates/${templateId}/preview/pdf`;
+  }
+
+  // Get thumbnail URL for template gallery
+  getThumbnailUrl(templateId: string): string {
+    return `${this.baseUrl}/templates/${templateId}/thumbnail`;
+  }
+
+  // Fetch PDF preview as blob for displaying in iframe or viewer
+  async getPDFPreviewBlob(templateId: string): Promise<Blob | null> {
+    try {
+      const makeRequest = () => fetch(`${this.baseUrl}/templates/${templateId}/preview/pdf`, {
+        headers: this.getAuthHeaders(),
+      });
+
+      const response = await makeRequest();
+
+      // Handle 401 with retry
+      if (response.status === 401) {
+        const refreshed = await this.handleTokenRefresh();
+        if (refreshed) {
+          const retryResponse = await makeRequest();
+          if (!retryResponse.ok) {
+            console.warn(`PDF preview not available: ${retryResponse.status}`);
+            return null;
+          }
+          return retryResponse.blob();
+        }
+      }
+
+      if (!response.ok) {
+        console.warn(`PDF preview not available: ${response.status}`);
+        return null;
+      }
+      return response.blob();
+    } catch (error) {
+      console.warn('Failed to fetch PDF preview:', error);
+      return null;
+    }
+  }
+
   async getAllTemplates(): Promise<TemplatesResponse> {
     const makeRequest = () => fetch(`${this.baseUrl}/templates`, {
       headers: this.getAuthHeaders(),
@@ -626,6 +669,7 @@ class ApiClient {
     options: {
       docxFile?: File;
       htmlFile?: File;
+      thumbnailFile?: File;
       regenerateFields?: boolean;
     }
   ): Promise<{ message: string; template_id: string; filename: string; placeholders: string[]; template: Template }> {
@@ -637,6 +681,10 @@ class ApiClient {
 
     if (options.htmlFile) {
       formData.append('html', options.htmlFile);
+    }
+
+    if (options.thumbnailFile) {
+      formData.append('thumbnail', options.thumbnailFile);
     }
 
     if (options.regenerateFields) {

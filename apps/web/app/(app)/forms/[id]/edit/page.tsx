@@ -17,11 +17,11 @@ import {
     Workflow,
     Upload,
     File,
-    FileCode,
     FolderOpen,
     Link as LinkIcon,
     Unlink,
     Sparkles,
+    Image,
 } from "lucide-react";
 import { apiClient } from "@/lib/api/client";
 import { Template, TemplateType, Tier, TemplateUpdateData, FieldDefinition, MergeableGroup, DocumentType, FilterCategory, ConfigurableDataType, ConfigurableInputType, FieldTypeSuggestion } from "@/lib/api/types";
@@ -81,6 +81,7 @@ export default function EditFormPage({ params }: PageProps) {
     // File replacement state
     const [docxFile, setDocxFile] = useState<File | null>(null);
     const [htmlFile, setHtmlFile] = useState<File | null>(null);
+    const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
     const [uploadingFiles, setUploadingFiles] = useState(false);
     const [fileUploadSuccess, setFileUploadSuccess] = useState(false);
     const [regenerateFieldsOnUpload, setRegenerateFieldsOnUpload] = useState(true);
@@ -451,7 +452,7 @@ export default function EditFormPage({ params }: PageProps) {
 
     // Handle file replacement
     const handleFileUpload = async () => {
-        if (!docxFile && !htmlFile) {
+        if (!docxFile && !htmlFile && !thumbnailFile) {
             setError("กรุณาเลือกไฟล์อย่างน้อย 1 ไฟล์");
             return;
         }
@@ -464,6 +465,7 @@ export default function EditFormPage({ params }: PageProps) {
             const result = await apiClient.replaceTemplateFiles(templateId, {
                 docxFile: docxFile || undefined,
                 htmlFile: htmlFile || undefined,
+                thumbnailFile: thumbnailFile || undefined,
                 regenerateFields: regenerateFieldsOnUpload,
             });
 
@@ -485,6 +487,7 @@ export default function EditFormPage({ params }: PageProps) {
             // Clear file inputs
             setDocxFile(null);
             setHtmlFile(null);
+            setThumbnailFile(null);
             setFileUploadSuccess(true);
             setTimeout(() => setFileUploadSuccess(false), 3000);
         } catch (err) {
@@ -830,7 +833,7 @@ export default function EditFormPage({ params }: PageProps) {
                                     <h2 className="text-h4 text-foreground">อัปโหลดไฟล์ใหม่</h2>
                                 </div>
                                 <p className="text-body-sm text-text-muted mb-4">
-                                    แทนที่ไฟล์เทมเพลต DOCX หรือไฟล์ตัวอย่าง HTML
+                                    แทนที่ไฟล์เทมเพลต DOCX และ/หรือ HTML (PDF จะถูกสร้างอัตโนมัติจาก DOCX)
                                 </p>
 
                                 <div className="space-y-4">
@@ -897,12 +900,17 @@ export default function EditFormPage({ params }: PageProps) {
                                                 )}
                                             </label>
                                         </div>
+                                        {/* Auto-generation notice */}
+                                        <div className="mt-2 flex items-center gap-2 text-xs text-green-600">
+                                            <CheckCircle className="w-3.5 h-3.5" />
+                                            <span>PDF preview จะถูกสร้างอัตโนมัติจากไฟล์ DOCX</span>
+                                        </div>
                                     </div>
 
                                     {/* HTML File Upload */}
                                     <div>
                                         <label className="text-sm font-medium text-foreground mb-2 block">
-                                            ไฟล์ตัวอย่าง (.html)
+                                            ไฟล์ HTML Preview (.html) - ตัวเลือก
                                         </label>
                                         <div className="relative">
                                             <input
@@ -917,14 +925,14 @@ export default function EditFormPage({ params }: PageProps) {
                                                 htmlFor="html-upload"
                                                 className={`flex items-center gap-3 p-3 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
                                                     htmlFile
-                                                        ? 'border-primary bg-primary/5'
-                                                        : 'border-border-default hover:border-primary/50 hover:bg-surface-alt'
+                                                        ? 'border-orange-500 bg-orange-50'
+                                                        : 'border-border-default hover:border-orange-300 hover:bg-surface-alt'
                                                 } ${uploadingFiles ? 'opacity-50 cursor-not-allowed' : ''}`}
                                             >
                                                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                                                    htmlFile ? 'bg-primary/10' : 'bg-surface-alt'
+                                                    htmlFile ? 'bg-orange-100' : 'bg-surface-alt'
                                                 }`}>
-                                                    <FileCode className={`w-5 h-5 ${htmlFile ? 'text-primary' : 'text-text-muted'}`} />
+                                                    <FileText className={`w-5 h-5 ${htmlFile ? 'text-orange-600' : 'text-text-muted'}`} />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     {htmlFile ? (
@@ -939,10 +947,10 @@ export default function EditFormPage({ params }: PageProps) {
                                                     ) : (
                                                         <>
                                                             <p className="text-sm text-text-muted">
-                                                                คลิกเพื่อเลือกไฟล์ HTML
+                                                                คลิกเพื่อเลือกไฟล์ HTML (แทนที่ HTML ที่สร้างอัตโนมัติ)
                                                             </p>
                                                             <p className="text-xs text-text-muted">
-                                                                สำหรับแสดงตัวอย่าง
+                                                                ใช้สำหรับ preview ที่แม่นยำกว่า LibreOffice
                                                             </p>
                                                         </>
                                                     )}
@@ -962,6 +970,77 @@ export default function EditFormPage({ params }: PageProps) {
                                                 )}
                                             </label>
                                         </div>
+                                        <p className="mt-2 text-xs text-text-muted">
+                                            อัปโหลดไฟล์ HTML ที่แปลงเองเพื่อให้ preview แสดงผลถูกต้องมากขึ้น
+                                        </p>
+                                    </div>
+
+                                    {/* Thumbnail File Upload */}
+                                    <div>
+                                        <label className="text-sm font-medium text-foreground mb-2 block">
+                                            รูปภาพ Thumbnail (.png, .jpg) - ตัวเลือก
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type="file"
+                                                accept=".png,.jpg,.jpeg,.webp"
+                                                onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
+                                                className="hidden"
+                                                id="thumbnail-upload"
+                                                disabled={uploadingFiles}
+                                            />
+                                            <label
+                                                htmlFor="thumbnail-upload"
+                                                className={`flex items-center gap-3 p-3 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
+                                                    thumbnailFile
+                                                        ? 'border-purple-500 bg-purple-50'
+                                                        : 'border-border-default hover:border-purple-300 hover:bg-surface-alt'
+                                                } ${uploadingFiles ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            >
+                                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                                                    thumbnailFile ? 'bg-purple-100' : 'bg-surface-alt'
+                                                }`}>
+                                                    <Image className={`w-5 h-5 ${thumbnailFile ? 'text-purple-600' : 'text-text-muted'}`} />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    {thumbnailFile ? (
+                                                        <>
+                                                            <p className="text-sm font-medium text-foreground truncate">
+                                                                {thumbnailFile.name}
+                                                            </p>
+                                                            <p className="text-xs text-text-muted">
+                                                                {(thumbnailFile.size / 1024).toFixed(1)} KB
+                                                            </p>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <p className="text-sm text-text-muted">
+                                                                คลิกเพื่อเลือกรูปภาพ Thumbnail
+                                                            </p>
+                                                            <p className="text-xs text-text-muted">
+                                                                แสดงในหน้ารายการเทมเพลต (แนะนำ 300x400px)
+                                                            </p>
+                                                        </>
+                                                    )}
+                                                </div>
+                                                {thumbnailFile && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            setThumbnailFile(null);
+                                                        }}
+                                                        className="p-1 hover:bg-red-100 rounded text-red-500"
+                                                    >
+                                                        <X className="w-4 h-4" />
+                                                    </button>
+                                                )}
+                                            </label>
+                                        </div>
+                                        <p className="mt-2 text-xs text-text-muted">
+                                            อัปโหลดรูปภาพ thumbnail แทนที่รูปที่สร้างจาก PDF อัตโนมัติ
+                                        </p>
                                     </div>
 
                                     {/* Regenerate Fields Checkbox */}
@@ -997,7 +1076,7 @@ export default function EditFormPage({ params }: PageProps) {
                                         variant="secondary"
                                         className="w-full justify-center"
                                         onClick={handleFileUpload}
-                                        disabled={uploadingFiles || (!docxFile && !htmlFile)}
+                                        disabled={uploadingFiles || (!docxFile && !htmlFile && !thumbnailFile)}
                                     >
                                         {uploadingFiles ? (
                                             <>

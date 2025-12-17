@@ -351,6 +351,10 @@ export default function TemplateGroupList() {
             title: template.display_name || template.name,
             style: docType.name,
             href: `/forms/${template.id}`,
+            // Add thumbnail URL if available (auto-generated from PDF)
+            thumbnailUrl: template.gcs_path_thumbnail
+              ? apiClient.getThumbnailUrl(template.id)
+              : undefined,
           });
         });
       }
@@ -369,6 +373,10 @@ export default function TemplateGroupList() {
             title: template.display_name || template.name,
             style: docType.name,
             href: `/forms/${template.id}`,
+            // Add thumbnail URL if available (auto-generated from PDF)
+            thumbnailUrl: template.gcs_path_thumbnail
+              ? apiClient.getThumbnailUrl(template.id)
+              : undefined,
           }));
         }
         return [{

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronDown, ChevronUp, Plus, MoreVertical } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, MoreVertical, FileText } from "lucide-react";
 
 // ============================================================================
 // Types
@@ -12,7 +12,7 @@ export interface TemplateItem {
   id: string;
   title: string;
   style?: string;
-  thumbnailUrl?: string;
+  thumbnailUrl?: string;      // Image thumbnail URL (auto-generated from PDF)
   href: string;
   isBlank?: boolean;
 }
@@ -52,6 +52,7 @@ function TemplateCard({
   variant?: "showcase" | "default";
 }) {
   const isShowcase = variant === "showcase";
+  const [imgError, setImgError] = useState(false);
 
   return (
     <Link
@@ -80,15 +81,16 @@ function TemplateCard({
               <Plus className="w-16 h-16 text-blue-500" strokeWidth={1} />
             </div>
           </div>
-        ) : template.thumbnailUrl ? (
-          /* Template thumbnail */
+        ) : template.thumbnailUrl && !imgError ? (
+          /* Image thumbnail */
           <img
             src={template.thumbnailUrl}
             alt={template.title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain bg-white"
+            onError={() => setImgError(true)}
           />
         ) : (
-          /* Placeholder */
+          /* Letter Placeholder */
           <div className="w-full h-full bg-gradient-to-br from-neutral-100 to-neutral-200 flex items-center justify-center">
             <span className="text-2xl font-semibold text-neutral-400">
               {template.title.charAt(0).toUpperCase()}

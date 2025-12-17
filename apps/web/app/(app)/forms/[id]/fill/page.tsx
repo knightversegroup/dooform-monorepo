@@ -134,7 +134,7 @@ export default function FillFormPage({ params }: PageProps) {
   >({});
   const [groupedSections, setGroupedSections] = useState<GroupedSection[]>([]);
 
-  // HTML Preview state
+  // Preview state
   const [htmlContent, setHtmlContent] = useState("");
   const [previewHtml, setPreviewHtml] = useState("");
   const [hasPreview, setHasPreview] = useState(false);
@@ -233,7 +233,7 @@ export default function FillFormPage({ params }: PageProps) {
           setGroupedSections([]);
         }
 
-        // Load HTML preview
+        // Load HTML preview if available
         if (foundTemplate.gcs_path_html) {
           try {
             const html = await apiClient.getHTMLPreview(templateId);
@@ -243,7 +243,6 @@ export default function FillFormPage({ params }: PageProps) {
             setHasPreview(true);
           } catch (err) {
             console.error("Failed to load HTML preview:", err);
-            setHasPreview(false);
           }
         }
       } catch (err) {
@@ -1035,8 +1034,7 @@ export default function FillFormPage({ params }: PageProps) {
                     <span className="flex gap-1 lg:flex-row flex-col text-sm">
                       <p className="font-semibold">หมายเหตุ</p>
                       <p>
-                        เอกสารในตัวอย่างอาจมีตำแหน่งบางที่ไม่ตรง
-                        <b> แต่ฉบับจริงจะตรงตามที่กำหนดไว้</b>
+                        เอกสารในตัวอย่างอาจมีตำแหน่งบางที่ไม่ตรง แต่ฉบับจริงจะตรงตามที่กำหนดไว้
                       </p>
                     </span>
                   </div>
