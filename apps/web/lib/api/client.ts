@@ -1224,6 +1224,8 @@ class ApiClient {
     search?: string;
     isVerified?: boolean;
     includeDocumentType?: boolean;
+    sort?: 'popular' | 'recent' | 'name';  // Sort order
+    limit?: number;  // Limit number of results
   }): Promise<Template[]> {
     const params = new URLSearchParams();
     if (options?.documentTypeId) params.append('document_type_id', options.documentTypeId);
@@ -1233,6 +1235,8 @@ class ApiClient {
     if (options?.search) params.append('search', options.search);
     if (options?.isVerified !== undefined) params.append('is_verified', String(options.isVerified));
     if (options?.includeDocumentType) params.append('include_document_type', 'true');
+    if (options?.sort) params.append('sort', options.sort);
+    if (options?.limit) params.append('limit', String(options.limit));
 
     const queryString = params.toString();
     const url = queryString ? `${this.baseUrl}/templates?${queryString}` : `${this.baseUrl}/templates`;

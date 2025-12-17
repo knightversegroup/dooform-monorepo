@@ -269,6 +269,7 @@ function ActivityGroup({
 export default function TemplateGroupList() {
   const [documentTypes, setDocumentTypes] = useState<DocumentType[]>([]);
   const [orphanTemplates, setOrphanTemplates] = useState<Template[]>([]);
+  const [popularTemplates, setPopularTemplates] = useState<Template[]>([]);
   const [filterCategories, setFilterCategories] = useState<FilterCategory[]>(
     []
   );
@@ -283,13 +284,21 @@ export default function TemplateGroupList() {
         setLoading(true);
         setError(null);
 
-        const [groupedResponse, filtersResponse] = await Promise.all([
+        const [groupedResponse, filtersResponse, popularResponse] = await Promise.all([
           apiClient.getTemplatesGrouped(),
           apiClient.getFilters().catch(() => [] as FilterCategory[]),
+          // Fetch popular templates (most used) for the first row, include document type for category name
+          apiClient.getTemplatesFiltered({ sort: 'popular', limit: 10, includeDocumentType: true }).catch((err) => {
+            console.error('Failed to fetch popular templates:', err);
+            return [] as Template[];
+          }),
         ]);
+
+        console.log('Popular templates response:', popularResponse);
 
         setDocumentTypes(groupedResponse.document_types || []);
         setOrphanTemplates(groupedResponse.orphan_templates || []);
+        setPopularTemplates(popularResponse || []);
         setFilterCategories(filtersResponse.filter((f) => f.is_active));
       } catch (err) {
         console.error("Failed to load data:", err);
@@ -339,9 +348,22 @@ export default function TemplateGroupList() {
   // Get recent documents for activity list
   const recentDocuments = documentTypes.slice(0, 10);
 
-  // Transform data for TemplateGallery
+  // Transform data for TemplateGallery - Use popular templates (most used) for first row
   const galleryRecentTemplates: TemplateItem[] = useMemo(() => {
-    // Get templates from recent document types
+    // Use popular templates sorted by usage count
+    if (popularTemplates.length > 0) {
+      return popularTemplates.slice(0, 7).map((template) => ({
+        id: template.id,
+        title: template.display_name || template.name,
+        style: template.document_type?.name || template.category || '',
+        href: `/forms/${template.id}`,
+        thumbnailUrl: template.gcs_path_thumbnail
+          ? apiClient.getThumbnailUrl(template.id)
+          : undefined,
+      }));
+    }
+
+    // Fallback to templates from document types if no popular templates
     const templates: TemplateItem[] = [];
     documentTypes.slice(0, 5).forEach((docType) => {
       if (docType.templates && docType.templates.length > 0) {
@@ -351,7 +373,6 @@ export default function TemplateGroupList() {
             title: template.display_name || template.name,
             style: docType.name,
             href: `/forms/${template.id}`,
-            // Add thumbnail URL if available (auto-generated from PDF)
             thumbnailUrl: template.gcs_path_thumbnail
               ? apiClient.getThumbnailUrl(template.id)
               : undefined,
@@ -360,7 +381,7 @@ export default function TemplateGroupList() {
       }
     });
     return templates.slice(0, 7);
-  }, [documentTypes]);
+  }, [popularTemplates, documentTypes]);
 
   const gallerySections: TemplateSection[] = useMemo(() => {
     return categories.slice(0, 4).map((cat) => ({
