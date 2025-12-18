@@ -7,6 +7,7 @@ import { Loader2, AlertCircle } from "lucide-react";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase/config";
 import { useAuth } from "@/lib/auth/context";
+import LogoLoader from "@/app/components/LogoLoader";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
@@ -80,11 +81,7 @@ function RegisterContent() {
     };
 
     if (authLoading) {
-        return (
-            <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-5 h-5 text-black/30 animate-spin" />
-            </div>
-        );
+        return <LogoLoader />;
     }
 
     return (
@@ -152,13 +149,7 @@ function RegisterContent() {
 
 export default function RegisterPage() {
     return (
-        <Suspense
-            fallback={
-                <div className="flex items-center justify-center py-12">
-                    <Loader2 className="w-5 h-5 text-black/30 animate-spin" />
-                </div>
-            }
-        >
+        <Suspense fallback={<LogoLoader />}>
             <RegisterContent />
         </Suspense>
     );

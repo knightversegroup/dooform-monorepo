@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { Loader2, ChevronDown, Lightbulb, FileText } from "lucide-react";
+import { ChevronDown, Lightbulb, FileText } from "lucide-react";
+import LogoLoaderInline from "@/app/components/LogoLoaderInline";
 import { apiClient } from "@/lib/api/client";
 import { DocumentType, FilterCategory, Template } from "@/lib/api/types";
 import TemplateGallery, { TemplateItem, TemplateSection } from "./TemplateGallery";
@@ -413,7 +414,7 @@ export default function TemplateGroupList() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 text-neutral-400 animate-spin" />
+        <LogoLoaderInline size="lg" />
       </div>
     );
   }

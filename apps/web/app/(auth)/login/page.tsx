@@ -8,6 +8,7 @@ import { Loader2, AlertCircle } from "lucide-react";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase/config";
 import { useAuth } from "@/lib/auth/context";
+import LogoLoader from "@/app/components/LogoLoader";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
@@ -86,11 +87,7 @@ function LoginContent() {
   };
 
   if (authLoading) {
-    return (
-      <div className="flex-1 flex items-center justify-center">
-        <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
-      </div>
-    );
+    return <LogoLoader />;
   }
 
   return (
@@ -200,13 +197,7 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
-        </div>
-      }
-    >
+    <Suspense fallback={<LogoLoader />}>
       <LoginContent />
     </Suspense>
   );
