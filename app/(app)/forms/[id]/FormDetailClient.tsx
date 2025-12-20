@@ -28,24 +28,6 @@ import { apiClient } from "@/lib/api/client";
 import { Template, Tier } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/context";
 
-// Helper to parse placeholders
-const parsePlaceholders = (placeholdersJson: string): string[] => {
-    try {
-        return JSON.parse(placeholdersJson || "[]");
-    } catch {
-        return [];
-    }
-};
-
-// Helper to parse aliases
-const parseAliases = (aliasesJson: string): Record<string, string> => {
-    try {
-        return JSON.parse(aliasesJson || "{}");
-    } catch {
-        return {};
-    }
-};
-
 // Format date
 const formatDate = (dateString: string): string => {
     if (!dateString) return "-";
@@ -104,7 +86,7 @@ export default function FormDetailClient({ params }: PageProps) {
     const handleDeleteTemplate = async () => {
         if (!template) return;
 
-        const confirmMessage = `คุณต้องการลบ "${template.display_name || template.name}" หรือไม่?\n\nการลบนี้จะไม่สามารถกู้คืนได้`;
+        const confirmMessage = `คุณต้องการลบ "${template.name}" หรือไม่?\n\nการลบนี้จะไม่สามารถกู้คืนได้`;
         if (!confirm(confirmMessage)) return;
 
         try {
@@ -185,8 +167,8 @@ export default function FormDetailClient({ params }: PageProps) {
         );
     }
 
-    const placeholders = parsePlaceholders(template.placeholders);
-    const aliases = parseAliases(template.aliases);
+    const placeholders = template.placeholders || [];
+    const aliases = template.aliases || {};
     const headerBgColor = getHeaderBgColor(template.category || template.document_type?.category || "other");
     const displayedFields = showAllFields ? placeholders : placeholders.slice(0, 8);
 
@@ -222,9 +204,7 @@ export default function FormDetailClient({ params }: PageProps) {
                         {/* Template Info */}
                         <div className="flex-1 min-w-0">
                             <h1 className="text-2xl md:text-3xl font-light text-white leading-tight mb-2">
-                                {template.display_name ||
-                                    template.name ||
-                                    template.filename}
+                                {template.name}
                             </h1>
 
                             {/* Tags/Badges */}
@@ -303,15 +283,13 @@ export default function FormDetailClient({ params }: PageProps) {
                             >
                                 ช่องกรอก ({placeholders.length})
                             </button>
-                            {template.gcs_path_html && (
-                                <Link
-                                    href={`/forms/${templateId}/preview`}
-                                    className="px-4 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 flex items-center gap-1"
-                                >
-                                    ดูตัวอย่าง
-                                    <ExternalLink className="w-3 h-3" />
-                                </Link>
-                            )}
+                            <Link
+                                href={`/forms/${templateId}/preview`}
+                                className="px-4 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 flex items-center gap-1"
+                            >
+                                ดูตัวอย่าง
+                                <ExternalLink className="w-3 h-3" />
+                            </Link>
                         </div>
 
                         {/* Right - Actions */}
@@ -408,7 +386,7 @@ export default function FormDetailClient({ params }: PageProps) {
                                                 </dd>
                                             </div>
                                         )}
-                                        {template.file_size > 0 && (
+                                        {template.file_size && template.file_size > 0 && (
                                             <div>
                                                 <dt className="text-gray-500">ขนาดไฟล์</dt>
                                                 <dd className="text-gray-900">
@@ -539,15 +517,13 @@ export default function FormDetailClient({ params }: PageProps) {
                                         )}
 
                                         {/* Preview button - public access */}
-                                        {template.gcs_path_html && (
-                                            <Link
-                                                href={`/forms/${templateId}/preview`}
-                                                className="flex items-center justify-center gap-2 w-full px-4 py-2 border border-gray-300 text-gray-700 text-sm rounded hover:bg-gray-50 transition-colors"
-                                            >
-                                                <Eye className="w-4 h-4" />
-                                                ดูตัวอย่างเทมเพลต
-                                            </Link>
-                                        )}
+                                        <Link
+                                            href={`/forms/${templateId}/preview`}
+                                            className="flex items-center justify-center gap-2 w-full px-4 py-2 border border-gray-300 text-gray-700 text-sm rounded hover:bg-gray-50 transition-colors"
+                                        >
+                                            <Eye className="w-4 h-4" />
+                                            ดูตัวอย่างเทมเพลต
+                                        </Link>
 
                                         {/* Edit button - only for authenticated users */}
                                         {isAuthenticated && (
@@ -641,7 +617,7 @@ export default function FormDetailClient({ params }: PageProps) {
                                         </span>
                                     </div>
                                 )}
-                                {template.file_size > 0 && (
+                                {template.file_size && template.file_size > 0 && (
                                     <div className="flex items-center gap-2">
                                         <Download className="w-4 h-4 text-gray-400" />
                                         <span className="text-gray-600">

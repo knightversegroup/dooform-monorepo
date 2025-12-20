@@ -78,9 +78,7 @@ export default function HeroBanner({
 
     const query = searchQuery.toLowerCase();
     const filtered = templates.filter((template) => {
-      const matchesName =
-        (template.display_name || "").toLowerCase().includes(query) ||
-        (template.name || "").toLowerCase().includes(query);
+      const matchesName = (template.name || "").toLowerCase().includes(query);
       const matchesDescription = (template.description || "")
         .toLowerCase()
         .includes(query);
@@ -246,9 +244,7 @@ export default function HeroBanner({
                       <SearchIcon className="w-4 h-4 text-text-muted mt-0.5 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-foreground truncate">
-                          {template.display_name ||
-                            template.name ||
-                            template.filename}
+                          {template.name}
                         </p>
                         {template.description && (
                           <p className="text-xs text-text-muted truncate mt-0.5">

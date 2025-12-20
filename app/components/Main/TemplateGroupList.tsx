@@ -355,12 +355,10 @@ export default function TemplateGroupList() {
     if (popularTemplates.length > 0) {
       return popularTemplates.slice(0, 7).map((template) => ({
         id: template.id,
-        title: template.display_name || template.name,
+        title: template.name,
         style: template.document_type?.name || template.category || '',
         href: `/forms/${template.id}`,
-        thumbnailUrl: template.gcs_path_thumbnail
-          ? apiClient.getThumbnailUrl(template.id)
-          : undefined,
+        thumbnailUrl: apiClient.getThumbnailUrl(template.id),
       }));
     }
 
@@ -371,12 +369,10 @@ export default function TemplateGroupList() {
         docType.templates.slice(0, 2).forEach((template) => {
           templates.push({
             id: template.id,
-            title: template.display_name || template.name,
+            title: template.name,
             style: docType.name,
             href: `/forms/${template.id}`,
-            thumbnailUrl: template.gcs_path_thumbnail
-              ? apiClient.getThumbnailUrl(template.id)
-              : undefined,
+            thumbnailUrl: apiClient.getThumbnailUrl(template.id),
           });
         });
       }
@@ -392,13 +388,10 @@ export default function TemplateGroupList() {
         if (docType.templates && docType.templates.length > 0) {
           return docType.templates.slice(0, 2).map((template) => ({
             id: template.id,
-            title: template.display_name || template.name,
+            title: template.name,
             style: docType.name,
             href: `/forms/${template.id}`,
-            // Add thumbnail URL if available (auto-generated from PDF)
-            thumbnailUrl: template.gcs_path_thumbnail
-              ? apiClient.getThumbnailUrl(template.id)
-              : undefined,
+            thumbnailUrl: apiClient.getThumbnailUrl(template.id),
           }));
         }
         return [{
@@ -520,8 +513,8 @@ export default function TemplateGroupList() {
                 items={orphanTemplates.slice(0, 5).map((template) => ({
                   icon: <FileText className="w-4 h-4" />,
                   iconColor: "bg-neutral-100 text-neutral-500",
-                  title: template.display_name || template.name,
-                  subtitle: template.original_source || "แบบฟอร์มทั่วไป",
+                  title: template.name,
+                  subtitle: "แบบฟอร์มทั่วไป",
                   meta: "เพิ่มใหม่",
                   href: `/forms/${template.id}`,
                 }))}

@@ -32,24 +32,6 @@ import { UnifiedFieldEditor } from "@/app/components/ui/UnifiedFieldEditor";
 import { useAuth } from "@/lib/auth/context";
 import { useTemplate } from "../TemplateContext";
 
-// Helper to parse aliases
-const parseAliases = (aliasesJson: string): Record<string, string> => {
-    try {
-        return JSON.parse(aliasesJson || "{}");
-    } catch {
-        return {};
-    }
-};
-
-// Helper to parse placeholders
-const parsePlaceholders = (placeholdersJson: string): string[] => {
-    try {
-        return JSON.parse(placeholdersJson || "[]");
-    } catch {
-        return [];
-    }
-};
-
 interface PageProps {
     params: Promise<{ id: string }>;
 }
@@ -183,7 +165,7 @@ export default function EditFormPage({ params }: PageProps) {
 
                 // Populate form with template data
                 setFormData({
-                    displayName: foundTemplate.display_name || "",
+                    displayName: foundTemplate.name || "",
                     name: foundTemplate.name || "",
                     description: foundTemplate.description || "",
                     author: foundTemplate.author || "",
@@ -197,7 +179,7 @@ export default function EditFormPage({ params }: PageProps) {
                     group: foundTemplate.group || "",
                 });
 
-                setAliases(parseAliases(foundTemplate.aliases));
+                setAliases(foundTemplate.aliases || {});
 
                 // Load field definitions
                 try {
@@ -219,7 +201,7 @@ export default function EditFormPage({ params }: PageProps) {
                 }
 
                 // Detect mergeable groups from placeholders
-                const placeholdersList = parsePlaceholders(foundTemplate.placeholders);
+                const placeholdersList = foundTemplate.placeholders || [];
                 const groups = detectMergeableGroups(placeholdersList);
                 setMergeableGroups(groups);
             } catch (err) {
@@ -653,7 +635,7 @@ export default function EditFormPage({ params }: PageProps) {
                                 แก้ไขรายละเอียดเทมเพลต
                             </h1>
                             <p className="text-body-sm text-text-muted">
-                                {template?.display_name || template?.name || template?.filename}
+                                {template?.name}
                             </p>
                         </div>
                     </div>
@@ -880,7 +862,7 @@ export default function EditFormPage({ params }: PageProps) {
                                                                 คลิกเพื่อเลือกไฟล์ DOCX
                                                             </p>
                                                             <p className="text-xs text-text-muted">
-                                                                ไฟล์ปัจจุบัน: {template?.filename || '-'}
+                                                                ไฟล์ปัจจุบัน: {template?.name || '-'}
                                                             </p>
                                                         </>
                                                     )}

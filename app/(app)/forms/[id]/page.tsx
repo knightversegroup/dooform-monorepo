@@ -37,7 +37,7 @@ export async function generateMetadata({
     };
   }
 
-  const templateName = template.display_name || template.name;
+  const templateName = template.name;
   const title = `แปล ${templateName} ด้วยดูฟอร์ม`;
   const description =
     template.description ||

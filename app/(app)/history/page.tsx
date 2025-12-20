@@ -33,10 +33,10 @@ interface DocumentHistory {
     updated_at: string;
     template?: {
         id: string;
-        display_name: string;
+        name: string;
         description: string;
-        placeholders: string;
-        aliases: string;
+        placeholders: string[];
+        aliases: Record<string, string>;
     };
 }
 
@@ -204,12 +204,8 @@ export default function HistoryPage() {
 
     const getPlaceholderAlias = (doc: DocumentHistory, placeholder: string): string => {
         if (!doc.template?.aliases) return placeholder.replace(/[{}]/g, "");
-        try {
-            const aliases = JSON.parse(doc.template.aliases);
-            return aliases[placeholder] || placeholder.replace(/[{}]/g, "");
-        } catch {
-            return placeholder.replace(/[{}]/g, "");
-        }
+        // aliases is now an object, not a JSON string
+        return doc.template.aliases[placeholder] || placeholder.replace(/[{}]/g, "");
     };
 
     if (authLoading) {
@@ -312,7 +308,7 @@ export default function HistoryPage() {
                                                     </td>
                                                     <td className="py-4 px-4">
                                                         <p className="text-body-sm text-foreground">
-                                                            {doc.template?.display_name ||
+                                                            {doc.template?.name ||
                                                                 "ไม่ทราบเทมเพลต"}
                                                         </p>
                                                     </td>
@@ -464,7 +460,7 @@ export default function HistoryPage() {
                                 <div>
                                     <p className="text-caption text-text-muted">เทมเพลต</p>
                                     <p className="text-body-sm font-medium text-foreground">
-                                        {selectedDocument.template?.display_name || "ไม่ทราบ"}
+                                        {selectedDocument.template?.name || "ไม่ทราบ"}
                                     </p>
                                 </div>
                                 <div>

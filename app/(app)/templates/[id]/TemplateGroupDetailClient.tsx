@@ -27,15 +27,6 @@ import { apiClient } from "@/lib/api/client";
 import { DocumentType, Template, DocumentTypeUpdateRequest, FilterCategory } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/context";
 
-// Helper to parse placeholders
-const parsePlaceholders = (placeholdersJson: string): string[] => {
-    try {
-        return JSON.parse(placeholdersJson || "[]");
-    } catch {
-        return [];
-    }
-};
-
 // Format date
 const formatDate = (dateString: string): string => {
     if (!dateString) return "-";
@@ -86,11 +77,11 @@ function TemplateVariantItem({
     onDelete?: (templateId: string) => void;
     deleting?: boolean;
 }) {
-    const placeholders = parsePlaceholders(template.placeholders);
+    const placeholders = template.placeholders || [];
 
     const handleDelete = () => {
         if (!onDelete) return;
-        if (confirm(`คุณต้องการลบ "${template.variant_name || template.display_name || template.name}" หรือไม่?\n\nการลบนี้จะไม่สามารถกู้คืนได้`)) {
+        if (confirm(`คุณต้องการลบ "${template.variant_name || template.name}" หรือไม่?\n\nการลบนี้จะไม่สามารถกู้คืนได้`)) {
             onDelete(template.id);
         }
     };
@@ -109,7 +100,7 @@ function TemplateVariantItem({
                         href={`/forms/${template.id}`}
                         className="text-base font-medium text-gray-900 hover:text-[#007398] transition-colors"
                     >
-                        {template.variant_name || template.display_name || template.name || `รูปแบบ ${index + 1}`}
+                        {template.variant_name || template.name || `รูปแบบ ${index + 1}`}
                     </Link>
                     {template.is_verified && (
                         <CheckCircle className="w-4 h-4 text-blue-500" />
@@ -456,7 +447,7 @@ export default function TemplateGroupDetailClient({ params }: PageProps) {
 
     // Calculate total placeholders across all templates
     const totalPlaceholders = templates.reduce((sum, t) => {
-        const placeholders = parsePlaceholders(t.placeholders);
+        const placeholders = t.placeholders || [];
         return sum + placeholders.length;
     }, 0);
 
@@ -675,7 +666,7 @@ export default function TemplateGroupDetailClient({ params }: PageProps) {
                                                     </div>
                                                     <div className="flex-1 min-w-0">
                                                         <div className="text-sm font-medium text-gray-900">
-                                                            {template.variant_name || template.display_name || `รูปแบบ ${idx + 1}`}
+                                                            {template.variant_name || template.name || `รูปแบบ ${idx + 1}`}
                                                         </div>
                                                         {template.is_verified && (
                                                             <span className="inline-flex items-center text-xs text-blue-600 mt-0.5">
@@ -772,7 +763,7 @@ export default function TemplateGroupDetailClient({ params }: PageProps) {
                                                             {idx + 1}
                                                         </span>
                                                         <span className="text-sm font-medium text-gray-900 truncate">
-                                                            {template.variant_name || template.display_name || `รูปแบบ ${idx + 1}`}
+                                                            {template.variant_name || template.name || `รูปแบบ ${idx + 1}`}
                                                         </span>
                                                         {template.is_verified && (
                                                             <CheckCircle className="w-3 h-3 text-blue-500 flex-shrink-0" />
@@ -1145,7 +1136,7 @@ export default function TemplateGroupDetailClient({ params }: PageProps) {
                                                 setSelectedTemplateId(e.target.value);
                                                 const selected = orphanTemplates.find(t => t.id === e.target.value);
                                                 if (selected && !variantName) {
-                                                    setVariantName(selected.display_name || selected.name || "");
+                                                    setVariantName(selected.name || "");
                                                 }
                                             }}
                                             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#007398] focus:border-transparent"
@@ -1153,7 +1144,7 @@ export default function TemplateGroupDetailClient({ params }: PageProps) {
                                             <option value="">เลือกเทมเพลต...</option>
                                             {orphanTemplates.map((t) => (
                                                 <option key={t.id} value={t.id}>
-                                                    {t.display_name || t.name}
+                                                    {t.name}
                                                 </option>
                                             ))}
                                         </select>

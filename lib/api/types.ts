@@ -188,42 +188,40 @@ export interface SuggestionsResponse {
   suggestions: SuggestedGroup[];
 }
 
-// Template Types
+// Template Types (Clean API format)
 export interface Template {
   id: string;
-  filename: string;
-  original_name: string;
-  display_name: string;
-  name: string;
+  name: string;              // Best display name (display_name > name > original_name)
   description: string;
   author: string;
   category: Category;
-  gcs_path: string;
-  gcs_path_html: string;      // HTML preview path (auto-generated from DOCX)
-  gcs_path_pdf: string;       // PDF preview path (auto-generated from DOCX)
-  gcs_path_thumbnail: string; // Thumbnail image path (auto-generated from PDF)
-  file_size: number;
-  mime_type: string;
-  placeholders: string; // JSON array
-  aliases: string; // JSON object mapping placeholders to aliases
-  field_definitions: string; // JSON object of field definitions (auto-detected from placeholders)
-  created_at: string;
-  updated_at: string;
 
-  // New fields
-  original_source: string;
-  remarks: string;
-  is_verified: boolean;
-  is_ai_available: boolean;
+  // Classification
   type: TemplateType;
   tier: Tier;
-  group: string;
+  is_verified: boolean;
+  is_ai_available: boolean;
+
+  // Parsed template data (proper objects, not JSON strings)
+  placeholders: string[];                        // Array of placeholder strings
+  aliases: Record<string, string>;               // Map of placeholder to alias
+  field_definitions: Record<string, FieldDefinition>; // Map of placeholder to field definition
+
+  // Additional metadata (for editing/display)
+  original_source?: string;
+  remarks?: string;
+  group?: string;
+  file_size?: number;
 
   // Document Type grouping
-  document_type_id: string;
-  variant_name: string;      // Name of variant (e.g., "ด้านหน้า", "ด้านหลัง")
-  variant_order: number;     // Display order within document type
+  document_type_id?: string;
+  variant_name?: string;      // Name of variant (e.g., "ด้านหน้า", "ด้านหลัง")
+  variant_order?: number;     // Display order within document type
   document_type?: DocumentType; // Populated when include_document_type=true
+
+  // Timestamps
+  created_at: string;
+  updated_at: string;
 }
 
 // Document Types

@@ -35,14 +35,6 @@ interface FilterSection {
   expanded?: boolean;
 }
 
-// Helper to parse placeholders
-const parsePlaceholders = (placeholdersJson: string): string[] => {
-  try {
-    return JSON.parse(placeholdersJson || "[]");
-  } catch {
-    return [];
-  }
-};
 
 // Filter Checkbox Component
 function FilterCheckbox({
@@ -148,7 +140,7 @@ function FilterSectionComponent({
 // Template Result Item Component (ScienceDirect style)
 function TemplateResultItem({ template }: { template: Template }) {
   const [showAbstract, setShowAbstract] = useState(false);
-  const placeholders = parsePlaceholders(template.placeholders);
+  const placeholders = template.placeholders || [];
 
   return (
     <div className="py-4 border-b border-gray-200">
@@ -174,7 +166,7 @@ function TemplateResultItem({ template }: { template: Template }) {
       {/* Title */}
       <Link href={`/forms/${template.id}`} className="block group">
         <h3 className="text-base font-medium text-[#007398] group-hover:underline leading-snug mb-1">
-          {template.display_name || template.name || template.filename}
+          {template.name}
           {template.is_ai_available && (
             <Sparkles className="inline-block ml-2 h-4 w-4 text-purple-500" />
           )}
@@ -319,7 +311,7 @@ function DocumentTypeResultItem({
                 className="text-sm text-[#007398] hover:underline"
               >
                 {template.variant_name ||
-                  template.display_name ||
+                  template.name ||
                   `รูปแบบ ${idx + 1}`}
               </Link>
               {template.is_verified && (
@@ -484,7 +476,6 @@ export default function FormTemplateList() {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       const matchesSearch =
-        (template.display_name || "").toLowerCase().includes(query) ||
         (template.name || "").toLowerCase().includes(query) ||
         (template.description || "").toLowerCase().includes(query) ||
         (template.category || "").toLowerCase().includes(query) ||

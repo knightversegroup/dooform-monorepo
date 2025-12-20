@@ -54,24 +54,6 @@ const FORM_STEPS: StepConfig[] = [
   { id: "download", number: 3, label: "ส่วนที่ 3", title: "ดาวน์โหลดไฟล์" },
 ];
 
-// Helper to parse placeholders
-const parsePlaceholders = (placeholdersJson: string): string[] => {
-  try {
-    return JSON.parse(placeholdersJson || "[]");
-  } catch {
-    return [];
-  }
-};
-
-// Helper to parse aliases
-const parseAliases = (aliasesJson: string): Record<string, string> => {
-  try {
-    return JSON.parse(aliasesJson || "{}");
-  } catch {
-    return {};
-  }
-};
-
 // Get header background color based on category
 function getHeaderBgColor(category: string): string {
   const colors: Record<string, string> = {
@@ -192,7 +174,7 @@ export default function FillFormPage({ params }: PageProps) {
         setTemplate(foundTemplate);
 
         // Initialize form data
-        const placeholders = parsePlaceholders(foundTemplate.placeholders);
+        const placeholders = foundTemplate.placeholders || [];
         const initialData: Record<string, string> = {};
         placeholders.forEach((p) => {
           const key = p.replace(/\{\{|\}\}/g, "");
@@ -233,17 +215,16 @@ export default function FillFormPage({ params }: PageProps) {
           setGroupedSections([]);
         }
 
-        // Load HTML preview if available
-        if (foundTemplate.gcs_path_html) {
-          try {
-            const html = await apiClient.getHTMLPreview(templateId);
-            setHtmlContent(html);
-            const initialPreview = html.replace(/\{\{([^}]+)\}\}/g, "");
-            setPreviewHtml(initialPreview);
-            setHasPreview(true);
-          } catch (err) {
-            console.error("Failed to load HTML preview:", err);
-          }
+        // Try to load HTML preview
+        try {
+          const html = await apiClient.getHTMLPreview(templateId);
+          setHtmlContent(html);
+          const initialPreview = html.replace(/\{\{([^}]+)\}\}/g, "");
+          setPreviewHtml(initialPreview);
+          setHasPreview(true);
+        } catch (err) {
+          console.error("Failed to load HTML preview:", err);
+          // Preview not available, continue without it
         }
       } catch (err) {
         console.error("Failed to load template:", err);
@@ -558,7 +539,7 @@ export default function FillFormPage({ params }: PageProps) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${template?.display_name || "document"}.${format}`;
+      a.download = `${template?.name || "document"}.${format}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -569,8 +550,8 @@ export default function FillFormPage({ params }: PageProps) {
     }
   };
 
-  const placeholders = template ? parsePlaceholders(template.placeholders) : [];
-  const aliases = template ? parseAliases(template.aliases) : {};
+  const placeholders = template?.placeholders || [];
+  const aliases = template?.aliases || {};
   const headerBgColor = getHeaderBgColor(
     template?.category || template?.document_type?.category || "other",
   );

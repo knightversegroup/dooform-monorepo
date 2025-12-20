@@ -546,7 +546,7 @@ export default function DocumentTypesPage() {
                             <FileText className="w-4 h-4 text-gray-500" />
                             <div className="flex-1">
                               <span className="font-medium text-gray-900">
-                                {template.display_name || template.filename}
+                                {template.name}
                               </span>
                               {template.variant_name && (
                                 <span className="ml-2 px-2 py-0.5 text-xs bg-blue-100 text-blue-700 rounded">
@@ -589,7 +589,7 @@ export default function DocumentTypesPage() {
                     <FileText className="w-5 h-5 text-gray-500" />
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-gray-900 truncate">
-                        {template.display_name || template.filename}
+                        {template.name}
                       </p>
                       <p className="text-sm text-gray-500 truncate">{template.author}</p>
                     </div>
@@ -674,7 +674,7 @@ export default function DocumentTypesPage() {
                 <option value="">-- เลือกเทมเพลต --</option>
                 {getUnassignedTemplates().map((template) => (
                   <option key={template.id} value={template.id}>
-                    {template.display_name || template.filename}
+                    {template.name}
                   </option>
                 ))}
               </select>

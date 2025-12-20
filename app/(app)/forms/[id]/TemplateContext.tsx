@@ -131,14 +131,9 @@ export function TemplateProvider({
                 } catch (e) {
                     console.warn("Failed to fetch field definitions:", e);
                     // Fallback to template's field_definitions if API fails
-                    try {
-                        const fallback = foundTemplate.field_definitions
-                            ? JSON.parse(foundTemplate.field_definitions)
-                            : {};
-                        setFieldDefinitions(fallback);
-                    } catch {
-                        setFieldDefinitions({});
-                    }
+                    // field_definitions is now an object, not a JSON string
+                    const fallback = foundTemplate.field_definitions || {};
+                    setFieldDefinitions(fallback);
                 }
 
                 // Fetch data types (non-critical)
