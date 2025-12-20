@@ -38,7 +38,6 @@ import {
   type DateFormat,
 } from "@/lib/utils/fieldTypes";
 import { AddressSelection } from "@/lib/api/addressService";
-import type { FieldDefinition } from "@/lib/api/types";
 
 // Step definitions
 type FormStep = "fill" | "review" | "download";

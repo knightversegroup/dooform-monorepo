@@ -242,7 +242,7 @@ export default function ConsolePage() {
     setProcessingAction(true);
     setError(null);
     try {
-      const suggestionsRes = await apiClient.getAutoGroupSuggestions();
+      const suggestionsRes = await apiClient.getAutoSuggestions();
       setSuggestions(suggestionsRes);
       setSuccess(`Found ${suggestionsRes.length} grouping suggestions`);
     } catch (err) {
