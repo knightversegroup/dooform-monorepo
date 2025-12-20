@@ -212,7 +212,7 @@ export default function ConsolePage() {
     try {
       switch (activeTab) {
         case "datatypes":
-          await apiClient.deleteDataType(id);
+          await apiClient.deleteConfigurableDataType(id);
           setDataTypes((prev) => prev.filter((item) => item.id !== id));
           break;
         case "entities":
