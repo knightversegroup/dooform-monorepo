@@ -257,11 +257,11 @@ export default function FormDetailClient({ params }: PageProps) {
                             </div>
                         </div>
 
-                        {/* Right - Preview Image */}
+                        {/* Right - Preview Image (HD quality) */}
                         <div className="hidden lg:block">
                             <div className="relative aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden">
                                 <Image
-                                    src={apiClient.getThumbnailUrl(templateId)}
+                                    src={apiClient.getHDThumbnailUrl(templateId, 800)}
                                     alt={template.name}
                                     fill
                                     className="object-contain"
