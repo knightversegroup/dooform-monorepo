@@ -189,7 +189,7 @@ export default function FormDetailClient({ params }: PageProps) {
                         {/* Left - Content */}
                         <div>
                             <h1 className="text-4xl font-medium text-gray-900 leading-tight mb-4">
-                                {template.variant_name || template.name}
+                                {template.name}
                             </h1>
 
                             {template.description && (

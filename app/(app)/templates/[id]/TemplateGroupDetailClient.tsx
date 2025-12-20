@@ -69,7 +69,7 @@ function TemplateCard({
         <div className="bg-white border border-gray-200 rounded-sm hover:border-gray-300 hover:shadow-sm transition-all p-6">
             <div className="flex items-center gap-2 mb-2">
                 <h3 className="text-xl font-medium text-gray-900">
-                    {template.variant_name || template.name || `รูปแบบ ${index + 1}`}
+                    {template.description || template.name || `รูปแบบ ${index + 1}`}
                 </h3>
                 {template.is_verified && (
                     <CheckCircle className="w-4 h-4 text-[#000091]" />
