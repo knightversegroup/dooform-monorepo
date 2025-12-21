@@ -157,9 +157,15 @@ export default function FillFormPage({ params }: PageProps) {
   }, [authLoading, isAuthenticated, router, templateId]);
 
   // Refresh quota and redirect to template page if user has no quota (and is not admin)
+  // Skip this check if user already has a successful document (they've already used quota)
   const [quotaRefreshed, setQuotaRefreshed] = useState(false);
 
   useEffect(() => {
+    // Don't check quota if we already have a successful document or on download step
+    if (success || currentStep === "download") {
+      return;
+    }
+
     const checkQuotaAndRedirect = async () => {
       if (!authLoading && isAuthenticated && !isAdmin) {
         // Refresh quota from server first
@@ -174,14 +180,18 @@ export default function FillFormPage({ params }: PageProps) {
       }
     };
     checkQuotaAndRedirect();
-  }, [authLoading, isAuthenticated, isAdmin, refreshQuota]);
+  }, [authLoading, isAuthenticated, isAdmin, refreshQuota, success, currentStep]);
 
   // After quota is refreshed, check if user can generate
+  // Skip if user already has a successful document
   useEffect(() => {
+    if (success || currentStep === "download") {
+      return;
+    }
     if (quotaRefreshed && !isAdmin && !canGenerate) {
       router.replace(`/forms/${templateId}?error=no_quota`);
     }
-  }, [quotaRefreshed, canGenerate, isAdmin, router, templateId]);
+  }, [quotaRefreshed, canGenerate, isAdmin, router, templateId, success, currentStep]);
 
   useEffect(() => {
     const loadTemplate = async () => {
