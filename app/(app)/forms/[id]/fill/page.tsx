@@ -1099,7 +1099,7 @@ export default function FillFormPage({ params }: PageProps) {
     <div className="min-h-screen bg-white font-['IBM_Plex_Sans_Thai',sans-serif]">
       {/* Top bar */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-2">
           <Link
             href={`/forms/${templateId}`}
             className="text-sm text-gray-600 hover:text-[#0b4db7]"
@@ -1110,12 +1110,12 @@ export default function FillFormPage({ params }: PageProps) {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className={hasPreview ? "flex gap-6" : ""}>
           {/* Form Card */}
           <div
             className={`bg-[#f6f6f6] flex flex-col gap-8 items-start p-8 rounded-lg ${
-              hasPreview ? "w-[420px] flex-shrink-0" : "w-full max-w-xl mx-auto"
+              hasPreview ? "w-1/3 flex-shrink-0" : "w-full max-w-xl mx-auto"
             }`}
           >
             {/* Progress Indicator */}
@@ -1167,8 +1167,8 @@ export default function FillFormPage({ params }: PageProps) {
 
           {/* Right Column: Live Preview */}
           {hasPreview && (
-            <div className="flex-1 min-w-0 hidden lg:block">
-              <div className="sticky top-8">
+            <div className="w-2/3 hidden lg:block">
+              <div className="sticky top-4">
                 <div className="p-4 bg-[#0b4db7]/5 mb-4 border-l-4 border-[#0b4db7]">
                   <div className="flex gap-2 items-center">
                     <Info className="w-5 h-5 text-[#0b4db7] shrink-0" />

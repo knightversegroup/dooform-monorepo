@@ -198,10 +198,10 @@ ${htmlContent}
                     ref={containerRef}
                     className="flex-1 overflow-auto bg-gray-100"
                 >
-                    <div className="p-4 min-h-full">
+                    <div className="p-4 min-h-full flex justify-center">
                         <div
-                            className="mx-auto bg-white shadow-lg rounded-sm overflow-hidden"
-                            style={{ maxWidth: pageWidth }}
+                            className="bg-white shadow-lg rounded-sm overflow-hidden flex-shrink-0"
+                            style={{ width: pageWidth, minWidth: pageWidth }}
                         >
                             <iframe
                                 ref={iframeRef}
