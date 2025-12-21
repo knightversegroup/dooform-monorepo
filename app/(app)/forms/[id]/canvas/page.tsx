@@ -508,12 +508,46 @@ export default function CanvasPage() {
         setSections((prev) => prev.map((s) => s.id === sectionId ? { ...s, colorIndex } : s));
     }, [setSections]);
 
-    const handleDataTypeChange = useCallback((fieldKey: string, dataType: string) => {
+    const handleDataTypeChange = useCallback((fieldKey: string, dataTypeCode: string) => {
+        // Find the ConfigurableDataType to get input_type and options
+        const configDataType = dataTypes.find(dt => dt.code === dataTypeCode);
+
         setFieldDefinitions((prev) => {
             if (!prev) return prev;
-            return { ...prev, [fieldKey]: { ...prev[fieldKey], dataType: dataType as DataType } };
+
+            const updatedDef = {
+                ...prev[fieldKey],
+                dataType: dataTypeCode as DataType
+            };
+
+            // Apply input_type from ConfigurableDataType if available
+            if (configDataType?.input_type) {
+                updatedDef.inputType = configDataType.input_type as "text" | "select" | "date" | "time" | "number" | "textarea" | "checkbox" | "merged" | "radio";
+            }
+
+            // Apply validation options if available (for select/dropdown)
+            if (configDataType?.options) {
+                try {
+                    const options = JSON.parse(configDataType.options);
+                    if (Array.isArray(options) && options.length > 0) {
+                        updatedDef.validation = {
+                            ...updatedDef.validation,
+                            options: options,
+                        };
+                    }
+                } catch {
+                    // Invalid JSON, skip options
+                }
+            }
+
+            // Apply default value if available
+            if (configDataType?.default_value) {
+                updatedDef.defaultValue = configDataType.default_value;
+            }
+
+            return { ...prev, [fieldKey]: updatedDef };
         });
-    }, [setFieldDefinitions]);
+    }, [setFieldDefinitions, dataTypes]);
 
     // AI Field Type Suggestion handlers
     const handleSuggestFieldTypes = useCallback(async () => {
