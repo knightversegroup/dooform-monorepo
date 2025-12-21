@@ -45,6 +45,7 @@ export interface RadioOption {
   placeholder: string;   // The placeholder key (e.g., "$1", "$2")
   label: string;         // Display label (e.g., "ชาย / Male")
   value: string;         // Value when selected (typically "/" for checkmarks)
+  childFields?: string[]; // Child fields to show when this option is selected (e.g., ["$3_D"])
 }
 
 export interface FieldValidation {

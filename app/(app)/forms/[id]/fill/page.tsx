@@ -190,10 +190,13 @@ export default function FillFormPage({ params }: PageProps) {
           const definitions = await apiClient.getFieldDefinitions(templateId);
           setFieldDefinitions(definitions);
 
-          // Filter out hidden merged fields and radio group hidden fields
+          // Filter out hidden merged fields, radio group hidden fields, and radio child fields
+          // Radio child fields (radio_child_*) will be shown conditionally based on selection
           const visibleDefinitions: Record<string, FieldDefinition> = {};
           Object.entries(definitions).forEach(([key, def]) => {
-            if (def.group?.startsWith("merged_hidden_") || def.group?.startsWith("radio_hidden_")) {
+            if (def.group?.startsWith("merged_hidden_") ||
+                def.group?.startsWith("radio_hidden_") ||
+                def.group?.startsWith("radio_child_")) {
               return;
             }
             visibleDefinitions[key] = def;
@@ -201,7 +204,8 @@ export default function FillFormPage({ params }: PageProps) {
 
           setFormData((prev) => {
             const updated = { ...prev };
-            Object.keys(visibleDefinitions).forEach((key) => {
+            // Initialize all field definitions including child fields (they may be shown conditionally)
+            Object.keys(definitions).forEach((key) => {
               const cleanKey = key.replace(/\{\{|\}\}/g, "");
               if (!(cleanKey in updated)) {
                 updated[cleanKey] = "";
@@ -671,6 +675,19 @@ export default function FillFormPage({ params }: PageProps) {
     </div>
   );
 
+  // Get child fields for a selected radio option
+  const getChildFieldsForRadioOption = (definition: FieldDefinition, selectedOption: string) => {
+    if (!definition.isRadioGroup || !definition.radioOptions) return [];
+
+    const option = definition.radioOptions.find(opt => opt.placeholder === selectedOption);
+    if (!option?.childFields) return [];
+
+    // Return the child field definitions
+    return option.childFields
+      .map(childKey => fieldDefinitions[childKey])
+      .filter(Boolean);
+  };
+
   // Render form field with Figma styling
   const renderFormField = (
     definition: FieldDefinition,
@@ -681,6 +698,9 @@ export default function FillFormPage({ params }: PageProps) {
     // Check both with and without braces since aliases can be stored either way
     const displayLabel = aliases[key] || aliases[definition.placeholder] || definition.label || key;
     const description = definition.description;
+
+    // Get child fields if this is a radio group with a selected option
+    const childFields = definition.isRadioGroup ? getChildFieldsForRadioOption(definition, value) : [];
 
     return (
       <div key={key} className="flex flex-col gap-2 items-start w-full">
@@ -710,6 +730,48 @@ export default function FillFormPage({ params }: PageProps) {
             hideLabel={true}
           />
         </div>
+
+        {/* Render child fields when radio option is selected */}
+        {childFields.length > 0 && (
+          <div className="ml-6 pl-4 border-l-2 border-blue-200 w-full space-y-3 mt-2">
+            {childFields.map((childDef) => {
+              const childKey = childDef.placeholder.replace(/\{\{|\}\}/g, "");
+              const childValue = formData[childKey] || "";
+              const childLabel = aliases[childKey] || aliases[childDef.placeholder] || childDef.label || childKey;
+
+              return (
+                <div key={childKey} className="flex flex-col gap-2 items-start w-full">
+                  <div className="flex flex-col gap-[2px] items-start w-full">
+                    <p className="font-['IBM_Plex_Sans_Thai',sans-serif] font-medium text-[#171717] text-sm">
+                      {childLabel}
+                    </p>
+                    {childDef.description && (
+                      <p className="font-['IBM_Plex_Sans_Thai',sans-serif] text-[#797979] text-xs">
+                        {childDef.description}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-start w-full">
+                    <SmartInput
+                      definition={childDef}
+                      value={childValue}
+                      onChange={(val) => !disabled && handleInputChange(childKey, val)}
+                      onFocus={() => setActiveField(childKey)}
+                      onBlur={() => setActiveField(null)}
+                      onAddressSelect={(address) => handleAddressSelect(childKey, address)}
+                      onDateFormatChange={(format) => handleDateFormatChange(childKey, format)}
+                      alias={aliases[childDef.placeholder]}
+                      disabled={disabled || processing}
+                      showPlaceholderKey={false}
+                      compact={true}
+                      hideLabel={true}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     );
   };
@@ -721,6 +783,16 @@ export default function FillFormPage({ params }: PageProps) {
     // Check both with and without braces since aliases can be stored either way
     const displayLabel = aliases[key] || aliases[definition.placeholder] || definition.label || key;
     const description = definition.description;
+
+    // Get display value for radio groups
+    let displayValue = value;
+    if (definition.isRadioGroup && definition.radioOptions) {
+      const selectedOption = definition.radioOptions.find(opt => opt.placeholder === value);
+      displayValue = selectedOption?.label || value || "-";
+    }
+
+    // Get child fields if this is a radio group with a selected option
+    const childFields = definition.isRadioGroup ? getChildFieldsForRadioOption(definition, value) : [];
 
     return (
       <div key={key} className="flex flex-col gap-2 items-start w-full">
@@ -747,9 +819,46 @@ export default function FillFormPage({ params }: PageProps) {
               min-h-[48px]
             "
           >
-            {value || "-"}
+            {displayValue || "-"}
           </div>
         </div>
+
+        {/* Render child fields in review mode */}
+        {childFields.length > 0 && (
+          <div className="ml-6 pl-4 border-l-2 border-blue-200 w-full space-y-3 mt-2">
+            {childFields.map((childDef) => {
+              const childKey = childDef.placeholder.replace(/\{\{|\}\}/g, "");
+              const childValue = formData[childKey] || "";
+              const childLabel = aliases[childKey] || aliases[childDef.placeholder] || childDef.label || childKey;
+
+              return (
+                <div key={childKey} className="flex flex-col gap-2 items-start w-full">
+                  <div className="flex flex-col gap-[2px] items-start w-full">
+                    <p className="font-['IBM_Plex_Sans_Thai',sans-serif] font-medium text-[#171717] text-sm">
+                      {childLabel}
+                    </p>
+                  </div>
+                  <div className="flex items-start w-full opacity-50">
+                    <div
+                      className="
+                        font-['IBM_Plex_Sans_Thai',sans-serif]
+                        bg-[#f0f0f0]
+                        border-b-2 border-[#5b5b5b] border-l-0 border-r-0 border-t-0
+                        px-4 py-[10px]
+                        text-sm
+                        text-[#5b5b5b]
+                        w-full
+                        min-h-[40px]
+                      "
+                    >
+                      {childValue || "-"}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     );
   };

@@ -11,6 +11,17 @@ interface RadioGroupConfig {
   options: RadioOption[];
 }
 
+// Helper to detect if a field is a potential child field (e.g., $3_D is child of $3)
+function getPotentialChildFields(placeholder: string, allFields: string[]): string[] {
+  // Match pattern like $3 -> $3_D, $3_M, $3_X etc.
+  const baseMatch = placeholder.match(/^(\$\d+)$/);
+  if (baseMatch) {
+    const base = baseMatch[1];
+    return allFields.filter(f => f.startsWith(base + '_'));
+  }
+  return [];
+}
+
 interface RadioGroupManagerProps {
   isOpen: boolean;
   onClose: () => void;
@@ -26,14 +37,21 @@ export function RadioGroupManager({
 }: RadioGroupManagerProps) {
   const [radioGroups, setRadioGroups] = useState<RadioGroupConfig[]>([]);
   const [availableFields, setAvailableFields] = useState<string[]>([]);
+  const [allFieldKeys, setAllFieldKeys] = useState<string[]>([]);
+  const [childFieldsUsed, setChildFieldsUsed] = useState<Set<string>>(new Set());
 
   // Initialize from existing field definitions
   useEffect(() => {
     if (!fieldDefinitions) return;
 
+    // Get all field keys
+    const allKeys = Object.keys(fieldDefinitions);
+    setAllFieldKeys(allKeys);
+
     // Find existing radio groups
     const existingGroups: RadioGroupConfig[] = [];
     const usedPlaceholders = new Set<string>();
+    const usedChildFields = new Set<string>();
 
     Object.entries(fieldDefinitions).forEach(([key, def]) => {
       if (def.isRadioGroup && def.radioOptions) {
@@ -44,18 +62,23 @@ export function RadioGroupManager({
           options: def.radioOptions,
         });
         // Mark all placeholders in this group as used
-        def.radioOptions.forEach((opt) => usedPlaceholders.add(opt.placeholder));
+        def.radioOptions.forEach((opt) => {
+          usedPlaceholders.add(opt.placeholder);
+          // Track child fields that are used
+          opt.childFields?.forEach(cf => usedChildFields.add(cf));
+        });
       }
     });
 
     setRadioGroups(existingGroups);
+    setChildFieldsUsed(usedChildFields);
 
     // Find available checkbox fields (not already in a radio group)
     const checkboxFields = Object.entries(fieldDefinitions)
       .filter(([key, def]) => {
         // Include checkbox fields or fields that look like checkboxes ($ prefix)
         const isCheckbox = def.inputType === "checkbox";
-        const isDollarField = key.startsWith("$");
+        const isDollarField = key.startsWith("$") && !key.includes("_");
         const notInRadioGroup = !usedPlaceholders.has(key);
         const notHidden = !def.group?.startsWith("radio_hidden_");
         return (isCheckbox || isDollarField) && notInRadioGroup && notHidden;
@@ -160,6 +183,55 @@ export function RadioGroupManager({
     );
   };
 
+  // Add child field to option
+  const addChildField = (groupId: string, placeholder: string, childField: string) => {
+    setRadioGroups(
+      radioGroups.map((g) => {
+        if (g.id !== groupId) return g;
+        return {
+          ...g,
+          options: g.options.map((opt) => {
+            if (opt.placeholder !== placeholder) return opt;
+            const currentChildren = opt.childFields || [];
+            if (currentChildren.includes(childField)) return opt;
+            return { ...opt, childFields: [...currentChildren, childField] };
+          }),
+        };
+      })
+    );
+    setChildFieldsUsed(new Set([...childFieldsUsed, childField]));
+  };
+
+  // Remove child field from option
+  const removeChildField = (groupId: string, placeholder: string, childField: string) => {
+    setRadioGroups(
+      radioGroups.map((g) => {
+        if (g.id !== groupId) return g;
+        return {
+          ...g,
+          options: g.options.map((opt) => {
+            if (opt.placeholder !== placeholder) return opt;
+            return {
+              ...opt,
+              childFields: (opt.childFields || []).filter(cf => cf !== childField),
+            };
+          }),
+        };
+      })
+    );
+    // Remove from used set
+    const newUsed = new Set(childFieldsUsed);
+    newUsed.delete(childField);
+    setChildFieldsUsed(newUsed);
+  };
+
+  // Get available child fields for a placeholder (fields with suffix like $3_D for $3)
+  const getAvailableChildFields = (placeholder: string) => {
+    const potentialChildren = getPotentialChildFields(placeholder, allFieldKeys);
+    // Filter out already used child fields (except those already assigned to this option)
+    return potentialChildren.filter(cf => !childFieldsUsed.has(cf));
+  };
+
   // Save to field definitions
   const handleSave = () => {
     const updatedDefinitions = { ...fieldDefinitions };
@@ -173,7 +245,7 @@ export function RadioGroupManager({
         delete def.radioGroupId;
         delete def.radioOptions;
       }
-      if (def.group?.startsWith("radio_hidden_")) {
+      if (def.group?.startsWith("radio_hidden_") || def.group?.startsWith("radio_child_")) {
         delete def.group;
       }
     });
@@ -203,6 +275,15 @@ export function RadioGroupManager({
             group: `radio_hidden_${group.id}`,
           };
         }
+        // Mark child fields as conditional (hidden by default, shown when parent selected)
+        opt.childFields?.forEach((childKey) => {
+          if (updatedDefinitions[childKey]) {
+            updatedDefinitions[childKey] = {
+              ...updatedDefinitions[childKey],
+              group: `radio_child_${group.id}_${opt.placeholder}`,
+            };
+          }
+        });
       });
     });
 
@@ -315,34 +396,89 @@ export function RadioGroupManager({
                         เลือก placeholder จากด้านล่างเพื่อเพิ่มตัวเลือก
                       </p>
                     ) : (
-                      group.options.map((option, index) => (
-                        <div
-                          key={option.placeholder}
-                          className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg"
-                        >
-                          <div className="flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-600 rounded-full text-xs font-medium">
-                            {index + 1}
-                          </div>
-                          <span className="font-mono text-sm text-gray-600 bg-white px-2 py-1 rounded border">
-                            {`{{${option.placeholder}}}`}
-                          </span>
-                          <input
-                            type="text"
-                            value={option.label}
-                            onChange={(e) =>
-                              updateOptionLabel(group.id, option.placeholder, e.target.value)
-                            }
-                            placeholder="ป้ายกำกับ (เช่น ชาย / Male)"
-                            className="flex-1 px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
-                          <button
-                            onClick={() => removeOptionFromGroup(group.id, option.placeholder)}
-                            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
+                      group.options.map((option, index) => {
+                        const availableChildren = getAvailableChildFields(option.placeholder);
+                        const currentChildren = option.childFields || [];
+                        const hasChildOptions = availableChildren.length > 0 || currentChildren.length > 0;
+
+                        return (
+                          <div
+                            key={option.placeholder}
+                            className="bg-gray-50 rounded-lg overflow-hidden"
                           >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ))
+                            <div className="flex items-center gap-3 p-2">
+                              <div className="flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-600 rounded-full text-xs font-medium">
+                                {index + 1}
+                              </div>
+                              <span className="font-mono text-sm text-gray-600 bg-white px-2 py-1 rounded border">
+                                {`{{${option.placeholder}}}`}
+                              </span>
+                              <input
+                                type="text"
+                                value={option.label}
+                                onChange={(e) =>
+                                  updateOptionLabel(group.id, option.placeholder, e.target.value)
+                                }
+                                placeholder="ป้ายกำกับ (เช่น ชาย / Male)"
+                                className="flex-1 px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              />
+                              <button
+                                onClick={() => removeOptionFromGroup(group.id, option.placeholder)}
+                                className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+
+                            {/* Child fields section */}
+                            {hasChildOptions && (
+                              <div className="px-4 pb-3 pt-1 ml-8 border-l-2 border-blue-200">
+                                <div className="text-xs text-gray-500 mb-2">
+                                  ฟิลด์ลูก (แสดงเมื่อเลือกตัวเลือกนี้):
+                                </div>
+                                {/* Current child fields */}
+                                {currentChildren.length > 0 && (
+                                  <div className="flex flex-wrap gap-1 mb-2">
+                                    {currentChildren.map((childField) => (
+                                      <span
+                                        key={childField}
+                                        className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-mono"
+                                      >
+                                        {`{{${childField}}}`}
+                                        <button
+                                          onClick={() => removeChildField(group.id, option.placeholder, childField)}
+                                          className="hover:text-red-500"
+                                        >
+                                          <X className="w-3 h-3" />
+                                        </button>
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                                {/* Add child field dropdown */}
+                                {availableChildren.length > 0 && (
+                                  <select
+                                    className="w-full px-2 py-1.5 text-xs border border-dashed border-gray-300 rounded-lg text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                                    value=""
+                                    onChange={(e) => {
+                                      if (e.target.value) {
+                                        addChildField(group.id, option.placeholder, e.target.value);
+                                      }
+                                    }}
+                                  >
+                                    <option value="">+ เพิ่มฟิลด์ลูก...</option>
+                                    {availableChildren.map((field) => (
+                                      <option key={field} value={field}>
+                                        {`{{${field}}}`} - {fieldDefinitions[field]?.label || field}
+                                      </option>
+                                    ))}
+                                  </select>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })
                     )}
 
                     {/* Add Option Dropdown */}
