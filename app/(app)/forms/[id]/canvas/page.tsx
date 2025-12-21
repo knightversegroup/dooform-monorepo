@@ -958,15 +958,21 @@ export default function CanvasPage() {
                     onClose={() => setShowRadioGroupManager(false)}
                     fieldDefinitions={fieldDefinitions}
                     onSave={async (updatedDefinitions) => {
-                        // Update local state
-                        setFieldDefinitions(updatedDefinitions);
-                        // Save to backend
+                        // Save to backend first, then update local state on success
                         if (template) {
                             try {
+                                console.log("[Canvas] Saving radio group definitions to backend...");
                                 await apiClient.updateFieldDefinitions(template.id, updatedDefinitions);
+                                console.log("[Canvas] Radio group definitions saved successfully");
+                                // Update local state only after successful save
+                                setFieldDefinitions(updatedDefinitions);
                             } catch (err) {
                                 console.error("Failed to save radio groups:", err);
+                                setSuggestionError(`บันทึก Radio Group ไม่สำเร็จ: ${err instanceof Error ? err.message : 'Unknown error'}`);
                             }
+                        } else {
+                            // No template, just update local state
+                            setFieldDefinitions(updatedDefinitions);
                         }
                     }}
                 />

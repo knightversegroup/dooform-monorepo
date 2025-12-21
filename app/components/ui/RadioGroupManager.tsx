@@ -234,7 +234,11 @@ export function RadioGroupManager({
 
   // Save to field definitions
   const handleSave = () => {
-    const updatedDefinitions = { ...fieldDefinitions };
+    // Create a deep copy to avoid mutating the original
+    const updatedDefinitions: Record<string, FieldDefinition> = {};
+    Object.entries(fieldDefinitions).forEach(([key, def]) => {
+      updatedDefinitions[key] = { ...def };
+    });
 
     // First, clean up any existing radio group configurations
     Object.keys(updatedDefinitions).forEach((key) => {
@@ -252,10 +256,18 @@ export function RadioGroupManager({
 
     // Apply new radio group configurations
     radioGroups.forEach((group) => {
-      if (group.options.length < 2) return; // Need at least 2 options
+      if (group.options.length < 2) {
+        console.log(`[RadioGroup] Skipping group ${group.id}: less than 2 options`);
+        return;
+      }
 
       const masterKey = group.masterPlaceholder;
-      if (!masterKey || !updatedDefinitions[masterKey]) return;
+      if (!masterKey || !updatedDefinitions[masterKey]) {
+        console.log(`[RadioGroup] Skipping group ${group.id}: no master key or master not found`);
+        return;
+      }
+
+      console.log(`[RadioGroup] Processing group ${group.id} with master ${masterKey}`);
 
       // Update master field to be a radio group
       updatedDefinitions[masterKey] = {
@@ -269,11 +281,17 @@ export function RadioGroupManager({
 
       // Mark other options as hidden
       group.options.forEach((opt) => {
-        if (opt.placeholder !== masterKey && updatedDefinitions[opt.placeholder]) {
-          updatedDefinitions[opt.placeholder] = {
-            ...updatedDefinitions[opt.placeholder],
-            group: `radio_hidden_${group.id}`,
-          };
+        console.log(`[RadioGroup] Processing option ${opt.placeholder}, master is ${masterKey}`);
+        if (opt.placeholder !== masterKey) {
+          if (updatedDefinitions[opt.placeholder]) {
+            console.log(`[RadioGroup] Setting ${opt.placeholder} group to radio_hidden_${group.id}`);
+            updatedDefinitions[opt.placeholder] = {
+              ...updatedDefinitions[opt.placeholder],
+              group: `radio_hidden_${group.id}`,
+            };
+          } else {
+            console.warn(`[RadioGroup] WARNING: ${opt.placeholder} not found in definitions!`);
+          }
         }
         // Mark child fields as conditional (hidden by default, shown when parent selected)
         opt.childFields?.forEach((childKey) => {
@@ -286,6 +304,13 @@ export function RadioGroupManager({
         });
       });
     });
+
+    // Log final state of definitions being saved
+    console.log("[RadioGroup] Final definitions to save:",
+      Object.entries(updatedDefinitions)
+        .filter(([, def]) => def.isRadioGroup || def.group?.startsWith("radio_"))
+        .map(([key, def]) => ({ key, isRadioGroup: def.isRadioGroup, group: def.group }))
+    );
 
     onSave(updatedDefinitions);
     onClose();

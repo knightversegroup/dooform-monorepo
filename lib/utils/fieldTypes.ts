@@ -569,8 +569,15 @@ export function groupFieldsBySavedGroup(definitions: Record<string, FieldDefinit
 
     // Group fields by their saved group name
     // Group format can be "name|colorIndex" or just "name"
+    // Skip hidden fields (merged_hidden_, radio_hidden_, radio_child_)
     Object.entries(definitions).forEach(([, def]) => {
-        const rawGroup = def.group && !def.group.startsWith("merged_hidden_") ? def.group : "ทั่วไป";
+        // Skip hidden fields - these should already be filtered, but double-check here
+        if (def.group?.startsWith("merged_hidden_") ||
+            def.group?.startsWith("radio_hidden_") ||
+            def.group?.startsWith("radio_child_")) {
+            return;
+        }
+        const rawGroup = def.group || "ทั่วไป";
         // Parse group format: "name|colorIndex" or just "name"
         const [groupName, colorStr] = rawGroup.includes("|")
             ? rawGroup.split("|")
