@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ChevronLeft, Shield, User, X, Plus, Minus } from 'lucide-react';
+import { ChevronLeft, Shield, User, X, Plus, RotateCcw } from 'lucide-react';
 import { apiClient } from '@/lib/api/client';
 import type { UserListItem, Role, QuotaTransaction } from '@/lib/auth/types';
 import LogoLoaderInline from '@/app/components/LogoLoaderInline';
@@ -100,8 +100,10 @@ export default function AdminUserDetailPage() {
   const handleQuotaSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const amount = parseInt(quotaAmount);
-    if (isNaN(amount) || amount <= 0) {
-      alert('กรุณากรอกจำนวนที่ถูกต้อง');
+    // For add mode: require amount > 0
+    // For set mode: allow amount >= 0
+    if (isNaN(amount) || (quotaMode === 'add' && amount <= 0) || (quotaMode === 'set' && amount < 0)) {
+      alert(quotaMode === 'add' ? 'กรุณากรอกจำนวนที่มากกว่า 0' : 'กรุณากรอกจำนวนที่ถูกต้อง');
       return;
     }
 
@@ -118,6 +120,23 @@ export default function AdminUserDetailPage() {
       fetchQuotaHistory();
     } catch (err) {
       alert(err instanceof Error ? err.message : 'ไม่สามารถอัปเดตโควต้าได้');
+    } finally {
+      setSubmittingQuota(false);
+    }
+  };
+
+  const handleResetUsage = async () => {
+    if (!confirm('ต้องการรีเซ็ตการใช้งานโควต้าหรือไม่? การดำเนินการนี้จะทำให้โควต้าที่ใช้ไปเป็น 0')) {
+      return;
+    }
+
+    try {
+      setSubmittingQuota(true);
+      await apiClient.resetQuotaUsage(userId);
+      fetchUser();
+      fetchQuotaHistory();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'ไม่สามารถรีเซ็ตโควต้าได้');
     } finally {
       setSubmittingQuota(false);
     }
@@ -175,7 +194,12 @@ export default function AdminUserDetailPage() {
   );
 
   const displayName = user.display_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'ไม่ระบุชื่อ';
-  const quotaPercentage = user.quota?.total ? (user.quota.remaining / user.quota.total) * 100 : 0;
+  // Handle negative remaining quota properly
+  const remaining = user.quota?.remaining ?? 0;
+  const total = user.quota?.total ?? 0;
+  const used = user.quota?.used ?? 0;
+  const isNegative = remaining < 0;
+  const quotaPercentage = total > 0 ? Math.max(0, (remaining / total) * 100) : 0;
 
   return (
     <div className="min-h-screen bg-white font-sans">
@@ -320,16 +344,35 @@ export default function AdminUserDetailPage() {
             <div className="mb-4 p-4 bg-gray-50 rounded-sm">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm text-gray-500">โควต้าปัจจุบัน:</span>
-                <span className="font-semibold text-gray-900">
-                  {user.quota?.remaining ?? 0} / {user.quota?.total ?? 0}
+                <span className={`font-semibold ${isNegative ? 'text-red-600' : 'text-gray-900'}`}>
+                  {remaining} / {total}
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
-                  className="bg-[#000091] h-2 rounded-full transition-all"
+                  className={`h-2 rounded-full transition-all ${isNegative ? 'bg-red-500' : 'bg-[#000091]'}`}
                   style={{ width: `${quotaPercentage}%` }}
                 />
               </div>
+              {isNegative && (
+                <p className="text-xs text-red-600 mt-2">
+                  ใช้งานเกินโควต้า {Math.abs(remaining)} รายการ (ใช้ไป {used}, กำหนด {total})
+                </p>
+              )}
+              {used > 0 && (
+                <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-200">
+                  <span className="text-xs text-gray-500">ใช้งานแล้ว: {used} รายการ</span>
+                  <button
+                    type="button"
+                    onClick={handleResetUsage}
+                    disabled={submittingQuota}
+                    className="flex items-center gap-1 text-xs text-orange-600 hover:text-orange-700 font-medium disabled:opacity-50"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    รีเซ็ตการใช้งาน
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Modify Quota Form */}
@@ -365,7 +408,7 @@ export default function AdminUserDetailPage() {
                 value={quotaAmount}
                 onChange={(e) => setQuotaAmount(e.target.value)}
                 placeholder={quotaMode === 'add' ? 'จำนวนที่ต้องการเพิ่ม' : 'จำนวนโควต้าใหม่'}
-                min="1"
+                min={quotaMode === 'add' ? '1' : '0'}
                 className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#000091] focus:border-transparent"
               />
 

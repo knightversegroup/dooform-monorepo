@@ -1567,6 +1567,16 @@ class ApiClient {
     return this.handleResponseWithRetry<{ message: string }>(response, makeRequest);
   }
 
+  async resetQuotaUsage(userId: number): Promise<{ message: string }> {
+    const makeRequest = () => fetch(`${this.baseUrl}/auth/admin/users/${userId}/quota/reset`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+    });
+
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<{ message: string }>(response, makeRequest);
+  }
+
   async getUserQuotaHistory(userId: number): Promise<import('../auth/types').QuotaTransaction[]> {
     const makeRequest = () => fetch(`${this.baseUrl}/auth/admin/users/${userId}/quota/history`, {
       headers: this.getAuthHeaders(),
