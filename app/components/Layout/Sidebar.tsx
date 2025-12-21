@@ -277,7 +277,7 @@ function ResizeHandle({
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { isAdmin, user, isAuthenticated } = useAuth();
+  const { isAdmin, user, isAuthenticated, refreshQuota } = useAuth();
   const {
     width,
     isCollapsed,
@@ -292,6 +292,13 @@ export default function Sidebar() {
   const remaining = quota?.remaining ?? 0;
   const total = quota?.total ?? 0;
   const showQuota = isAuthenticated && !isAdmin && quota;
+
+  // Refresh quota on mount for non-admin users
+  useEffect(() => {
+    if (isAuthenticated && !isAdmin) {
+      refreshQuota();
+    }
+  }, [isAuthenticated, isAdmin, refreshQuota]);
 
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
