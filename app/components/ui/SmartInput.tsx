@@ -738,60 +738,37 @@ export const SmartInput = forwardRef<HTMLInputElement | HTMLSelectElement | HTML
                 };
 
                 return (
-                    <div className="space-y-2">
-                        <div className="flex gap-2 items-start">
-                            <div className="flex-1">
-                                <AddressAutocomplete
-                                    value={value}
-                                    onChange={handleLocationChange}
-                                    onAddressSelect={handleLocationSelect}
-                                    placeholder={getPlaceholderText(locationOutputFormat)}
-                                    searchLevel={searchLevel}
-                                    disabled={disabled}
-                                />
-                            </div>
-                            {/* Text case format selector */}
-                            <select
-                                value={textCaseFormat}
-                                onChange={(e) => {
-                                    const newFormat = e.target.value as TextCaseFormat;
-                                    setTextCaseFormat(newFormat);
-                                    if (value) {
-                                        handleChange(formatTextCase(value, newFormat));
-                                    }
-                                }}
+                    <div className="flex gap-2 items-start">
+                        <div className="flex-1">
+                            <AddressAutocomplete
+                                value={value}
+                                onChange={handleLocationChange}
+                                onAddressSelect={handleLocationSelect}
+                                placeholder={getPlaceholderText(locationOutputFormat)}
+                                searchLevel={searchLevel}
                                 disabled={disabled}
-                                className={`${compact ? 'p-1.5 text-xs' : 'p-2 text-xs'} text-text-muted bg-surface-alt border border-border-default rounded-lg focus:outline-none focus:border-primary transition-colors disabled:opacity-50 min-w-[70px]`}
-                                title="Text case format"
-                            >
-                                {TEXT_CASE_OPTIONS.map((option) => (
-                                    <option key={option.value} value={option.value}>
-                                        {option.label}
-                                    </option>
-                                ))}
-                            </select>
+                            />
                         </div>
-                        {/* Location output format selector */}
-                        <div className="flex items-center gap-2">
-                            <span className="text-xs text-text-muted">Output:</span>
-                            <select
-                                value={locationOutputFormat}
-                                onChange={(e) => {
-                                    const newFormat = e.target.value as LocationOutputFormat;
-                                    setLocationOutputFormat(newFormat);
-                                    onLocationOutputFormatChange?.(newFormat);
-                                }}
-                                disabled={disabled}
-                                className={`flex-1 ${compact ? 'p-1.5 text-xs' : 'p-2 text-xs'} text-text-muted bg-surface-alt border border-border-default rounded-lg focus:outline-none focus:border-primary transition-colors disabled:opacity-50`}
-                                title="Select which location data to output"
-                            >
-                                {LOCATION_OUTPUT_FORMAT_OPTIONS.map((option) => (
-                                    <option key={option.value} value={option.value} title={option.description}>
-                                        {option.label}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                        {/* Text case format selector */}
+                        <select
+                            value={textCaseFormat}
+                            onChange={(e) => {
+                                const newFormat = e.target.value as TextCaseFormat;
+                                setTextCaseFormat(newFormat);
+                                if (value) {
+                                    handleChange(formatTextCase(value, newFormat));
+                                }
+                            }}
+                            disabled={disabled}
+                            className={`${compact ? 'p-1.5 text-xs' : 'p-2 text-xs'} text-text-muted bg-surface-alt border border-border-default rounded-lg focus:outline-none focus:border-primary transition-colors disabled:opacity-50 min-w-[70px]`}
+                            title="Text case format"
+                        >
+                            {TEXT_CASE_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                 );
             }
