@@ -534,9 +534,50 @@ function EndNode() {
     );
 }
 
+// Detect page orientation from HTML content
+function detectOrientation(htmlContent: string): 'portrait' | 'landscape' {
+    // Check for @page with landscape orientation
+    if (/@page\s*{[^}]*size\s*:\s*[^;]*landscape/i.test(htmlContent)) {
+        return 'landscape';
+    }
+    // Check for mso-page-orientation (Microsoft Office format)
+    if (/mso-page-orientation\s*:\s*landscape/i.test(htmlContent)) {
+        return 'landscape';
+    }
+    // Check for size specification with landscape dimensions (width > height)
+    const sizeMatch = htmlContent.match(/size\s*:\s*(\d+(?:\.\d+)?)\s*(mm|cm|in|pt)\s+(\d+(?:\.\d+)?)\s*(mm|cm|in|pt)/i);
+    if (sizeMatch) {
+        const width = parseFloat(sizeMatch[1]);
+        const height = parseFloat(sizeMatch[3]);
+        if (sizeMatch[2] === sizeMatch[4] && width > height) {
+            return 'landscape';
+        }
+    }
+    // Check for explicit width styles suggesting landscape (Word exports)
+    const widthMatch = htmlContent.match(/style\s*=\s*["'][^"']*width\s*:\s*(\d+(?:\.\d+)?)\s*(pt|px|mm|cm)/i);
+    if (widthMatch) {
+        const widthValue = parseFloat(widthMatch[1]);
+        const unit = widthMatch[2].toLowerCase();
+        if ((unit === 'pt' && widthValue > 700) || (unit === 'mm' && widthValue > 250)) {
+            return 'landscape';
+        }
+    }
+    return 'portrait';
+}
+
+// A4 dimensions in pixels at 96dpi
+const A4_DIMENSIONS = {
+    portrait: { width: 794, height: 1123, contentWidth: 762 },
+    landscape: { width: 1123, height: 794, contentWidth: 1091 },
+};
+
 // Preview Node Component
 function PreviewNode({ data }: { data: { html: string; loading: boolean } }) {
     const iframeRef = useRef<HTMLIFrameElement>(null);
+
+    // Detect orientation from HTML content
+    const orientation = useMemo(() => detectOrientation(data.html || ''), [data.html]);
+    const dimensions = A4_DIMENSIONS[orientation];
 
     useEffect(() => {
         const iframe = iframeRef.current;
@@ -557,9 +598,9 @@ function PreviewNode({ data }: { data: { html: string; loading: boolean } }) {
         return () => iframe.removeEventListener("load", handleLoad);
     }, []);
 
-    // A4 size: 210mm x 297mm ≈ 794px x 1123px at 96dpi
+    // A4 size: Portrait 210mm x 297mm ≈ 794px x 1123px, Landscape 297mm x 210mm ≈ 1123px x 794px at 96dpi
     return (
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-gray-200 overflow-hidden" style={{ width: 794 }}>
+        <div className="bg-white rounded-2xl shadow-lg border-2 border-gray-200 overflow-hidden" style={{ width: dimensions.width }}>
             <Handle
                 type="target"
                 position={Position.Left}
@@ -569,25 +610,27 @@ function PreviewNode({ data }: { data: { html: string; loading: boolean } }) {
             {/* Header */}
             <div className="px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center gap-2">
                 <FileText className="w-4 h-4 text-gray-500" />
-                <p className="text-sm font-semibold text-gray-700">ตัวอย่างเอกสาร (A4)</p>
+                <p className="text-sm font-semibold text-gray-700">
+                    ตัวอย่างเอกสาร (A4 {orientation === 'landscape' ? 'แนวนอน' : 'แนวตั้ง'})
+                </p>
             </div>
 
             {/* Preview Content - A4 size */}
             <div className="bg-gray-100 p-4 nodrag">
                 {data.loading ? (
-                    <div className="flex items-center justify-center" style={{ height: 1123 }}>
+                    <div className="flex items-center justify-center" style={{ height: dimensions.height }}>
                         <div className="text-center">
                             <Loader2 className="w-6 h-6 text-blue-500 animate-spin mx-auto mb-2" />
                             <p className="text-xs text-gray-500">กำลังโหลด...</p>
                         </div>
                     </div>
                 ) : (
-                    <div className="bg-white shadow-md" style={{ width: 762, minHeight: 1123 }}>
+                    <div className="bg-white shadow-md" style={{ width: dimensions.contentWidth, minHeight: dimensions.height }}>
                         <iframe
                             ref={iframeRef}
                             srcDoc={data.html}
                             className="w-full border-0 block"
-                            style={{ minHeight: 1123 }}
+                            style={{ minHeight: dimensions.height }}
                             title="Preview"
                             sandbox="allow-same-origin"
                         />

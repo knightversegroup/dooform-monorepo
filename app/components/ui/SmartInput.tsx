@@ -2,7 +2,7 @@
 
 import { forwardRef, useState, useRef, useEffect } from "react";
 import { Calendar, Type } from "lucide-react";
-import { FieldDefinition, DateFormat, RadioOption } from "@/lib/api/types";
+import { FieldDefinition, DateFormat, RadioOption, LocationOutputFormat } from "@/lib/api/types";
 
 // Text case format options
 type TextCaseFormat = 'none' | 'uppercase' | 'lowercase' | 'capitalize';
@@ -12,6 +12,16 @@ const TEXT_CASE_OPTIONS: { value: TextCaseFormat; label: string }[] = [
     { value: 'capitalize', label: 'Aa Bb' },
     { value: 'uppercase', label: 'AA BB' },
     { value: 'lowercase', label: 'aa bb' },
+];
+
+// Location output format options (Sub-district → District → Province order)
+const LOCATION_OUTPUT_FORMAT_OPTIONS: { value: LocationOutputFormat; label: string; description: string }[] = [
+    { value: 'subdistrict', label: 'Sub-district', description: 'ตำบล/แขวง (name_eng3)' },
+    { value: 'district', label: 'District', description: 'อำเภอ/เขต (name_eng2)' },
+    { value: 'province', label: 'Province', description: 'จังหวัด (name_eng1)' },
+    { value: 'district_subdistrict', label: 'Sub-district + District', description: 'name_eng3, name_eng2' },
+    { value: 'province_district', label: 'District + Province', description: 'name_eng2, name_eng1' },
+    { value: 'all_english', label: 'All (Sub-district → District → Province)', description: 'name_eng3, name_eng2, name_eng1' },
 ];
 
 // Format text based on case format
@@ -48,6 +58,7 @@ interface SmartInputProps {
     onBlur?: () => void;
     onAddressSelect?: (address: AddressSelection) => void;
     onDateFormatChange?: (format: DateFormat) => void;
+    onLocationOutputFormatChange?: (format: LocationOutputFormat) => void;
     alias?: string;
     disabled?: boolean;
     showPlaceholderKey?: boolean;
@@ -56,12 +67,13 @@ interface SmartInputProps {
 }
 
 export const SmartInput = forwardRef<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement, SmartInputProps>(
-    ({ definition, value, onChange, onFocus, onBlur, onAddressSelect, onDateFormatChange, alias, disabled, showPlaceholderKey = true, compact = false, hideLabel = false }, ref) => {
+    ({ definition, value, onChange, onFocus, onBlur, onAddressSelect, onDateFormatChange, onLocationOutputFormatChange, alias, disabled, showPlaceholderKey = true, compact = false, hideLabel = false }, ref) => {
         const [touched, setTouched] = useState(false);
         const [error, setError] = useState<string | null>(null);
         const [dateFormat, setDateFormat] = useState<DateFormat>(definition.dateFormat || 'dd/mm/yyyy');
         const [showDatePicker, setShowDatePicker] = useState(false);
         const [textCaseFormat, setTextCaseFormat] = useState<TextCaseFormat>('none');
+        const [locationOutputFormat, setLocationOutputFormat] = useState<LocationOutputFormat>(definition.locationOutputFormat || 'district');
         const datePickerRef = useRef<HTMLInputElement>(null);
 
         const label = alias || definition.placeholder.replace(/\{\{|\}\}/g, '');
@@ -318,6 +330,135 @@ export const SmartInput = forwardRef<HTMLInputElement | HTMLSelectElement | HTML
                         inputMode="numeric"
                         className={baseInputClass}
                     />
+                );
+            }
+
+            // Location input with output format selector
+            if (inputType === 'location') {
+                // Determine search level based on output format
+                const getSearchLevel = (format: LocationOutputFormat): AddressSearchLevel => {
+                    switch (format) {
+                        case 'province':
+                            return 'province';
+                        case 'district':
+                        case 'province_district':
+                            return 'district';
+                        case 'subdistrict':
+                        case 'district_subdistrict':
+                        case 'all_english':
+                        default:
+                            return 'subdistrict';
+                    }
+                };
+
+                const searchLevel = getSearchLevel(locationOutputFormat);
+
+                const getPlaceholderText = (format: LocationOutputFormat): string => {
+                    switch (format) {
+                        case 'province':
+                            return 'Search Province...';
+                        case 'district':
+                        case 'province_district':
+                            return 'Search District...';
+                        case 'subdistrict':
+                        case 'district_subdistrict':
+                        case 'all_english':
+                        default:
+                            return 'Search Sub-district...';
+                    }
+                };
+
+                const handleLocationChange = (newValue: string) => {
+                    const formattedValue = formatTextCase(newValue, textCaseFormat);
+                    handleChange(formattedValue);
+                };
+
+                const handleLocationSelect = (address: AddressSelection) => {
+                    // Format the value based on the selected output format with labels
+                    let selectedValue = '';
+                    switch (locationOutputFormat) {
+                        case 'province':
+                            selectedValue = formatTextCase(address.provinceEn, textCaseFormat) + ' Province';
+                            break;
+                        case 'district':
+                            selectedValue = formatTextCase(address.districtEn, textCaseFormat) + ' District';
+                            break;
+                        case 'subdistrict':
+                            selectedValue = formatTextCase(address.subDistrictEn, textCaseFormat) + ' Sub-district';
+                            break;
+                        case 'province_district':
+                            // District → Province order
+                            selectedValue = `${formatTextCase(address.districtEn, textCaseFormat)} District, ${formatTextCase(address.provinceEn, textCaseFormat)} Province`;
+                            break;
+                        case 'district_subdistrict':
+                            // Sub-district → District order
+                            selectedValue = `${formatTextCase(address.subDistrictEn, textCaseFormat)} Sub-district, ${formatTextCase(address.districtEn, textCaseFormat)} District`;
+                            break;
+                        case 'all_english':
+                        default:
+                            selectedValue = `${formatTextCase(address.subDistrictEn, textCaseFormat)} Sub-district, ${formatTextCase(address.districtEn, textCaseFormat)} District, ${formatTextCase(address.provinceEn, textCaseFormat)} Province`;
+                            break;
+                    }
+                    handleChange(selectedValue);
+                    onAddressSelect?.(address);
+                };
+
+                return (
+                    <div className="space-y-2">
+                        <div className="flex gap-2 items-start">
+                            <div className="flex-1">
+                                <AddressAutocomplete
+                                    value={value}
+                                    onChange={handleLocationChange}
+                                    onAddressSelect={handleLocationSelect}
+                                    placeholder={getPlaceholderText(locationOutputFormat)}
+                                    searchLevel={searchLevel}
+                                    disabled={disabled}
+                                />
+                            </div>
+                            {/* Text case format selector */}
+                            <select
+                                value={textCaseFormat}
+                                onChange={(e) => {
+                                    const newFormat = e.target.value as TextCaseFormat;
+                                    setTextCaseFormat(newFormat);
+                                    if (value) {
+                                        handleChange(formatTextCase(value, newFormat));
+                                    }
+                                }}
+                                disabled={disabled}
+                                className={`${compact ? 'p-1.5 text-xs' : 'p-2 text-xs'} text-text-muted bg-surface-alt border border-border-default rounded-lg focus:outline-none focus:border-primary transition-colors disabled:opacity-50 min-w-[70px]`}
+                                title="Text case format"
+                            >
+                                {TEXT_CASE_OPTIONS.map((option) => (
+                                    <option key={option.value} value={option.value}>
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        {/* Location output format selector */}
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs text-text-muted">Output:</span>
+                            <select
+                                value={locationOutputFormat}
+                                onChange={(e) => {
+                                    const newFormat = e.target.value as LocationOutputFormat;
+                                    setLocationOutputFormat(newFormat);
+                                    onLocationOutputFormatChange?.(newFormat);
+                                }}
+                                disabled={disabled}
+                                className={`flex-1 ${compact ? 'p-1.5 text-xs' : 'p-2 text-xs'} text-text-muted bg-surface-alt border border-border-default rounded-lg focus:outline-none focus:border-primary transition-colors disabled:opacity-50`}
+                                title="Select which location data to output"
+                            >
+                                {LOCATION_OUTPUT_FORMAT_OPTIONS.map((option) => (
+                                    <option key={option.value} value={option.value} title={option.description}>
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
                 );
             }
 

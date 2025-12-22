@@ -38,7 +38,16 @@ export type Entity =
   | 'registrar'
   | 'general';
 
-export type InputType = 'text' | 'select' | 'date' | 'time' | 'number' | 'textarea' | 'checkbox' | 'merged' | 'radio';
+export type InputType = 'text' | 'select' | 'date' | 'time' | 'number' | 'textarea' | 'checkbox' | 'merged' | 'radio' | 'location';
+
+// Location output format - determines which administrative boundary fields are returned
+export type LocationOutputFormat =
+  | 'province'           // name_eng1 only (Province)
+  | 'district'           // name_eng2 only (District)
+  | 'subdistrict'        // name_eng3 only (Sub-district)
+  | 'all_english'        // name_eng1 + name_eng2 + name_eng3 (Province, District, Sub-district)
+  | 'province_district'  // name_eng1 + name_eng2 (Province, District)
+  | 'district_subdistrict'; // name_eng2 + name_eng3 (District, Sub-district)
 
 // Page orientation type
 export type PageOrientation = 'portrait' | 'landscape';
@@ -87,6 +96,9 @@ export interface FieldDefinition {
   isRadioGroup?: boolean;       // Whether this field is a radio group master
   radioGroupId?: string;        // Unique identifier for the radio group
   radioOptions?: RadioOption[]; // List of radio options with their placeholders
+
+  // Location input properties (for Thai administrative boundary selection)
+  locationOutputFormat?: LocationOutputFormat; // Which fields to output (province, district, subdistrict, all_english, etc.)
 }
 
 // Detected mergeable group from placeholders

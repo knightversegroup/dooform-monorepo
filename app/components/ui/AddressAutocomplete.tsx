@@ -67,26 +67,26 @@ export function AddressAutocomplete({
           // Deduplicate by province only
           key = item.admin_id1;
           displayPrimary = item.name1;
-          displaySecondary = item.name_eng1;
+          displaySecondary = `${item.name_eng1} Province`;
           break;
         case 'district':
           // Deduplicate by province + district
           key = `${item.admin_id1}-${item.admin_id2}`;
           displayPrimary = item.name2;
-          displaySecondary = `${item.name_eng2} (${item.name1})`;
+          displaySecondary = `${item.name_eng2} District (${item.name_eng1} Province)`;
           break;
         case 'subdistrict':
           // Deduplicate by province + district + subdistrict
           key = `${item.admin_id1}-${item.admin_id2}-${item.admin_id3}`;
           displayPrimary = item.name3;
-          displaySecondary = `${item.name_eng3} (${item.name2}, ${item.name1})`;
+          displaySecondary = `${item.name_eng3} Sub-district (${item.name_eng2} District, ${item.name_eng1} Province)`;
           break;
         case 'full':
         default:
-          // No deduplication for full address
+          // No deduplication for full address (Sub-district → District → Province order)
           key = `${item.objectid}`;
           displayPrimary = `${item.name3} ${item.name2} ${item.name1}`;
-          displaySecondary = `${item.name_eng3}, ${item.name_eng2}, ${item.name_eng1}`;
+          displaySecondary = `${item.name_eng3} Sub-district, ${item.name_eng2} District, ${item.name_eng1} Province`;
           break;
       }
 
@@ -150,21 +150,22 @@ export function AddressAutocomplete({
     const boundary = result.original;
     const selection = addressService.toAddressSelection(boundary);
 
-    // Set the input value based on search level
+    // Set the input value based on search level with labels appended
     let selectedValue: string;
     switch (searchLevel) {
       case 'province':
-        selectedValue = boundary.name_eng1;
+        selectedValue = `${boundary.name_eng1} Province`;
         break;
       case 'district':
-        selectedValue = boundary.name_eng2;
+        selectedValue = `${boundary.name_eng2} District`;
         break;
       case 'subdistrict':
-        selectedValue = boundary.name_eng3;
+        selectedValue = `${boundary.name_eng3} Sub-district`;
         break;
       case 'full':
       default:
-        selectedValue = selection.fullAddressEn;
+        // Sub-district → District → Province order
+        selectedValue = `${boundary.name_eng3} Sub-district, ${boundary.name_eng2} District, ${boundary.name_eng1} Province`;
         break;
     }
 

@@ -194,6 +194,7 @@ class AddressService {
   }
 
   // Convert boundary to selection format
+  // Order: Sub-district → District → Province (smallest to largest)
   toAddressSelection(boundary: AdministrativeBoundary): AddressSelection {
     return {
       province: boundary.name1,
@@ -203,7 +204,7 @@ class AddressService {
       subDistrict: boundary.name3,
       subDistrictEn: boundary.name_eng3,
       fullAddress: `${boundary.name3} ${boundary.name2} ${boundary.name1}`,
-      fullAddressEn: `${boundary.name_eng3}, ${boundary.name_eng2}, ${boundary.name_eng1}`,
+      fullAddressEn: `${boundary.name_eng3} Sub-district, ${boundary.name_eng2} District, ${boundary.name_eng1} Province`,
     };
   }
 
