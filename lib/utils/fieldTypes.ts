@@ -13,144 +13,8 @@ import type {
 // Re-export types for convenience
 export type { DataType, Entity, InputType, FieldValidation, FieldDefinition, DateFormat, RadioOption };
 
-// Thai name prefixes
-export const NAME_PREFIX_OPTIONS = [
-    'นาย',
-    'นาง',
-    'นางสาว',
-    'ด.ช.',
-    'ด.ญ.',
-    'เด็กชาย',
-    'เด็กหญิง',
-    'Mr.',
-    'Mrs.',
-    'Ms.',
-    'Miss',
-];
-
-// Thai provinces
-export const PROVINCE_OPTIONS = [
-    'กรุงเทพมหานคร',
-    'กระบี่',
-    'กาญจนบุรี',
-    'กาฬสินธุ์',
-    'กำแพงเพชร',
-    'ขอนแก่น',
-    'จันทบุรี',
-    'ฉะเชิงเทรา',
-    'ชลบุรี',
-    'ชัยนาท',
-    'ชัยภูมิ',
-    'ชุมพร',
-    'เชียงราย',
-    'เชียงใหม่',
-    'ตรัง',
-    'ตราด',
-    'ตาก',
-    'นครนายก',
-    'นครปฐม',
-    'นครพนม',
-    'นครราชสีมา',
-    'นครศรีธรรมราช',
-    'นครสวรรค์',
-    'นนทบุรี',
-    'นราธิวาส',
-    'น่าน',
-    'บึงกาฬ',
-    'บุรีรัมย์',
-    'ปทุมธานี',
-    'ประจวบคีรีขันธ์',
-    'ปราจีนบุรี',
-    'ปัตตานี',
-    'พระนครศรีอยุธยา',
-    'พะเยา',
-    'พังงา',
-    'พัทลุง',
-    'พิจิตร',
-    'พิษณุโลก',
-    'เพชรบุรี',
-    'เพชรบูรณ์',
-    'แพร่',
-    'ภูเก็ต',
-    'มหาสารคาม',
-    'มุกดาหาร',
-    'แม่ฮ่องสอน',
-    'ยโสธร',
-    'ยะลา',
-    'ร้อยเอ็ด',
-    'ระนอง',
-    'ระยอง',
-    'ราชบุรี',
-    'ลพบุรี',
-    'ลำปาง',
-    'ลำพูน',
-    'เลย',
-    'ศรีสะเกษ',
-    'สกลนคร',
-    'สงขลา',
-    'สตูล',
-    'สมุทรปราการ',
-    'สมุทรสงคราม',
-    'สมุทรสาคร',
-    'สระแก้ว',
-    'สระบุรี',
-    'สิงห์บุรี',
-    'สุโขทัย',
-    'สุพรรณบุรี',
-    'สุราษฎร์ธานี',
-    'สุรินทร์',
-    'หนองคาย',
-    'หนองบัวลำภู',
-    'อ่างทอง',
-    'อำนาจเจริญ',
-    'อุดรธานี',
-    'อุตรดิตถ์',
-    'อุทัยธานี',
-    'อุบลราชธานี',
-];
-
-// Weekday options
-export const WEEKDAY_OPTIONS = [
-    'วันจันทร์',
-    'วันอังคาร',
-    'วันพุธ',
-    'วันพฤหัสบดี',
-    'วันศุกร์',
-    'วันเสาร์',
-    'วันอาทิตย์',
-];
-
-// Chinese zodiac
-export const ZODIAC_OPTIONS = [
-    'ชวด (หนู)',
-    'ฉลู (วัว)',
-    'ขาล (เสือ)',
-    'เถาะ (กระต่าย)',
-    'มะโรง (งูใหญ่)',
-    'มะเส็ง (งูเล็ก)',
-    'มะเมีย (ม้า)',
-    'มะแม (แพะ)',
-    'วอก (ลิง)',
-    'ระกา (ไก่)',
-    'จอ (หมา)',
-    'กุน (หมู)',
-];
-
-// Lunar months
-export const LUNAR_MONTH_OPTIONS = [
-    'เดือนอ้าย',
-    'เดือนยี่',
-    'เดือนสาม',
-    'เดือนสี่',
-    'เดือนห้า',
-    'เดือนหก',
-    'เดือนเจ็ด',
-    'เดือนแปด',
-    'เดือนเก้า',
-    'เดือนสิบ',
-    'เดือนสิบเอ็ด',
-    'เดือนสิบสอง',
-];
+// NOTE: Dropdown options (name prefixes, provinces, weekdays, zodiac, lunar months, etc.)
+// are now managed via Configurable Data Types in the console, not hardcoded here.
 
 // Date format options
 export const DATE_FORMAT_OPTIONS: { value: DateFormat; label: string; example: string }[] = [
@@ -327,11 +191,11 @@ export function detectFieldType(placeholder: string): FieldDefinition {
         return definition;
     }
 
-    // Name prefix patterns
+    // Name prefix patterns - options come from configurable data types
     if (lowerKey.includes('name_prefix') || lowerKey.includes('_prefix')) {
         definition.dataType = 'name_prefix';
         definition.inputType = 'select';
-        definition.validation = { options: NAME_PREFIX_OPTIONS };
+        // Options are loaded from configurable data types, not hardcoded
         return definition;
     }
 
@@ -357,19 +221,19 @@ export function detectFieldType(placeholder: string): FieldDefinition {
         return definition;
     }
 
-    // Weekday patterns
+    // Weekday patterns - options come from configurable data types
     if (lowerKey === 'weekday' || lowerKey.includes('weekday')) {
         definition.dataType = 'weekday';
         definition.inputType = 'select';
-        definition.validation = { options: WEEKDAY_OPTIONS };
+        // Options are loaded from configurable data types, not hardcoded
         return definition;
     }
 
-    // Province patterns
+    // Province patterns - options come from configurable data types
     if (lowerKey.includes('_prov') || lowerKey.includes('province')) {
         definition.dataType = 'province';
         definition.inputType = 'select';
-        definition.validation = { options: PROVINCE_OPTIONS };
+        // Options are loaded from configurable data types, not hardcoded
         return definition;
     }
 
@@ -425,19 +289,19 @@ export function detectFieldType(placeholder: string): FieldDefinition {
         return definition;
     }
 
-    // Zodiac patterns
+    // Zodiac patterns - options come from configurable data types
     if (lowerKey.includes('zodiac') || lowerKey === 'cn_zodiac') {
         definition.dataType = 'zodiac';
         definition.inputType = 'select';
-        definition.validation = { options: ZODIAC_OPTIONS };
+        // Options are loaded from configurable data types, not hardcoded
         return definition;
     }
 
-    // Lunar month patterns
+    // Lunar month patterns - options come from configurable data types
     if (lowerKey.includes('luna') || lowerKey === 'luna_m') {
         definition.dataType = 'lunar_month';
         definition.inputType = 'select';
-        definition.validation = { options: LUNAR_MONTH_OPTIONS };
+        // Options are loaded from configurable data types, not hardcoded
         return definition;
     }
 

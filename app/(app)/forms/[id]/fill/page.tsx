@@ -249,20 +249,18 @@ export default function FillFormPage({ params }: PageProps) {
               }
             }
 
-            // If inputType is 'select' and no validation.options, look it up from configurable data type
-            if (enhanced.inputType === 'select' && (!enhanced.validation?.options || enhanced.validation.options.length === 0)) {
-              if (dataTypeConfig?.options) {
-                try {
-                  const parsedOptions = JSON.parse(dataTypeConfig.options);
-                  if (Array.isArray(parsedOptions) && parsedOptions.length > 0) {
-                    enhanced.validation = {
-                      ...enhanced.validation,
-                      options: parsedOptions,
-                    };
-                  }
-                } catch (e) {
-                  console.error('Failed to parse options for data type:', dataTypeConfig.code, e);
+            // If inputType is 'select', always prefer options from configurable data type over hardcoded ones
+            if (enhanced.inputType === 'select' && dataTypeConfig?.options) {
+              try {
+                const parsedOptions = JSON.parse(dataTypeConfig.options);
+                if (Array.isArray(parsedOptions) && parsedOptions.length > 0) {
+                  enhanced.validation = {
+                    ...enhanced.validation,
+                    options: parsedOptions,
+                  };
                 }
+              } catch (e) {
+                console.error('Failed to parse options for data type:', dataTypeConfig.code, e);
               }
             }
 
