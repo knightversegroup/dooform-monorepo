@@ -1,33 +1,33 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import Script from 'next/script';
-import { useCookieConsent } from '@/lib/cookie/context';
+import { useEffect } from "react";
+import Script from "next/script";
+import { useCookieConsent } from "@/lib/cookie/context";
 
-const GTM_ID = 'GTM-WW8R39NW';
-const GA_ID = 'G-NQ0QY7SS77';
+const GTM_ID = "GTM-WW8R39NW";
+const GA_ID = "G-NQ0QY7SS77";
 
-export function Analytics() {
+export function AnalyticsG() {
   const { isConsentGiven, preferences } = useCookieConsent();
 
   // Initialize consent mode with default denied state
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       window.dataLayer = window.dataLayer || [];
 
       // Define gtag function if not exists
       if (!window.gtag) {
-        window.gtag = function(...args: unknown[]) {
+        window.gtag = function (...args: unknown[]) {
           window.dataLayer?.push(args);
         };
       }
 
       // Set default consent state (denied)
-      window.gtag('consent', 'default', {
-        analytics_storage: 'denied',
-        ad_storage: 'denied',
-        ad_user_data: 'denied',
-        ad_personalization: 'denied',
+      window.gtag("consent", "default", {
+        analytics_storage: "denied",
+        ad_storage: "denied",
+        ad_user_data: "denied",
+        ad_personalization: "denied",
         wait_for_update: 500,
       });
     }
@@ -35,12 +35,12 @@ export function Analytics() {
 
   // Update consent when preferences change
   useEffect(() => {
-    if (isConsentGiven && typeof window !== 'undefined' && window.gtag) {
-      window.gtag('consent', 'update', {
-        analytics_storage: preferences.analytics ? 'granted' : 'denied',
-        ad_storage: preferences.marketing ? 'granted' : 'denied',
-        ad_user_data: preferences.marketing ? 'granted' : 'denied',
-        ad_personalization: preferences.marketing ? 'granted' : 'denied',
+    if (isConsentGiven && typeof window !== "undefined" && window.gtag) {
+      window.gtag("consent", "update", {
+        analytics_storage: preferences.analytics ? "granted" : "denied",
+        ad_storage: preferences.marketing ? "granted" : "denied",
+        ad_user_data: preferences.marketing ? "granted" : "denied",
+        ad_personalization: preferences.marketing ? "granted" : "denied",
       });
     }
   }, [isConsentGiven, preferences]);
@@ -88,7 +88,7 @@ export function Analytics() {
           src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
           height="0"
           width="0"
-          style={{ display: 'none', visibility: 'hidden' }}
+          style={{ display: "none", visibility: "hidden" }}
         />
       </noscript>
     </>

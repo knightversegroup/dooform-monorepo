@@ -7,7 +7,8 @@ import {
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth/context";
 import { CookieConsentProvider } from "@/lib/cookie/context";
-import { CookieConsentBanner, Analytics } from "./components/CookieConsent";
+import { CookieConsentBanner, AnalyticsG } from "./components/CookieConsent";
+import { Analytics } from "@vercel/analytics/next";
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dooform.com";
 
@@ -302,9 +303,8 @@ export default function RootLayout({
       >
         <CookieConsentProvider>
           <Analytics />
-          <AuthProvider>
-            {children}
-          </AuthProvider>
+          <AnalyticsG />
+          <AuthProvider>{children}</AuthProvider>
           <CookieConsentBanner />
         </CookieConsentProvider>
       </body>
