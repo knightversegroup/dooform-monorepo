@@ -26,12 +26,12 @@ export function middleware(request: NextRequest) {
 
   const cspDirectives = [
     "default-src 'self'",
-    `script-src 'self' 'unsafe-inline'${evalDirective} https://www.googletagmanager.com https://www.google-analytics.com https://*.posthog.com https://apis.google.com https://accounts.google.com https://*.gstatic.com https://*.dooform.com${localSources}`,
+    `script-src 'self' 'unsafe-inline'${evalDirective} https://www.googletagmanager.com https://www.google-analytics.com https://*.posthog.com https://apis.google.com https://accounts.google.com https://*.gstatic.com https://*.dooform.com https://static.cloudflareinsights.com https://vercel.live${localSources}`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com",
     "img-src 'self' data: blob: https: http:",
     "font-src 'self' https://fonts.gstatic.com",
-    `connect-src 'self' https://*.dooform.com https://*.firebaseapp.com https://*.googleapis.com https://www.google-analytics.com https://*.posthog.com wss://*.firebaseio.com https://accounts.google.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com${localSources}`,
-    "frame-src 'self' https://*.firebaseapp.com https://accounts.google.com https://*.google.com https://*.dooform.com",
+    `connect-src 'self' https://*.dooform.com https://*.knightversegroup.com https://*.firebaseapp.com https://*.googleapis.com https://www.google-analytics.com https://*.posthog.com wss://*.firebaseio.com https://accounts.google.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://cloudflareinsights.com https://vercel.live${localSources}`,
+    "frame-src 'self' https://*.firebaseapp.com https://accounts.google.com https://*.google.com https://*.dooform.com https://vercel.live",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self' https://accounts.google.com https://*.dooform.com",
