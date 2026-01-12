@@ -31,7 +31,7 @@ export function middleware(request: NextRequest) {
     "img-src 'self' data: blob: https: http:",
     "font-src 'self' https://fonts.gstatic.com",
     `connect-src 'self' https://*.dooform.com https://*.knightversegroup.com https://*.firebaseapp.com https://*.googleapis.com https://www.google-analytics.com https://*.posthog.com wss://*.firebaseio.com https://accounts.google.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://cloudflareinsights.com https://vercel.live${localSources}`,
-    "frame-src 'self' https://*.firebaseapp.com https://accounts.google.com https://*.google.com https://*.dooform.com https://vercel.live",
+    "frame-src 'self' https://*.firebaseapp.com https://accounts.google.com https://*.google.com https://*.dooform.com https://*.knightversegroup.com https://vercel.live",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self' https://accounts.google.com https://*.dooform.com",
