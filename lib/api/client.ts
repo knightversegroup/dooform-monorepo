@@ -467,16 +467,22 @@ class ApiClient {
     return this.handleResponseWithRetry<AliasSuggestionResponse>(response, makeRequest);
   }
 
-  async suggestFieldTypes(templateId: string, htmlContent?: string): Promise<FieldTypeSuggestionResponse> {
+  async suggestFieldTypes(templateId: string, options?: { htmlContent?: string; placeholders?: string[] }): Promise<FieldTypeSuggestionResponse> {
+    const body: { html_content?: string; placeholders?: string[] } = {};
+
+    if (options?.htmlContent) {
+      body.html_content = options.htmlContent;
+    } else if (options?.placeholders && options.placeholders.length > 0) {
+      body.placeholders = options.placeholders;
+    }
+
     const makeRequest = () => fetch(`${this.baseUrl}/templates/${templateId}/suggest-field-types`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         ...this.getAuthHeaders(),
       },
-      body: JSON.stringify({
-        html_content: htmlContent || '',
-      }),
+      body: JSON.stringify(body),
     });
 
     const response = await makeRequest();

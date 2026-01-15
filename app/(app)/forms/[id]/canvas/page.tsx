@@ -611,7 +611,9 @@ export default function CanvasPage() {
         setFieldTypeSuggestions([]);
 
         try {
-            const result = await apiClient.suggestFieldTypes(template.id);
+            // Extract placeholders from field definitions
+            const placeholders = fieldDefinitions ? Object.keys(fieldDefinitions).map(key => `{{${key}}}`) : [];
+            const result = await apiClient.suggestFieldTypes(template.id, { placeholders });
             setFieldTypeSuggestions(result.suggestions);
             setShowSuggestionsModal(true);
         } catch (err) {
@@ -620,7 +622,7 @@ export default function CanvasPage() {
         } finally {
             setSuggestingFieldTypes(false);
         }
-    }, [template?.id]);
+    }, [template?.id, fieldDefinitions]);
 
     const handleApplyAllSuggestions = useCallback(() => {
         if (!fieldDefinitions) return;
