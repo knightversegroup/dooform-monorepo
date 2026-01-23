@@ -36,19 +36,19 @@ const APPS_MENU_ITEMS = [
     icon: Folder,
     description: "Browse templates",
   },
-  {
-    name: "Analytics",
-    href: "/analytics",
-    icon: BarChart3,
-    description: "View analytics",
-  },
-  { name: "Team", href: "/team", icon: Users, description: "Manage team" },
-  {
-    name: "Automations",
-    href: "/automations",
-    icon: Zap,
-    description: "Workflow automations",
-  },
+  //{
+    //name: "Analytics",
+    //href: "/analytics",
+    //icon: BarChart3,
+    //description: "View analytics",
+  //},
+  //{ name: "Team", href: "/team", icon: Users, description: "Manage team" },
+  //{
+    //name: "Automations",
+    //href: "/automations",
+    //icon: Zap,
+    //description: "Workflow automations",
+  //},
   {
     name: "Settings",
     href: "/settings",
