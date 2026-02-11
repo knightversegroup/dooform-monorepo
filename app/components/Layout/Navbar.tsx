@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import {
   Plus,
   HelpCircle,
@@ -17,6 +18,10 @@ import {
   Users,
   Folder,
   Zap,
+  History,
+  BookMarked,
+  BookOpenText,
+  Search,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/context";
 import { useSidebar } from "./SidebarContext";
@@ -57,7 +62,18 @@ const APPS_MENU_ITEMS = [
   },
 ];
 
+const NAV_TABS = [
+  // Left side
+  { name: "รายการเอกสาร", href: "/templates", icon: FileText, position: "left" },
+  { name: "ประวัติการกรอก", href: "/history", icon: History, position: "left" },
+  { name: "คลังคำศัพท์", href: "/dict", icon: BookMarked, position: "left" },
+  { name: "ตั้งค่าระบบ", href: "/console", icon: Settings, position: "left" },
+  // Right side
+  { name: "คู่มือการใช้งาน", href: "/docs", icon: BookOpenText, position: "right" },
+];
+
 export default function Navbar() {
+  const pathname = usePathname();
   const { user, logout } = useAuth();
   const { isCollapsed, toggleCollapse } = useSidebar();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -86,146 +102,138 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-neutral-200">
-      <div className="flex items-center justify-between h-14 px-4">
-        {/* Left side - Sidebar toggle and Logo */}
-        <div className="flex items-center gap-4">
-          {/* Sidebar Toggle Button */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={toggleCollapse}
-              className="flex items-center justify-center w-8 h-8 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors"
-              title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            >
-              {isCollapsed ? (
-                <PanelLeft className="w-5 h-5" />
-              ) : (
-                <PanelLeftClose className="w-5 h-5" />
-              )}
-            </button>
+    <header className="fixed top-0 left-0 right-0 z-50">
+      {/* Top Nav Bar - Height: 64px, Padding: 10px, Fill: #F7F5F4 */}
+      <div className="flex flex-col justify-center h-16 py-[10px] px-[10px] bg-[#F7F5F4]">
+        {/* Inner container - Width: 1080 max, centered, Gap: auto */}
+        <div className="flex items-center justify-between w-full max-w-[1080px] mx-auto h-[31px] px-2">
+          {/* Logo - Padding: 4px */}
+          <Link href="/templates" className="flex items-center p-1">
+            <Image
+              src="/Vector.svg"
+              alt="Dooform"
+              width={106}
+              height={20}
+              className="shrink-0"
+            />
+          </Link>
 
-            {/* Apps Menu */}
-            <div className="relative" ref={appsMenuRef}>
+          {/* Right side container - Gap: 12px */}
+          <div className="flex items-center gap-3">
+            {/* Search Bar - W:247, H:31, Padding: 4px 12px, Radius: 4px, Stroke: #B3B3B3 0.5px */}
+            <div className="relative flex items-center w-[247px] h-[31px] px-3 py-1 bg-white border-[0.5px] border-[#B3B3B3] rounded-[4px]">
+              <input
+                type="text"
+                placeholder="ค้นหาเอกสาร..."
+                className="flex-1 text-sm font-medium font-sans text-[#B3B3B3] placeholder-[#B3B3B3] bg-transparent outline-none"
+              />
+              <Search className="w-[18px] h-[18px] text-[#B3B3B3]" />
+            </div>
+
+            {/* จัดการบัญชี - W:86 hug, H:31, Gap:10, Padding: 4px 8px, Radius: 4px, Fill: #013087 */}
+            <div className="relative" ref={userMenuRef}>
               <button
-                onClick={() => setIsAppsMenuOpen(!isAppsMenuOpen)}
-                className="flex items-center justify-center w-8 h-8 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors"
-                title="Apps"
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                className="flex items-center gap-[10px] px-2 py-1 h-[31px] bg-[#013087] border-[0.5px] border-[#013087] rounded-[4px] text-white text-sm font-medium font-sans"
               >
-                <LayoutGrid className="w-5 h-5" />
+                <span>จัดการบัญชี</span>
               </button>
 
-              {isAppsMenuOpen && (
-                <div className="fixed top-15 left-1 bg-white shadow-lg border border-neutral-200 py-3 z-50">
-                  <h3 className="px-4 pb-2 text-sm font-semibold text-neutral-900">
-                    Dooform Apps
-                  </h3>
-                  <div className="grid grid-cols-3 gap-1 px-2">
-                    {APPS_MENU_ITEMS.map((app) => (
-                      <Link
-                        key={app.name}
-                        href={app.href}
-                        onClick={() => setIsAppsMenuOpen(false)}
-                        className="flex flex-col items-center gap-1.5 p-3 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 rounded-lg transition-colors"
-                        title={app.description}
-                      >
-                        <app.icon className="w-6 h-6" />
-                        <span className="text-xs font-medium text-center">
-                          {app.name}
-                        </span>
-                      </Link>
-                    ))}
+              {isUserMenuOpen && (
+                <div className="absolute top-full right-0 mt-1 w-56 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-50">
+                  <div className="px-3 py-2 border-b border-neutral-100">
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={user?.picture_url || DEFAULT_PROFILE_IMAGE}
+                        alt={user?.display_name || "Profile"}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-neutral-900 truncate">
+                          {user?.display_name ||
+                            user?.first_name ||
+                            user?.email?.split("@")[0] ||
+                            "User"}
+                        </p>
+                        <p className="text-xs text-neutral-500 truncate">
+                          {user?.email}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="py-1">
+                    <Link
+                      href="/profile"
+                      onClick={() => setIsUserMenuOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
+                    >
+                      <User className="w-4 h-4 opacity-50" />
+                      <span>ตั้งค่าบัญชี</span>
+                    </Link>
+                  </div>
+                  <div className="border-t border-neutral-100 py-1">
+                    <button
+                      onClick={() => {
+                        logout();
+                        setIsUserMenuOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
+                    >
+                      <LogOut className="w-4 h-4 opacity-50" />
+                      <span>ออกจากระบบ</span>
+                    </button>
                   </div>
                 </div>
               )}
             </div>
           </div>
-
-          <Link href="/templates" className="flex items-center">
-            <Image
-              src="/Vector.svg"
-              alt="Dooform"
-              width={103}
-              height={20}
-              className="shrink-0"
-            />
-          </Link>
         </div>
+      </div>
 
-        {/* Right side - Actions */}
-        <div className="flex items-center gap-2">
-          {isAdmin && (
-          <Link
-            href="/forms/new"
-            className="flex items-center gap-1.5 px-3 h-8 text-sm font-medium text-neutral-900 bg-white border border-neutral-300 hover:bg-neutral-50 rounded-lg transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add</span>
-          </Link>
-            )}
-          <button
-            className="flex items-center gap-1.5 px-3 h-8 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors"
-            title="ช่วยเหลือ"
-          >
-            <HelpCircle className="w-4 h-4" />
-            <span>Support</span>
-          </button>
+      {/* Tab Bar - Height: 48px */}
+      <div className="flex h-12 px-[10px] bg-[#F7F5F4] border-b border-neutral-200">
+        {/* Inner container - Width: 1080 max, centered, Height: 48px */}
+        <div className="flex items-center justify-between w-full max-w-[1080px] mx-auto h-12">
+          {/* Left tabs - Gap: 12px */}
+          <div className="flex items-center gap-3 h-12">
+            {NAV_TABS.filter((tab) => tab.position === "left").map((tab) => {
+              const isActive = pathname === tab.href || pathname.startsWith(tab.href + "/");
+              return (
+                <Link
+                  key={tab.name}
+                  href={tab.href}
+                  className={`flex items-center gap-[10px] px-2 py-1 h-12 text-sm font-medium font-sans transition-colors border-b-2 ${
+                    isActive
+                      ? "text-[#013087] border-[#013087]"
+                      : "text-[#4D4D4D] border-transparent hover:text-[#013087]"
+                  }`}
+                >
+                  <tab.icon className="w-5 h-5" strokeWidth={1.67} />
+                  <span>{tab.name}</span>
+                </Link>
+              );
+            })}
+          </div>
 
-          {/* User Menu */}
-          <div className="relative" ref={userMenuRef}>
-            <button
-              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              className="flex items-center gap-2 px-2 py-1.5 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors"
-            >
-              <User className="w-4 h-4" />
-              <span>Profile</span>
-            </button>
-
-            {isUserMenuOpen && (
-              <div className="absolute top-full right-0 mt-1 w-56 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-50">
-                <div className="px-3 py-2 border-b border-neutral-100">
-                  <div className="flex items-center gap-2">
-                    <img
-                      src={user?.picture_url || DEFAULT_PROFILE_IMAGE}
-                      alt={user?.display_name || "Profile"}
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-neutral-900 truncate">
-                        {user?.display_name ||
-                          user?.first_name ||
-                          user?.email?.split("@")[0] ||
-                          "User"}
-                      </p>
-                      <p className="text-xs text-neutral-500 truncate">
-                        {user?.email}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="py-1">
-                  <Link
-                    href="/profile"
-                    onClick={() => setIsUserMenuOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
-                  >
-                    <User className="w-4 h-4 opacity-50" />
-                    <span>ตั้งค่าบัญชี</span>
-                  </Link>
-                </div>
-                <div className="border-t border-neutral-100 py-1">
-                  <button
-                    onClick={() => {
-                      logout();
-                      setIsUserMenuOpen(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
-                  >
-                    <LogOut className="w-4 h-4 opacity-50" />
-                    <span>ออกจากระบบ</span>
-                  </button>
-                </div>
-              </div>
-            )}
+          {/* Right tabs - Gap: 10px, Padding: 4px 8px */}
+          <div className="flex items-center gap-[10px] px-2 py-1 h-12">
+            {NAV_TABS.filter((tab) => tab.position === "right").map((tab) => {
+              const isActive = pathname === tab.href || pathname.startsWith(tab.href + "/");
+              return (
+                <Link
+                  key={tab.name}
+                  href={tab.href}
+                  className={`flex items-center gap-[10px] px-2 py-1 h-12 text-sm font-medium font-sans transition-colors border-b-2 ${
+                    isActive
+                      ? "text-[#013087] border-[#013087]"
+                      : "text-[#4D4D4D] border-transparent hover:text-[#013087]"
+                  }`}
+                >
+                  <tab.icon className="w-5 h-5" strokeWidth={1.67} />
+                  <span>{tab.name}</span>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
