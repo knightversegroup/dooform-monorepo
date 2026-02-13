@@ -66,7 +66,7 @@ const NAV_TABS = [
   // Left side
   { name: "รายการเอกสาร", href: "/templates", icon: FileText, position: "left" },
   { name: "ประวัติการกรอก", href: "/history", icon: History, position: "left" },
-  { name: "คลังคำศัพท์", href: "/dict", icon: BookMarked, position: "left" },
+  { name: "คลังคำศัพท์", href: "/dictionary", icon: BookMarked, position: "left" },
   { name: "ตั้งค่าระบบ", href: "/console", icon: Settings, position: "left" },
   // Right side
   { name: "คู่มือการใช้งาน", href: "/docs", icon: BookOpenText, position: "right" },
