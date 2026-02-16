@@ -5,19 +5,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
-  Plus,
-  HelpCircle,
   User,
   LogOut,
-  PanelLeftClose,
-  PanelLeft,
-  LayoutGrid,
   FileText,
   Settings,
-  BarChart3,
-  Users,
-  Folder,
-  Zap,
   History,
   BookMarked,
   BookOpenText,
@@ -27,40 +18,6 @@ import { useAuth } from "@/lib/auth/context";
 import { useSidebar } from "./SidebarContext";
 
 const DEFAULT_PROFILE_IMAGE = "/profile_default.webp";
-
-const APPS_MENU_ITEMS = [
-  {
-    name: "Forms",
-    href: "/forms",
-    icon: FileText,
-    description: "Create and manage forms",
-  },
-  {
-    name: "Templates",
-    href: "/templates",
-    icon: Folder,
-    description: "Browse templates",
-  },
-  //{
-    //name: "Analytics",
-    //href: "/analytics",
-    //icon: BarChart3,
-    //description: "View analytics",
-  //},
-  //{ name: "Team", href: "/team", icon: Users, description: "Manage team" },
-  //{
-    //name: "Automations",
-    //href: "/automations",
-    //icon: Zap,
-    //description: "Workflow automations",
-  //},
-  {
-    name: "Settings",
-    href: "/settings",
-    icon: Settings,
-    description: "App settings",
-  },
-];
 
 const NAV_TABS = [
   // Left side
@@ -75,7 +32,6 @@ const NAV_TABS = [
 export default function Navbar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  const { isCollapsed, toggleCollapse } = useSidebar();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isAppsMenuOpen, setIsAppsMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -104,7 +60,7 @@ export default function Navbar() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
       {/* Top Nav Bar - Height: 64px, Padding: 10px, Fill: #F7F5F4 */}
-      <div className="flex flex-col justify-center h-16 py-[10px] px-[10px] bg-[#F7F5F4]">
+      <div className="flex flex-col justify-center h-16 p-2.5 bg-[#F7F5F4]">
         {/* Inner container - Width: 1080 max, centered, Gap: auto */}
         <div className="flex items-center justify-between w-full max-w-[1080px] mx-auto h-[31px] px-2">
           {/* Logo - Padding: 4px */}
