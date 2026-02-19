@@ -13,6 +13,7 @@ import {
   BookMarked,
   BookOpenText,
   Search,
+  Key,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/context";
 import { useSidebar } from "./SidebarContext";
@@ -24,7 +25,7 @@ const NAV_TABS = [
   { name: "รายการเอกสาร", href: "/templates", icon: FileText, position: "left" },
   { name: "ประวัติการกรอก", href: "/history", icon: History, position: "left" },
   { name: "คลังคำศัพท์", href: "/dictionary", icon: BookMarked, position: "left" },
-  { name: "ตั้งค่าระบบ", href: "/console", icon: Settings, position: "left" },
+  { name: "ตั้งค่าระบบ", href: "/settings", icon: Settings, position: "left" },
   // Right side
   { name: "คู่มือการใช้งาน", href: "/docs", icon: BookOpenText, position: "right" },
 ];
@@ -126,6 +127,16 @@ export default function Navbar() {
                       <User className="w-4 h-4 opacity-50" />
                       <span>ตั้งค่าบัญชี</span>
                     </Link>
+                    {isAdmin && (
+                      <Link
+                        href="/admin/tokens"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
+                      >
+                        <Key className="w-4 h-4 opacity-50" />
+                        <span>จัดการ Token</span>
+                      </Link>
+                    )}
                   </div>
                   <div className="border-t border-neutral-100 py-1">
                     <button
