@@ -1,7 +1,3 @@
-/**
- * Hook for managing multi-step form navigation
- */
-
 import { useState, useMemo, useCallback } from "react";
 import {
   FormStep,
@@ -29,76 +25,38 @@ export interface UseStepNavigationReturn {
   steps: StepConfig[];
 }
 
-/**
- * Custom hook for managing step navigation in the form fill page
- *
- * @param initialStep - The initial step to start on
- * @returns Step navigation state and handlers
- *
- * @example
- * ```tsx
- * const {
- *   currentStep,
- *   currentStepConfig,
- *   goToNext,
- *   goToPrevious,
- *   isLastStep,
- * } = useStepNavigation("fill");
- * ```
- */
 export function useStepNavigation(
   initialStep: FormStep = "fill"
 ): UseStepNavigationReturn {
   const [currentStep, setCurrentStep] = useState<FormStep>(initialStep);
 
-  const currentStepIndex = useMemo(() => {
-    return getStepIndex(currentStep);
-  }, [currentStep]);
-
-  const currentStepConfig = useMemo(() => {
-    return getStepConfig(currentStep) || FORM_STEPS[0];
-  }, [currentStep]);
-
-  const totalSteps = FORM_STEPS.length;
+  const currentStepIndex = useMemo(() => getStepIndex(currentStep), [currentStep]);
+  const currentStepConfig = useMemo(() => getStepConfig(currentStep) || FORM_STEPS[0], [currentStep]);
 
   const isFirstStep = currentStepIndex === 0;
   const isLastStep = currentStepIndex === FORM_STEPS.length - 1;
 
-  const goToStep = useCallback((step: FormStep) => {
-    setCurrentStep(step);
-  }, []);
+  const goToStep = useCallback((step: FormStep) => setCurrentStep(step), []);
 
   const goToNext = useCallback(() => {
-    const nextStep = getNextStep(currentStep);
-    if (nextStep) {
-      setCurrentStep(nextStep);
-    }
+    const next = getNextStep(currentStep);
+    if (next) setCurrentStep(next);
   }, [currentStep]);
 
   const goToPrevious = useCallback(() => {
-    const prevStep = getPreviousStep(currentStep);
-    if (prevStep) {
-      setCurrentStep(prevStep);
-    }
+    const prev = getPreviousStep(currentStep);
+    if (prev) setCurrentStep(prev);
   }, [currentStep]);
 
-  const goToFill = useCallback(() => {
-    setCurrentStep("fill");
-  }, []);
-
-  const goToReview = useCallback(() => {
-    setCurrentStep("review");
-  }, []);
-
-  const goToDownload = useCallback(() => {
-    setCurrentStep("download");
-  }, []);
+  const goToFill = useCallback(() => setCurrentStep("fill"), []);
+  const goToReview = useCallback(() => setCurrentStep("review"), []);
+  const goToDownload = useCallback(() => setCurrentStep("download"), []);
 
   return {
     currentStep,
     currentStepIndex,
     currentStepConfig,
-    totalSteps,
+    totalSteps: FORM_STEPS.length,
     isFirstStep,
     isLastStep,
     goToStep,

@@ -2,9 +2,9 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/lib/auth/context";
+import { useAuth } from "@/lib/auth/hooks";
 import Sidebar from "@/components/layout/Sidebar";
-import { SidebarProvider, useSidebar } from "@/components/layout/SidebarContext";
+import { SidebarProvider } from "@/components/layout/SidebarContext";
 import Navbar from "@/components/layout/Navbar";
 import LogoLoader from "@/components/feedback/LogoLoader";
 

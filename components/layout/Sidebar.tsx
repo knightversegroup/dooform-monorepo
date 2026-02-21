@@ -19,8 +19,8 @@ import {
   Shield,
   Coins,
 } from "lucide-react";
-import { useSidebar } from "./SidebarContext";
-import { useAuth } from "@/lib/auth/context";
+import { useSidebar } from "./hooks/useSidebar";
+import { useAuth } from "@/lib/auth/hooks";
 
 // ============================================================================
 // Types

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/lib/auth/context";
+import { useAuth } from "@/lib/auth/hooks";
 import LogoLoader from "@/components/feedback/LogoLoader";
 
 export default function Home() {

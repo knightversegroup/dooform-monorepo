@@ -30,7 +30,7 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import { apiClient } from "@/lib/api/client";
 import { Template, Tier } from "@/lib/api/types";
-import { useAuth } from "@/lib/auth/context";
+import { useAuth } from "@/lib/auth/hooks";
 
 // Format date
 const formatDate = (dateString: string): string => {

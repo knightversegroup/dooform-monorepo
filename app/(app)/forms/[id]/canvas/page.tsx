@@ -47,7 +47,8 @@ import { ENTITY_LABELS } from "@/lib/utils/fieldTypes";
 // Section type is imported from context
 import { EntityRulesToolbar } from "@/components/ui/EntityRulesToolbar";
 import { RadioGroupManager } from "@/components/ui/RadioGroupManager";
-import { useTemplate, type Section } from "../TemplateContext";
+import { useTemplate } from "../hooks/useTemplate";
+import type { Section } from "../TemplateContext";
 
 
 // Section colors - user selectable

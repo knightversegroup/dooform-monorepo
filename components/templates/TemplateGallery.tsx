@@ -9,7 +9,7 @@ import {
   MoreVertical,
   FileText,
 } from "lucide-react";
-import { useAuth } from "@/lib/auth/context";
+import { useAuth } from "@/lib/auth/hooks";
 
 // ============================================================================
 // Types

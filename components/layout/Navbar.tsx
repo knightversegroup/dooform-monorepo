@@ -15,8 +15,7 @@ import {
   Search,
   Users,
 } from "lucide-react";
-import { useAuth } from "@/lib/auth/context";
-import { useSidebar } from "./SidebarContext";
+import { useAuth } from "@/lib/auth/hooks";
 
 const DEFAULT_PROFILE_IMAGE = "/profile_default.webp";
 

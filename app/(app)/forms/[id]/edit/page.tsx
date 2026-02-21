@@ -29,8 +29,8 @@ import { detectMergeableGroups, createMergedFieldDefinition } from "@/lib/utils/
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { UnifiedFieldEditor } from "@/components/ui/UnifiedFieldEditor";
-import { useAuth } from "@/lib/auth/context";
-import { useTemplate } from "../TemplateContext";
+import { useAuth } from "@/lib/auth/hooks";
+import { useTemplate } from "../hooks/useTemplate";
 
 interface PageProps {
     params: Promise<{ id: string }>;

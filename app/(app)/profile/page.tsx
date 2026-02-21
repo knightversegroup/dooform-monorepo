@@ -11,7 +11,7 @@ import {
     CheckCircle,
     Trash2,
 } from "lucide-react";
-import { useAuth } from "@/lib/auth/context";
+import { useAuth } from "@/lib/auth/hooks";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 

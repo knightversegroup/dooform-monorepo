@@ -1,20 +1,22 @@
 'use client';
 
-import { useMemo } from 'react';
-import { useAuth } from './context';
+import { useContext, useMemo } from 'react';
+import { AuthContext } from './context';
 import type { QuotaInfo } from './types';
 
-/**
- * Hook to check if the current user is an admin
- */
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
+
 export function useIsAdmin(): boolean {
   const { isAdmin } = useAuth();
   return isAdmin;
 }
 
-/**
- * Hook to get quota information
- */
 export function useQuota(): {
   quota: QuotaInfo | undefined;
   hasQuota: boolean;

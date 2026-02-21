@@ -15,7 +15,7 @@ import {
     RefreshCw,
 } from "lucide-react";
 import { apiClient } from "@/lib/api/client";
-import { useAuth } from "@/lib/auth/context";
+import { useAuth } from "@/lib/auth/hooks";
 import { Button } from "@/components/ui/Button";
 
 interface DocumentHistory {

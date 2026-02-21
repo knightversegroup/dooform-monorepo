@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { apiClient } from "@/lib/api/client";
 import { DocumentType, Template, DocumentTypeUpdateRequest, FilterCategory } from "@/lib/api/types";
-import { useAuth } from "@/lib/auth/context";
+import { useAuth } from "@/lib/auth/hooks";
 
 // Format date
 const formatDate = (dateString: string): string => {

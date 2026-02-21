@@ -21,8 +21,7 @@ import {
   SuggestedGroup,
 } from "@/lib/api/types";
 import { Button } from "@/components/ui/Button";
-import { useAuth } from "@/lib/auth/context";
-import { useIsAdmin } from "@/lib/auth/hooks";
+import { useAuth, useIsAdmin } from "@/lib/auth/hooks";
 import { logger } from "@/lib/utils/logger";
 
 // Import from _components

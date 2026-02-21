@@ -14,7 +14,7 @@ import {
     Info,
 } from "lucide-react";
 import { apiClient } from "@/lib/api/client";
-import { useAuth } from "@/lib/auth/context";
+import { useAuth } from "@/lib/auth/hooks";
 
 export default function NewTemplatePage() {
     const router = useRouter();

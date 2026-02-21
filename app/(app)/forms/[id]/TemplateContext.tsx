@@ -1,8 +1,8 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { createContext, useState, useEffect, useCallback, type ReactNode } from "react";
 import { apiClient } from "@/lib/api/client";
-import { useAuth } from "@/lib/auth/context";
+import { useAuth } from "@/lib/auth/hooks";
 import { ENTITY_LABELS } from "@/lib/utils/fieldTypes";
 import type { Template, FieldDefinition, ConfigurableDataType, Entity } from "@/lib/api/types";
 
@@ -13,7 +13,7 @@ export interface Section {
     colorIndex: number;
 }
 
-interface TemplateContextType {
+export interface TemplateContextType {
     template: Template | null;
     fieldDefinitions: Record<string, FieldDefinition> | null;
     aliases: Record<string, string>;
@@ -30,7 +30,7 @@ interface TemplateContextType {
     refetchHtml: () => Promise<void>;
 }
 
-const TemplateContext = createContext<TemplateContextType | null>(null);
+export const TemplateContext = createContext<TemplateContextType | null>(null);
 
 function parseAliases(template: Template): Record<string, string> {
     if (!template.aliases) return {};
@@ -282,10 +282,3 @@ export function TemplateProvider({
     );
 }
 
-export function useTemplate() {
-    const context = useContext(TemplateContext);
-    if (!context) {
-        throw new Error("useTemplate must be used within TemplateProvider");
-    }
-    return context;
-}

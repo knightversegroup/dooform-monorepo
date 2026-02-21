@@ -7,7 +7,7 @@ import Image from "next/image";
 import { Loader2, AlertCircle } from "lucide-react";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase/config";
-import { useAuth } from "@/lib/auth/context";
+import { useAuth } from "@/lib/auth/hooks";
 import LogoLoader from "@/components/feedback/LogoLoader";
 
 const API_BASE_URL =

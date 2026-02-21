@@ -1,7 +1,3 @@
-/**
- * Form fill page hooks
- */
-
 export { useFormData } from "./useFormData";
 export type { UseFormDataReturn } from "./useFormData";
 
