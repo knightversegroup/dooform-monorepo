@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Search, ChevronDown, ChevronRight, FileText, ArrowRight, LayoutGrid, List } from "lucide-react";
-import LogoLoaderInline from "@/app/components/LogoLoaderInline";
+import LogoLoaderInline from "@/components/feedback/LogoLoaderInline";
 import { apiClient } from "@/lib/api/client";
 import { DocumentType, FilterCategory, Template } from "@/lib/api/types";
 import TemplateGallery, { TemplateItem, TemplateSection } from "./TemplateGallery";

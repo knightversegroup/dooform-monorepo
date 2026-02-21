@@ -5,7 +5,7 @@ import { BarChart3, FileText, Download, TrendingUp, RefreshCw } from "lucide-rea
 import { apiClient } from "@/lib/api/client";
 import { StatisticsResponse, TimeSeriesPoint } from "@/lib/api/types";
 import { useAuth } from "@/lib/auth/context";
-import { Button } from "@/app/components/ui/Button";
+import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 
 interface StatCardProps {

@@ -3,10 +3,10 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth/context";
-import Sidebar from "@/app/components/Layout/Sidebar";
-import { SidebarProvider, useSidebar } from "@/app/components/Layout/SidebarContext";
-import Navbar from "@/app/components/Layout/Navbar";
-import LogoLoader from "@/app/components/LogoLoader";
+import Sidebar from "@/components/layout/Sidebar";
+import { SidebarProvider, useSidebar } from "@/components/layout/SidebarContext";
+import Navbar from "@/components/layout/Navbar";
+import LogoLoader from "@/components/feedback/LogoLoader";
 
 // Main content component 
 function MainContent({ children }: { children: React.ReactNode }) {

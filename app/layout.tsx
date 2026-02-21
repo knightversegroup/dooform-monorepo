@@ -7,7 +7,7 @@ import {
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth/context";
 import { CookieConsentProvider } from "@/lib/cookie/context";
-import { CookieConsentBanner, AnalyticsG } from "./components/CookieConsent";
+import { CookieConsentBanner, AnalyticsG } from "@/components/cookie-consent";
 import { Analytics } from "@vercel/analytics/next";
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://dooform.com";

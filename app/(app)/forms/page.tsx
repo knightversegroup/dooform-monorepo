@@ -1,4 +1,4 @@
-import FormTemplateList from "@/app/components/Main/FormTemplateList";
+import FormTemplateList from "@/components/templates/FormTemplateList";
 import {
   generatePageMetadata,
   pageMetadataConfigs,
