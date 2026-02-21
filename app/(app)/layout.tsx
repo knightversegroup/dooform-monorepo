@@ -8,16 +8,14 @@ import { SidebarProvider, useSidebar } from "@/app/components/Layout/SidebarCont
 import Navbar from "@/app/components/Layout/Navbar";
 import LogoLoader from "@/app/components/LogoLoader";
 
-// Main content component that uses sidebar width
+// Main content component 
 function MainContent({ children }: { children: React.ReactNode }) {
-  const { width, isResizing } = useSidebar();
+  // const { width, isResizing } = useSidebar();
 
   return (
     <main
-      className={`pt-14 min-h-screen ${
-        isResizing ? "" : "transition-[padding-left] duration-150 ease-out"
-      }`}
-      style={{ paddingLeft: `${width}px` }}
+      className="pt-24 min-h-screen"
+      // style={{ paddingLeft: `${width}px` }}
     >
       <div className="p-6">{children}</div>
     </main>
@@ -32,8 +30,8 @@ function DesktopLayout({ children }: { children: React.ReactNode }) {
         {/* Fixed Navbar at top */}
         <Navbar />
 
-        {/* Fixed Sidebar */}
-        <Sidebar />
+        {/* Fixed Sidebar - COMMENTED OUT */}
+        {/* <Sidebar /> */}
 
         {/* Main content area - offset by navbar height and dynamic sidebar width */}
         <MainContent>{children}</MainContent>
