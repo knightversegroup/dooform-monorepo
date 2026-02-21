@@ -68,7 +68,7 @@ export default function Navbar() {
       {/* Top Nav Bar */}
       <div className="flex flex-col justify-center h-16 py-2.5 px-2.5 bg-stone-100">
         {/* Inner container */}
-        <div className="flex items-center justify-between w-full max-w-5xl mx-auto h-8 px-2">
+        <div className="flex items-center justify-between w-full max-w-[1080px] mx-auto h-8 px-2">
           {/* Logo - Padding: 4px */}
           <Link href="/templates" className="flex items-center p-1">
             <Image
@@ -155,7 +155,7 @@ export default function Navbar() {
       {/* Tab Bar */}
       <div className="flex h-12 px-2.5 bg-stone-100 border-b border-neutral-200">
         {/* Inner container */}
-        <div className="flex items-center justify-between w-full max-w-5xl mx-auto h-12">
+        <div className="flex items-center justify-between w-full max-w-[1080px] mx-auto h-12">
           {/* Left tabs - Gap: 12px */}
           <div className="flex items-center gap-3 h-12">
             {NAV_TABS.filter((tab) => tab.position === "left").map((tab) => {
