@@ -12,7 +12,7 @@ import {
   Search,
   X,
 } from "lucide-react";
-import LogoLoaderInline from "@/components/feedback/LogoLoaderInline";
+import { LogoLoaderInline } from "@dooform/shared";
 import { apiClient } from "@dooform/shared/api/client";
 import { FilterCategory, Template } from "@dooform/shared/api/types";
 
@@ -390,7 +390,7 @@ export default function TemplateGroupList() {
                 {/* Letter Header */}
                 <div
                   ref={(el) => { letterRefs.current[letter] = el; }}
-                  className="scroll-mt-[240px] text-[20px] font-semibold text-[#4d4d4d] border-b border-[#e6e6e6] py-[8px] mt-4"
+                  className="sticky top-[240px] z-[5] bg-white scroll-mt-[240px] text-[20px] font-semibold text-[#4d4d4d] border-b border-[#e6e6e6] py-[8px] mt-4"
                 >
                   {letter}
                 </div>
