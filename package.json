@@ -73,6 +73,17 @@
     "node": ">=20",
     "pnpm": ">=9"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@swc/core",
+      "esbuild",
+      "nx",
+      "unrs-resolver",
+      "sharp",
+      "protobufjs",
+      "@parcel/watcher"
+    ]
+  },
   "packageManager": "pnpm@10.18.0",
   "nx": {
     "includedScripts": []
