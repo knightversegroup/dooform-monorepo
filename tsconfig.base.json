@@ -16,7 +16,14 @@
     "baseUrl": ".",
     "paths": {
       "@dooform/shared": ["libs/shared/src/index.ts"],
-      "@dooform/shared/*": ["libs/shared/src/*"]
+      "@dooform/shared/*": ["libs/shared/src/*"],
+      "@dooform-api-core/domain": ["libs/api-core/src/domain/index.ts"],
+      "@dooform-api-core/application": ["libs/api-core/src/application/index.ts"],
+      "@dooform-api-core/infrastructure": ["libs/api-core/src/infrastructure/index.ts"],
+      "@dooform-api-core/infrastructure/persistence/typeorm": ["libs/api-core/src/infrastructure/persistence/typeorm/index.ts"],
+      "@dooform-api-core/interface/nestjs": ["libs/api-core/src/interface/nestjs/index.ts"],
+      "@dooform-api-core/shared": ["libs/api-core/src/shared/index.ts"],
+      "@dooform-api-core/shared/decorators": ["libs/api-core/src/shared/decorators/index.ts"]
     }
   },
   "exclude": ["node_modules"]
