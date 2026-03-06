@@ -395,7 +395,9 @@ export default function TemplateGroupList() {
                   >
                     {/* Name */}
                     <div className="w-[347px] flex-shrink-0 min-w-0">
-                      <p className="font-medium text-black truncate">{tmpl.name}</p>
+                      <Link href={`/forms/${tmpl.id}`} className="font-medium text-black truncate block hover:text-[#000091] hover:underline transition-colors">
+                        {tmpl.name}
+                      </Link>
                       {tmpl.document_type?.name && (
                         <p className="text-[14px] text-[#666] truncate">
                           {tmpl.document_type.name}
