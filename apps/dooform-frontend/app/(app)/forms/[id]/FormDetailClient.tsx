@@ -17,13 +17,11 @@ import {
     Download,
     Play,
     LogIn,
-    Pencil,
     Eye,
     ExternalLink,
     Info,
     Lock,
     Unlock,
-    Trash2,
     FileText,
     AlertTriangle,
 } from "lucide-react";
@@ -63,12 +61,11 @@ export default function FormDetailClient({ params }: PageProps) {
     const { id: templateId } = use(params);
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { isAuthenticated, isLoading: authLoading, isAdmin, canGenerate, user, refreshQuota } = useAuth();
+    const { isAuthenticated, isLoading: authLoading, canGenerate, user, refreshQuota } = useAuth();
     const [template, setTemplate] = useState<Template | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showAllFields, setShowAllFields] = useState(false);
-    const [deleting, setDeleting] = useState(false);
 
     // Check for quota error from redirect
     const quotaError = searchParams.get("error") === "no_quota";
@@ -80,28 +77,7 @@ export default function FormDetailClient({ params }: PageProps) {
         }
     }, [isAuthenticated, authLoading, refreshQuota]);
 
-    // Delete template handler
-    const handleDeleteTemplate = async () => {
-        if (!template) return;
 
-        const confirmMessage = `คุณต้องการลบ "${template.name}" หรือไม่?\n\nการลบนี้จะไม่สามารถกู้คืนได้`;
-        if (!confirm(confirmMessage)) return;
-
-        try {
-            setDeleting(true);
-            await apiClient.deleteTemplate(templateId);
-            // Navigate back to templates page
-            if (template.document_type_id) {
-                router.push(`/templates/${template.document_type_id}`);
-            } else {
-                router.push("/templates");
-            }
-        } catch (err) {
-            console.error("Failed to delete template:", err);
-            alert(err instanceof Error ? err.message : "ไม่สามารถลบเทมเพลตได้");
-            setDeleting(false);
-        }
-    };
 
     useEffect(() => {
         const loadTemplate = async () => {
@@ -262,8 +238,7 @@ export default function FormDetailClient({ params }: PageProps) {
                                 {authLoading ? (
                                     <Loader2 className="w-5 h-5 text-[#000091] animate-spin" />
                                 ) : isAuthenticated ? (
-                                    // Check if user can generate (has quota or is admin)
-                                    canGenerate || isAdmin ? (
+                                    canGenerate ? (
                                         <Link
                                             href={`/forms/${templateId}/fill`}
                                             className="inline-flex items-center gap-2 px-6 py-3 bg-[#000091] text-white font-medium rounded-sm hover:bg-[#00006b] transition-colors"
@@ -422,7 +397,7 @@ export default function FormDetailClient({ params }: PageProps) {
                                 </div>
                             ) : isAuthenticated ? (
                                 <>
-                                    {canGenerate || isAdmin ? (
+                                    {canGenerate ? (
                                         <Link
                                             href={`/forms/${templateId}/fill`}
                                             className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[#000091] text-white text-sm font-medium rounded-sm hover:bg-[#00006b] transition-colors"
@@ -443,30 +418,6 @@ export default function FormDetailClient({ params }: PageProps) {
                                         <Eye className="w-4 h-4" />
                                         ดูตัวอย่างเทมเพลต
                                     </Link>
-                                    {/* Admin-only actions */}
-                                    {isAdmin && (
-                                        <>
-                                            <Link
-                                                href={`/forms/${templateId}/edit`}
-                                                className="flex items-center justify-center gap-2 w-full px-4 py-2 border border-gray-300 text-gray-700 text-sm rounded-sm hover:bg-gray-50 transition-colors"
-                                            >
-                                                <Pencil className="w-4 h-4" />
-                                                แก้ไขข้อมูล
-                                            </Link>
-                                            <button
-                                                onClick={handleDeleteTemplate}
-                                                disabled={deleting}
-                                                className="flex items-center justify-center gap-2 w-full px-4 py-2 border border-red-300 text-red-600 text-sm rounded-sm hover:bg-red-50 transition-colors disabled:opacity-50"
-                                            >
-                                                {deleting ? (
-                                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                                ) : (
-                                                    <Trash2 className="w-4 h-4" />
-                                                )}
-                                                {deleting ? "กำลังลบ..." : "ลบเทมเพลต"}
-                                            </button>
-                                        </>
-                                    )}
                                 </>
                             ) : (
                                 <>

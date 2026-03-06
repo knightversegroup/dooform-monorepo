@@ -28,8 +28,6 @@ import { Template, TemplateType, Tier, TemplateUpdateData, FieldDefinition, Merg
 import { detectMergeableGroups, createMergedFieldDefinition } from "@dooform/shared/utils/fieldTypes";
 import { Button, Input } from "@dooform/shared";
 import { UnifiedFieldEditor } from "@/components/ui/UnifiedFieldEditor";
-import { useAuth } from "@dooform/shared/auth/hooks";
-import { useTemplate } from "../hooks/useTemplate";
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -38,8 +36,6 @@ interface PageProps {
 export default function EditFormPage({ params }: PageProps) {
     const { id: templateId } = use(params);
     const router = useRouter();
-    const { isAuthenticated, isLoading: authLoading } = useAuth();
-    const { refetchTemplate } = useTemplate();
 
     const [template, setTemplate] = useState<Template | null>(null);
     const [loading, setLoading] = useState(true);
@@ -51,6 +47,7 @@ export default function EditFormPage({ params }: PageProps) {
     const [fieldDefinitions, setFieldDefinitions] = useState<Record<string, FieldDefinition> | null>(null);
     const [regenerating, setRegenerating] = useState(false);
     const [fieldDefSuccess, setFieldDefSuccess] = useState(false);
+    const [activeSection, setActiveSection] = useState("basic");
 
     // Merge suggestions state
     const [mergeableGroups, setMergeableGroups] = useState<MergeableGroup[]>([]);
@@ -104,13 +101,6 @@ export default function EditFormPage({ params }: PageProps) {
     // Configurable types state
     const [dataTypes, setDataTypes] = useState<ConfigurableDataType[]>([]);
     const [inputTypes, setInputTypes] = useState<ConfigurableInputType[]>([]);
-
-    // Redirect to login if not authenticated
-    useEffect(() => {
-        if (!authLoading && !isAuthenticated) {
-            router.replace(`/login?redirect=/forms/${templateId}/edit`);
-        }
-    }, [authLoading, isAuthenticated, router, templateId]);
 
     // Load template data
     useEffect(() => {
@@ -242,10 +232,10 @@ export default function EditFormPage({ params }: PageProps) {
             }
         };
 
-        if (templateId && isAuthenticated) {
+        if (templateId) {
             loadTemplate();
         }
-    }, [templateId, isAuthenticated]);
+    }, [templateId]);
 
     // Handle applying a merge
     const handleApplyMerge = async (group: MergeableGroup) => {
@@ -332,8 +322,7 @@ export default function EditFormPage({ params }: PageProps) {
             setFieldDefinitions(definitions);
             setFieldDefSuccess(true);
 
-            // Sync TemplateContext so canvas page gets updated sections
-            await refetchTemplate();
+            // Data refreshed successfully
 
             // Clear success message after 3 seconds
             setTimeout(() => setFieldDefSuccess(false), 3000);
@@ -448,8 +437,7 @@ export default function EditFormPage({ params }: PageProps) {
                 await apiClient.updateFieldDefinitions(templateId, fieldDefinitions);
             }
 
-            // Sync TemplateContext so canvas page gets updated data
-            await refetchTemplate();
+            // Data saved successfully
 
             setSuccess(true);
         } catch (err) {
@@ -583,36 +571,10 @@ export default function EditFormPage({ params }: PageProps) {
         }
     };
 
-    // Show loading while checking auth
-    if (authLoading) {
-        return (
-            <div className="min-h-screen bg-background">
-                <div className="container-main section-padding">
-                    <div className="flex items-center justify-center py-24">
-                        <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    // Don't render if not authenticated
-    if (!isAuthenticated) {
-        return (
-            <div className="min-h-screen bg-background">
-                <div className="container-main section-padding">
-                    <div className="flex items-center justify-center py-24">
-                        <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     if (loading) {
         return (
-            <div className="min-h-screen bg-background">
-                <div className="container-main section-padding">
+            <div>
+                <div className="max-w-[1080px] mx-auto px-4 py-6">
                     <div className="flex items-center justify-center py-24">
                         <Loader2 className="w-8 h-8 text-primary animate-spin" />
                     </div>
@@ -623,10 +585,10 @@ export default function EditFormPage({ params }: PageProps) {
 
     if (error && !template) {
         return (
-            <div className="min-h-screen bg-background">
-                <div className="container-main section-padding">
+            <div>
+                <div className="max-w-[1080px] mx-auto px-4 py-6">
                     <div className="text-center py-24">
-                        <h1 className="text-h2 text-foreground mb-4">
+                        <h1 className="text-2xl font-semibold text-foreground mb-4">
                             {error || "ไม่พบเทมเพลต"}
                         </h1>
                         <Button href="/forms" variant="secondary">
@@ -640,12 +602,12 @@ export default function EditFormPage({ params }: PageProps) {
     }
 
     return (
-        <div className="min-h-screen bg-background font-sans">
-            <div className="container-main section-padding">
+        <div className="font-sans">
+            <div className="max-w-[1080px] mx-auto px-4 py-6">
                 {/* Back button */}
                 <div className="mb-6">
                     <Button
-                        href={`/forms/${templateId}`}
+                        href="/"
                         variant="secondary"
                         size="sm"
                     >
@@ -661,10 +623,10 @@ export default function EditFormPage({ params }: PageProps) {
                             <FileText className="w-6 h-6 text-primary" />
                         </div>
                         <div>
-                            <h1 className="text-h3 text-foreground">
+                            <h1 className="text-xl font-semibold text-foreground">
                                 แก้ไขรายละเอียดเทมเพลต
                             </h1>
-                            <p className="text-body-sm text-text-muted">
+                            <p className="text-sm text-text-muted">
                                 {template?.name}
                             </p>
                         </div>
@@ -672,11 +634,48 @@ export default function EditFormPage({ params }: PageProps) {
                 </div>
 
                 <form onSubmit={handleSubmit}>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* Left Column - Basic Info */}
-                        <div className="space-y-6">
-                            <div className="bg-background border border-border-default rounded-lg p-6">
-                                <h2 className="text-h4 text-foreground mb-6">ข้อมูลพื้นฐาน</h2>
+                    <div className="flex gap-8">
+                        {/* Sidebar Nav */}
+                        <nav className="w-[220px] shrink-0 hidden lg:block">
+                            <div className="sticky top-[160px]">
+                                <ul className="space-y-0.5">
+                                    {([
+                                        { key: "basic", label: "ข้อมูลพื้นฐาน", icon: FileText },
+                                        { key: "additional", label: "ข้อมูลเพิ่มเติม", icon: Layers },
+                                        { key: "settings", label: "การตั้งค่า", icon: Layers },
+                                        { key: "doctype", label: "ประเภทเอกสาร", icon: FolderOpen },
+                                        { key: "fields", label: "ช่องกรอกข้อมูล", icon: Workflow },
+                                        { key: "files", label: "อัปโหลดไฟล์", icon: Upload },
+                                    ] as const).map(({ key, label, icon: NavIcon }) => (
+                                        <li key={key}>
+                                            <a
+                                                href={`#section-${key}`}
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setActiveSection(key);
+                                                    document.getElementById(`section-${key}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                                                }}
+                                                className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
+                                                    activeSection === key
+                                                        ? "bg-[#007398]/10 text-[#007398] font-medium border-l-2 border-[#007398]"
+                                                        : "text-[#4d4d4d] hover:bg-gray-100"
+                                                }`}
+                                            >
+                                                <NavIcon className="w-4 h-4" />
+                                                {label}
+                                            </a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </nav>
+
+                        {/* Main Content */}
+                        <div className="flex-1 min-w-0 space-y-8">
+
+                            {/* Section: ข้อมูลพื้นฐาน */}
+                            <section id="section-basic" className="scroll-mt-40">
+                                <h2 className="text-lg font-semibold text-foreground mb-4 pb-2 border-b border-border-default">ข้อมูลพื้นฐาน</h2>
 
                                 <div className="space-y-4">
                                     <Input
@@ -804,11 +803,11 @@ export default function EditFormPage({ params }: PageProps) {
                                         disabled={saving}
                                     />
                                 </div>
-                            </div>
+                            </section>
 
-                            {/* Additional Info */}
-                            <div className="bg-background border border-border-default rounded-lg p-6">
-                                <h2 className="text-h4 text-foreground mb-6">ข้อมูลเพิ่มเติม</h2>
+                            {/* Section: ข้อมูลเพิ่มเติม */}
+                            <section id="section-additional" className="scroll-mt-40">
+                                <h2 className="text-lg font-semibold text-foreground mb-4 pb-2 border-b border-border-default">ข้อมูลเพิ่มเติม</h2>
 
                                 <div className="space-y-4">
                                     <Input
@@ -836,18 +835,14 @@ export default function EditFormPage({ params }: PageProps) {
                                         />
                                     </div>
                                 </div>
-                            </div>
+                            </section>
 
-                            {/* File Replacement Section */}
-                            <div className="bg-background border border-border-default rounded-lg p-6">
-                                <div className="flex items-center gap-2 mb-4">
-                                    <Upload className="w-5 h-5 text-primary" />
-                                    <h2 className="text-h4 text-foreground">อัปโหลดไฟล์ใหม่</h2>
-                                </div>
-                                <p className="text-body-sm text-text-muted mb-4">
+                            {/* Section: อัปโหลดไฟล์ */}
+                            <section id="section-files" className="scroll-mt-40">
+                                <h2 className="text-lg font-semibold text-foreground mb-4 pb-2 border-b border-border-default">อัปโหลดไฟล์ใหม่</h2>
+                                <p className="text-sm text-text-muted mb-4">
                                     แทนที่ไฟล์เทมเพลต DOCX และ/หรือ HTML (PDF จะถูกสร้างอัตโนมัติจาก DOCX)
                                 </p>
-
                                 <div className="space-y-4">
                                     {/* DOCX File Upload */}
                                     <div>
@@ -1076,7 +1071,7 @@ export default function EditFormPage({ params }: PageProps) {
                                     {fileUploadSuccess && (
                                         <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-xl">
                                             <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                                            <p className="text-body-sm text-green-700">
+                                            <p className="text-sm text-green-700">
                                                 อัปโหลดไฟล์สำเร็จ!
                                             </p>
                                         </div>
@@ -1103,14 +1098,11 @@ export default function EditFormPage({ params }: PageProps) {
                                         )}
                                     </Button>
                                 </div>
-                            </div>
-                        </div>
+                            </section>
 
-                        {/* Right Column - Settings & Aliases */}
-                        <div className="space-y-6">
-                            {/* Settings */}
-                            <div className="bg-background border border-border-default rounded-lg p-6">
-                                <h2 className="text-h4 text-foreground mb-6">การตั้งค่า</h2>
+                            {/* Section: การตั้งค่า */}
+                            <section id="section-settings" className="scroll-mt-40">
+                                <h2 className="text-lg font-semibold text-foreground mb-4 pb-2 border-b border-border-default">การตั้งค่า</h2>
 
                                 <div className="space-y-4">
                                     <div className="flex flex-col gap-1 w-full">
@@ -1178,15 +1170,12 @@ export default function EditFormPage({ params }: PageProps) {
                                         </label>
                                     </div>
                                 </div>
-                            </div>
+                            </section>
 
-                            {/* Document Type Assignment */}
-                            <div className="bg-background border border-border-default rounded-lg p-6">
-                                <div className="flex items-center gap-2 mb-4">
-                                    <FolderOpen className="w-5 h-5 text-primary" />
-                                    <h2 className="text-h4 text-foreground">ประเภทเอกสาร</h2>
-                                </div>
-                                <p className="text-body-sm text-text-muted mb-4">
+                            {/* Section: ประเภทเอกสาร */}
+                            <section id="section-doctype" className="scroll-mt-40">
+                                <h2 className="text-lg font-semibold text-foreground mb-4 pb-2 border-b border-border-default">ประเภทเอกสาร</h2>
+                                <p className="text-sm text-text-muted mb-4">
                                     จัดกลุ่มเทมเพลตนี้เข้ากับประเภทเอกสารที่เกี่ยวข้อง
                                 </p>
 
@@ -1327,7 +1316,7 @@ export default function EditFormPage({ params }: PageProps) {
                                         {docTypeSuccess && (
                                             <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-xl">
                                                 <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                                                <p className="text-body-sm text-green-700">
+                                                <p className="text-sm text-green-700">
                                                     กำหนดประเภทเอกสารสำเร็จ!
                                                 </p>
                                             </div>
@@ -1363,27 +1352,15 @@ export default function EditFormPage({ params }: PageProps) {
                                         )}
                                     </div>
                                 )}
-                            </div>
+                            </section>
 
-                            {/* Unified Field Editor - Combines aliases and field definitions */}
-                            <div className="bg-background border border-border-default rounded-lg p-6">
-                                <div className="flex items-center justify-between mb-4">
+                            {/* Section: ช่องกรอกข้อมูล */}
+                            <section id="section-fields" className="scroll-mt-40">
+                                <div className="flex items-center justify-between mb-4 pb-2 border-b border-border-default">
+                                    <h2 className="text-lg font-semibold text-foreground">
+                                        ช่องกรอกข้อมูล
+                                    </h2>
                                     <div className="flex items-center gap-2">
-                                        <Workflow className="w-5 h-5 text-primary" />
-                                        <h2 className="text-h4 text-foreground">
-                                            ช่องกรอกข้อมูล
-                                        </h2>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Button
-                                            type="button"
-                                            variant="secondary"
-                                            size="sm"
-                                            onClick={() => router.push(`/forms/${templateId}/canvas`)}
-                                        >
-                                            <Workflow className="w-4 h-4 mr-2" />
-                                            จัดการฟอร์ม
-                                        </Button>
                                         <Button
                                             type="button"
                                             variant="secondary"
@@ -1409,7 +1386,7 @@ export default function EditFormPage({ params }: PageProps) {
                                 {fieldDefSuccess && (
                                     <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-xl mb-4">
                                         <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                                        <p className="text-body-sm text-green-700">
+                                        <p className="text-sm text-green-700">
                                             อัปเดต Field Definitions สำเร็จ!
                                         </p>
                                     </div>
@@ -1418,7 +1395,7 @@ export default function EditFormPage({ params }: PageProps) {
                                 {suggestionError && (
                                     <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl mb-4">
                                         <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-                                        <p className="text-body-sm text-red-700">{suggestionError}</p>
+                                        <p className="text-sm text-red-700">{suggestionError}</p>
                                     </div>
                                 )}
 
@@ -1437,7 +1414,7 @@ export default function EditFormPage({ params }: PageProps) {
                                 ) : (
                                     <div className="text-center py-6 bg-surface-alt rounded-lg">
                                         <AlertCircle className="w-8 h-8 text-text-muted mx-auto mb-2" />
-                                        <p className="text-body-sm text-text-muted">
+                                        <p className="text-sm text-text-muted">
                                             ยังไม่มีการตรวจจับประเภทช่อง
                                         </p>
                                         <p className="text-caption text-text-muted mt-1">
@@ -1445,8 +1422,6 @@ export default function EditFormPage({ params }: PageProps) {
                                         </p>
                                     </div>
                                 )}
-                            </div>
-
 
                             {/* Merge Suggestions */}
                             {mergeableGroups.length > 0 && (
@@ -1454,7 +1429,7 @@ export default function EditFormPage({ params }: PageProps) {
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="flex items-center gap-2">
                                             <Layers className="w-5 h-5 text-amber-500" />
-                                            <h2 className="text-h4 text-foreground">
+                                            <h2 className="text-lg font-semibold text-foreground">
                                                 แนะนำรวมช่อง
                                             </h2>
                                             <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full">
@@ -1476,7 +1451,7 @@ export default function EditFormPage({ params }: PageProps) {
 
                                     {showMergeSuggestions && (
                                         <div className="space-y-4">
-                                            <p className="text-body-sm text-text-muted">
+                                            <p className="text-sm text-text-muted">
                                                 พบช่องที่มีลำดับเลขต่อเนื่อง สามารถรวมเป็นช่องเดียวได้
                                             </p>
 
@@ -1575,46 +1550,48 @@ export default function EditFormPage({ params }: PageProps) {
                                     )}
                                 </div>
                             )}
+                            </section>
 
-                            {/* Error Message */}
-                            {error && template && (
-                                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl">
-                                    <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-                                    <p className="text-body-sm text-red-700">{error}</p>
-                                </div>
-                            )}
-
-                            {/* Success Message */}
-                            {success && (
-                                <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-xl">
-                                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                                    <p className="text-body-sm text-green-700">
-                                        บันทึกข้อมูลสำเร็จ
-                                    </p>
-                                </div>
-                            )}
-
-                            {/* Submit Button */}
-                            <Button
-                                type="submit"
-                                variant="primary"
-                                className="w-full justify-center"
-                                disabled={saving}
-                            >
-                                {saving ? (
-                                    <>
-                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                        กำลังบันทึก...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Save className="w-4 h-4 mr-2" />
-                                        บันทึกข้อมูล
-                                    </>
+                            {/* Error / Success / Submit */}
+                            <section className="pt-4 border-t border-border-default">
+                                {error && template && (
+                                    <div className="flex items-center gap-2 p-3 mb-4 bg-red-50 border border-red-200 rounded-xl">
+                                        <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                                        <p className="text-sm text-red-700">{error}</p>
+                                    </div>
                                 )}
-                            </Button>
-                        </div>
-                    </div>
+
+                                {success && (
+                                    <div className="flex items-center gap-2 p-3 mb-4 bg-green-50 border border-green-200 rounded-xl">
+                                        <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                                        <p className="text-sm text-green-700">
+                                            บันทึกข้อมูลสำเร็จ
+                                        </p>
+                                    </div>
+                                )}
+
+                                <Button
+                                    type="submit"
+                                    variant="primary"
+                                    className="justify-center"
+                                    disabled={saving}
+                                >
+                                    {saving ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                            กำลังบันทึก...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Save className="w-4 h-4 mr-2" />
+                                            บันทึกข้อมูล
+                                        </>
+                                    )}
+                                </Button>
+                            </section>
+
+                        </div>{/* end main content */}
+                    </div>{/* end flex sidebar+content */}
                 </form>
             </div>
         </div>

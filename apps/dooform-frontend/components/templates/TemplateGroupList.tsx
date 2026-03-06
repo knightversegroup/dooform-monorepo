@@ -263,19 +263,11 @@ export default function TemplateGroupList() {
 
         {/* Template Selection Section */}
         <section className="sticky top-[112px] z-10 bg-white flex flex-col gap-[20px] pt-[20px] pb-[12px]">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-[24px] font-semibold text-black">เลือกเทมเพลต</h2>
-              <p className="text-[16px] font-normal text-black mt-[2px]">
-                เลือกเทมเพลตเอกสารที่ต้องการสร้าง
-              </p>
-            </div>
-            <Link
-              href="/forms/new"
-              className="inline-flex items-center justify-center px-[8px] py-[4px] bg-[#013087] border-[0.5px] border-[#013087] text-white text-[14px] font-medium rounded hover:bg-[#013087]/90 transition-colors"
-            >
-              สร้างเอกสารใหม่
-            </Link>
+          <div>
+            <h2 className="text-[24px] font-semibold text-black">เลือกเทมเพลต</h2>
+            <p className="text-[16px] font-normal text-black mt-[2px]">
+              เลือกเทมเพลตเอกสารที่ต้องการสร้าง
+            </p>
           </div>
 
           {/* Search + Sort + Alphabet Navigation (single row per Figma) */}

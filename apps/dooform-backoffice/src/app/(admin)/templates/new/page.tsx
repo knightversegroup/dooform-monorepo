@@ -14,11 +14,9 @@ import {
     Info,
 } from "lucide-react";
 import { apiClient } from "@dooform/shared/api/client";
-import { useAuth } from "@dooform/shared/auth/hooks";
 
 export default function NewTemplatePage() {
     const router = useRouter();
-    const { isAuthenticated, isLoading: authLoading } = useAuth();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const htmlInputRef = useRef<HTMLInputElement>(null);
 
@@ -35,12 +33,6 @@ export default function NewTemplatePage() {
         author: "",
         category: "",
     });
-
-    // Redirect to login if not authenticated
-    if (!authLoading && !isAuthenticated) {
-        router.replace("/login?redirect=/forms/new");
-        return null;
-    }
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files?.[0];
@@ -101,7 +93,7 @@ export default function NewTemplatePage() {
             setSuccess("อัปโหลดเทมเพลตสำเร็จ!");
 
             setTimeout(() => {
-                router.push(`/forms/${response.template.id}/edit`);
+                router.push(`/templates/${response.template.id}/edit`);
             }, 1500);
         } catch (err) {
             console.error("Failed to upload template:", err);
@@ -125,24 +117,16 @@ export default function NewTemplatePage() {
         }
     };
 
-    if (authLoading) {
-        return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <Loader2 className="w-8 h-8 text-[#007398] animate-spin" />
-            </div>
-        );
-    }
-
     return (
         <div className="min-h-screen bg-gray-50 font-sans">
             {/* Top bar */}
             <div className="bg-white border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
                     <Link
-                        href="/forms"
+                        href="/"
                         className="text-sm text-gray-600 hover:text-[#007398]"
                     >
-                        ← กลับไปหน้าเทมเพลต
+                        ← กลับไปหน้าหลัก
                     </Link>
                 </div>
             </div>
