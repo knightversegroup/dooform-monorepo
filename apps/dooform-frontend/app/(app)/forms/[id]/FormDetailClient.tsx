@@ -123,7 +123,7 @@ export default function FormDetailClient({ params }: PageProps) {
     if (error || !template) {
         return (
             <div className="min-h-screen bg-white font-sans">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
+                <div className="max-w-[1080px] mx-auto px-[8px] py-24 text-center">
                     <h1 className="text-2xl text-gray-900 mb-4">
                         {error || "ไม่พบเทมเพลต"}
                     </h1>
@@ -153,7 +153,7 @@ export default function FormDetailClient({ params }: PageProps) {
             {/* Quota Error Banner */}
             {quotaError && (
                 <div className="bg-red-50 border-b border-red-200">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                    <div className="max-w-[1080px] mx-auto px-[8px] py-4">
                         <div className="flex items-center gap-3">
                             <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0" />
                             <div>
@@ -171,7 +171,7 @@ export default function FormDetailClient({ params }: PageProps) {
 
             {/* Hero Section */}
             <div className="border-b border-gray-200">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div className="max-w-[1080px] mx-auto px-[8px] py-12">
                     {/* Breadcrumb */}
                     <nav className="flex items-center gap-2 text-sm mb-8">
                         <Link href="/" className="text-[#000091] hover:underline">หน้าหลัก</Link>
@@ -289,7 +289,7 @@ export default function FormDetailClient({ params }: PageProps) {
 
             {/* About Section */}
             <div className="bg-gray-50 border-b border-gray-200">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div className="max-w-[1080px] mx-auto px-[8px] py-16">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                         <div>
                             <h2 className="text-3xl font-medium text-[#000091] leading-tight">
@@ -348,7 +348,7 @@ export default function FormDetailClient({ params }: PageProps) {
             {/* Fields Section */}
             {placeholders.length > 0 && (
                 <div className="border-b border-gray-200">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                    <div className="max-w-[1080px] mx-auto px-[8px] py-16">
                         <h2 className="text-2xl font-medium text-gray-900 mb-8">
                             ช่องกรอกข้อมูล ({placeholders.length} รายการ)
                         </h2>
@@ -385,7 +385,7 @@ export default function FormDetailClient({ params }: PageProps) {
             )}
 
             {/* Actions Section */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div className="max-w-[1080px] mx-auto px-[8px] py-16">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Action Card */}
                     <div className="bg-white border border-gray-200 rounded-sm p-6">
@@ -511,7 +511,7 @@ export default function FormDetailClient({ params }: PageProps) {
             </div>
 
             {/* Back Link */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+            <div className="max-w-[1080px] mx-auto px-[8px] pb-16">
                 <Link
                     href={backLink}
                     className="inline-flex items-center text-[#000091] hover:underline"

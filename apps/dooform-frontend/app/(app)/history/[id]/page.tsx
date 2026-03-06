@@ -328,8 +328,8 @@ export default function HistoryDetailPage({ params }: PageProps) {
                                                             ] ||
                                                             key}
                                                     </p>
-                                                    <div className="flex items-start w-full opacity-50">
-                                                        <div className="bg-[#f0f0f0] border-b-2 border-[#5b5b5b] border-l-0 border-r-0 border-t-0 px-4 py-[13px] text-base text-[#5b5b5b] w-full min-h-[48px]">
+                                                    <div className="flex items-start w-full">
+                                                        <div className="bg-[#f0f0f0] border-b-2 border-[#5b5b5b] border-l-0 border-r-0 border-t-0 px-4 py-[13px] text-base text-[#171717] w-full min-h-[48px]">
                                                             {value || "-"}
                                                         </div>
                                                     </div>
