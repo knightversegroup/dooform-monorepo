@@ -419,16 +419,20 @@ function FieldRow({
                     </div>
 
                     {/* Digit Format - only show for digit input type */}
-                    {field.definition.inputType === 'digit' && (
-                        <div className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded-lg">
-                            <label className="text-xs font-medium text-amber-800 mb-2 block">รูปแบบ Digit</label>
-                            <DigitFormatBuilderCompact
-                                value={field.definition.digitFormat || 'XXXXXX'}
-                                onChange={(value) => onFieldDefinitionChange({ digitFormat: value })}
-                                disabled={disabled}
-                            />
-                        </div>
-                    )}
+                    {field.definition.inputType === 'digit' && (() => {
+                        const dtConfig = dataTypes?.find(dt => dt.code === field.definition.dataType);
+                        const effectiveFormat = field.definition.digitFormat || dtConfig?.default_value || '';
+                        return (
+                            <div className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded-lg">
+                                <label className="text-xs font-medium text-amber-800 mb-2 block">รูปแบบ Digit</label>
+                                <DigitFormatBuilderCompact
+                                    value={effectiveFormat}
+                                    onChange={(value) => onFieldDefinitionChange({ digitFormat: value })}
+                                    disabled={disabled}
+                                />
+                            </div>
+                        );
+                    })()}
 
                     {/* AI suggestion details */}
                     {suggestion && (
@@ -600,12 +604,18 @@ export function UnifiedFieldEditor({
         // Get input_type from configurable dataType if available
         const dataTypeConfig = dataTypes?.find(dt => dt.code === suggestion.data_type);
         const inputType = (dataTypeConfig?.input_type as InputType) || (suggestion.input_type as InputType);
-        // Apply field definition changes
-        onFieldDefinitionChange(fieldKey, {
+        // Build updates
+        const updates: Partial<FieldDefinition> = {
             dataType: suggestion.data_type as DataType,
             inputType: inputType,
             entity: suggestion.entity as Entity,
-        });
+        };
+        // If input type is 'digit', copy the default_value as digitFormat
+        if (inputType === 'digit' && dataTypeConfig?.default_value) {
+            updates.digitFormat = dataTypeConfig.default_value;
+        }
+        // Apply field definition changes
+        onFieldDefinitionChange(fieldKey, updates);
         // Remove from suggestions
         setSuggestions((prev) => prev.filter((s) => s !== suggestion));
     };
@@ -620,11 +630,16 @@ export function UnifiedFieldEditor({
                 // Get input_type from configurable dataType if available
                 const dataTypeConfig = dataTypes?.find(dt => dt.code === suggestion.data_type);
                 const inputType = (dataTypeConfig?.input_type as InputType) || (suggestion.input_type as InputType);
-                onFieldDefinitionChange(fieldKey, {
+                const updates: Partial<FieldDefinition> = {
                     dataType: suggestion.data_type as DataType,
                     inputType: inputType,
                     entity: suggestion.entity as Entity,
-                });
+                };
+                // If input type is 'digit', copy the default_value as digitFormat
+                if (inputType === 'digit' && dataTypeConfig?.default_value) {
+                    updates.digitFormat = dataTypeConfig.default_value;
+                }
+                onFieldDefinitionChange(fieldKey, updates);
             }
         });
         setSuggestions([]);

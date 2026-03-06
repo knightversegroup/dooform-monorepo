@@ -28,8 +28,10 @@ function enhanceFieldDefinitions(
     const enhancedDef = { ...def };
     const dtConfig = dataTypes.find((dt) => dt.code === enhancedDef.dataType);
 
-    if (enhancedDef.inputType === "digit" && !enhancedDef.digitFormat && dtConfig?.default_value) {
-      enhancedDef.digitFormat = dtConfig.default_value;
+    if (enhancedDef.inputType === "digit" && dtConfig?.default_value) {
+      if (!enhancedDef.digitFormat || enhancedDef.digitFormat === "XXXXXX") {
+        enhancedDef.digitFormat = dtConfig.default_value;
+      }
     }
 
     if (enhancedDef.inputType === "location" && !enhancedDef.locationOutputFormat && dtConfig?.default_value) {
