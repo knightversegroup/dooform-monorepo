@@ -18,14 +18,12 @@ import {
     FileText,
     ChevronRight,
     FolderOpen,
-    Pencil,
     X,
-    Save,
     Plus,
     Trash2,
 } from "lucide-react";
 import { apiClient } from "@dooform/shared/api/client";
-import { DocumentType, Template, DocumentTypeUpdateRequest, FilterCategory } from "@dooform/shared/api/types";
+import { DocumentType, Template, FilterCategory } from "@dooform/shared/api/types";
 import { useAuth } from "@dooform/shared/auth/hooks";
 
 // Format date
@@ -153,23 +151,14 @@ interface PageProps {
 
 export default function TemplateGroupDetailClient({ params }: PageProps) {
     const { id: documentTypeId } = use(params);
-    const { isAuthenticated, isLoading: authLoading,isAdmin } = useAuth();
+    const { isAuthenticated, isLoading: authLoading } = useAuth();
     const [documentType, setDocumentType] = useState<DocumentType | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Edit modal state
-    const [isEditOpen, setIsEditOpen] = useState(false);
-    const [editForm, setEditForm] = useState<DocumentTypeUpdateRequest>({});
-    const [saving, setSaving] = useState(false);
-    const [saveError, setSaveError] = useState<string | null>(null);
-
     // Category state
     const [categories, setCategories] = useState<{ value: string; label: string }[]>([]);
     const [categoryLabels, setCategoryLabels] = useState<Record<string, string>>({});
-    const [loadingCategories, setLoadingCategories] = useState(false);
-    const [isAddingCategory, setIsAddingCategory] = useState(false);
-    const [newCategory, setNewCategory] = useState("");
 
     // Delete template state
     const [deletingTemplateId, setDeletingTemplateId] = useState<string | null>(null);
@@ -246,80 +235,6 @@ export default function TemplateGroupDetailClient({ params }: PageProps) {
             alert(err instanceof Error ? err.message : "ไม่สามารถเพิ่มรูปแบบเอกสารได้");
         } finally {
             setAddingVariant(false);
-        }
-    };
-
-    // Fetch categories
-    const fetchCategories = async () => {
-        try {
-            setLoadingCategories(true);
-            const filtersData = await apiClient.getFilters();
-            const categoryFilter = filtersData.find((f: FilterCategory) => f.field_name === "category");
-            if (categoryFilter?.options) {
-                const options = categoryFilter.options
-                    .filter((opt) => opt.is_active)
-                    .map((opt) => ({ value: opt.value, label: opt.label }));
-                setCategories(options);
-                const labels: Record<string, string> = {};
-                categoryFilter.options.forEach((opt) => {
-                    labels[opt.value] = opt.label;
-                });
-                setCategoryLabels(labels);
-            }
-        } catch (err) {
-            console.error("Failed to fetch categories:", err);
-        } finally {
-            setLoadingCategories(false);
-        }
-    };
-
-    // Open edit modal
-    const openEditModal = () => {
-        if (documentType) {
-            setEditForm({
-                name: documentType.name,
-                name_en: documentType.name_en || "",
-                description: documentType.description || "",
-                original_source: documentType.original_source || "",
-                category: documentType.category,
-                code: documentType.code,
-            });
-            setSaveError(null);
-            setIsEditOpen(true);
-            fetchCategories();
-        }
-    };
-
-    // Add new category
-    const handleAddCategory = () => {
-        if (newCategory.trim()) {
-            const categoryValue = newCategory.trim().toLowerCase().replace(/\s+/g, "_");
-            const categoryLabel = newCategory.trim();
-            setEditForm({ ...editForm, category: categoryValue });
-            setCategories(prev => [...prev, { value: categoryValue, label: categoryLabel }]);
-            setCategoryLabels(prev => ({ ...prev, [categoryValue]: categoryLabel }));
-            setIsAddingCategory(false);
-            setNewCategory("");
-        }
-    };
-
-    // Save document type
-    const handleSave = async () => {
-        if (!documentType) return;
-        try {
-            setSaving(true);
-            setSaveError(null);
-            const updatedDocType = await apiClient.updateDocumentType(documentType.id, editForm);
-            setDocumentType({
-                ...updatedDocType,
-                templates: documentType.templates,
-            });
-            setIsEditOpen(false);
-        } catch (err) {
-            console.error("Failed to update document type:", err);
-            setSaveError(err instanceof Error ? err.message : "ไม่สามารถบันทึกได้");
-        } finally {
-            setSaving(false);
         }
     };
 
@@ -403,14 +318,6 @@ export default function TemplateGroupDetailClient({ params }: PageProps) {
                                 <h1 className="text-4xl font-medium text-gray-900 leading-tight">
                                     {documentType.name}
                                 </h1>
-                                {isAdmin && (
-                                    <button
-                                        onClick={openEditModal}
-                                        className="p-2 text-gray-400 hover:text-[#000091] hover:bg-gray-100 rounded transition-colors flex-shrink-0"
-                                    >
-                                        <Pencil className="w-5 h-5" />
-                                    </button>
-                                )}
                             </div>
 
                             {documentType.name_en && (
@@ -581,126 +488,6 @@ export default function TemplateGroupDetailClient({ params }: PageProps) {
                     )}
                 </div>
             </div>
-
-            {/* Edit Modal */}
-            {isEditOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center">
-                    <div className="absolute inset-0 bg-black/50" onClick={() => setIsEditOpen(false)} />
-                    <div className="relative bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
-                        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                            <h2 className="text-lg font-semibold text-gray-900">แก้ไขข้อมูลกลุ่มเอกสาร</h2>
-                            <button onClick={() => setIsEditOpen(false)} className="p-1 text-gray-400 hover:text-gray-600 rounded">
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-                        <div className="p-4 space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    ชื่อกลุ่มเอกสาร (ภาษาไทย) <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    value={editForm.name || ""}
-                                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#000091] focus:border-transparent"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">ชื่อ (ภาษาอังกฤษ)</label>
-                                <input
-                                    type="text"
-                                    value={editForm.name_en || ""}
-                                    onChange={(e) => setEditForm({ ...editForm, name_en: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#000091] focus:border-transparent"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">รหัส (Code)</label>
-                                <input
-                                    type="text"
-                                    value={editForm.code || ""}
-                                    onChange={(e) => setEditForm({ ...editForm, code: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#000091] focus:border-transparent"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">หมวดหมู่</label>
-                                {isAddingCategory ? (
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="text"
-                                            value={newCategory}
-                                            onChange={(e) => setNewCategory(e.target.value)}
-                                            placeholder="พิมพ์ชื่อหมวดหมู่ใหม่..."
-                                            className="flex-1 px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#000091]"
-                                            autoFocus
-                                        />
-                                        <button onClick={handleAddCategory} disabled={!newCategory.trim()} className="px-3 py-2 bg-[#000091] text-white text-sm rounded-sm hover:bg-[#00006b] disabled:opacity-50">
-                                            เพิ่ม
-                                        </button>
-                                        <button onClick={() => { setIsAddingCategory(false); setNewCategory(""); }} className="px-3 py-2 border border-gray-300 text-gray-600 text-sm rounded-sm hover:bg-gray-50">
-                                            ยกเลิก
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <div className="flex gap-2">
-                                        <select
-                                            value={editForm.category || ""}
-                                            onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
-                                            className="flex-1 px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#000091]"
-                                            disabled={loadingCategories}
-                                        >
-                                            <option value="">{loadingCategories ? "กำลังโหลด..." : "เลือกหมวดหมู่"}</option>
-                                            {categories.map((cat) => (
-                                                <option key={cat.value} value={cat.value}>{cat.label}</option>
-                                            ))}
-                                        </select>
-                                        <button onClick={() => setIsAddingCategory(true)} className="inline-flex items-center gap-1 px-3 py-2 border border-gray-300 text-gray-600 text-sm rounded-sm hover:bg-gray-50">
-                                            <Plus className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">คำอธิบาย</label>
-                                <textarea
-                                    value={editForm.description || ""}
-                                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                                    rows={3}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#000091] resize-none"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">แหล่งที่มา</label>
-                                <input
-                                    type="text"
-                                    value={editForm.original_source || ""}
-                                    onChange={(e) => setEditForm({ ...editForm, original_source: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#000091]"
-                                />
-                            </div>
-                            {saveError && (
-                                <div className="p-3 bg-red-50 border border-red-200 rounded-sm">
-                                    <p className="text-sm text-red-600">{saveError}</p>
-                                </div>
-                            )}
-                        </div>
-                        <div className="flex items-center justify-end gap-2 p-4 border-t border-gray-200">
-                            <button onClick={() => setIsEditOpen(false)} className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-sm" disabled={saving}>
-                                ยกเลิก
-                            </button>
-                            <button
-                                onClick={handleSave}
-                                disabled={saving || !editForm.name}
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-[#000091] text-white text-sm font-medium rounded-sm hover:bg-[#00006b] disabled:opacity-50"
-                            >
-                                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                                {saving ? "กำลังบันทึก..." : "บันทึก"}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* Add Variant Modal */}
             {isAddVariantOpen && (
