@@ -135,6 +135,7 @@ export default function HistoryPage() {
     const { isAuthenticated, isLoading: authLoading } = useAuth();
 
     const [documents, setDocuments] = useState<DocumentHistory[]>([]);
+    const [templateMap, setTemplateMap] = useState<Record<string, string>>({});
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [limit] = useState(20);
@@ -160,12 +161,22 @@ export default function HistoryPage() {
     const loadHistory = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await apiClient.get<HistoryResponse>(
-                `/api/v1/documents/history?page=${page}&limit=${limit}`
-            );
-            setDocuments(response.data.documents || []);
-            setTotalPages(response.data.pagination?.pages || 1);
-            setTotal(response.data.pagination?.total || 0);
+            const [historyRes, templatesRes] = await Promise.all([
+                apiClient.get<HistoryResponse>(
+                    `/api/v1/documents/history?page=${page}&limit=${limit}`
+                ),
+                apiClient.getAllTemplates().catch(() => ({ templates: [] })),
+            ]);
+            setDocuments(historyRes.data.documents || []);
+            setTotalPages(historyRes.data.pagination?.pages || 1);
+            setTotal(historyRes.data.pagination?.total || 0);
+
+            // Build template name lookup
+            const map: Record<string, string> = {};
+            (templatesRes.templates || []).forEach((t) => {
+                map[t.id] = t.name;
+            });
+            setTemplateMap(map);
         } catch (err) {
             console.error("Failed to load history:", err);
             setDocuments([]);
@@ -184,13 +195,15 @@ export default function HistoryPage() {
     const filteredDocuments = useMemo(() => {
         if (!searchTerm.trim()) return documents;
         const term = searchTerm.trim().toLowerCase();
-        return documents.filter(
-            (doc) =>
+        return documents.filter((doc) => {
+            const tmplName =
+                doc.template?.name || templateMap[doc.template_id] || "";
+            return (
                 doc.filename.toLowerCase().includes(term) ||
-                (doc.template?.name &&
-                    doc.template.name.toLowerCase().includes(term))
-        );
-    }, [documents, searchTerm]);
+                tmplName.toLowerCase().includes(term)
+            );
+        });
+    }, [documents, searchTerm, templateMap]);
 
     // Group by month, sorted by sortDirection
     const monthGroups = useMemo(() => {
@@ -480,6 +493,7 @@ export default function HistoryPage() {
                                         {/* Template */}
                                         <div className="w-[180px] flex-shrink-0 text-[14px] font-medium text-black truncate">
                                             {doc.template?.name ||
+                                                templateMap[doc.template_id] ||
                                                 "ไม่ทราบเทมเพลต"}
                                         </div>
 
