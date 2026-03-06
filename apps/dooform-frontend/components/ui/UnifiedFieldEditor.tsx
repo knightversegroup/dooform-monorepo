@@ -421,7 +421,7 @@ function FieldRow({
                     {/* Digit Format - only show for digit input type */}
                     {field.definition.inputType === 'digit' && (() => {
                         const dtConfig = dataTypes?.find(dt => dt.code === field.definition.dataType);
-                        const effectiveFormat = field.definition.digitFormat || dtConfig?.default_value || 'XXXXXX';
+                        const effectiveFormat = field.definition.digitFormat || dtConfig?.default_value || '';
                         return (
                             <div className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded-lg">
                                 <label className="text-xs font-medium text-amber-800 mb-2 block">รูปแบบ Digit</label>
