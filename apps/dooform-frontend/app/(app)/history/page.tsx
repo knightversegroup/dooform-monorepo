@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
     Download,
     FileText,
-    Eye,
     X,
     Loader2,
     RefreshCw,
@@ -82,6 +81,41 @@ const formatRelativeTime = (dateString: string) => {
     return formatDate(dateString);
 };
 
+/**
+ * Get month key (YYYY-MM) from a date string for grouping
+ */
+const getMonthKey = (dateString: string): string => {
+    const cleanDateString = dateString.replace("Z", "");
+    const date = new Date(cleanDateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    return `${year}-${month}`;
+};
+
+/**
+ * Format a month key to Thai display label, e.g. "มี.ค. 2569"
+ */
+const formatMonthLabel = (monthKey: string): string => {
+    const [year, month] = monthKey.split("-");
+    const date = new Date(Number(year), Number(month) - 1, 1);
+    return date.toLocaleDateString("th-TH", {
+        year: "numeric",
+        month: "short",
+    });
+};
+
+/**
+ * Short month label for nav buttons, e.g. "มี.ค. 69"
+ */
+const formatMonthShort = (monthKey: string): string => {
+    const [year, month] = monthKey.split("-");
+    const date = new Date(Number(year), Number(month) - 1, 1);
+    return date.toLocaleDateString("th-TH", {
+        year: "2-digit",
+        month: "short",
+    });
+};
+
 function StatusBadge({ doc }: { doc: DocumentHistory }) {
     const hasFiles = doc.gcs_path_docx || doc.gcs_path_pdf;
     return (
@@ -111,6 +145,11 @@ export default function HistoryPage() {
 
     const [searchTerm, setSearchTerm] = useState("");
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+    const [activeMonth, setActiveMonth] = useState<string | null>(null);
+
+    // Refs for month navigation
+    const monthNavRef = useRef<HTMLDivElement>(null);
+    const monthRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
     useEffect(() => {
         if (!authLoading && !isAuthenticated) {
@@ -141,27 +180,60 @@ export default function HistoryPage() {
         }
     }, [authLoading, isAuthenticated, loadHistory]);
 
+    // Filter by search term
     const filteredDocuments = useMemo(() => {
-        let filtered = documents;
-        if (searchTerm.trim()) {
-            const term = searchTerm.trim().toLowerCase();
-            filtered = filtered.filter(
-                (doc) =>
-                    doc.filename.toLowerCase().includes(term) ||
-                    (doc.template?.name &&
-                        doc.template.name.toLowerCase().includes(term))
-            );
-        }
+        if (!searchTerm.trim()) return documents;
+        const term = searchTerm.trim().toLowerCase();
+        return documents.filter(
+            (doc) =>
+                doc.filename.toLowerCase().includes(term) ||
+                (doc.template?.name &&
+                    doc.template.name.toLowerCase().includes(term))
+        );
+    }, [documents, searchTerm]);
 
-        const sorted = [...filtered].sort((a, b) => {
+    // Group by month, sorted by sortDirection
+    const monthGroups = useMemo(() => {
+        const sorted = [...filteredDocuments].sort((a, b) => {
             const cmp =
                 new Date(a.created_at).getTime() -
                 new Date(b.created_at).getTime();
             return sortDirection === "asc" ? cmp : -cmp;
         });
 
-        return sorted;
-    }, [documents, searchTerm, sortDirection]);
+        const groups: Record<string, DocumentHistory[]> = {};
+        sorted.forEach((doc) => {
+            const key = getMonthKey(doc.created_at);
+            if (!groups[key]) groups[key] = [];
+            groups[key].push(doc);
+        });
+
+        // Sort month keys
+        return Object.entries(groups).sort(([a], [b]) => {
+            return sortDirection === "asc"
+                ? a.localeCompare(b)
+                : b.localeCompare(a);
+        });
+    }, [filteredDocuments, sortDirection]);
+
+    // Available months for nav
+    const availableMonths = useMemo(() => {
+        return monthGroups.map(([key]) => key);
+    }, [monthGroups]);
+
+    const scrollMonthNav = useCallback((direction: "left" | "right") => {
+        if (!monthNavRef.current) return;
+        const scrollAmount = direction === "left" ? -200 : 200;
+        monthNavRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }, []);
+
+    const handleMonthClick = useCallback((monthKey: string) => {
+        setActiveMonth(monthKey);
+        const el = monthRefs.current[monthKey];
+        if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    }, []);
 
     const handleDownload = async (
         doc: DocumentHistory,
@@ -232,38 +304,88 @@ export default function HistoryPage() {
                         </p>
                     </div>
 
-                    {/* Search + Sort */}
-                    <div className="flex items-center gap-[4px]">
-                        <div className="relative w-[567px]">
-                            <input
-                                type="text"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                placeholder="ค้นหาเอกสาร..."
-                                className="w-full h-[31px] pl-3 pr-8 border-[0.5px] border-[#b3b3b3] rounded text-[14px] font-medium text-black placeholder:text-[#b3b3b3] focus:outline-none focus:border-[#013087] transition-colors"
-                            />
-                            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-[#b3b3b3]" />
+                    {/* Search + Sort + Month Navigation */}
+                    <div className="flex items-center gap-[20px]">
+                        {/* Search + Sort group */}
+                        <div className="flex items-center gap-[4px] shrink-0">
+                            <div className="relative w-[567px]">
+                                <input
+                                    type="text"
+                                    value={searchTerm}
+                                    onChange={(e) => {
+                                        setSearchTerm(e.target.value);
+                                        setActiveMonth(null);
+                                    }}
+                                    placeholder="ค้นหาเอกสาร..."
+                                    className="w-full h-[31px] pl-3 pr-8 border-[0.5px] border-[#b3b3b3] rounded text-[14px] font-medium text-black placeholder:text-[#b3b3b3] focus:outline-none focus:border-[#013087] transition-colors"
+                                />
+                                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-[#b3b3b3]" />
+                            </div>
+
+                            <button
+                                onClick={() =>
+                                    setSortDirection((d) =>
+                                        d === "asc" ? "desc" : "asc"
+                                    )
+                                }
+                                className="w-[31px] h-[31px] flex items-center justify-center border-[0.5px] border-[#b3b3b3] rounded hover:bg-gray-50 transition-colors"
+                                title={
+                                    sortDirection === "asc"
+                                        ? "เรียงเก่าสุด-ใหม่สุด"
+                                        : "เรียงใหม่สุด-เก่าสุด"
+                                }
+                            >
+                                {sortDirection === "asc" ? (
+                                    <ArrowDownAZ className="w-[18px] h-[18px] text-[#4d4d4d]" />
+                                ) : (
+                                    <ArrowUpZA className="w-[18px] h-[18px] text-[#4d4d4d]" />
+                                )}
+                            </button>
                         </div>
 
-                        <button
-                            onClick={() =>
-                                setSortDirection((d) =>
-                                    d === "asc" ? "desc" : "asc"
-                                )
-                            }
-                            className="w-[31px] h-[31px] flex items-center justify-center border-[0.5px] border-[#b3b3b3] rounded hover:bg-gray-50 transition-colors"
-                            title={
-                                sortDirection === "asc"
-                                    ? "เรียงเก่าสุด-ใหม่สุด"
-                                    : "เรียงใหม่สุด-เก่าสุด"
-                            }
-                        >
-                            {sortDirection === "asc" ? (
-                                <ArrowDownAZ className="w-[18px] h-[18px] text-[#4d4d4d]" />
-                            ) : (
-                                <ArrowUpZA className="w-[18px] h-[18px] text-[#4d4d4d]" />
-                            )}
-                        </button>
+                        {/* Month Navigation group */}
+                        {availableMonths.length > 0 && (
+                            <div className="flex items-center gap-[2px] min-w-0">
+                                <button
+                                    onClick={() => scrollMonthNav("left")}
+                                    className="w-[31px] h-[31px] flex-shrink-0 flex items-center justify-center border-[0.5px] border-[#b3b3b3] rounded hover:bg-gray-50 transition-colors"
+                                >
+                                    <ChevronLeft className="w-[18px] h-[18px] text-[#4d4d4d]" />
+                                </button>
+
+                                <div
+                                    ref={monthNavRef}
+                                    className="flex items-center gap-[2px] overflow-hidden min-w-0"
+                                >
+                                    {availableMonths.map((monthKey) => {
+                                        const isActive =
+                                            activeMonth === monthKey;
+                                        return (
+                                            <button
+                                                key={monthKey}
+                                                onClick={() =>
+                                                    handleMonthClick(monthKey)
+                                                }
+                                                className={`h-[31px] px-3 flex-shrink-0 flex items-center justify-center rounded text-[14px] font-medium transition-colors whitespace-nowrap ${
+                                                    isActive
+                                                        ? "bg-[#013087] text-white"
+                                                        : "border-[0.5px] border-[#b3b3b3] text-black hover:bg-gray-50"
+                                                }`}
+                                            >
+                                                {formatMonthShort(monthKey)}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+
+                                <button
+                                    onClick={() => scrollMonthNav("right")}
+                                    className="w-[31px] h-[31px] flex-shrink-0 flex items-center justify-center border-[0.5px] border-[#b3b3b3] rounded hover:bg-gray-50 transition-colors"
+                                >
+                                    <ChevronRight className="w-[18px] h-[18px] text-[#4d4d4d]" />
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </section>
 
@@ -326,124 +448,145 @@ export default function HistoryPage() {
                             <div className="flex-1" />
                         </div>
 
-                        {/* Document Rows */}
-                        {filteredDocuments.map((doc) => (
-                            <div
-                                key={doc.id}
-                                className="flex items-center gap-[20px] py-[16px] border-b border-[#e6e6e6]"
-                            >
-                                {/* Filename */}
-                                <div className="w-[300px] flex-shrink-0 min-w-0">
-                                    <p className="font-medium text-black truncate">
-                                        {doc.filename}
-                                    </p>
-                                    <p className="text-[14px] text-[#666] truncate font-mono">
-                                        {doc.id.slice(0, 8)}...
-                                    </p>
+                        {/* Month Groups */}
+                        {monthGroups.map(([monthKey, docs]) => (
+                            <div key={monthKey}>
+                                {/* Month Header */}
+                                <div
+                                    ref={(el) => {
+                                        monthRefs.current[monthKey] = el;
+                                    }}
+                                    className="sticky top-[240px] z-[5] bg-white scroll-mt-[240px] text-[20px] font-semibold text-[#4d4d4d] border-b border-[#e6e6e6] py-[8px] mt-4"
+                                >
+                                    {formatMonthLabel(monthKey)}
                                 </div>
 
-                                {/* Template */}
-                                <div className="w-[180px] flex-shrink-0 text-[14px] font-medium text-black truncate">
-                                    {doc.template?.name || "ไม่ทราบเทมเพลต"}
-                                </div>
-
-                                {/* Created Date */}
-                                <div className="w-[180px] flex-shrink-0 text-[14px] font-medium text-black">
-                                    <p>{formatRelativeTime(doc.created_at)}</p>
-                                    <p className="text-[12px] text-[#999]">
-                                        {formatDate(doc.created_at)}
-                                    </p>
-                                </div>
-
-                                {/* Status */}
-                                <div className="w-[140px] flex-shrink-0">
-                                    <StatusBadge doc={doc} />
-                                </div>
-
-                                {/* Actions */}
-                                <div className="flex-1 flex items-center justify-end gap-2">
-                                    <Link
-                                        href={`/history/${doc.id}`}
-                                        className="inline-flex items-center gap-1 text-[14px] text-black underline hover:text-[#000091] transition-colors"
+                                {/* Document Rows */}
+                                {docs.map((doc) => (
+                                    <div
+                                        key={doc.id}
+                                        className="flex items-center gap-[20px] py-[16px] border-b border-[#e6e6e6]"
                                     >
-                                        ดูข้อมูล
-                                        <ArrowUpRight className="w-[18px] h-[18px]" />
-                                    </Link>
-                                    {!doc.gcs_path_docx &&
-                                    !doc.gcs_path_pdf ? (
-                                        <button
-                                            onClick={() =>
-                                                handleRegenerate(doc)
-                                            }
-                                            disabled={
-                                                regenerating === doc.id
-                                            }
-                                            className="inline-flex items-center gap-1 text-[14px] text-[#013087] underline hover:text-[#013087]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                        >
-                                            {regenerating === doc.id ? (
-                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                        {/* Filename */}
+                                        <div className="w-[300px] flex-shrink-0 min-w-0">
+                                            <p className="font-medium text-black truncate">
+                                                {doc.filename}
+                                            </p>
+                                            <p className="text-[14px] text-[#666] truncate font-mono">
+                                                {doc.id.slice(0, 8)}...
+                                            </p>
+                                        </div>
+
+                                        {/* Template */}
+                                        <div className="w-[180px] flex-shrink-0 text-[14px] font-medium text-black truncate">
+                                            {doc.template?.name ||
+                                                "ไม่ทราบเทมเพลต"}
+                                        </div>
+
+                                        {/* Created Date */}
+                                        <div className="w-[180px] flex-shrink-0 text-[14px] font-medium text-black">
+                                            <p>
+                                                {formatRelativeTime(
+                                                    doc.created_at
+                                                )}
+                                            </p>
+                                            <p className="text-[12px] text-[#999]">
+                                                {formatDate(doc.created_at)}
+                                            </p>
+                                        </div>
+
+                                        {/* Status */}
+                                        <div className="w-[140px] flex-shrink-0">
+                                            <StatusBadge doc={doc} />
+                                        </div>
+
+                                        {/* Actions */}
+                                        <div className="flex-1 flex items-center justify-end gap-2">
+                                            <Link
+                                                href={`/history/${doc.id}`}
+                                                className="inline-flex items-center gap-1 text-[14px] text-black underline hover:text-[#000091] transition-colors"
+                                            >
+                                                ดูข้อมูล
+                                                <ArrowUpRight className="w-[18px] h-[18px]" />
+                                            </Link>
+                                            {!doc.gcs_path_docx &&
+                                            !doc.gcs_path_pdf ? (
+                                                <button
+                                                    onClick={() =>
+                                                        handleRegenerate(doc)
+                                                    }
+                                                    disabled={
+                                                        regenerating === doc.id
+                                                    }
+                                                    className="inline-flex items-center gap-1 text-[14px] text-[#013087] underline hover:text-[#013087]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    {regenerating ===
+                                                    doc.id ? (
+                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                    ) : (
+                                                        <>
+                                                            <RefreshCw className="w-[16px] h-[16px]" />
+                                                            สร้างใหม่
+                                                        </>
+                                                    )}
+                                                </button>
                                             ) : (
                                                 <>
-                                                    <RefreshCw className="w-[16px] h-[16px]" />
-                                                    สร้างใหม่
+                                                    {doc.gcs_path_docx && (
+                                                        <button
+                                                            onClick={() =>
+                                                                handleDownload(
+                                                                    doc,
+                                                                    "docx"
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                downloading ===
+                                                                `${doc.id}-docx`
+                                                            }
+                                                            className="inline-flex items-center gap-1 text-[14px] text-black underline hover:text-[#000091] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        >
+                                                            {downloading ===
+                                                            `${doc.id}-docx` ? (
+                                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                            ) : (
+                                                                <>
+                                                                    <Download className="w-[16px] h-[16px]" />
+                                                                    DOCX
+                                                                </>
+                                                            )}
+                                                        </button>
+                                                    )}
+                                                    {doc.gcs_path_pdf && (
+                                                        <button
+                                                            onClick={() =>
+                                                                handleDownload(
+                                                                    doc,
+                                                                    "pdf"
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                downloading ===
+                                                                `${doc.id}-pdf`
+                                                            }
+                                                            className="inline-flex items-center gap-1 text-[14px] text-[#dc2626] underline hover:text-[#dc2626]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        >
+                                                            {downloading ===
+                                                            `${doc.id}-pdf` ? (
+                                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                            ) : (
+                                                                <>
+                                                                    <Download className="w-[16px] h-[16px]" />
+                                                                    PDF
+                                                                </>
+                                                            )}
+                                                        </button>
+                                                    )}
                                                 </>
                                             )}
-                                        </button>
-                                    ) : (
-                                        <>
-                                            {doc.gcs_path_docx && (
-                                                <button
-                                                    onClick={() =>
-                                                        handleDownload(
-                                                            doc,
-                                                            "docx"
-                                                        )
-                                                    }
-                                                    disabled={
-                                                        downloading ===
-                                                        `${doc.id}-docx`
-                                                    }
-                                                    className="inline-flex items-center gap-1 text-[14px] text-black underline hover:text-[#000091] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                >
-                                                    {downloading ===
-                                                    `${doc.id}-docx` ? (
-                                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                                    ) : (
-                                                        <>
-                                                            <Download className="w-[16px] h-[16px]" />
-                                                            DOCX
-                                                        </>
-                                                    )}
-                                                </button>
-                                            )}
-                                            {doc.gcs_path_pdf && (
-                                                <button
-                                                    onClick={() =>
-                                                        handleDownload(
-                                                            doc,
-                                                            "pdf"
-                                                        )
-                                                    }
-                                                    disabled={
-                                                        downloading ===
-                                                        `${doc.id}-pdf`
-                                                    }
-                                                    className="inline-flex items-center gap-1 text-[14px] text-[#dc2626] underline hover:text-[#dc2626]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                >
-                                                    {downloading ===
-                                                    `${doc.id}-pdf` ? (
-                                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                                    ) : (
-                                                        <>
-                                                            <Download className="w-[16px] h-[16px]" />
-                                                            PDF
-                                                        </>
-                                                    )}
-                                                </button>
-                                            )}
-                                        </>
-                                    )}
-                                </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         ))}
 
