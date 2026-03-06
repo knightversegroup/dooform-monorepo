@@ -898,10 +898,11 @@ export class ApiClient {
 
   async getConfigurableDataTypes(activeOnly = false): Promise<ConfigurableDataType[]> {
     const params = activeOnly ? '?active=true' : '';
-    const response = await fetch(`${this.baseUrl}/data-types${params}`, {
+    const makeRequest = () => fetch(`${this.baseUrl}/data-types${params}`, {
       headers: this.getAuthHeaders(),
     });
-    const result = await this.handleResponse<DataTypesResponse>(response);
+    const response = await makeRequest();
+    const result = await this.handleResponseWithRetry<DataTypesResponse>(response, makeRequest);
     return result.data_types || [];
   }
 

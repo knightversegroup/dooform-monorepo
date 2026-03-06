@@ -33,6 +33,29 @@ interface PageProps {
     params: Promise<{ id: string }>;
 }
 
+/**
+ * Enhance field definitions with data type defaults (e.g., digitFormat from default_value).
+ * Without this, digit fields loaded from the API may lack their format pattern.
+ */
+function enhanceFieldDefinitions(
+    definitions: Record<string, FieldDefinition>,
+    dataTypes: ConfigurableDataType[]
+): Record<string, FieldDefinition> {
+    const enhanced: Record<string, FieldDefinition> = {};
+    Object.entries(definitions).forEach(([key, def]) => {
+        const enhancedDef = { ...def };
+        const dtConfig = dataTypes.find((dt) => dt.code === enhancedDef.dataType);
+        if (enhancedDef.inputType === 'digit' && dtConfig?.default_value) {
+            // Always sync digitFormat from data type — override missing or generic fallback
+            if (!enhancedDef.digitFormat || enhancedDef.digitFormat === 'XXXXXX') {
+                enhancedDef.digitFormat = dtConfig.default_value;
+            }
+        }
+        enhanced[key] = enhancedDef;
+    });
+    return enhanced;
+}
+
 export default function EditFormPage({ params }: PageProps) {
     const { id: templateId } = use(params);
     const router = useRouter();
@@ -110,14 +133,16 @@ export default function EditFormPage({ params }: PageProps) {
                 setError(null);
 
                 // Load document types, category options, and configurable types
+                let configurableDataTypes: ConfigurableDataType[] = [];
                 try {
-                    const [docTypes, filtersData, configurableDataTypes, configurableInputTypes] = await Promise.all([
+                    const [docTypes, filtersData, loadedDataTypes, configurableInputTypes] = await Promise.all([
                         apiClient.getDocumentTypes({ activeOnly: true }),
                         apiClient.getFilters().catch(() => [] as FilterCategory[]),
                         apiClient.getConfigurableDataTypes(true).catch(() => [] as ConfigurableDataType[]),
                         apiClient.getConfigurableInputTypes(true).catch(() => [] as ConfigurableInputType[]),
                     ]);
                     setDocumentTypes(docTypes);
+                    configurableDataTypes = loadedDataTypes;
                     setDataTypes(configurableDataTypes);
 
                     // Ensure 'location' input type exists (for Thai admin boundary selection)
@@ -202,7 +227,8 @@ export default function EditFormPage({ params }: PageProps) {
                 // Load field definitions
                 try {
                     const definitions = await apiClient.getFieldDefinitions(templateId);
-                    setFieldDefinitions(definitions);
+                    const enhanced = enhanceFieldDefinitions(definitions, configurableDataTypes);
+                    setFieldDefinitions(enhanced);
 
                     // Check for already merged fields
                     const alreadyMerged = new Set<string>();
@@ -284,7 +310,7 @@ export default function EditFormPage({ params }: PageProps) {
         try {
             // Regenerate to get original field definitions
             const definitions = await apiClient.regenerateFieldDefinitions(templateId);
-            setFieldDefinitions(definitions);
+            setFieldDefinitions(enhanceFieldDefinitions(definitions, dataTypes));
 
             // Remove from merged groups
             setMergedGroups(prev => {
@@ -319,7 +345,7 @@ export default function EditFormPage({ params }: PageProps) {
             setFieldDefSuccess(false);
 
             const definitions = await apiClient.regenerateFieldDefinitions(templateId);
-            setFieldDefinitions(definitions);
+            setFieldDefinitions(enhanceFieldDefinitions(definitions, dataTypes));
             setFieldDefSuccess(true);
 
             // Data refreshed successfully
@@ -478,7 +504,7 @@ export default function EditFormPage({ params }: PageProps) {
             if (regenerateFieldsOnUpload && docxFile) {
                 try {
                     const definitions = await apiClient.getFieldDefinitions(templateId);
-                    setFieldDefinitions(definitions);
+                    setFieldDefinitions(enhanceFieldDefinitions(definitions, dataTypes));
                 } catch (err) {
                     console.error("Failed to reload field definitions:", err);
                 }

@@ -658,8 +658,7 @@ export const SmartInput = forwardRef<HTMLInputElement | HTMLSelectElement | HTML
 
             // Digit block input (for OTP, license plates, ID segments, etc.)
             if (inputType === 'digit') {
-                // Use digitFormat from definition, or default to 6-digit OTP format
-                const format = definition.digitFormat || 'XXXXXX';
+                const format = definition.digitFormat || '';
                 return (
                     <DigitBlockInput
                         format={format}
