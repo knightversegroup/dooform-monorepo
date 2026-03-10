@@ -276,7 +276,7 @@ export default function TemplateCardGrid() {
   if (error) return <ErrorState message={error} onRetry={() => window.location.reload()} />;
   if (totalTemplates === 0) return <EmptyState />;
 
-  const thumbnailUrl = selectedTemplate ? apiClient.getHDThumbnailUrl(selectedTemplate.id, 800) : null;
+  const thumbnailUrl = selectedTemplate ? apiClient.getHDThumbnailUrl(selectedTemplate.id, 1200) : null;
 
   return (
     <div className="max-w-[1080px] mx-auto px-[8px]">

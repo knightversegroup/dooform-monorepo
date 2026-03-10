@@ -25,8 +25,8 @@ interface DocumentHistory {
     template_id: string;
     user_id: string;
     filename: string;
-    gcs_path_docx: string;
-    gcs_path_pdf: string;
+    file_path_docx: string;
+    file_path_pdf: string;
     file_size: number;
     mime_type: string;
     data: string;
@@ -117,7 +117,7 @@ const formatMonthShort = (monthKey: string): string => {
 };
 
 function StatusBadge({ doc }: { doc: DocumentHistory }) {
-    const hasFiles = doc.gcs_path_docx || doc.gcs_path_pdf;
+    const hasFiles = doc.file_path_docx || doc.file_path_pdf;
     return (
         <div className="flex items-center gap-1 text-[14px] font-medium text-black">
             <span
@@ -523,8 +523,8 @@ export default function HistoryPage() {
                                                 ดูข้อมูล
                                                 <ArrowUpRight className="w-[18px] h-[18px]" />
                                             </Link>
-                                            {!doc.gcs_path_docx &&
-                                            !doc.gcs_path_pdf ? (
+                                            {!doc.file_path_docx &&
+                                            !doc.file_path_pdf ? (
                                                 <button
                                                     onClick={() =>
                                                         handleRegenerate(doc)
@@ -546,7 +546,7 @@ export default function HistoryPage() {
                                                 </button>
                                             ) : (
                                                 <>
-                                                    {doc.gcs_path_docx && (
+                                                    {doc.file_path_docx && (
                                                         <button
                                                             onClick={() =>
                                                                 handleDownload(
@@ -571,7 +571,7 @@ export default function HistoryPage() {
                                                             )}
                                                         </button>
                                                     )}
-                                                    {doc.gcs_path_pdf && (
+                                                    {doc.file_path_pdf && (
                                                         <button
                                                             onClick={() =>
                                                                 handleDownload(
