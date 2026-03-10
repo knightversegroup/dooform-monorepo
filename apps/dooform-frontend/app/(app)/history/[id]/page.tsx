@@ -24,8 +24,8 @@ interface DocumentHistory {
     template_id: string;
     user_id: string;
     filename: string;
-    gcs_path_docx: string;
-    gcs_path_pdf: string;
+    file_path_docx: string;
+    file_path_pdf: string;
     file_size: number;
     mime_type: string;
     data: string;
@@ -234,7 +234,7 @@ export default function HistoryDetailPage({ params }: PageProps) {
         );
     }
 
-    const hasFiles = document.gcs_path_docx || document.gcs_path_pdf;
+    const hasFiles = document.file_path_docx || document.file_path_pdf;
 
     return (
         <div className="min-h-screen bg-white">
@@ -358,7 +358,7 @@ export default function HistoryDetailPage({ params }: PageProps) {
                                 </button>
                             ) : (
                                 <>
-                                    {document.gcs_path_docx && (
+                                    {document.file_path_docx && (
                                         <button
                                             onClick={() =>
                                                 handleDownload("docx")
@@ -376,7 +376,7 @@ export default function HistoryDetailPage({ params }: PageProps) {
                                             ดาวน์โหลด DOCX
                                         </button>
                                     )}
-                                    {document.gcs_path_pdf && (
+                                    {document.file_path_pdf && (
                                         <button
                                             onClick={() =>
                                                 handleDownload("pdf")
