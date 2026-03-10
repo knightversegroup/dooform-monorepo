@@ -11,6 +11,8 @@ import {
     FolderOpen,
     Eye,
     Pencil,
+    Trash2,
+    Plus,
     AlignLeft,
     ArrowDownZA,
     AlarmClock,
@@ -51,12 +53,14 @@ function TemplateCard({
     isExpanded,
     onSelect,
     onToggleExpand,
+    onDelete,
 }: {
     template: Template;
     isSelected: boolean;
     isExpanded: boolean;
     onSelect: () => void;
     onToggleExpand: () => void;
+    onDelete: (id: string) => void;
 }) {
     const pageCount = template.placeholders?.length || 0;
 
@@ -123,7 +127,19 @@ function TemplateCard({
                             </div>
                         )}
                     </div>
-                    <div className="flex items-center justify-end">
+                    <div className="flex items-center justify-end gap-2">
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onDelete(template.id);
+                            }}
+                            className="flex items-center justify-center gap-1 px-3 py-1 bg-white border border-red-200 rounded-full hover:bg-red-50 transition-colors"
+                        >
+                            <Trash2 className="w-3 h-3 text-red-500" />
+                            <span className="text-xs font-medium text-red-500">
+                                ลบ
+                            </span>
+                        </button>
                         <Link
                             href={`/templates/${template.id}/edit`}
                             onClick={(e) => e.stopPropagation()}
@@ -149,6 +165,7 @@ function DocumentTypeGroup({
     expandedTemplateId,
     onSelectTemplate,
     onToggleExpand,
+    onDeleteTemplate,
 }: {
     documentType: DocumentType;
     templates: Template[];
@@ -156,6 +173,7 @@ function DocumentTypeGroup({
     expandedTemplateId: string | null;
     onSelectTemplate: (t: Template) => void;
     onToggleExpand: (id: string) => void;
+    onDeleteTemplate: (id: string) => void;
 }) {
     return (
         <div className="mb-6">
@@ -176,6 +194,7 @@ function DocumentTypeGroup({
                         isExpanded={expandedTemplateId === template.id}
                         onSelect={() => onSelectTemplate(template)}
                         onToggleExpand={() => onToggleExpand(template.id)}
+                        onDelete={onDeleteTemplate}
                     />
                 ))}
             </div>
@@ -223,6 +242,7 @@ export default function TemplatesPage() {
     const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
     const [expandedTemplateId, setExpandedTemplateId] = useState<string | null>(null);
     const [tipsExpanded, setTipsExpanded] = useState(true);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
 
     useEffect(() => {
         const loadData = async () => {
@@ -255,6 +275,32 @@ export default function TemplatesPage() {
 
     const handleSelectTemplate = (template: Template) => {
         setSelectedTemplate(template);
+    };
+
+    const handleDeleteTemplate = async (templateId: string) => {
+        if (!confirm("ต้องการลบเทมเพลตนี้หรือไม่?")) return;
+        try {
+            setDeletingId(templateId);
+            await apiClient.deleteTemplate(templateId);
+            // Remove from document types
+            setDocumentTypes((prev) =>
+                prev.map((dt) => ({
+                    ...dt,
+                    templates: (dt.templates || []).filter((t) => t.id !== templateId),
+                }))
+            );
+            // Remove from orphan templates
+            setOrphanTemplates((prev) => prev.filter((t) => t.id !== templateId));
+            // Clear selection if the deleted template was selected
+            if (selectedTemplate?.id === templateId) {
+                setSelectedTemplate(null);
+            }
+        } catch (err) {
+            console.error("Failed to delete template:", err);
+            alert(`ลบเทมเพลตไม่สำเร็จ: ${err instanceof Error ? err.message : "Unknown error"}`);
+        } finally {
+            setDeletingId(null);
+        }
     };
 
     const filterTemplates = (templates: Template[]) => {
@@ -310,13 +356,22 @@ export default function TemplatesPage() {
     return (
         <div>
             {/* Page Header */}
-            <div className="mb-6">
-                <h1 className="text-3xl font-semibold text-[#4d4d4d]">
-                    แบบฟอร์มทั้งหมด
-                </h1>
-                <p className="text-base text-[#4d4d4d] mt-1">
-                    รายการแบบฟอร์มทั้งหมด
-                </p>
+            <div className="mb-6 flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-semibold text-[#4d4d4d]">
+                        แบบฟอร์มทั้งหมด
+                    </h1>
+                    <p className="text-base text-[#4d4d4d] mt-1">
+                        รายการแบบฟอร์มทั้งหมด
+                    </p>
+                </div>
+                <Link
+                    href="/templates/new"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-[#007398] text-white rounded-lg text-sm font-medium hover:bg-[#005f7a] transition-colors"
+                >
+                    <Plus className="w-4 h-4" />
+                    อัปโหลด Docx ใหม่
+                </Link>
             </div>
 
             {/* Search Bar */}
@@ -356,6 +411,7 @@ export default function TemplatesPage() {
                             expandedTemplateId={expandedTemplateId}
                             onSelectTemplate={handleSelectTemplate}
                             onToggleExpand={handleToggleExpand}
+                            onDeleteTemplate={handleDeleteTemplate}
                         />
                     ))}
 
@@ -378,6 +434,7 @@ export default function TemplatesPage() {
                                         isExpanded={expandedTemplateId === template.id}
                                         onSelect={() => handleSelectTemplate(template)}
                                         onToggleExpand={() => handleToggleExpand(template.id)}
+                                        onDelete={handleDeleteTemplate}
                                     />
                                 ))}
                             </div>
