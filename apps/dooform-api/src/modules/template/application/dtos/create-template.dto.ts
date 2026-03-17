@@ -1,21 +1,15 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator'
-
-import { TemplateTier, TemplateType } from '../../domain/enums/template.enum'
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator'
 
 export class CreateTemplateDto {
   @IsString()
   @IsNotEmpty()
-  name!: string
+  displayName!: string
 
   @IsString()
   @IsOptional()
   description?: string
 
-  @IsEnum(TemplateType)
+  @IsString()
   @IsOptional()
-  type?: TemplateType
-
-  @IsEnum(TemplateTier)
-  @IsOptional()
-  tier?: TemplateTier
+  author?: string
 }

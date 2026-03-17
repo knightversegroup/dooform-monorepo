@@ -281,7 +281,7 @@ export class ApiClient {
       formData.append('htmlPreview', htmlFile);
     }
 
-    const makeRequest = () => fetch(`${this.baseUrl}/upload`, {
+    const makeRequest = () => fetch(`${this.baseUrl}/templates/upload`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: formData,
@@ -547,7 +547,7 @@ export class ApiClient {
 
   // Regenerate document from history
   async regenerateDocument(documentId: string): Promise<ProcessResponse> {
-    const makeRequest = () => fetch(`${this.baseUrl}/regenerate/${documentId}`, {
+    const makeRequest = () => fetch(`${this.baseUrl}/documents/${documentId}/regenerate`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
     });

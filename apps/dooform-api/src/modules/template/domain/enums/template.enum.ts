@@ -4,14 +4,26 @@ export enum TemplateStatus {
   ARCHIVED = 'ARCHIVED',
 }
 
+// Matches Go: official, private, community
 export enum TemplateType {
-  FORM = 'FORM',
-  SURVEY = 'SURVEY',
-  QUIZ = 'QUIZ',
+  OFFICIAL = 'official',
+  PRIVATE = 'private',
+  COMMUNITY = 'community',
 }
 
+// Matches Go: free, basic, premium, enterprise
 export enum TemplateTier {
-  FREE = 'FREE',
-  PRO = 'PRO',
-  ENTERPRISE = 'ENTERPRISE',
+  FREE = 'free',
+  BASIC = 'basic',
+  PREMIUM = 'premium',
+  ENTERPRISE = 'enterprise',
+}
+
+export enum PageOrientation {
+  PORTRAIT = 'portrait',
+  LANDSCAPE = 'landscape',
+}
+
+export enum TemplateCategory {
+  FREQUENTLY_USED = 'frequently_used',
 }

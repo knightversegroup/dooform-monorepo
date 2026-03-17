@@ -1,4 +1,4 @@
-import { Catch, type ExceptionFilter, type ArgumentsHost } from '@nestjs/common'
+import { Catch, type ExceptionFilter, type ArgumentsHost, HttpException } from '@nestjs/common'
 
 import {
   ValidationException,
@@ -39,6 +39,11 @@ export class HttpResultExceptionFilter implements ExceptionFilter {
   ])
 
   catch(exception: unknown, host: ArgumentsHost) {
+    // Let NestJS HttpExceptions pass through to GlobalExceptionFilter
+    if (exception instanceof HttpException) {
+      throw exception
+    }
+
     const ctx = host.switchToHttp()
     const response = ctx.getResponse()
     const request = ctx.getRequest()

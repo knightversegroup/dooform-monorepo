@@ -1,0 +1,16 @@
+import type { EntityRuleModel } from '../../infrastructure/persistence/typeorm/models/entity-rule.model'
+
+type DefaultEntityRule = Pick<EntityRuleModel, 'id' | 'code' | 'name' | 'description' | 'pattern' | 'priority' | 'isActive' | 'color' | 'icon'>
+
+export const DEFAULT_ENTITY_RULES: DefaultEntityRule[] = [
+  { id: 'entity_person', code: 'person', name: 'Personal Information', description: 'Personal/Individual data fields', pattern: '(name|ชื่อ|นาม|first|last|surname|นามสกุล|title|คำนำหน้า|gender|เพศ|birth|เกิด|age|อายุ|nationality|สัญชาติ|religion|ศาสนา|marital|สถานภาพ)', priority: 100, isActive: true, color: '#3B82F6', icon: 'user' },
+  { id: 'entity_contact', code: 'contact', name: 'Contact Information', description: 'Contact and communication fields', pattern: '(phone|โทรศัพท์|mobile|email|อีเมล|tel|fax|line|contact|ติดต่อ)', priority: 95, isActive: true, color: '#10B981', icon: 'phone' },
+  { id: 'entity_address', code: 'address', name: 'Address Information', description: 'Location and address fields', pattern: '(address|ที่อยู่|province|จังหวัด|district|อำเภอ|เขต|sub.?district|ตำบล|แขวง|postal|zip|รหัสไปรษณีย์|country|ประเทศ|city|เมือง|road|ถนน|soi|ซอย)', priority: 90, isActive: true, color: '#F59E0B', icon: 'map-pin' },
+  { id: 'entity_id', code: 'identification', name: 'Identification', description: 'ID and identification number fields', pattern: '(id.?card|บัตรประชาชน|passport|หนังสือเดินทาง|citizen|เลขประจำตัว|license|ใบอนุญาต|registration|ทะเบียน)', priority: 85, isActive: true, color: '#8B5CF6', icon: 'credit-card' },
+  { id: 'entity_org', code: 'organization', name: 'Organization', description: 'Company and organization fields', pattern: '(company|บริษัท|organization|org|หน่วยงาน|department|ฝ่าย|แผนก|position|ตำแหน่ง|branch|สาขา|division)', priority: 80, isActive: true, color: '#EC4899', icon: 'building' },
+  { id: 'entity_finance', code: 'financial', name: 'Financial Information', description: 'Money and financial fields', pattern: '(bank|ธนาคาร|account|บัญชี|tax|ภาษี|amount|จำนวน|price|ราคา|salary|เงินเดือน|payment|ชำระ|cost|income|รายได้|budget|งบ)', priority: 75, isActive: true, color: '#06B6D4', icon: 'dollar-sign' },
+  { id: 'entity_date', code: 'date', name: 'Date & Time', description: 'Date and time fields', pattern: '(date|วันที่|time|เวลา|year|ปี|month|เดือน|day|วัน|period|ระยะเวลา|start|end|expire|หมดอายุ|effective|มีผล)', priority: 70, isActive: true, color: '#F97316', icon: 'calendar' },
+  { id: 'entity_document', code: 'document', name: 'Document', description: 'Document and reference fields', pattern: '(document|เอกสาร|file|ไฟล์|attach|แนบ|reference|อ้างอิง|number|เลขที่|contract|สัญญา|agreement|ข้อตกลง)', priority: 65, isActive: true, color: '#84CC16', icon: 'file-text' },
+  { id: 'entity_signature', code: 'signature', name: 'Signature', description: 'Signature and approval fields', pattern: '(signature|ลายเซ็น|sign|witness|พยาน|approve|อนุมัติ|consent|ยินยอม|authorize|มอบอำนาจ)', priority: 60, isActive: true, color: '#EF4444', icon: 'pen-tool' },
+  { id: 'entity_general', code: 'general', name: 'General', description: 'General/miscellaneous fields', pattern: '.*', priority: 0, isActive: true, color: '#6B7280', icon: 'file' },
+]

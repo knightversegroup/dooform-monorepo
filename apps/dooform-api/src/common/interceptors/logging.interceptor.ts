@@ -8,6 +8,17 @@ import { Observable, tap } from 'rxjs';
 
 import { Logger } from '@dooform-api-core/shared';
 
+const SENSITIVE_FIELDS = ['password', 'refresh_token', 'id_token', 'code', 'client_secret', 'token']
+
+function sanitizeBody(body: any): any {
+  if (!body || typeof body !== 'object') return body
+  const sanitized = { ...body }
+  for (const field of SENSITIVE_FIELDS) {
+    if (field in sanitized) sanitized[field] = '[REDACTED]'
+  }
+  return sanitized
+}
+
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
   private readonly logger = new Logger('HTTP');
@@ -21,7 +32,7 @@ export class LoggingInterceptor implements NestInterceptor {
     this.logger.info(`${method} ${url}`, {
       controller,
       handler,
-      ...(method !== 'GET' && body && Object.keys(body).length > 0 ? { body } : {}),
+      ...(method !== 'GET' && body && Object.keys(body).length > 0 ? { body: sanitizeBody(body) } : {}),
     });
 
     const start = performance.now();

@@ -53,6 +53,7 @@ interface HistoryResponse {
 }
 
 const formatDate = (dateString: string) => {
+    if (!dateString) return "-";
     const cleanDateString = dateString.replace("Z", "");
     const date = new Date(cleanDateString);
     return date.toLocaleString("th-TH", {
@@ -66,6 +67,7 @@ const formatDate = (dateString: string) => {
 };
 
 const formatRelativeTime = (dateString: string) => {
+    if (!dateString) return "-";
     const now = new Date();
     const cleanDateString = dateString.replace("Z", "");
     const date = new Date(cleanDateString);
@@ -85,6 +87,7 @@ const formatRelativeTime = (dateString: string) => {
  * Get month key (YYYY-MM) from a date string for grouping
  */
 const getMonthKey = (dateString: string): string => {
+    if (!dateString) return "unknown";
     const cleanDateString = dateString.replace("Z", "");
     const date = new Date(cleanDateString);
     const year = date.getFullYear();

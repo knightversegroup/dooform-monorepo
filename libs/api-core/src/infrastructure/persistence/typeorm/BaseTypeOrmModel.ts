@@ -1,12 +1,12 @@
 import {
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
 } from 'typeorm'
 
 export abstract class BaseTypeOrmModel {
-  @PrimaryColumn('uuid')
+  @PrimaryGeneratedColumn('uuid')
   id!: string
 
   @CreateDateColumn({ name: 'created_at' })
