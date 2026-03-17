@@ -29,19 +29,22 @@ export class AuthController {
   @Public()
   @Post('register')
   async register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto)
+    const result = await this.authService.register(dto)
+    return { success: true, data: result }
   }
 
   @Public()
   @Post('login')
   async login(@Body() dto: LoginDto) {
-    return this.authService.login(dto)
+    const result = await this.authService.login(dto)
+    return { success: true, data: result }
   }
 
   @Public()
   @Post('refresh')
   async refreshToken(@Body() dto: RefreshTokenDto) {
-    return this.authService.refreshToken(dto.refresh_token)
+    const result = await this.authService.refreshToken(dto.refresh_token)
+    return { success: true, data: result }
   }
 
   @Public()

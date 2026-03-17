@@ -6,6 +6,11 @@ import { firstValueFrom } from 'rxjs'
 
 import { ThumbnailQuality, type LibreOfficeHealthResponse } from './libreoffice.types'
 
+function safeFilename(filename: string): string {
+  const ext = filename.includes('.') ? filename.slice(filename.lastIndexOf('.')) : ''
+  return `document${ext}`
+}
+
 @Injectable()
 export class LibreOfficeService {
   private readonly logger = new Logger(LibreOfficeService.name)
@@ -85,7 +90,7 @@ export class LibreOfficeService {
 
     const form = new FormData()
     form.append('files', docxBuffer, {
-      filename,
+      filename: safeFilename(filename),
       contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     })
 
@@ -114,7 +119,7 @@ export class LibreOfficeService {
 
     const form = new FormData()
     form.append('files', docxBuffer, {
-      filename,
+      filename: safeFilename(filename),
       contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     })
 
@@ -148,7 +153,7 @@ export class LibreOfficeService {
 
     const form = new FormData()
     form.append('files', pdfBuffer, {
-      filename,
+      filename: safeFilename(filename),
       contentType: 'application/pdf',
     })
 
