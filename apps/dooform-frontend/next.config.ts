@@ -2,6 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@dooform/shared"],
+  turbopack: {
+    resolveAlias: {
+      canvas: { browser: "./empty-module.js" },
+    },
+  },
   images: {
     remotePatterns: [
       {

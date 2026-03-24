@@ -106,6 +106,10 @@ export function ActionButtons({
   }
 
   if (currentStep === "download") {
+    // PDF editor has its own download button, only show download for DOCX
+    if (selectedFileType === "pdf") {
+      return null;
+    }
     return (
       <button
         onClick={() => onDownload(selectedFileType)}

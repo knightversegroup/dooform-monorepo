@@ -13,12 +13,7 @@ async function bootstrap() {
       : ['log', 'error', 'warn'],
   });
 
-  // Security headers
-  app.use(helmet({
-    crossOriginResourcePolicy: { policy: 'cross-origin' },
-  }));
-
-  // CORS
+  // CORS (must be before helmet so preflight OPTIONS requests work)
   app.enableCors({
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
       if (!origin) return callback(null, true);
@@ -53,6 +48,11 @@ async function bootstrap() {
     exposedHeaders: ['Content-Length', 'Content-Type'],
     maxAge: 43200, // 12 hours
   });
+
+  // Security headers
+  app.use(helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  }));
 
   // Global prefix with health check exclusions
   app.setGlobalPrefix('api/v1', {

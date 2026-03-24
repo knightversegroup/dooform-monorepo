@@ -14,6 +14,7 @@ import {
 import { useAuth } from "@dooform/shared/auth/hooks";
 import { apiClient } from "@dooform/shared/api/client";
 import { DocumentPreview } from "@/components/ui/DocumentPreview";
+import { PdfEditor } from "@/components/pdf-editor";
 import { useTemplateLoader } from "@/app/(app)/forms/[id]/fill/hooks/useTemplateLoader";
 import { usePreviewRenderer } from "@/app/(app)/forms/[id]/fill/hooks/usePreviewRenderer";
 import { ReviewFields } from "@/app/(app)/forms/[id]/fill/components/ReviewFields";
@@ -78,6 +79,9 @@ export default function HistoryDetailPage({ params }: PageProps) {
     const [error, setError] = useState<string | null>(null);
     const [downloading, setDownloading] = useState<string | null>(null);
     const [regenerating, setRegenerating] = useState(false);
+    const [showPdfEditor, setShowPdfEditor] = useState(false);
+    const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
+    const [loadingPdfEditor, setLoadingPdfEditor] = useState(false);
 
     // Redirect if not authenticated
     useEffect(() => {
@@ -183,6 +187,21 @@ export default function HistoryDetailPage({ params }: PageProps) {
         }
     };
 
+    const handleOpenPdfEditor = async () => {
+        if (!document) return;
+        try {
+            setLoadingPdfEditor(true);
+            const blob = await apiClient.downloadDocument(document.id, "pdf");
+            setPdfBlob(blob);
+            setShowPdfEditor(true);
+        } catch (err) {
+            console.error("Failed to load PDF for editing:", err);
+            alert("ไม่สามารถโหลดไฟล์ PDF ได้");
+        } finally {
+            setLoadingPdfEditor(false);
+        }
+    };
+
     const handleRegenerate = async () => {
         if (!document) return;
         try {
@@ -255,11 +274,11 @@ export default function HistoryDetailPage({ params }: PageProps) {
 
             {/* Main Content */}
             <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className={hasPreview ? "flex gap-6" : ""}>
+                <div className={(hasPreview || showPdfEditor) ? "flex gap-6" : ""}>
                     {/* Form Card */}
                     <div
                         className={`bg-[#f6f6f6] flex flex-col gap-8 items-start p-8 rounded-lg ${
-                            hasPreview
+                            (hasPreview || showPdfEditor)
                                 ? "w-1/3 flex-shrink-0"
                                 : "w-full max-w-xl mx-auto"
                         }`}
@@ -377,30 +396,67 @@ export default function HistoryDetailPage({ params }: PageProps) {
                                         </button>
                                     )}
                                     {document.file_path_pdf && (
-                                        <button
-                                            onClick={() =>
-                                                handleDownload("pdf")
-                                            }
-                                            disabled={
-                                                downloading === "pdf"
-                                            }
-                                            className="w-full flex items-center justify-center gap-2 px-6 py-3 border border-[#013087] text-[#013087] rounded hover:bg-[#013087]/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                        >
-                                            {downloading === "pdf" ? (
-                                                <Loader2 className="w-5 h-5 animate-spin" />
-                                            ) : (
-                                                <Download className="w-5 h-5" />
-                                            )}
-                                            ดาวน์โหลด PDF
-                                        </button>
+                                        <>
+                                            <button
+                                                onClick={() =>
+                                                    handleDownload("pdf")
+                                                }
+                                                disabled={
+                                                    downloading === "pdf"
+                                                }
+                                                className="w-full flex items-center justify-center gap-2 px-6 py-3 border border-[#013087] text-[#013087] rounded hover:bg-[#013087]/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                {downloading === "pdf" ? (
+                                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                                ) : (
+                                                    <Download className="w-5 h-5" />
+                                                )}
+                                                ดาวน์โหลด PDF
+                                            </button>
+                                            <button
+                                                onClick={handleOpenPdfEditor}
+                                                disabled={loadingPdfEditor}
+                                                className="w-full flex items-center justify-center gap-2 px-6 py-3 border border-[#013087] text-[#013087] rounded hover:bg-[#013087]/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                {loadingPdfEditor ? (
+                                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                                ) : (
+                                                    <FileText className="w-5 h-5" />
+                                                )}
+                                                แก้ไข PDF
+                                            </button>
+                                        </>
                                     )}
                                 </>
                             )}
                         </div>
                     </div>
 
-                    {/* Right Column: Document Preview */}
-                    {hasPreview && (
+                    {/* Right Column: PDF Editor or Document Preview */}
+                    {showPdfEditor && pdfBlob ? (
+                        <div className="w-2/3 hidden lg:block">
+                            <div className="sticky top-4">
+                                <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm p-4">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <h3 className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                                            <FileText className="w-4 h-4 text-gray-400" />
+                                            แก้ไข PDF
+                                        </h3>
+                                        <button
+                                            onClick={() => setShowPdfEditor(false)}
+                                            className="text-sm text-gray-500 hover:text-gray-700"
+                                        >
+                                            ← กลับไปดูตัวอย่าง
+                                        </button>
+                                    </div>
+                                    <PdfEditor
+                                        pdfBlob={pdfBlob}
+                                        fileName={`${document.filename.replace(/\.(docx|pdf)$/i, "")}.pdf`}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    ) : hasPreview ? (
                         <div className="w-2/3 hidden lg:block">
                             <div className="sticky top-4">
                                 <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
@@ -426,7 +482,7 @@ export default function HistoryDetailPage({ params }: PageProps) {
                                 </div>
                             </div>
                         </div>
-                    )}
+                    ) : null}
                 </div>
             </div>
         </div>
