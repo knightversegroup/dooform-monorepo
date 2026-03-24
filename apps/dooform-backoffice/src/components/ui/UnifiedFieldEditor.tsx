@@ -11,6 +11,8 @@ import {
     Loader2,
     GripVertical,
     Settings2,
+    ArrowUp,
+    ArrowDown,
 } from "lucide-react";
 import type {
     FieldDefinition,
@@ -211,6 +213,10 @@ interface FieldRowProps {
     inputTypes?: ConfigurableInputType[];
     onAliasChange: (alias: string) => void;
     onFieldDefinitionChange: (updates: Partial<FieldDefinition>) => void;
+    onMoveUp?: () => void;
+    onMoveDown?: () => void;
+    isFirst?: boolean;
+    isLast?: boolean;
     suggestion?: FieldTypeSuggestion;
     onApplySuggestion?: () => void;
     disabled?: boolean;
@@ -224,6 +230,10 @@ function FieldRow({
     inputTypes,
     onAliasChange,
     onFieldDefinitionChange,
+    onMoveUp,
+    onMoveDown,
+    isFirst,
+    isLast,
     suggestion,
     onApplySuggestion,
     disabled,
@@ -255,7 +265,26 @@ function FieldRow({
     return (
         <div className={`group border-b border-gray-100 last:border-b-0 ${suggestion ? 'bg-indigo-50/50' : ''}`}>
             <div className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50/50">
-                <GripVertical className="w-3.5 h-3.5 text-gray-300 flex-shrink-0 cursor-grab" />
+                <div className="flex flex-col flex-shrink-0">
+                    <button
+                        type="button"
+                        onClick={onMoveUp}
+                        disabled={disabled || isFirst}
+                        className="p-0.5 text-gray-400 hover:text-gray-700 hover:bg-gray-200 rounded disabled:opacity-25 disabled:cursor-not-allowed transition-colors"
+                        title="ย้ายขึ้น"
+                    >
+                        <ArrowUp className="w-3 h-3" />
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onMoveDown}
+                        disabled={disabled || isLast}
+                        className="p-0.5 text-gray-400 hover:text-gray-700 hover:bg-gray-200 rounded disabled:opacity-25 disabled:cursor-not-allowed transition-colors"
+                        title="ย้ายลง"
+                    >
+                        <ArrowDown className="w-3 h-3" />
+                    </button>
+                </div>
 
                 {/* Alias / Name */}
                 <div className="flex-1 min-w-0">
@@ -566,6 +595,21 @@ export function UnifiedFieldEditor({
         setExpandedSections(new Set(sections.map(s => s.name)));
     });
 
+    const handleMoveField = useCallback((sectionFields: FieldItem[], index: number, direction: 'up' | 'down') => {
+        const targetIndex = direction === 'up' ? index - 1 : index + 1;
+        if (targetIndex < 0 || targetIndex >= sectionFields.length) return;
+
+        const currentField = sectionFields[index];
+        const targetField = sectionFields[targetIndex];
+
+        // Swap order values
+        const currentOrder = currentField.definition.order ?? currentField.order;
+        const targetOrder = targetField.definition.order ?? targetField.order;
+
+        onFieldDefinitionChange(currentField.key, { order: targetOrder });
+        onFieldDefinitionChange(targetField.key, { order: currentOrder });
+    }, [onFieldDefinitionChange]);
+
     const toggleSection = useCallback((sectionName: string) => {
         setExpandedSections((prev) => {
             const next = new Set(prev);
@@ -740,7 +784,7 @@ export function UnifiedFieldEditor({
                             {/* Section Content */}
                             {isExpanded && (
                                 <div className="bg-white">
-                                    {section.fields.map((field) => {
+                                    {section.fields.map((field, fieldIndex) => {
                                         const suggestion = getSuggestionForField(field.key);
                                         return (
                                             <FieldRow
@@ -752,6 +796,10 @@ export function UnifiedFieldEditor({
                                                 inputTypes={inputTypes}
                                                 onAliasChange={(alias) => onAliasChange(field.key, alias)}
                                                 onFieldDefinitionChange={(updates) => onFieldDefinitionChange(field.key, updates)}
+                                                onMoveUp={() => handleMoveField(section.fields, fieldIndex, 'up')}
+                                                onMoveDown={() => handleMoveField(section.fields, fieldIndex, 'down')}
+                                                isFirst={fieldIndex === 0}
+                                                isLast={fieldIndex === section.fields.length - 1}
                                                 suggestion={suggestion}
                                                 onApplySuggestion={suggestion ? () => handleApplySuggestion(field.key, suggestion) : undefined}
                                                 disabled={disabled}
