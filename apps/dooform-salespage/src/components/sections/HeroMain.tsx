@@ -1,42 +1,48 @@
+import Image from 'next/image';
+
 export default function HeroMain() {
   return (
-    <section className="bg-[#0a1628] pt-16 text-white">
-      <div className="mx-auto flex max-w-7xl items-center gap-12 px-6 md:flex-col md:items-start">
-        {/* Left: Text */}
-        <div className="flex-1 py-12">
-          {/* Announcement Badge */}
-          <div className="mb-6 flex items-center gap-3">
-            <span className="bg-blue-600 px-2 py-1 text-sm font-medium text-white">
-              API
-            </span>
-            <span className="text-sm leading-snug">
-              <strong className="font-bold">Now available:</strong> Connect your forms<br className="hidden sm:inline" />
-              to any workflow with our new API.
-            </span>
-          </div>
-
-          {/* Headline */}
-          <h1 className="mb-6 max-w-xl font-sans text-5xl font-bold leading-[1.1] tracking-tight lg:text-6xl">
-            Second guess less,<br />
-            create more with<br />
-            Dooform
-          </h1>
-
-          {/* Subheading */}
-          <p className="mb-0 max-w-md text-lg font-light leading-relaxed text-gray-300">
-            Always hunting for the right form? Dooform builds, validates, and
-            delivers beautiful forms at the right time, in the right place, for
-            your team.
-          </p>
-        </div>
-
-        {/* Right: Hero Image Placeholder */}
-        <div className="-mb-12 flex-1">
-          <div className="ml-auto block h-auto w-full max-w-[734px]">
-            <div className="flex aspect-[734/765] items-center justify-center rounded-t-2xl bg-[#111d33] text-sm text-gray-500">
-              Hero Illustration
+    <section className="bg-[#2c2585] px-4 pt-16">
+      <div className="mx-auto flex max-w-[1280px] flex-col items-center gap-[15px]">
+        {/* Text Content */}
+        <div className="flex flex-col items-center gap-6 text-white">
+          <div className="flex flex-col items-center gap-3 text-center">
+            <p className="text-sm">ดูฟอร์ม</p>
+            <div className="flex flex-col items-center gap-0.5">
+              <h1 className="text-4xl font-semibold leading-[43px]">
+                กรอกฟอร์มไม่ใช่เรื่อง
+                <br />
+                ยากอีกต่อไป
+              </h1>
+              <p className="text-sm">ให้การกรอกฟอร์มไม่เป็นเรื่องยากอีกต่อไป</p>
             </div>
           </div>
+
+          {/* Buttons */}
+          <div className="flex items-center gap-2">
+            <a
+              href="#trial"
+              className="rounded-full bg-white px-3 py-1.5 text-sm text-black"
+            >
+              ทดลองใช้งาน
+            </a>
+            <a
+              href="#trial"
+              className="rounded-full px-3 py-1.5 text-sm text-white"
+            >
+              ทดลองใช้งาน
+            </a>
+          </div>
+        </div>
+
+        {/* Hero Image */}
+        <div className="relative h-[222px] w-[222px]">
+          <Image
+            src="/hero-image.png"
+            alt="Hero"
+            fill
+            className="object-cover"
+          />
         </div>
       </div>
     </section>
