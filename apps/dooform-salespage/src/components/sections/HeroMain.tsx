@@ -10,15 +10,19 @@ export default function HeroMain() {
               API
             </span>
             <span className="text-sm leading-snug">
-              <strong className="font-bold">Now available:</strong> Connect your forms<br className="hidden sm:inline" />
+              <strong className="font-bold">สวัสดี available:</strong> Connect
+              your forms
+              <br className="hidden sm:inline" />
               to any workflow with our new API.
             </span>
           </div>
 
           {/* Headline */}
           <h1 className="mb-6 max-w-xl font-sans text-5xl font-bold leading-[1.1] tracking-tight lg:text-6xl">
-            Second guess less,<br />
-            create more with<br />
+            Second guess less,
+            <br />
+            create more with
+            <br />
             Dooform
           </h1>
 

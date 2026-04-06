@@ -1,86 +1,94 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
+import { Menu, X } from 'lucide-react';
 
 const navItems = [
-  {
-    label: 'Product',
-    href: '/product/',
-    active: true,
-    submenu: [
-      { label: 'Features', href: '/product/features/' },
-      { label: 'Customers', href: '/product/customers/' },
-      { label: 'Security', href: '/product/security/' },
-      { label: 'Pricing', href: '/product/pricing/' },
-      { label: '---' },
-      { label: 'Login', href: '#', external: true },
-      { label: 'Try free', href: '#', external: true },
-    ],
-  },
-  { label: 'Enterprise', href: '/enterprise/' },
-  { label: 'Integrations', href: '/integrations/' },
-  { label: 'Partnerships', href: '/partnerships/' },
-  { label: 'Resources', href: '/resources/', hasDropdown: true },
+  { label: 'Features', href: '#features' },
+  { label: 'Solutions', href: '#solutions' },
+  { label: 'Compliance', href: '#compliance' },
+  { label: 'Pricing', href: '#pricing' },
 ];
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="fixed left-0 right-0 top-0 z-50">
-      <div className="bg-white/95 backdrop-blur" style={{ opacity: 1 }} />
-      <div className="relative mx-auto flex h-16 max-w-7xl items-center px-6">
-        {/* Logo */}
-        <a href="/" className="relative z-10 mr-6 flex items-center gap-2">
-          <div className="h-8 w-8 rounded bg-gray-800" />
-          <span className="text-lg font-semibold text-gray-900">Dooform</span>
-          <span className="text-sm text-gray-400">Business</span>
-        </a>
+    <>
+      <header className="border-b border-[#e7e7e7]">
+        <div className="mx-auto flex max-w-[1280px] items-center justify-between px-4 py-6 sticky top-0 bg-white">
+          {/* Logo */}
+          <a href="/">
+            <Image src="/dooform.svg" alt="Dooform" width={124} height={24} />
+          </a>
 
-        {/* Desktop Nav */}
-        <nav className="hidden flex-1 lg:block" id="main-navigation">
-          <ul className="flex flex-1 items-center gap-1">
+          {/* Desktop Nav */}
+          <nav className="hidden items-center gap-6 font-semibold text-base text-black md:flex">
             {navItems.map((item) => (
-              <li key={item.label} className="relative">
-                <a
-                  href={item.href}
-                  className={`inline-flex items-center gap-1 rounded px-3 py-2 text-sm font-medium transition hover:bg-gray-100 ${
-                    item.active ? 'text-gray-900' : 'text-gray-600'
-                  }`}
-                >
-                  <span>{item.label}</span>
-                  {(item.submenu || item.hasDropdown) && (
-                    <svg className="h-3 w-3 text-gray-400" fill="currentColor" viewBox="0 0 12 7">
-                      <path d="m1 1 5 5 5-5" />
-                    </svg>
-                  )}
-                </a>
-              </li>
+              <a key={item.label} href={item.href}>
+                {item.label}
+              </a>
             ))}
-            <li className="flex-1" />
-          </ul>
-        </nav>
+          </nav>
 
-        {/* CTA */}
-        <div className="relative z-10 ml-auto flex items-center gap-3">
-          <button className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800">
-            Talk to an expert
+          {/* CTA */}
+          <a
+            href="#trial"
+            className="hidden rounded-full bg-white px-3 py-1.5 text-base font-semibold text-black shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)] md:block"
+          >
+            Register
+          </a>
+
+          {/* Mobile Menu Toggle */}
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="p-2 md:hidden"
+            aria-label="Open menu"
+          >
+            <Menu size={24} />
+          </button>
+        </div>
+      </header>
+
+      {/* Mobile Menu - Full screen slide from right */}
+      <div
+        className={`fixed inset-0 z-40 bg-white transition-transform duration-300 ease-in-out md:hidden ${
+          mobileOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        {/* Mobile Menu Header */}
+        <div className="flex items-center justify-between px-4 py-6">
+          <a href="/" onClick={() => setMobileOpen(false)}>
+            <Image src="/dooform.svg" alt="Dooform" width={124} height={24} />
+          </a>
+          <button
+            onClick={() => setMobileOpen(false)}
+            className="p-2"
+            aria-label="Close menu"
+          >
+            <X size={24} />
           </button>
         </div>
 
-        {/* Mobile Menu Toggle */}
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="ml-3 p-2 lg:hidden"
-          aria-label="Toggle main menu"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <rect x="2" y="5" width="20" height="2" />
-            <rect x="2" y="11" width="20" height="2" />
-            <rect x="2" y="17" width="20" height="2" />
-          </svg>
-        </button>
+        {/* Mobile Menu Content */}
+        <div className="flex flex-col px-6 pt-6">
+          <nav className="flex flex-col gap-6 font-inter font-semibold text-2xl text-black">
+            {navItems.map((item) => (
+              <a
+                key={item.label}
+                href={item.href}
+                onClick={() => setMobileOpen(false)}
+              >
+                {item.label}
+              </a>
+            ))}
+            <a href="#trial" onClick={() => setMobileOpen(false)}>
+              Register
+            </a>
+          </nav>
+        </div>
       </div>
-    </header>
+    </>
   );
 }
