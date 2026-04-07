@@ -295,6 +295,7 @@ export class ApiClient {
     try {
       const makeRequest = () => fetch(`${this.baseUrl}/templates/${templateId}/preview`, {
         headers: this.getAuthHeaders(),
+        cache: 'no-store',
       });
 
       const response = await makeRequest();

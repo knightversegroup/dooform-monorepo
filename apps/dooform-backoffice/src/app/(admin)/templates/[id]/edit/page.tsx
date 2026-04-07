@@ -60,7 +60,7 @@ function enhanceFieldDefinitions(
 export default function EditFormPage({ params }: PageProps) {
     const { id: templateId } = use(params);
     const router = useRouter();
-    const { refetchHtml, refetchTemplate } = useTemplate();
+    const { refetchHtml, refetchTemplate, htmlContent } = useTemplate();
 
     const [template, setTemplate] = useState<Template | null>(null);
     const [loading, setLoading] = useState(true);
@@ -988,7 +988,7 @@ export default function EditFormPage({ params }: PageProps) {
                                                                 คลิกเพื่อเลือกไฟล์ HTML (แทนที่ HTML ที่สร้างอัตโนมัติ)
                                                             </p>
                                                             <p className="text-xs text-text-muted">
-                                                                ใช้สำหรับ preview ที่แม่นยำกว่า LibreOffice
+                                                                {htmlContent ? 'มีไฟล์ HTML preview อยู่แล้ว (คลิกเพื่ออัปโหลดใหม่)' : 'ใช้สำหรับ preview ที่แม่นยำกว่า LibreOffice'}
                                                             </p>
                                                         </>
                                                     )}
@@ -1008,6 +1008,12 @@ export default function EditFormPage({ params }: PageProps) {
                                                 )}
                                             </label>
                                         </div>
+                                        {htmlContent && !htmlFile && (
+                                            <div className="mt-2 flex items-center gap-2 text-xs text-green-600">
+                                                <CheckCircle className="w-3.5 h-3.5" />
+                                                <span>มีไฟล์ HTML preview แล้ว</span>
+                                            </div>
+                                        )}
                                         <p className="mt-2 text-xs text-text-muted">
                                             อัปโหลดไฟล์ HTML ที่แปลงเองเพื่อให้ preview แสดงผลถูกต้องมากขึ้น
                                         </p>
