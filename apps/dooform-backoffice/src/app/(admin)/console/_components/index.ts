@@ -11,3 +11,5 @@ export { DataTypesContent } from "./DataTypesContent";
 export { FiltersContent } from "./FiltersContent";
 export { DocTypesContent } from "./DocTypesContent";
 export { CreateDataTypeModal, EditDataTypeModal } from "./DataTypeModals";
+export { CreateFilterModal, EditFilterModal } from "./FilterModals";
+export { CreateDocTypeModal, EditDocTypeModal } from "./DocTypeModals";

@@ -28,6 +28,7 @@ import { Template, TemplateType, Tier, TemplateUpdateData, FieldDefinition, Merg
 import { detectMergeableGroups, createMergedFieldDefinition } from "@dooform/shared/utils/fieldTypes";
 import { Button, Input } from "@dooform/shared";
 import { UnifiedFieldEditor } from "@/components/ui/UnifiedFieldEditor";
+import { useTemplate } from "../hooks/useTemplate";
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -59,6 +60,7 @@ function enhanceFieldDefinitions(
 export default function EditFormPage({ params }: PageProps) {
     const { id: templateId } = use(params);
     const router = useRouter();
+    const { refetchHtml, refetchTemplate } = useTemplate();
 
     const [template, setTemplate] = useState<Template | null>(null);
     const [loading, setLoading] = useState(true);
@@ -509,6 +511,9 @@ export default function EditFormPage({ params }: PageProps) {
                     console.error("Failed to reload field definitions:", err);
                 }
             }
+
+            // Sync updated HTML preview and template back to shared context
+            await Promise.all([refetchHtml(), refetchTemplate()]);
 
             // Clear file inputs
             setDocxFile(null);

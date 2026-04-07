@@ -31,6 +31,10 @@ import {
   DocTypesContent,
   CreateDataTypeModal,
   EditDataTypeModal,
+  CreateFilterModal,
+  EditFilterModal,
+  CreateDocTypeModal,
+  EditDocTypeModal,
 } from "./_components";
 
 export default function ConsolePage() {
@@ -335,7 +339,7 @@ export default function ConsolePage() {
         <div className="p-4">{renderContent()}</div>
       </div>
 
-      {/* Create Modal */}
+      {/* Create Modals */}
       {activeTab === "datatypes" && (
         <CreateDataTypeModal
           isOpen={showCreateModal}
@@ -348,8 +352,32 @@ export default function ConsolePage() {
           }}
         />
       )}
+      {activeTab === "filters" && (
+        <CreateFilterModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onSuccess={async () => {
+            const filters = await apiClient.getFilterCategories();
+            setFilterCategories(filters);
+            setSuccess("Filter created successfully");
+            setTimeout(() => setSuccess(null), 3000);
+          }}
+        />
+      )}
+      {activeTab === "doctypes" && (
+        <CreateDocTypeModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onSuccess={async () => {
+            const docTypes = await apiClient.getDocumentTypes();
+            setDocumentTypes(docTypes);
+            setSuccess("Document type created successfully");
+            setTimeout(() => setSuccess(null), 3000);
+          }}
+        />
+      )}
 
-      {/* Edit Modal */}
+      {/* Edit Modals */}
       {activeTab === "datatypes" && editingItem && (
         <EditDataTypeModal
           isOpen={!!editingItem}
@@ -359,6 +387,32 @@ export default function ConsolePage() {
             const types = await apiClient.getConfigurableDataTypes();
             setDataTypes(types);
             setSuccess("Data type updated successfully");
+            setTimeout(() => setSuccess(null), 3000);
+          }}
+        />
+      )}
+      {activeTab === "filters" && editingItem && (
+        <EditFilterModal
+          isOpen={!!editingItem}
+          filterCategory={filterCategories.find(f => f.id === editingItem) || null}
+          onClose={() => setEditingItem(null)}
+          onSuccess={async () => {
+            const filters = await apiClient.getFilterCategories();
+            setFilterCategories(filters);
+            setSuccess("Filter updated successfully");
+            setTimeout(() => setSuccess(null), 3000);
+          }}
+        />
+      )}
+      {activeTab === "doctypes" && editingItem && (
+        <EditDocTypeModal
+          isOpen={!!editingItem}
+          documentType={documentTypes.find(dt => dt.id === editingItem) || null}
+          onClose={() => setEditingItem(null)}
+          onSuccess={async () => {
+            const docTypes = await apiClient.getDocumentTypes();
+            setDocumentTypes(docTypes);
+            setSuccess("Document type updated successfully");
             setTimeout(() => setSuccess(null), 3000);
           }}
         />
