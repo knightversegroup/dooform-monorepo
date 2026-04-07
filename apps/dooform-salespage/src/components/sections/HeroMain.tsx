@@ -1,43 +1,103 @@
+import Image from 'next/image';
+import Link from 'next/link';
+
+/**
+ * Hero Section based on Figma design
+ * Main Container: 1511px × 860px
+ * Background: #2C2585 (Primary Navy)
+ * Content Width: 582px
+ */
 export default function HeroMain() {
   return (
-    <section className="bg-[#0a1628] pt-16 text-white">
-      <div className="mx-auto flex max-w-7xl items-center gap-12 px-6 md:flex-col md:items-start">
-        {/* Left: Text */}
-        <div className="flex-1 py-12">
-          {/* Announcement Badge */}
-          <div className="mb-6 flex items-center gap-3">
-            <span className="bg-blue-600 px-2 py-1 text-sm font-medium text-white">
-              API
-            </span>
-            <span className="text-sm leading-snug">
-              <strong className="font-bold">Now available:</strong> Connect your forms<br className="hidden sm:inline" />
-              to any workflow with our new API.
-            </span>
+    <section
+      className="relative bg-primary-navy min-h-[860px] overflow-hidden"
+      aria-label="Hero section"
+    >
+      {/* Main Container with Figma padding */}
+      <div
+        className="
+          flex items-center
+          pl-[94px] pr-4 py-16
+          lg:py-hero-vertical
+          max-w-full-width mx-auto
+        "
+      >
+        {/* Content Wrapper - Left Side */}
+        <div className="flex flex-col justify-center w-full max-w-[582px] min-h-[732px] gap-6">
+
+          {/* Action Block */}
+          <div className="flex flex-col gap-[78px]">
+
+            {/* Typography Group */}
+            <div className="flex flex-col gap-1">
+              {/* Main Headline - from Figma */}
+              <h1
+                className="
+                  font-ibm-plex-thai font-semibold
+                  text-[36px] leading-[43px]
+                  text-grey-98
+                "
+              >
+                กรอกฟอร์มไม่ใช่เรื่อง
+                <br />
+                ยากอีกต่อไป
+              </h1>
+
+              {/* Sub-headline - from Figma */}
+              <p
+                className="
+                  font-ibm-plex font-medium
+                  text-[24px] leading-normal
+                  text-white
+                  mt-1
+                "
+              >
+                ดูฟอร์ม ผู้ช่วยกรอกเอกสารราชการได้อย่างรวดเร็ว
+              </p>
+            </div>
+
+            {/* Hero CTA Button */}
+            <Link
+              href="/trial"
+              className="
+                inline-flex items-center justify-center
+                w-fit h-[48px] px-[14px]
+                bg-white rounded-pill
+                font-ibm-plex-thai font-medium
+                text-[16px] leading-[26px]
+                text-black
+                hover:bg-grey-98 transition-colors
+                focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-navy
+              "
+            >
+              <span className="px-1.5">ทดลองใช้งาน</span>
+            </Link>
           </div>
-
-          {/* Headline */}
-          <h1 className="mb-6 max-w-xl font-sans text-5xl font-bold leading-[1.1] tracking-tight lg:text-6xl">
-            Second guess less,<br />
-            create more with<br />
-            Dooform
-          </h1>
-
-          {/* Subheading */}
-          <p className="mb-0 max-w-md text-lg font-light leading-relaxed text-gray-300">
-            Always hunting for the right form? Dooform builds, validates, and
-            delivers beautiful forms at the right time, in the right place, for
-            your team.
-          </p>
         </div>
 
-        {/* Right: Hero Image Placeholder */}
-        <div className="-mb-12 flex-1">
-          <div className="ml-auto block h-auto w-full max-w-[734px]">
-            <div className="flex aspect-[734/765] items-center justify-center rounded-t-2xl bg-[#111d33] text-sm text-gray-500">
-              Hero Illustration
+        {/* Visual Asset - Right Side - Figma: border-11 solid #d6d6d6, border-radius 19px */}
+        <div className="hidden lg:block flex-1 ml-[15px]">
+          <div className="relative w-full max-w-[1183px]">
+            <div className="border-[11px] border-[#d6d6d6] rounded-[19px] overflow-hidden">
+              <Image
+                src="/Homepage_preview.png"
+                alt="ตัวอย่างหน้าจอการกรอกเอกสารด้วย Dooform"
+                width={1183}
+                height={732}
+                className="object-cover w-full h-auto"
+                priority
+              />
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Background decoration (optional) */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        aria-hidden="true"
+      >
+        {/* Add any background patterns or gradients here */}
       </div>
     </section>
   );

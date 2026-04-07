@@ -1,126 +1,123 @@
+/**
+ * Footer - Exact match from Figma
+ * - Padding: 36px 24px
+ * - Gap: 24px
+ * - Border radius: 28px
+ * - Max width: 1280px
+ */
+
 const footerSections = [
   {
-    heading: 'Our Stack',
+    heading: 'สมาชิก',
     links: [
-      { label: 'Product', href: '/product/' },
-      { label: 'Features', href: '/product/features/', sub: true },
-      { label: 'Customers', href: '/product/customers/', sub: true },
-      { label: 'Security', href: '/product/security/', sub: true },
-      { label: 'Pricing', href: '/product/pricing/', sub: true },
-      { label: 'Enterprise', href: '/enterprise/' },
-      { label: 'Integrations', href: '/integrations/' },
-      { label: 'Partnerships', href: '/partnerships/' },
+      'สมาชิกระดับองค์กร',
+      'เข้าสู่ระบบ',
+      'สมัครสมาชิก',
     ],
   },
   {
-    heading: 'Company',
+    heading: 'เกี่ยวกับแอปพลิเคชั่น',
     links: [
-      { label: 'Leadership', href: '#' },
-      { label: 'Press', href: '#' },
-      { label: 'Careers', href: '#' },
-      { label: 'Social Impact', href: '#' },
+      'รายการเอกสาร',
+      'คำแนะนำในการใช้งาน',
+      'เอกสารประกอบการใช้งาน',
+      'รายงานวิเคราะห์คุณภาพ',
+      'ทีมพัฒนา',
+      'เกี่ยวกับเว็บไซต์',
     ],
   },
   {
-    heading: 'Support',
+    heading: 'สำหรับหน่วยงานธุรกิจ',
     links: [
-      { label: 'Contact', href: '#' },
-      { label: 'Help Center', href: '#' },
-      { label: 'Terms', href: '#' },
-      { label: 'Privacy policy', href: '#' },
-      { label: 'Cookie policy', href: '#' },
+      'แพลนสำหรับหน่วยงาน',
+      'ค่าบริการ',
+      'ติดต่อสอบถาม',
     ],
   },
   {
-    heading: 'Elsewhere',
+    heading: 'ข้อบังคับทางกฎหมาย',
     links: [
-      { label: 'Blog', href: '#' },
-      { label: 'Newsletter', href: '#' },
-      { label: 'Podcast', href: '#' },
-      { label: 'Releases', href: '#' },
+      'ข้อตกลงในการใช้งาน',
+      'นโยบายการจัดเก็บข้อมูล',
     ],
   },
 ];
 
 export default function Footer() {
   return (
-    <footer>
-      <div className="m-3 bg-gray-100 p-6 pb-0">
-        <div className="flex sm:flex-col">
-          {/* Newsletter Signup */}
-          <section className="flex-1 pr-8">
-            <div className="mb-6 h-8 w-8 rounded bg-gray-800" />
-            <h2 className="mb-2 text-2xl font-bold text-gray-900">Stay updated</h2>
-            <p className="mb-6 max-w-xs text-sm text-gray-600">
-              Subscribe to receive <strong>Dooform Business</strong> content around
-              form building, data collection, and AI.
-            </p>
-            <button className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800">
-              Receive updates
-            </button>
-          </section>
-
-          {/* Link Columns */}
-          <div className="flex flex-[2] gap-6 sm:mt-8 sm:flex-col">
-            <div className="flex flex-1 gap-6 md:flex-col">
-              {footerSections.slice(0, 2).map((section) => (
-                <section key={section.heading} className="flex-1">
-                  <h3 className="mb-3 text-sm font-semibold text-gray-900">{section.heading}</h3>
-                  <ul className="space-y-1.5">
-                    {section.links.map((link) => (
-                      <li key={link.label}>
-                        <a
-                          href={link.href}
-                          className={`text-sm text-gray-500 transition hover:text-gray-800 ${link.sub ? 'pl-3' : ''}`}
-                        >
-                          {link.label}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              ))}
+    <footer className="bg-white rounded-t-[12px] px-[10px]">
+      <div className="mx-auto max-w-[1280px] px-6 py-9 rounded-[28px]">
+        {/* Main Footer Content - gap 24px */}
+        <div className="flex flex-col gap-6">
+          {/* Top Row: Logo/Info + Links */}
+          <div className="flex justify-between flex-wrap gap-6">
+            {/* Logo & Copyright Info */}
+            <div className="flex flex-col gap-3">
+              {/* Logo */}
+              <div className="h-6 w-[124px]">
+                <img
+                  src="/logo.svg"
+                  alt="Dooform"
+                  className="h-full w-auto"
+                />
+              </div>
+              {/* Copyright Text */}
+              <div className="w-[274px]">
+                <p className="font-ibm-plex-thai text-[16px] text-carbon leading-normal">
+                  © 2025 Dooform by Knight Consultant
+                  <br />
+                  Under License of Rinkai
+                </p>
+              </div>
             </div>
-            <div className="flex flex-1 gap-6 md:flex-col">
-              {footerSections.slice(2).map((section) => (
-                <section key={section.heading} className="flex-1">
-                  <h3 className="mb-3 text-sm font-semibold text-gray-900">{section.heading}</h3>
-                  <ul className="space-y-1.5">
-                    {section.links.map((link) => (
-                      <li key={link.label}>
-                        <a href={link.href} className="text-sm text-gray-500 transition hover:text-gray-800">
-                          {link.label}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
+
+            {/* Link Columns - gap 24px */}
+            <div className="flex gap-6 flex-wrap">
+              {footerSections.map((section) => (
+                <div key={section.heading} className="flex flex-col gap-2">
+                  {/* Section Heading */}
+                  <p className="font-ibm-plex-thai font-semibold text-[16px] text-onyx">
+                    {section.heading}
+                  </p>
+                  {/* Links */}
+                  {section.links.map((link) => (
+                    <a
+                      key={link}
+                      href="#"
+                      className="font-ibm-plex-thai text-[16px] text-onyx hover:text-primary-navy transition-colors"
+                    >
+                      {link}
+                    </a>
+                  ))}
+                </div>
               ))}
             </div>
           </div>
-        </div>
 
-        {/* Large watermark logo placeholder */}
-        <div className="my-8 flex justify-center">
-          <div className="h-6 w-full max-w-4xl rounded bg-gray-200" />
-        </div>
-      </div>
+          {/* Bottom Bar */}
+          <div className="flex items-end justify-between flex-wrap gap-4">
+            {/* Company Link */}
+            <div className="flex gap-1 items-center">
+              <p className="font-ibm-plex-thai text-[14px] text-carbon">
+                knight consultant worldwide company limited
+              </p>
+              {/* Arrow Up Right Icon - 12x12 */}
+              <svg
+                className="h-3 w-3 text-carbon"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M17 7H7M17 7v10" />
+              </svg>
+            </div>
 
-      {/* Bottom bar */}
-      <div className="flex items-center justify-between px-6 py-6 sm:flex-col sm:text-center">
-        <div className="text-xs text-gray-400">
-          Site design / logo &copy; 2026 Dooform Inc.
-        </div>
-        <div className="flex gap-2 sm:mt-3">
-          {['LinkedIn', 'X', 'YouTube'].map((social) => (
-            <a
-              key={social}
-              href="#"
-              className="rounded p-1.5 text-xs text-gray-500 transition hover:bg-orange-500 hover:text-white"
-            >
-              {social}
-            </a>
-          ))}
+            {/* Terms Notice */}
+            <p className="font-ibm-plex-thai text-[14px] text-carbon">
+              การใช้งานเว็บไซต์นี้นับว่าคุณได้ยอมรับเงื่อนไขในการใช้งานเรียบร้อย
+            </p>
+          </div>
         </div>
       </div>
     </footer>

@@ -1,26 +1,27 @@
-const logos = [
-  'Acme Corp',
-  'TechFlow',
-  'DataSync',
-  'CloudBase',
-  'FormStack',
-  'WorkHub',
-  'ScalePro',
-  'BuildKit',
-  'DevTools',
-];
-
+/**
+ * Section 3: Logo Marquee
+ * - Background: white
+ * - Spacing: 12px gap (Figma spec)
+ * - Placeholder for logos
+ */
 export default function LogoMarquee() {
   return (
-    <section className="overflow-hidden bg-gray-100 py-4 text-gray-400">
-      <div className="relative h-8">
-        <div className="animate-marquee flex items-center gap-16 whitespace-nowrap">
-          {[...logos, ...logos].map((name, i) => (
+    <section className="bg-white py-12">
+      <div className="mx-auto max-w-container px-4">
+        {/* Header */}
+        <p className="text-center font-ibm-plex-thai text-section-subtitle text-carbon mb-8">
+          ได้รับความไว้วางใจจาก
+        </p>
+
+        {/* Logo placeholder row - gap-3 = 12px */}
+        <div className="flex items-center justify-center gap-3 flex-wrap">
+          {/* TODO: Add logo images here */}
+          {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
-              key={`${name}-${i}`}
-              className="flex h-6 items-center text-sm font-medium uppercase tracking-wider text-gray-300"
+              key={i}
+              className="h-10 w-28 bg-sand-light rounded-lg flex items-center justify-center text-card-body text-carbon-100 border border-stroke"
             >
-              {name}
+              Logo {i}
             </div>
           ))}
         </div>
