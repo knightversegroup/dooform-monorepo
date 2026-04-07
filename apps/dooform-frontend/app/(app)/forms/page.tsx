@@ -1,9 +1,9 @@
-import FormTemplateList from "@/components/templates/FormTemplateList";
+import TemplateGroupList from "@/components/templates/TemplateGroupList";
 
 export default function FormsPage() {
     return (
         <main>
-            <FormTemplateList />
+            <TemplateGroupList />
         </main>
     );
 }
