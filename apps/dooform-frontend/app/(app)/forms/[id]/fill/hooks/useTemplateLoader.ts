@@ -115,7 +115,18 @@ export function useTemplateLoader(templateId: string): UseTemplateLoaderReturn {
             apiClient.getConfigurableDataTypes(true).catch(() => [] as ConfigurableDataType[]),
           ]);
 
-          const enhanced = enhanceFieldDefinitions(definitions, dataTypes);
+          let finalDefinitions = definitions;
+
+          // If field definitions are empty, auto-regenerate from the DOCX placeholders
+          if (!finalDefinitions || Object.keys(finalDefinitions).length === 0) {
+            try {
+              finalDefinitions = await apiClient.regenerateFieldDefinitions(templateId);
+            } catch (regenErr) {
+              logger.error("TemplateLoader", "Failed to regenerate field definitions:", regenErr);
+            }
+          }
+
+          const enhanced = enhanceFieldDefinitions(finalDefinitions || {}, dataTypes);
           setFieldDefinitions(enhanced);
 
           const visible = filterVisibleDefinitions(enhanced);
@@ -144,7 +155,11 @@ export function useTemplateLoader(templateId: string): UseTemplateLoaderReturn {
   }, [templateId]);
 
   const hasPreview = Boolean(htmlContent?.trim().length);
-  const placeholders = template?.placeholders || [];
+  // Fall back to field definition keys when template placeholders are empty
+  // (backend upload doesn't extract placeholders; they appear after regeneration)
+  const placeholders = (template?.placeholders && template.placeholders.length > 0)
+    ? template.placeholders
+    : Object.keys(fieldDefinitions);
   const aliases = template?.aliases || {};
 
   return {

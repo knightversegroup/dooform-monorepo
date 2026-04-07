@@ -624,10 +624,10 @@ export class ApiClient {
 
       if (data.name) formData.append('name', data.name);
       if (data.category) formData.append('category', data.category);
-      if (data.originalSource) formData.append('originalSource', data.originalSource);
+      if (data.originalSource) formData.append('original_source', data.originalSource);
       if (data.remarks) formData.append('remarks', data.remarks);
-      if (data.isVerified !== undefined) formData.append('isVerified', String(data.isVerified));
-      if (data.isAIAvailable !== undefined) formData.append('isAIAvailable', String(data.isAIAvailable));
+      if (data.isVerified !== undefined) formData.append('is_verified', String(data.isVerified));
+      if (data.isAIAvailable !== undefined) formData.append('is_ai_available', String(data.isAIAvailable));
       if (data.type) formData.append('type', data.type);
       if (data.tier) formData.append('tier', data.tier);
       if (data.group) formData.append('group', data.group);
@@ -654,15 +654,15 @@ export class ApiClient {
           ...this.getAuthHeaders(),
         },
         body: JSON.stringify({
-          displayName: data.displayName,
+          display_name: data.displayName,
           name: data.name || '',
           description: data.description,
           author: data.author,
           category: data.category || '',
-          originalSource: data.originalSource || '',
+          original_source: data.originalSource || '',
           remarks: data.remarks || '',
-          isVerified: data.isVerified,
-          isAIAvailable: data.isAIAvailable,
+          is_verified: data.isVerified,
+          is_ai_available: data.isAIAvailable,
           type: data.type || '',
           tier: data.tier || '',
           group: data.group || '',
