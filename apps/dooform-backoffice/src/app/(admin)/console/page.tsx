@@ -91,7 +91,7 @@ export default function ConsolePage() {
           }
           case "doctypes": {
             const [docTypes, templatesRes] = await Promise.all([
-              apiClient.getDocumentTypes(),
+              apiClient.getDocumentTypes({ includeTemplates: true }),
               apiClient.getAllTemplates(),
             ]);
             setDocumentTypes(docTypes);
@@ -369,7 +369,7 @@ export default function ConsolePage() {
           isOpen={showCreateModal}
           onClose={() => setShowCreateModal(false)}
           onSuccess={async () => {
-            const docTypes = await apiClient.getDocumentTypes();
+            const docTypes = await apiClient.getDocumentTypes({ includeTemplates: true });
             setDocumentTypes(docTypes);
             setSuccess("Document type created successfully");
             setTimeout(() => setSuccess(null), 3000);
@@ -410,7 +410,7 @@ export default function ConsolePage() {
           documentType={documentTypes.find(dt => dt.id === editingItem) || null}
           onClose={() => setEditingItem(null)}
           onSuccess={async () => {
-            const docTypes = await apiClient.getDocumentTypes();
+            const docTypes = await apiClient.getDocumentTypes({ includeTemplates: true });
             setDocumentTypes(docTypes);
             setSuccess("Document type updated successfully");
             setTimeout(() => setSuccess(null), 3000);
