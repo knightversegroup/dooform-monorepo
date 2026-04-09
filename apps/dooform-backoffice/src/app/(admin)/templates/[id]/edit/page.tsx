@@ -22,6 +22,7 @@ import {
     Unlink,
     Sparkles,
     Image,
+    Eye,
 } from "lucide-react";
 import { apiClient } from "@dooform/shared/api/client";
 import { Template, TemplateType, Tier, TemplateUpdateData, FieldDefinition, MergeableGroup, DocumentType, FilterCategory, ConfigurableDataType, ConfigurableInputType, FieldTypeSuggestion } from "@dooform/shared/api/types";
@@ -441,6 +442,35 @@ export default function EditFormPage({ params }: PageProps) {
         try {
             setSaving(true);
 
+            // Upload any pending files first
+            if (docxFile || htmlFile || thumbnailFile) {
+                const result = await apiClient.replaceTemplateFiles(templateId, {
+                    docxFile: docxFile || undefined,
+                    htmlFile: htmlFile || undefined,
+                    thumbnailFile: thumbnailFile || undefined,
+                    regenerateFields: regenerateFieldsOnUpload,
+                });
+
+                if (result.template) {
+                    setTemplate(result.template);
+                }
+
+                if (regenerateFieldsOnUpload && docxFile) {
+                    try {
+                        const definitions = await apiClient.getFieldDefinitions(templateId);
+                        setFieldDefinitions(enhanceFieldDefinitions(definitions, dataTypes));
+                    } catch (err) {
+                        console.error("Failed to reload field definitions:", err);
+                    }
+                }
+
+                await Promise.all([refetchHtml(), refetchTemplate()]);
+
+                setDocxFile(null);
+                setHtmlFile(null);
+                setThumbnailFile(null);
+            }
+
             const updateData: TemplateUpdateData = {
                 displayName: formData.displayName,
                 name: formData.name,
@@ -527,6 +557,16 @@ export default function EditFormPage({ params }: PageProps) {
         } finally {
             setUploadingFiles(false);
         }
+    };
+
+    // Open HTML preview in new tab
+    const handlePreviewHtml = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!htmlContent) return;
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
     };
 
     // Handle document type assignment
@@ -988,7 +1028,7 @@ export default function EditFormPage({ params }: PageProps) {
                                                                 คลิกเพื่อเลือกไฟล์ HTML (แทนที่ HTML ที่สร้างอัตโนมัติ)
                                                             </p>
                                                             <p className="text-xs text-text-muted">
-                                                                {htmlContent ? 'มีไฟล์ HTML preview อยู่แล้ว (คลิกเพื่ออัปโหลดใหม่)' : 'ใช้สำหรับ preview ที่แม่นยำกว่า LibreOffice'}
+                                                                {htmlContent ? 'คลิกเพื่ออัปโหลดไฟล์ HTML ใหม่' : 'ใช้สำหรับ preview ที่แม่นยำกว่า LibreOffice'}
                                                             </p>
                                                         </>
                                                     )}
@@ -1012,6 +1052,14 @@ export default function EditFormPage({ params }: PageProps) {
                                             <div className="mt-2 flex items-center gap-2 text-xs text-green-600">
                                                 <CheckCircle className="w-3.5 h-3.5" />
                                                 <span>มีไฟล์ HTML preview แล้ว</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={handlePreviewHtml}
+                                                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 transition-colors"
+                                                >
+                                                    <Eye className="w-3.5 h-3.5" />
+                                                    ดูตัวอย่าง
+                                                </button>
                                             </div>
                                         )}
                                         <p className="mt-2 text-xs text-text-muted">
