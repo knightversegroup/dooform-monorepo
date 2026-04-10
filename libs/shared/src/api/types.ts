@@ -663,3 +663,69 @@ export interface FilterOptionUpdateRequest {
   is_active?: boolean;
   is_default?: boolean;
 }
+
+// -----------------------------------------------------------------------------
+// Watermark presets
+// -----------------------------------------------------------------------------
+
+export type WatermarkPosition =
+  | 'topLeft'
+  | 'topRight'
+  | 'center'
+  | 'bottomLeft'
+  | 'bottomRight';
+
+export type WatermarkShape = 'circle' | 'rounded' | 'none';
+export type WatermarkScope = 'allPages' | 'firstPageOnly';
+
+export interface WatermarkLine {
+  text: string;
+  bold?: boolean;
+  size?: number;
+}
+
+export interface WatermarkConfig {
+  lines: WatermarkLine[];
+  fontColor: string;
+  opacity: number;
+  rotation: number;
+  position: WatermarkPosition;
+  shape: WatermarkShape;
+  scope: WatermarkScope;
+}
+
+/** Shape returned by the backend. `config` is a JSON string containing a
+ * `WatermarkConfig`. The frontend parses it on read. */
+export interface WatermarkPresetDTO {
+  id: string;
+  user_id: string;
+  name: string;
+  config: string;
+  logo_path?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Client-side preset with `config` already parsed. */
+export interface WatermarkPreset {
+  id: string;
+  user_id: string;
+  name: string;
+  config: WatermarkConfig;
+  logo_path?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WatermarkPresetsResponse {
+  presets: WatermarkPresetDTO[];
+}
+
+export interface WatermarkPresetResponse {
+  preset: WatermarkPresetDTO;
+}
+
+export interface WatermarkPresetInput {
+  name: string;
+  config: WatermarkConfig;
+}

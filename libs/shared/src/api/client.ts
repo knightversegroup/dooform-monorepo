@@ -50,6 +50,11 @@ import {
   FilterOptionUpdateRequest,
   AliasSuggestionResponse,
   FieldTypeSuggestionResponse,
+  WatermarkPreset,
+  WatermarkPresetDTO,
+  WatermarkPresetInput,
+  WatermarkPresetResponse,
+  WatermarkPresetsResponse,
 } from './types';
 
 export class ApiClient {
@@ -511,13 +516,27 @@ export class ApiClient {
     return this.handleResponseWithRetry<ProcessResponse>(response, makeRequest);
   }
 
-  getDownloadUrl(documentId: string, format: 'docx' | 'pdf' = 'docx'): string {
+  getDownloadUrl(
+    documentId: string,
+    format: 'docx' | 'pdf' = 'docx',
+    watermarkPresetId?: string | null
+  ): string {
+    const params = new URLSearchParams();
+    if (format === 'pdf') params.set('format', 'pdf');
+    if (watermarkPresetId && format === 'pdf') {
+      params.set('watermark_preset_id', watermarkPresetId);
+    }
+    const qs = params.toString();
     const url = `${this.baseUrl}/documents/${documentId}/download`;
-    return format === 'pdf' ? `${url}?format=pdf` : url;
+    return qs ? `${url}?${qs}` : url;
   }
 
-  async downloadDocument(documentId: string, format: 'docx' | 'pdf' = 'docx'): Promise<Blob> {
-    const makeRequest = () => fetch(this.getDownloadUrl(documentId, format), {
+  async downloadDocument(
+    documentId: string,
+    format: 'docx' | 'pdf' = 'docx',
+    watermarkPresetId?: string | null
+  ): Promise<Blob> {
+    const makeRequest = () => fetch(this.getDownloadUrl(documentId, format, watermarkPresetId), {
       headers: this.getAuthHeaders(),
     });
 
@@ -555,6 +574,91 @@ export class ApiClient {
 
     const response = await makeRequest();
     return this.handleResponseWithRetry<ProcessResponse>(response, makeRequest);
+  }
+
+  // Watermark presets
+  // ---------------------------------------------------------------------------
+
+  private parsePresetDTO(dto: WatermarkPresetDTO): WatermarkPreset {
+    let cfg;
+    try {
+      cfg = JSON.parse(dto.config);
+    } catch {
+      cfg = {
+        lines: [],
+        fontColor: '#0b4db7',
+        opacity: 0.35,
+        rotation: 0,
+        position: 'bottomRight',
+        shape: 'rounded',
+        scope: 'allPages',
+      };
+    }
+    return { ...dto, config: cfg };
+  }
+
+  async listWatermarkPresets(): Promise<WatermarkPreset[]> {
+    const makeRequest = () => fetch(`${this.baseUrl}/watermark-presets`, {
+      headers: this.getAuthHeaders(),
+    });
+    const response = await makeRequest();
+    const data = await this.handleResponseWithRetry<WatermarkPresetsResponse>(response, makeRequest);
+    return (data.presets || []).map((p) => this.parsePresetDTO(p));
+  }
+
+  async getWatermarkPreset(id: string): Promise<WatermarkPreset> {
+    const makeRequest = () => fetch(`${this.baseUrl}/watermark-presets/${id}`, {
+      headers: this.getAuthHeaders(),
+    });
+    const response = await makeRequest();
+    const data = await this.handleResponseWithRetry<WatermarkPresetResponse>(response, makeRequest);
+    return this.parsePresetDTO(data.preset);
+  }
+
+  async createWatermarkPreset(input: WatermarkPresetInput): Promise<WatermarkPreset> {
+    const body = { name: input.name, config: JSON.stringify(input.config) };
+    const makeRequest = () => fetch(`${this.baseUrl}/watermark-presets`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
+      body: JSON.stringify(body),
+    });
+    const response = await makeRequest();
+    const data = await this.handleResponseWithRetry<WatermarkPresetResponse>(response, makeRequest);
+    return this.parsePresetDTO(data.preset);
+  }
+
+  async updateWatermarkPreset(id: string, input: WatermarkPresetInput): Promise<WatermarkPreset> {
+    const body = { name: input.name, config: JSON.stringify(input.config) };
+    const makeRequest = () => fetch(`${this.baseUrl}/watermark-presets/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
+      body: JSON.stringify(body),
+    });
+    const response = await makeRequest();
+    const data = await this.handleResponseWithRetry<WatermarkPresetResponse>(response, makeRequest);
+    return this.parsePresetDTO(data.preset);
+  }
+
+  async deleteWatermarkPreset(id: string): Promise<void> {
+    const makeRequest = () => fetch(`${this.baseUrl}/watermark-presets/${id}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
+    });
+    const response = await makeRequest();
+    await this.handleResponseWithRetry<{ message: string }>(response, makeRequest);
+  }
+
+  async uploadWatermarkLogo(id: string, file: File): Promise<WatermarkPreset> {
+    const form = new FormData();
+    form.append('logo', file);
+    const makeRequest = () => fetch(`${this.baseUrl}/watermark-presets/${id}/logo`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: form,
+    });
+    const response = await makeRequest();
+    const data = await this.handleResponseWithRetry<WatermarkPresetResponse>(response, makeRequest);
+    return this.parsePresetDTO(data.preset);
   }
 
   // Activity Logs
