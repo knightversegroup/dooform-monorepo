@@ -670,9 +670,13 @@ export interface FilterOptionUpdateRequest {
 
 export type WatermarkPosition =
   | 'topLeft'
+  | 'topCenter'
   | 'topRight'
+  | 'centerLeft'
   | 'center'
+  | 'centerRight'
   | 'bottomLeft'
+  | 'bottomCenter'
   | 'bottomRight';
 
 export type WatermarkShape = 'circle' | 'rounded' | 'none';
@@ -690,6 +694,10 @@ export interface WatermarkConfig {
   opacity: number;
   rotation: number;
   position: WatermarkPosition;
+  /** X offset from anchor in millimetres. Positive → right. */
+  offsetX?: number;
+  /** Y offset from anchor in millimetres. Positive → down. */
+  offsetY?: number;
   shape: WatermarkShape;
   scope: WatermarkScope;
 }

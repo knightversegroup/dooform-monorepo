@@ -10,6 +10,7 @@ import type {
   WatermarkPreset,
 } from "@dooform/shared/api/types";
 import { WatermarkPreview } from "./WatermarkPreview";
+import { WatermarkPagePreview } from "./WatermarkPagePreview";
 import { DEFAULT_WATERMARK_CONFIG } from "./types";
 
 interface WatermarkEditorModalProps {
@@ -28,11 +29,16 @@ interface WatermarkEditorModalProps {
   onDelete?: (presetId: string) => Promise<void>;
 }
 
-const POSITIONS: { value: WatermarkPosition; label: string }[] = [
+// 3x3 anchor grid in row-major order. Rendered as a visual picker.
+const POSITION_GRID: { value: WatermarkPosition; label: string }[] = [
   { value: "topLeft", label: "บนซ้าย" },
+  { value: "topCenter", label: "บนกลาง" },
   { value: "topRight", label: "บนขวา" },
+  { value: "centerLeft", label: "กลางซ้าย" },
   { value: "center", label: "กึ่งกลาง" },
+  { value: "centerRight", label: "กลางขวา" },
   { value: "bottomLeft", label: "ล่างซ้าย" },
+  { value: "bottomCenter", label: "ล่างกลาง" },
   { value: "bottomRight", label: "ล่างขวา" },
 ];
 
@@ -279,18 +285,6 @@ export function WatermarkEditorModal({
                 />
               </label>
               <label className="flex flex-col gap-1">
-                <span className="text-sm font-medium text-gray-700">ตำแหน่ง</span>
-                <select
-                  value={config.position}
-                  onChange={(e) => setConfig((c) => ({ ...c, position: e.target.value as WatermarkPosition }))}
-                  className="border border-gray-300 rounded px-3 py-2 text-sm bg-white"
-                >
-                  {POSITIONS.map((p) => (
-                    <option key={p.value} value={p.value}>{p.label}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="flex flex-col gap-1">
                 <span className="text-sm font-medium text-gray-700">รูปทรง</span>
                 <select
                   value={config.shape}
@@ -316,6 +310,71 @@ export function WatermarkEditorModal({
               </label>
             </div>
 
+            {/* Position picker: 3x3 anchor grid + fine-tune offsets */}
+            <div className="flex flex-col gap-2">
+              <span className="text-sm font-medium text-gray-700">ตำแหน่งลายน้ำ</span>
+              <div
+                className="grid grid-cols-3 gap-1 border border-gray-200 bg-gray-50 p-2 rounded w-[132px] aspect-[1/1.414]"
+                role="radiogroup"
+                aria-label="เลือกตำแหน่งลายน้ำ"
+              >
+                {POSITION_GRID.map((p) => {
+                  const active = config.position === p.value;
+                  return (
+                    <button
+                      key={p.value}
+                      type="button"
+                      onClick={() => setConfig((c) => ({ ...c, position: p.value }))}
+                      title={p.label}
+                      aria-label={p.label}
+                      aria-checked={active}
+                      role="radio"
+                      className={`w-full h-full rounded transition-colors flex items-center justify-center ${
+                        active
+                          ? "bg-[#0b4db7] border border-[#0b4db7]"
+                          : "bg-white border border-gray-300 hover:border-[#0b4db7]"
+                      }`}
+                    >
+                      {active && <div className="w-2 h-2 rounded-full bg-white" />}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="grid grid-cols-2 gap-3 mt-1">
+                <label className="flex flex-col gap-1">
+                  <span className="text-xs text-gray-600">เลื่อนซ้าย/ขวา: {config.offsetX ?? 0} มม.</span>
+                  <input
+                    type="range"
+                    min={-100}
+                    max={100}
+                    step={1}
+                    value={config.offsetX ?? 0}
+                    onChange={(e) => setConfig((c) => ({ ...c, offsetX: Number(e.target.value) }))}
+                  />
+                </label>
+                <label className="flex flex-col gap-1">
+                  <span className="text-xs text-gray-600">เลื่อนขึ้น/ลง: {config.offsetY ?? 0} มม.</span>
+                  <input
+                    type="range"
+                    min={-150}
+                    max={150}
+                    step={1}
+                    value={config.offsetY ?? 0}
+                    onChange={(e) => setConfig((c) => ({ ...c, offsetY: Number(e.target.value) }))}
+                  />
+                </label>
+              </div>
+              {(config.offsetX || config.offsetY) ? (
+                <button
+                  type="button"
+                  onClick={() => setConfig((c) => ({ ...c, offsetX: 0, offsetY: 0 }))}
+                  className="self-start text-xs text-[#0b4db7] hover:underline"
+                >
+                  รีเซ็ตการเลื่อน
+                </button>
+              ) : null}
+            </div>
+
             {/* Logo upload - only enabled after save */}
             <div className="flex flex-col gap-1">
               <span className="text-sm font-medium text-gray-700">โลโก้ (ไม่บังคับ)</span>
@@ -334,7 +393,7 @@ export function WatermarkEditorModal({
                     ) : (
                       <Upload className="w-4 h-4" />
                     )}
-                    เลือกรูป (PNG/JPEG, ≤1 MB)
+                    เลือกรูป (PNG/JPEG, ≤5 MB)
                   </button>
                   {preset?.logo_path && (
                     <span className="text-xs text-green-700">มีโลโก้แล้ว</span>
@@ -357,11 +416,17 @@ export function WatermarkEditorModal({
             )}
           </div>
 
-          {/* Right column: live preview */}
-          <div className="flex flex-col items-center justify-start gap-3">
-            <span className="text-sm font-medium text-gray-700">ตัวอย่าง</span>
-            <div className="border border-dashed border-gray-300 rounded-lg p-4 bg-gray-50">
-              <WatermarkPreview config={config} width={260} height={180} />
+          {/* Right column: live previews (page placement + emblem detail) */}
+          <div className="flex flex-col items-center justify-start gap-4">
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-sm font-medium text-gray-700">ตำแหน่งบนหน้ากระดาษ</span>
+              <WatermarkPagePreview config={config} height={240} />
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-sm font-medium text-gray-700">รายละเอียดลายน้ำ</span>
+              <div className="border border-dashed border-gray-300 rounded-lg p-3 bg-gray-50">
+                <WatermarkPreview config={config} width={220} height={140} />
+              </div>
             </div>
             <p className="text-xs text-gray-500 text-center">
               ตัวอย่างอาจแตกต่างเล็กน้อยจากไฟล์จริง
