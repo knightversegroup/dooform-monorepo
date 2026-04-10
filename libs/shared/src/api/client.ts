@@ -648,6 +648,26 @@ export class ApiClient {
     await this.handleResponseWithRetry<{ message: string }>(response, makeRequest);
   }
 
+  async fetchWatermarkLogoBlob(id: string): Promise<Blob | null> {
+    const makeRequest = () => fetch(`${this.baseUrl}/watermark-presets/${id}/logo`, {
+      headers: this.getAuthHeaders(),
+    });
+    const response = await makeRequest();
+    if (response.status === 404) return null;
+    if (response.status === 401) {
+      const refreshed = await this.handleTokenRefresh();
+      if (refreshed) {
+        const retryResponse = await makeRequest();
+        if (!retryResponse.ok) return null;
+        return retryResponse.blob();
+      }
+      if (this.logoutCallback) this.logoutCallback();
+      return null;
+    }
+    if (!response.ok) return null;
+    return response.blob();
+  }
+
   async uploadWatermarkLogo(id: string, file: File): Promise<WatermarkPreset> {
     const form = new FormData();
     form.append('logo', file);

@@ -12,6 +12,7 @@ import type {
 } from "@dooform/shared/api/types";
 import { WatermarkPreview } from "./WatermarkPreview";
 import { WatermarkPagePreview } from "./WatermarkPagePreview";
+import { useWatermarkLogoUrl } from "./useWatermarkLogoUrl";
 import { DEFAULT_WATERMARK_CONFIG } from "./types";
 
 interface WatermarkEditorModalProps {
@@ -175,6 +176,7 @@ export function WatermarkEditorModal({
   }, [preset, onDelete, onClose]);
 
   const isUnsaved = useMemo(() => !preset, [preset]);
+  const logoUrl = useWatermarkLogoUrl(preset?.id ?? null, preset?.logo_path ?? null);
 
   if (!open) return null;
 
@@ -476,12 +478,12 @@ export function WatermarkEditorModal({
           <div className="flex flex-col items-center justify-start gap-4">
             <div className="flex flex-col items-center gap-2">
               <span className="text-sm font-medium text-gray-700">ตำแหน่งบนหน้ากระดาษ</span>
-              <WatermarkPagePreview config={config} height={240} />
+              <WatermarkPagePreview config={config} logoUrl={logoUrl} height={240} />
             </div>
             <div className="flex flex-col items-center gap-2">
               <span className="text-sm font-medium text-gray-700">รายละเอียดลายน้ำ</span>
               <div className="border border-dashed border-gray-300 rounded-lg p-3 bg-gray-50">
-                <WatermarkPreview config={config} width={220} height={140} />
+                <WatermarkPreview config={config} logoUrl={logoUrl} width={220} height={140} />
               </div>
             </div>
             <p className="text-xs text-gray-500 text-center">

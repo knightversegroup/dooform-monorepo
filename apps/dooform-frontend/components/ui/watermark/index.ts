@@ -3,6 +3,7 @@ export { WatermarkEditorModal } from "./WatermarkEditorModal";
 export { WatermarkPreview } from "./WatermarkPreview";
 export { WatermarkPagePreview } from "./WatermarkPagePreview";
 export { useWatermarkPresets } from "./useWatermarkPresets";
+export { useWatermarkLogoUrl } from "./useWatermarkLogoUrl";
 export { DEFAULT_WATERMARK_CONFIG } from "./types";
 export type {
   WatermarkPreset,

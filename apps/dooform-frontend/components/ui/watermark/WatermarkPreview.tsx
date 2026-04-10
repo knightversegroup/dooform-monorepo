@@ -27,17 +27,42 @@ export function WatermarkPreview({
   const fillColor = config.fontColor || "#0b4db7";
   const opacity = Math.max(0.1, Math.min(1, config.opacity ?? 0.35));
 
-  // Determine centre and content layout
-  const cx = width / 2;
-  const cy = height / 2;
   const padding = 10;
+  const innerX = padding;
+  const innerY = padding;
   const innerW = width - padding * 2;
   const innerH = height - padding * 2;
 
   const lines = config.lines.slice(0, 8);
-  const logoH = logoUrl ? 24 : 0;
-  const availableH = innerH - logoH - (logoUrl ? 4 : 0);
-  const lineHeight = lines.length > 0 ? Math.min(18, availableH / lines.length) : 14;
+  const layout = logoUrl ? config.logoPosition ?? "top" : "none";
+
+  // Logo box size depends on layout.
+  const logoBox = logoUrl ? (layout === "top" ? 26 : Math.min(innerH - 8, 40)) : 0;
+  const logoGap = logoUrl ? 6 : 0;
+
+  // Derive the text column geometry based on layout.
+  let textX0 = innerX;
+  let textW = innerW;
+  let textStartY = innerY;
+  let availableTextH = innerH;
+
+  if (layout === "top") {
+    availableTextH = innerH - logoBox - logoGap;
+    textStartY = innerY + logoBox + logoGap;
+  } else if (layout === "left") {
+    textX0 = innerX + logoBox + logoGap;
+    textW = innerW - logoBox - logoGap;
+  } else if (layout === "right") {
+    textW = innerW - logoBox - logoGap;
+  }
+
+  const lineHeight = lines.length > 0 ? Math.min(18, availableTextH / lines.length) : 14;
+  const textBlockH = lines.length * lineHeight;
+  // Vertically centre the text block inside its available box.
+  const textTop =
+    layout === "top"
+      ? textStartY
+      : innerY + (innerH - textBlockH) / 2;
 
   // Shape: border element varies by config.shape
   let borderEl: React.ReactNode = null;
@@ -58,8 +83,8 @@ export function WatermarkPreview({
   } else if (config.shape === "circle") {
     borderEl = (
       <ellipse
-        cx={cx}
-        cy={cy}
+        cx={width / 2}
+        cy={height / 2}
         rx={innerW / 2 + 2}
         ry={innerH / 2 + 2}
         fill="none"
@@ -69,9 +94,32 @@ export function WatermarkPreview({
     );
   }
 
-  // Start y position for text stack
-  const textBlockH = lines.length * lineHeight + (logoUrl ? logoH + 4 : 0);
-  const y = cy - textBlockH / 2 + (logoUrl ? logoH + 4 : 0);
+  // Logo placement.
+  let logoEl: React.ReactNode = null;
+  if (logoUrl) {
+    let lx = 0;
+    let ly = 0;
+    if (layout === "top") {
+      lx = innerX + (innerW - logoBox) / 2;
+      ly = innerY;
+    } else if (layout === "left") {
+      lx = innerX;
+      ly = innerY + (innerH - logoBox) / 2;
+    } else if (layout === "right") {
+      lx = innerX + innerW - logoBox;
+      ly = innerY + (innerH - logoBox) / 2;
+    }
+    logoEl = (
+      <image
+        href={logoUrl}
+        x={lx}
+        y={ly}
+        width={logoBox}
+        height={logoBox}
+        preserveAspectRatio="xMidYMid meet"
+      />
+    );
+  }
 
   return (
     <svg
@@ -84,23 +132,14 @@ export function WatermarkPreview({
       style={{ opacity }}
     >
       {borderEl}
-      {logoUrl && (
-        <image
-          href={logoUrl}
-          x={cx - 12}
-          y={cy - textBlockH / 2}
-          width={24}
-          height={24}
-          preserveAspectRatio="xMidYMid meet"
-        />
-      )}
+      {logoEl}
       {lines.map((line, idx) => {
-        const lineY = y + idx * lineHeight + lineHeight * 0.75;
+        const lineY = textTop + idx * lineHeight + lineHeight * 0.75;
         const size = line.size ?? 11;
         return (
           <text
             key={idx}
-            x={cx}
+            x={textX0 + textW / 2}
             y={lineY}
             fill={fillColor}
             fontSize={Math.min(16, size)}
