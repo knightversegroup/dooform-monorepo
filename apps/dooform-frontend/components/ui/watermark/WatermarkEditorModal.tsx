@@ -8,6 +8,7 @@ import type {
   WatermarkShape,
   WatermarkScope,
   WatermarkPreset,
+  WatermarkLogoPosition,
 } from "@dooform/shared/api/types";
 import { WatermarkPreview } from "./WatermarkPreview";
 import { WatermarkPagePreview } from "./WatermarkPagePreview";
@@ -51,6 +52,12 @@ const SHAPES: { value: WatermarkShape; label: string }[] = [
 const SCOPES: { value: WatermarkScope; label: string }[] = [
   { value: "allPages", label: "ทุกหน้า" },
   { value: "firstPageOnly", label: "เฉพาะหน้าแรก" },
+];
+
+const LOGO_POSITIONS: { value: WatermarkLogoPosition; label: string }[] = [
+  { value: "top", label: "ด้านบน" },
+  { value: "left", label: "ซ้าย" },
+  { value: "right", label: "ขวา" },
 ];
 
 function buildInitialConfig(defaults?: WatermarkEditorModalProps["defaults"]): WatermarkConfig {
@@ -231,6 +238,17 @@ export function WatermarkEditorModal({
                     placeholder={`บรรทัดที่ ${idx + 1}`}
                     className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0b4db7]"
                   />
+                  <input
+                    type="number"
+                    value={line.size ?? 11}
+                    min={6}
+                    max={36}
+                    step={1}
+                    onChange={(e) => handleLineChange(idx, { size: Number(e.target.value) })}
+                    className="w-14 border border-gray-300 rounded px-2 py-2 text-sm shrink-0"
+                    title="ขนาดตัวอักษร (pt)"
+                    aria-label="ขนาดตัวอักษร"
+                  />
                   <label className="flex items-center gap-1 text-xs text-gray-600 shrink-0">
                     <input
                       type="checkbox"
@@ -375,8 +393,8 @@ export function WatermarkEditorModal({
               ) : null}
             </div>
 
-            {/* Logo upload - only enabled after save */}
-            <div className="flex flex-col gap-1">
+            {/* Logo upload + sizing + placement */}
+            <div className="flex flex-col gap-2">
               <span className="text-sm font-medium text-gray-700">โลโก้ (ไม่บังคับ)</span>
               {isUnsaved ? (
                 <p className="text-xs text-gray-500">บันทึกลายน้ำก่อนเพื่ออัปโหลดโลโก้</p>
@@ -407,6 +425,44 @@ export function WatermarkEditorModal({
                 className="hidden"
                 onChange={handleLogoChange}
               />
+
+              {/* Logo size + placement (apply even before upload so the preset
+                 keeps the preference for future uploads). */}
+              <div className="grid grid-cols-2 gap-3 mt-1">
+                <label className="flex flex-col gap-1">
+                  <span className="text-xs text-gray-600">ขนาดโลโก้: {Math.round(config.logoSize ?? 14)} มม.</span>
+                  <input
+                    type="range"
+                    min={5}
+                    max={80}
+                    step={1}
+                    value={config.logoSize ?? 14}
+                    onChange={(e) => setConfig((c) => ({ ...c, logoSize: Number(e.target.value) }))}
+                  />
+                </label>
+                <label className="flex flex-col gap-1">
+                  <span className="text-xs text-gray-600">ตำแหน่งโลโก้</span>
+                  <div className="flex gap-1">
+                    {LOGO_POSITIONS.map((lp) => {
+                      const active = (config.logoPosition ?? "top") === lp.value;
+                      return (
+                        <button
+                          key={lp.value}
+                          type="button"
+                          onClick={() => setConfig((c) => ({ ...c, logoPosition: lp.value }))}
+                          className={`flex-1 text-xs py-1.5 rounded border transition-colors ${
+                            active
+                              ? "bg-[#0b4db7] text-white border-[#0b4db7]"
+                              : "bg-white text-gray-700 border-gray-300 hover:border-[#0b4db7]"
+                          }`}
+                        >
+                          {lp.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </label>
+              </div>
             </div>
 
             {error && (

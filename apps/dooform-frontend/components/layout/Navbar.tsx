@@ -5,6 +5,7 @@ import {
   History,
   BookMarked,
   BookOpenText,
+  Stamp,
 } from "lucide-react";
 import { Navbar as SharedNavbar } from "@dooform/shared";
 import type { NavTab } from "@dooform/shared";
@@ -12,6 +13,7 @@ import type { NavTab } from "@dooform/shared";
 const NAV_TABS: NavTab[] = [
   { name: "รายการเอกสาร", href: "/templates", icon: FileText, position: "left" },
   { name: "ประวัติการกรอก", href: "/history", icon: History, position: "left" },
+  { name: "ลายน้ำ", href: "/watermarks", icon: Stamp, position: "left" },
   { name: "คลังคำศัพท์", href: "/dictionary", icon: BookMarked, position: "left" },
   { name: "คู่มือการใช้งาน", href: "/docs", icon: BookOpenText, position: "right" },
 ];

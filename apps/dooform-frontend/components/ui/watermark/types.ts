@@ -21,4 +21,6 @@ export const DEFAULT_WATERMARK_CONFIG = {
   position: "bottomRight" as const,
   shape: "rounded" as const,
   scope: "allPages" as const,
+  logoSize: 14,
+  logoPosition: "top" as const,
 };

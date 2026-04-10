@@ -681,6 +681,7 @@ export type WatermarkPosition =
 
 export type WatermarkShape = 'circle' | 'rounded' | 'none';
 export type WatermarkScope = 'allPages' | 'firstPageOnly';
+export type WatermarkLogoPosition = 'top' | 'left' | 'right';
 
 export interface WatermarkLine {
   text: string;
@@ -700,6 +701,10 @@ export interface WatermarkConfig {
   offsetY?: number;
   shape: WatermarkShape;
   scope: WatermarkScope;
+  /** Longest logo side in millimetres (5..80). Defaults to 14. */
+  logoSize?: number;
+  /** Where the logo sits relative to the text stack. Defaults to 'top'. */
+  logoPosition?: WatermarkLogoPosition;
 }
 
 /** Shape returned by the backend. `config` is a JSON string containing a
