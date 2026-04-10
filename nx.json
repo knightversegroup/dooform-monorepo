@@ -26,6 +26,13 @@
     "@nx/vitest:test": {
       "cache": true,
       "inputs": ["default", "^default"]
+    },
+    "check": {
+      "inputs": ["production", "^production"],
+      "cache": true
+    },
+    "preview": {
+      "dependsOn": ["build"]
     }
   },
   "plugins": [
@@ -79,5 +86,6 @@
         "linter": "eslint"
       }
     }
-  }
+  },
+  "defaultProject": "dooform-home"
 }

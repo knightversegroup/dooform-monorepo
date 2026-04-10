@@ -15,6 +15,7 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.5.2",
     "@commitlint/cli": "^20.4.2",
     "@commitlint/config-conventional": "^20.4.2",
     "@eslint/js": "^9.8.0",
@@ -45,6 +46,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@types/uuid": "^11.0.0",
+    "astro": "^4.3.5",
     "autoprefixer": "10.4.13",
     "babel-jest": "^30.0.2",
     "eslint": "^9.8.0",
