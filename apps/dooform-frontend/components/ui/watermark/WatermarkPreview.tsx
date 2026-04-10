@@ -71,7 +71,7 @@ export function WatermarkPreview({
 
   // Start y position for text stack
   const textBlockH = lines.length * lineHeight + (logoUrl ? logoH + 4 : 0);
-  let y = cy - textBlockH / 2 + (logoUrl ? logoH + 4 : 0);
+  const y = cy - textBlockH / 2 + (logoUrl ? logoH + 4 : 0);
 
   return (
     <svg

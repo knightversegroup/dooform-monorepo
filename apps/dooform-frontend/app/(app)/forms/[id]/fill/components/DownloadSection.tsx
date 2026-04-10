@@ -3,6 +3,7 @@
  */
 
 import { ChevronDown, CheckCircle } from "lucide-react";
+import { WatermarkSection } from "@/components/ui/watermark";
 
 interface DownloadSectionProps {
   selectedFileType: "docx" | "pdf";
@@ -12,6 +13,10 @@ interface DownloadSectionProps {
     downloadUrl: string;
     downloadPdfUrl?: string;
   } | null;
+  watermarkEnabled: boolean;
+  watermarkPresetId: string | null;
+  onWatermarkEnabledChange: (enabled: boolean) => void;
+  onWatermarkPresetIdChange: (id: string | null) => void;
 }
 
 /**
@@ -21,6 +26,10 @@ export function DownloadSection({
   selectedFileType,
   onFileTypeChange,
   success,
+  watermarkEnabled,
+  watermarkPresetId,
+  onWatermarkEnabledChange,
+  onWatermarkPresetIdChange,
 }: DownloadSectionProps) {
   return (
     <div className="flex flex-col items-start w-full">
@@ -62,6 +71,16 @@ export function DownloadSection({
               />
             </div>
           </div>
+
+          {/* Watermark control - only for PDF */}
+          {selectedFileType === "pdf" && (
+            <WatermarkSection
+              enabled={watermarkEnabled}
+              selectedPresetId={watermarkPresetId}
+              onEnabledChange={onWatermarkEnabledChange}
+              onSelectedPresetIdChange={onWatermarkPresetIdChange}
+            />
+          )}
 
           {/* Success Message */}
           {success && (

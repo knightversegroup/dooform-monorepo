@@ -17,6 +17,7 @@ import { DocumentPreview } from "@/components/ui/DocumentPreview";
 import { useTemplateLoader } from "@/app/(app)/forms/[id]/fill/hooks/useTemplateLoader";
 import { usePreviewRenderer } from "@/app/(app)/forms/[id]/fill/hooks/usePreviewRenderer";
 import { ReviewFields } from "@/app/(app)/forms/[id]/fill/components/ReviewFields";
+import { WatermarkSection } from "@/components/ui/watermark";
 import { LogoLoaderInline } from "@dooform/shared";
 
 interface DocumentHistory {
@@ -78,6 +79,8 @@ export default function HistoryDetailPage({ params }: PageProps) {
     const [error, setError] = useState<string | null>(null);
     const [downloading, setDownloading] = useState<string | null>(null);
     const [regenerating, setRegenerating] = useState(false);
+    const [watermarkEnabled, setWatermarkEnabled] = useState(false);
+    const [watermarkPresetId, setWatermarkPresetId] = useState<string | null>(null);
 
     // Redirect if not authenticated
     useEffect(() => {
@@ -162,7 +165,9 @@ export default function HistoryDetailPage({ params }: PageProps) {
         if (!document) return;
         try {
             setDownloading(format);
-            const blob = await apiClient.downloadDocument(document.id, format);
+            const presetForDownload =
+                watermarkEnabled && format === "pdf" ? watermarkPresetId : null;
+            const blob = await apiClient.downloadDocument(document.id, format, presetForDownload);
             const url = window.URL.createObjectURL(blob);
             const a = window.document.createElement("a");
             a.href = url;
@@ -358,6 +363,14 @@ export default function HistoryDetailPage({ params }: PageProps) {
                                 </button>
                             ) : (
                                 <>
+                                    {document.file_path_pdf && (
+                                        <WatermarkSection
+                                            enabled={watermarkEnabled}
+                                            selectedPresetId={watermarkPresetId}
+                                            onEnabledChange={setWatermarkEnabled}
+                                            onSelectedPresetIdChange={setWatermarkPresetId}
+                                        />
+                                    )}
                                     {document.file_path_docx && (
                                         <button
                                             onClick={() =>

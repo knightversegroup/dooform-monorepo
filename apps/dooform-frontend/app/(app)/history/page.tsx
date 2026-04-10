@@ -19,6 +19,7 @@ import {
 import { apiClient } from "@dooform/shared/api/client";
 import { useAuth } from "@dooform/shared/auth/hooks";
 import { Button, LogoLoaderInline } from "@dooform/shared";
+import { WatermarkSection } from "@/components/ui/watermark";
 
 interface DocumentHistory {
     id: string;
@@ -143,6 +144,8 @@ export default function HistoryPage() {
     const [total, setTotal] = useState(0);
     const [downloading, setDownloading] = useState<string | null>(null);
     const [regenerating, setRegenerating] = useState<string | null>(null);
+    const [watermarkEnabled, setWatermarkEnabled] = useState(false);
+    const [watermarkPresetId, setWatermarkPresetId] = useState<string | null>(null);
 
     const [searchTerm, setSearchTerm] = useState("");
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
@@ -254,7 +257,9 @@ export default function HistoryPage() {
     ) => {
         try {
             setDownloading(`${doc.id}-${format}`);
-            const blob = await apiClient.downloadDocument(doc.id, format);
+            const presetForDownload =
+                watermarkEnabled && format === "pdf" ? watermarkPresetId : null;
+            const blob = await apiClient.downloadDocument(doc.id, format, presetForDownload);
             const url = window.URL.createObjectURL(blob);
             const a = window.document.createElement("a");
             a.href = url;
@@ -401,6 +406,18 @@ export default function HistoryPage() {
                         )}
                     </div>
                 </section>
+
+                {/* Page-level watermark control (applies to all PDF downloads) */}
+                {!loading && documents.length > 0 && (
+                    <div className="bg-[#f6f6f6] rounded-lg px-4 py-3 -mt-4">
+                        <WatermarkSection
+                            enabled={watermarkEnabled}
+                            selectedPresetId={watermarkPresetId}
+                            onEnabledChange={setWatermarkEnabled}
+                            onSelectedPresetIdChange={setWatermarkPresetId}
+                        />
+                    </div>
+                )}
 
                 {/* Content */}
                 {loading ? (

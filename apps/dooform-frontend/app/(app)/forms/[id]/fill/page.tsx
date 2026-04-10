@@ -94,6 +94,8 @@ export default function FillFormPage({ params }: PageProps) {
   const [showOCRScanner, setShowOCRScanner] = useState(false);
   const [quotaRefreshed, setQuotaRefreshed] = useState(false);
   const [localFieldDefinitions, setLocalFieldDefinitions] = useState(fieldDefinitions);
+  const [watermarkEnabled, setWatermarkEnabled] = useState(false);
+  const [watermarkPresetId, setWatermarkPresetId] = useState<string | null>(null);
 
   // Preview rendering with debouncing
   const { previewHtml, hasPreview } = usePreviewRenderer(
@@ -250,7 +252,9 @@ export default function FillFormPage({ params }: PageProps) {
       if (!success) return;
 
       try {
-        const blob = await apiClient.downloadDocument(success.documentId, format);
+        const presetForDownload =
+          watermarkEnabled && format === "pdf" ? watermarkPresetId : null;
+        const blob = await apiClient.downloadDocument(success.documentId, format, presetForDownload);
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
@@ -264,7 +268,7 @@ export default function FillFormPage({ params }: PageProps) {
         setError(err instanceof Error ? err.message : "Failed to download");
       }
     },
-    [success, template?.name]
+    [success, template?.name, watermarkEnabled, watermarkPresetId]
   );
 
   const handleCreateNew = useCallback(() => {
@@ -379,6 +383,10 @@ export default function FillFormPage({ params }: PageProps) {
                 selectedFileType={selectedFileType}
                 onFileTypeChange={setSelectedFileType}
                 success={success}
+                watermarkEnabled={watermarkEnabled}
+                watermarkPresetId={watermarkPresetId}
+                onWatermarkEnabledChange={setWatermarkEnabled}
+                onWatermarkPresetIdChange={setWatermarkPresetId}
               />
             )}
 
