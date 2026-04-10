@@ -50,28 +50,33 @@ export function WatermarkPreview({
   const logoBox = logoUrl ? logoBoxBase : 0;
   const logoGap = logoUrl ? 6 : 0;
 
+  // Use a fixed line height (not stretched to the available box) so the
+  // logo + text composition packs tightly. Remaining vertical room is
+  // split evenly above and below, which keeps the whole emblem visually
+  // centred in the preview card.
+  const lineHeight = 16;
+  const textBlockH = lines.length * lineHeight;
+
   // Derive the text column geometry based on layout.
   let textX0 = innerX;
   let textW = innerW;
-  let textStartY = innerY;
-  let availableTextH = innerH;
 
-  if (layout === "top") {
-    availableTextH = innerH - logoBox - logoGap;
-    textStartY = innerY + logoBox + logoGap;
-  } else if (layout === "left") {
+  if (layout === "left") {
     textX0 = innerX + logoBox + logoGap;
     textW = innerW - logoBox - logoGap;
   } else if (layout === "right") {
     textW = innerW - logoBox - logoGap;
   }
 
-  const lineHeight = lines.length > 0 ? Math.min(18, availableTextH / lines.length) : 14;
-  const textBlockH = lines.length * lineHeight;
-  // Vertically centre the text block inside its available box.
+  // Total content height for the layout (used to centre vertically).
+  const totalContentH =
+    layout === "top"
+      ? logoBox + logoGap + textBlockH
+      : Math.max(logoBox, textBlockH);
+  const contentTopY = innerY + Math.max(0, (innerH - totalContentH) / 2);
   const textTop =
     layout === "top"
-      ? textStartY
+      ? contentTopY + logoBox + logoGap
       : innerY + (innerH - textBlockH) / 2;
 
   // Shape: border element varies by config.shape
@@ -111,7 +116,7 @@ export function WatermarkPreview({
     let ly = 0;
     if (layout === "top") {
       lx = innerX + (innerW - logoBox) / 2;
-      ly = innerY;
+      ly = contentTopY;
     } else if (layout === "left") {
       lx = innerX;
       ly = innerY + (innerH - logoBox) / 2;
