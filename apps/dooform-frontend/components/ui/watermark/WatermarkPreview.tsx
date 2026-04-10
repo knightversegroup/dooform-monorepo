@@ -27,7 +27,10 @@ export function WatermarkPreview({
   const fillColor = config.fontColor || "#0b4db7";
   const opacity = Math.max(0.1, Math.min(1, config.opacity ?? 0.35));
 
-  const padding = 10;
+  // When there's no border shape the emblem is effectively margin-free;
+  // only a small breathing gap is kept to stop glyphs from touching the
+  // card edge. With a border we need more room for the stroke.
+  const padding = config.shape === "none" ? 2 : 10;
   const innerX = padding;
   const innerY = padding;
   const innerW = width - padding * 2;
@@ -36,8 +39,15 @@ export function WatermarkPreview({
   const lines = config.lines.slice(0, 8);
   const layout = logoUrl ? config.logoPosition ?? "top" : "none";
 
-  // Logo box size depends on layout.
-  const logoBox = logoUrl ? (layout === "top" ? 26 : Math.min(innerH - 8, 40)) : 0;
+  // Map the backend logoSize (5..80 mm) to a proportional preview box.
+  // Default of 14 mm lands at roughly 28% of the smaller inner dimension.
+  // A tiny 5 mm logo hits the 15% floor; a huge 80 mm logo saturates the
+  // box. The math stays identical across layouts so the slider feels
+  // consistent.
+  const logoSize = config.logoSize ?? 14;
+  const scale = Math.max(0.15, Math.min(0.92, logoSize / 50));
+  const logoBoxBase = Math.min(innerW, innerH) * scale;
+  const logoBox = logoUrl ? logoBoxBase : 0;
   const logoGap = logoUrl ? 6 : 0;
 
   // Derive the text column geometry based on layout.

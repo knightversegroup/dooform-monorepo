@@ -13,32 +13,72 @@ interface WatermarkPagePreviewProps {
 const PAGE_W_MM = 210;
 const PAGE_H_MM = 297;
 const PAGE_MARGIN_MM = 14;
-// Emblem card is approximated as a fixed box sized relative to the page.
-// The real backend size depends on content, but for a placement preview a
-// constant reads better.
-const EMBLEM_W_MM = 56;
-const EMBLEM_H_MM = 32;
+const EMBLEM_PAD_MM = 6;
+const EMBLEM_PAD_NONE_MM = 1;
+const LOGO_GAP_MM = 3;
+// Rough placeholder for the text block — the page preview is a placement
+// hint, not a fidelity render, so a single constant reads better than
+// re-implementing the full layout engine.
+const TEXT_BLOCK_W_MM = 30;
+const TEXT_BLOCK_H_MM = 14;
 
-function computeAnchor(position: WatermarkPosition): { x: number; y: number } {
+function computeEmblemSize(
+  hasLogo: boolean,
+  logoSize: number,
+  layout: "top" | "left" | "right" | "none",
+  pad: number,
+  minW: number
+): { w: number; h: number } {
+  if (!hasLogo) {
+    return {
+      w: Math.max(minW, TEXT_BLOCK_W_MM + 2 * pad),
+      h: TEXT_BLOCK_H_MM + 2 * pad,
+    };
+  }
+  switch (layout) {
+    case "top":
+      return {
+        w: Math.max(minW, Math.max(logoSize, TEXT_BLOCK_W_MM) + 2 * pad),
+        h: logoSize + LOGO_GAP_MM + TEXT_BLOCK_H_MM + 2 * pad,
+      };
+    case "left":
+    case "right":
+      return {
+        w: Math.max(minW, logoSize + LOGO_GAP_MM + TEXT_BLOCK_W_MM + 2 * pad),
+        h: Math.max(logoSize, TEXT_BLOCK_H_MM) + 2 * pad,
+      };
+    default:
+      return {
+        w: Math.max(minW, TEXT_BLOCK_W_MM + 2 * pad),
+        h: TEXT_BLOCK_H_MM + 2 * pad,
+      };
+  }
+}
+
+function computeAnchor(
+  position: WatermarkPosition,
+  emblemW: number,
+  emblemH: number
+): { x: number; y: number } {
   switch (position) {
     case "topLeft":
       return { x: PAGE_MARGIN_MM, y: PAGE_MARGIN_MM };
     case "topCenter":
-      return { x: (PAGE_W_MM - EMBLEM_W_MM) / 2, y: PAGE_MARGIN_MM };
+      return { x: (PAGE_W_MM - emblemW) / 2, y: PAGE_MARGIN_MM };
     case "topRight":
-      return { x: PAGE_W_MM - PAGE_MARGIN_MM - EMBLEM_W_MM, y: PAGE_MARGIN_MM };
+      return { x: PAGE_W_MM - PAGE_MARGIN_MM - emblemW, y: PAGE_MARGIN_MM };
     case "centerLeft":
-      return { x: PAGE_MARGIN_MM, y: (PAGE_H_MM - EMBLEM_H_MM) / 2 };
+      return { x: PAGE_MARGIN_MM, y: (PAGE_H_MM - emblemH) / 2 };
     case "center":
-      return { x: (PAGE_W_MM - EMBLEM_W_MM) / 2, y: (PAGE_H_MM - EMBLEM_H_MM) / 2 };
+      return { x: (PAGE_W_MM - emblemW) / 2, y: (PAGE_H_MM - emblemH) / 2 };
     case "centerRight":
-      return { x: PAGE_W_MM - PAGE_MARGIN_MM - EMBLEM_W_MM, y: (PAGE_H_MM - EMBLEM_H_MM) / 2 };
+      return { x: PAGE_W_MM - PAGE_MARGIN_MM - emblemW, y: (PAGE_H_MM - emblemH) / 2 };
     case "bottomLeft":
-      return { x: PAGE_MARGIN_MM, y: PAGE_H_MM - PAGE_MARGIN_MM - EMBLEM_H_MM };
+      return { x: PAGE_MARGIN_MM, y: PAGE_H_MM - PAGE_MARGIN_MM - emblemH };
     case "bottomCenter":
-      return { x: (PAGE_W_MM - EMBLEM_W_MM) / 2, y: PAGE_H_MM - PAGE_MARGIN_MM - EMBLEM_H_MM };
+      return { x: (PAGE_W_MM - emblemW) / 2, y: PAGE_H_MM - PAGE_MARGIN_MM - emblemH };
     default: // bottomRight
-      return { x: PAGE_W_MM - PAGE_MARGIN_MM - EMBLEM_W_MM, y: PAGE_H_MM - PAGE_MARGIN_MM - EMBLEM_H_MM };
+      return { x: PAGE_W_MM - PAGE_MARGIN_MM - emblemW, y: PAGE_H_MM - PAGE_MARGIN_MM - emblemH };
   }
 }
 
@@ -50,18 +90,47 @@ function computeAnchor(position: WatermarkPosition): { x: number; y: number } {
  */
 export function WatermarkPagePreview({ config, logoUrl, height = 260 }: WatermarkPagePreviewProps) {
   const width = height * (PAGE_W_MM / PAGE_H_MM);
+
+  const hasLogo = !!logoUrl;
+  const layout = hasLogo ? config.logoPosition ?? "top" : "none";
+  const logoSize = config.logoSize ?? 14;
+  const pad = config.shape === "none" ? EMBLEM_PAD_NONE_MM : EMBLEM_PAD_MM;
+  const minW = config.shape === "none" ? 0 : 44;
+  const { w: emblemW, h: emblemH } = computeEmblemSize(hasLogo, logoSize, layout, pad, minW);
+
   // Place emblem using mm coordinates, then scale the whole svg via viewBox.
-  const anchor = computeAnchor(config.position);
+  const anchor = computeAnchor(config.position, emblemW, emblemH);
   let ex = anchor.x + (config.offsetX ?? 0);
   let ey = anchor.y + (config.offsetY ?? 0);
   if (ex < 0) ex = 0;
   if (ey < 0) ey = 0;
-  if (ex + EMBLEM_W_MM > PAGE_W_MM) ex = PAGE_W_MM - EMBLEM_W_MM;
-  if (ey + EMBLEM_H_MM > PAGE_H_MM) ey = PAGE_H_MM - EMBLEM_H_MM;
+  if (ex + emblemW > PAGE_W_MM) ex = PAGE_W_MM - emblemW;
+  if (ey + emblemH > PAGE_H_MM) ey = PAGE_H_MM - emblemH;
 
   const fill = config.fontColor || "#0b4db7";
   const opacity = Math.max(0.1, Math.min(1, config.opacity ?? 0.35));
   const topLines = config.lines.slice(0, 2);
+
+  // Logo position within the emblem — matches backend layout math.
+  let logoX = 0;
+  let logoY = 0;
+  let textCenterX = ex + emblemW / 2;
+  let textCenterY = ey + emblemH / 2;
+  if (layout === "top") {
+    logoX = ex + (emblemW - logoSize) / 2;
+    logoY = ey + pad;
+    textCenterY = logoY + logoSize + LOGO_GAP_MM + TEXT_BLOCK_H_MM / 2;
+  } else if (layout === "left") {
+    logoX = ex + pad;
+    logoY = ey + (emblemH - logoSize) / 2;
+    const textX0 = logoX + logoSize + LOGO_GAP_MM;
+    textCenterX = textX0 + (ex + emblemW - pad - textX0) / 2;
+  } else if (layout === "right") {
+    logoX = ex + emblemW - pad - logoSize;
+    logoY = ey + (emblemH - logoSize) / 2;
+    const textX0 = ex + pad;
+    textCenterX = textX0 + (logoX - LOGO_GAP_MM - textX0) / 2;
+  }
 
   return (
     <svg
@@ -85,28 +154,28 @@ export function WatermarkPagePreview({ config, logoUrl, height = 260 }: Watermar
       />
 
       {/* Emblem */}
-      <g style={{ opacity }} transform={`rotate(${config.rotation || 0} ${ex + EMBLEM_W_MM / 2} ${ey + EMBLEM_H_MM / 2})`}>
+      <g style={{ opacity }} transform={`rotate(${config.rotation || 0} ${ex + emblemW / 2} ${ey + emblemH / 2})`}>
         {config.shape === "rounded" && (
-          <rect x={ex} y={ey} width={EMBLEM_W_MM} height={EMBLEM_H_MM} rx={3} ry={3} fill="none" stroke={fill} strokeWidth={0.8} />
+          <rect x={ex} y={ey} width={emblemW} height={emblemH} rx={3} ry={3} fill="none" stroke={fill} strokeWidth={0.8} />
         )}
         {config.shape === "circle" && (
-          <ellipse cx={ex + EMBLEM_W_MM / 2} cy={ey + EMBLEM_H_MM / 2} rx={EMBLEM_W_MM / 2} ry={EMBLEM_H_MM / 2} fill="none" stroke={fill} strokeWidth={0.8} />
+          <ellipse cx={ex + emblemW / 2} cy={ey + emblemH / 2} rx={emblemW / 2} ry={emblemH / 2} fill="none" stroke={fill} strokeWidth={0.8} />
         )}
         {logoUrl && (
           <image
             href={logoUrl}
-            x={ex + EMBLEM_W_MM / 2 - 4}
-            y={ey + 4}
-            width={8}
-            height={8}
+            x={logoX}
+            y={logoY}
+            width={logoSize}
+            height={logoSize}
             preserveAspectRatio="xMidYMid meet"
           />
         )}
         {topLines.map((ln, idx) => (
           <text
             key={idx}
-            x={ex + EMBLEM_W_MM / 2}
-            y={ey + EMBLEM_H_MM / 2 + idx * 4 - (topLines.length - 1) * 2}
+            x={textCenterX}
+            y={textCenterY + idx * 4 - (topLines.length - 1) * 2}
             fill={fill}
             fontSize={4}
             fontWeight={ln.bold ? 700 : 400}
