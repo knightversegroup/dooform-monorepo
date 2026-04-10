@@ -1,63 +1,101 @@
+/**
+ * Customer Stories Section - From Figma
+ * Desktop: Navy header with 3 horizontal story cards
+ * Mobile: Navy header with stacked full-width cards
+ */
+
 const stories = [
   {
-    company: 'Acme Corp',
-    description: 'See how <strong>Acme Corp</strong>\'s team built a culture of data-driven decisions with beautiful forms.',
-    href: '#',
+    title: 'ดูฟอร์มเข้าใจเจ้าของกิจการและนักแปล',
+    description: 'แฟ็กซ์ปิกอัพเซลส์แอโรบิคโมจิ อพาร์ทเมนท์ซิ้มสเก็ตช์ แกสโซฮอล์วอลนัต นิรันดร์ซาบะ',
   },
   {
-    company: 'TechFlow',
-    description: 'Discover how <strong>TechFlow</strong> saved thousands of working hours by building a simple, searchable form system.',
-    href: '#',
-  },
-  {
-    company: 'ScaleUp',
-    description: 'See how <strong>ScaleUp</strong> drove a six-fold increase in lead conversion by focusing on form UX.',
-    href: '#',
+    title: 'ลดเวลากรอกเอกสาร',
+    description: 'แฟ็กซ์ปิกอัพเซลส์แอโรบิคโมจิ อพาร์ทเมนท์ซิ้มสเก็ตช์ แกสโซฮอล์วอลนัต นิรันดร์ซาบะ แดนซ์กระดี๊กระด๊าฟีเวอร์เฮอร์ริเคน ออร์แกน ธุรกรรมแอพพริคอท บรรพชนชัวร์เซ็กส์',
   },
 ];
 
+// Placeholder component for presenter/person images
+function ImagePlaceholder({ label = 'Image' }: { label?: string }) {
+  return (
+    <div className="w-full h-full bg-[#d9d9d9] flex items-center justify-center">
+      <span className="font-['IBM_Plex_Sans_Thai'] text-[10px] text-[#737373] text-center">
+        [{label}]
+      </span>
+    </div>
+  );
+}
+
 export default function CustomerStories() {
   return (
-    <section className="bg-gray-100 pb-12 pt-16">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="mb-6 flex items-start justify-between">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900">
-            Hear from teams building with Dooform
-          </h2>
-          <a href="/product/customers/" className="shrink-0 rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800">
-            All customer stories
-          </a>
+    <section className="pb-8 lg:pb-20">
+      {/* Navy Header */}
+      <div className="bg-[#2c2585] h-[190px] rounded-t-[12px] lg:rounded-t-[36px] mb-[-80px] overflow-hidden">
+        <div className="max-w-[1280px] mx-auto pt-8 px-4">
+          <div className="flex items-center justify-between lg:flex-col lg:gap-0.5 lg:items-center text-white">
+            <div className="lg:text-center">
+              <h2 className="font-['IBM_Plex_Sans_Thai'] font-semibold text-[20px] lg:text-[24px] leading-tight lg:leading-[29px]">
+                ดูฟอร์มเข้าใจ
+                <br />
+                เจ้าของกิจการและนักแปล
+              </h2>
+            </div>
+            {/* Mobile: View Use Case link */}
+            <a href="#" className="flex items-center gap-0.5 text-[#ececec] text-[14px] font-['IBM_Plex_Sans_Thai'] lg:hidden">
+              ดู Use Case
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M17 7H7M17 7v10" />
+              </svg>
+            </a>
+            <p className="hidden lg:block font-['IBM_Plex_Sans_Thai'] text-[16px]">
+              สามารถเลือกแพ็กเกจการใช้งานได้ตามความต้องการ
+            </p>
+          </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-6 pt-16">
-        <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-3">
-          {stories.map((story) => (
-            <a
-              key={story.company}
-              href={story.href}
-              className="flex min-h-[250px] flex-col rounded-sm bg-white p-0 transition hover:shadow-md"
+      {/* Story Cards */}
+      <div className="max-w-[1280px] mx-auto px-4 lg:px-6 py-8">
+        <div className="flex flex-col lg:flex-row gap-3 lg:h-[252px]">
+          {stories.map((story, i) => (
+            <div
+              key={i}
+              className="w-full lg:flex-1 bg-white border border-[#e5e5e5] rounded-[16px] flex flex-col overflow-hidden"
             >
-              {/* Logo placeholder */}
-              <div className="flex h-12 items-center px-6 pt-6">
-                <div className="h-6 w-24 rounded bg-gray-200 text-xs leading-6 text-gray-400" />
+              {/* Card Header with Image Placeholder */}
+              <div className="bg-[#f4f3fc] flex items-center pl-4 rounded-t-[16px]">
+                <h3 className="flex-1 font-['IBM_Plex_Sans_Thai'] font-semibold text-[20px] text-[#2c2585]">
+                  {story.title}
+                </h3>
+                <div className="w-[119px] h-[110px] flex-shrink-0">
+                  <ImagePlaceholder label="Presenter" />
+                </div>
               </div>
 
-              {/* Description */}
-              <div
-                className="flex-1 px-6 pb-6 pt-4 text-lg font-normal leading-snug text-gray-900"
-                dangerouslySetInnerHTML={{ __html: story.description }}
-              />
-
-              {/* CTA */}
-              <div className="flex items-center gap-2 border-t border-gray-200 px-6 py-3 text-sm text-gray-600">
-                Read case study
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
-                  <path d="m17.52 9.28.56.54-.56.54-7.25 6.93-1.04-1.08 5.97-5.71H2V9h15.24zM15.7 7.5h-2.15L9.23 3.29l1.04-1.08z" />
-                </svg>
+              {/* Card Body */}
+              <div className="bg-white p-4 rounded-b-[16px] flex-1">
+                <p className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#2c2585]">
+                  {story.description}
+                </p>
               </div>
-            </a>
+            </div>
           ))}
+          {/* Third card - Desktop only */}
+          <div className="hidden lg:flex w-full lg:flex-1 bg-white border border-[#e5e5e5] rounded-[16px] flex-col overflow-hidden">
+            <div className="bg-[#f4f3fc] flex items-center pl-4 rounded-t-[16px]">
+              <h3 className="flex-1 font-['IBM_Plex_Sans_Thai'] font-semibold text-[20px] text-[#2c2585]">
+                ดูฟอร์มเข้าใจเจ้าของกิจการและนักแปล
+              </h3>
+              <div className="w-[119px] h-[110px] flex-shrink-0">
+                <ImagePlaceholder label="Presenter" />
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-b-[16px] flex-1">
+              <p className="font-['IBM_Plex_Sans_Thai'] text-[14px] text-[#2c2585]">
+                แฟ็กซ์ปิกอัพเซลส์แอโรบิคโมจิ อพาร์ทเมนท์ซิ้มสเก็ตช์ แกสโซฮอล์วอลนัต นิรันดร์ซาบะ
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>

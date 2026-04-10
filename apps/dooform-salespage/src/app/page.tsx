@@ -1,50 +1,53 @@
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
-import HeroMain from '../components/sections/HeroMain';
-import LogoMarquee from '../components/sections/LogoMarquee';
+import Hero from '../components/sections/Hero';
+import TrustBadges from '../components/sections/TrustBadges';
 import DocumentSelect from '../components/sections/DocumentSelect';
-import { HowItWorks, Benefits, FeatureList, CostSaving } from '../components/sections/FeatureSection';
+import Partners from '../components/sections/Partners';
+import CustomerStories from '../components/sections/CustomerStories';
+import Features from '../components/sections/Features';
+import CostSection from '../components/sections/CostSection';
 import Pricing from '../components/sections/Pricing';
 import FAQ from '../components/sections/FAQ';
-import BottomCTA from '../components/sections/BottomCTA';
+import CTAForm from '../components/sections/CTAForm';
 
 export default function Page() {
   return (
     <>
       <Header />
       <main>
-        {/* Section 2: Hero */}
-        <HeroMain />
+        {/* Section 1: Hero */}
+        <Hero />
 
-        {/* Section 3: Logo Marquee */}
-        <LogoMarquee />
+        {/* Section 2: Trust Badges */}
+        <TrustBadges />
 
-        {/* Section 4: Document Selection (blank placeholder) */}
+        {/* Section 3: Document Select */}
         <DocumentSelect />
 
-        {/* Section 5: How it works */}
-        <HowItWorks />
+        {/* Section 4: Partners */}
+        <Partners />
 
-        {/* Section 6: Benefits */}
-        <Benefits />
+        {/* Section 5: Customer Stories */}
+        <CustomerStories />
 
-        {/* Section 7: Feature List */}
-        <FeatureList />
+        {/* Section 6: Features */}
+        <Features />
 
-        {/* Section 8: Cost Saving */}
-        <CostSaving />
+        {/* Section 7: Cost Section */}
+        <CostSection />
 
-        {/* Section 9: Pricing */}
+        {/* Section 8: Pricing */}
         <Pricing />
 
-        {/* Section 10: FAQ */}
+        {/* Section 9: FAQ */}
         <FAQ />
 
-        {/* Section 11: CTA */}
-        <BottomCTA />
+        {/* Section 10: CTA Form */}
+        <CTAForm />
       </main>
 
-      {/* Section 12: Footer */}
+      {/* Footer */}
       <Footer />
     </>
   );
