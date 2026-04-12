@@ -24,6 +24,8 @@ export interface NavbarProps {
   searchPlaceholder?: string;
   profileHref?: string;
   onLogout?: () => void;
+  /** Optional tier badge rendered next to the account menu button */
+  tierBadge?: React.ReactNode;
 }
 
 export function Navbar({
@@ -34,6 +36,7 @@ export function Navbar({
   searchPlaceholder = "ค้นหา...",
   profileHref,
   onLogout,
+  tierBadge,
 }: NavbarProps) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
@@ -106,6 +109,9 @@ export function Navbar({
                 </svg>
               </div>
             )}
+
+            {/* Tier badge */}
+            {tierBadge}
 
             {/* Account menu */}
             <div className="relative" ref={userMenuRef}>

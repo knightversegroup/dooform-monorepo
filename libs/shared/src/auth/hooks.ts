@@ -2,7 +2,7 @@
 
 import { useContext, useMemo } from 'react';
 import { AuthContext } from './context';
-import type { QuotaInfo } from './types';
+import type { QuotaInfo, UserTierName, TierCapabilities, MonthlyUsage } from './types';
 
 export function useAuth() {
   const context = useContext(AuthContext);
@@ -31,4 +31,26 @@ export function useQuota(): {
     remaining: user?.quota?.remaining ?? 0,
     refreshQuota,
   }), [user?.quota, refreshQuota]);
+}
+
+export function useTier(): {
+  tierName: UserTierName;
+  capabilities: TierCapabilities | undefined;
+  canDownloadDocx: boolean;
+  canAccessTemplate: (templateTier: string) => boolean;
+  hasPdfEditor: boolean;
+  monthlyUsage: MonthlyUsage | null;
+  refreshTier: () => Promise<void>;
+} {
+  const { user, userTier, canDownloadDocx, canAccessTemplate, hasPdfEditor, monthlyUsage, refreshTier } = useAuth();
+
+  return useMemo(() => ({
+    tierName: userTier,
+    capabilities: user?.tier?.capabilities,
+    canDownloadDocx,
+    canAccessTemplate,
+    hasPdfEditor,
+    monthlyUsage,
+    refreshTier,
+  }), [user?.tier?.capabilities, userTier, canDownloadDocx, canAccessTemplate, hasPdfEditor, monthlyUsage, refreshTier]);
 }

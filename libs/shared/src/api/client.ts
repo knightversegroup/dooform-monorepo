@@ -55,6 +55,8 @@ import {
   WatermarkPresetInput,
   WatermarkPresetResponse,
   WatermarkPresetsResponse,
+  AnnotationResponse,
+  FinalizeResponse,
 } from './types';
 
 export class ApiClient {
@@ -1721,6 +1723,82 @@ export class ApiClient {
   }
 
   // =====================
+  // Admin Branding Watermark
+  // =====================
+
+  async getBrandingWatermark(): Promise<{ config: WatermarkConfig; is_default: boolean; updated_by?: string; updated_at?: string }> {
+    const makeRequest = () => fetch(`${this.baseUrl}/admin/branding-watermark`, {
+      headers: this.getAuthHeaders(),
+    });
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<{ config: WatermarkConfig; is_default: boolean; updated_by?: string; updated_at?: string }>(response, makeRequest);
+  }
+
+  async updateBrandingWatermark(config: WatermarkConfig): Promise<{ message: string; config: WatermarkConfig }> {
+    const makeRequest = () => fetch(`${this.baseUrl}/admin/branding-watermark`, {
+      method: 'PUT',
+      headers: {
+        ...this.getAuthHeaders(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(config),
+    });
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<{ message: string; config: WatermarkConfig }>(response, makeRequest);
+  }
+
+  async resetBrandingWatermark(): Promise<{ message: string }> {
+    const makeRequest = () => fetch(`${this.baseUrl}/admin/branding-watermark`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
+    });
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<{ message: string }>(response, makeRequest);
+  }
+
+  // =====================
+  // Admin Tier Management
+  // =====================
+
+  async adminSetUserTier(userId: number, tier: string, reason?: string): Promise<unknown> {
+    const makeRequest = () => fetch(`${this.baseUrl}/auth/admin/users/${userId}/tier`, {
+      method: 'PUT',
+      headers: {
+        ...this.getAuthHeaders(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ tier, reason }),
+    });
+
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<unknown>(response, makeRequest);
+  }
+
+  async adminGetUserTierHistory(userId: number): Promise<{ history: Array<{ id: number; from_tier: string; to_tier: string; changed_by?: number; reason?: string; created_at: string }> }> {
+    const makeRequest = () => fetch(`${this.baseUrl}/auth/admin/users/${userId}/tier/history`, {
+      headers: this.getAuthHeaders(),
+    });
+
+    const response = await makeRequest();
+    const result = await this.handleResponseWithRetry<{ data: { history: Array<{ id: number; from_tier: string; to_tier: string; changed_by?: number; reason?: string; created_at: string }> } }>(response, makeRequest);
+    return result.data;
+  }
+
+  async adminSetWatermarkDisabled(userId: number, disabled: boolean): Promise<unknown> {
+    const makeRequest = () => fetch(`${this.baseUrl}/auth/admin/users/${userId}/tier/watermark`, {
+      method: 'PUT',
+      headers: {
+        ...this.getAuthHeaders(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ disabled }),
+    });
+
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<unknown>(response, makeRequest);
+  }
+
+  // =====================
   // User Quota (Self)
   // =====================
 
@@ -1794,6 +1872,138 @@ export class ApiClient {
       body: formData,
     });
     return this.handleResponse<OCRResponse>(response);
+  }
+
+  // =====================
+  // Tier Management
+  // =====================
+
+  async getMyTier(): Promise<import('./types').TierInfo> {
+    const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_URL || process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:8080';
+    const makeRequest = () => fetch(`${AUTH_BASE_URL}/auth/me`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.getAuthHeaders(),
+      },
+    });
+
+    const response = await makeRequest();
+    const result = await this.handleResponseWithRetry<{ success: boolean; data: { tier?: import('./types').TierInfo } }>(response, makeRequest);
+
+    // Return tier info from the /auth/me response, or a default free tier
+    return result.data?.tier ?? {
+      tier_name: 'free' as const,
+      capabilities: {
+        allowed_formats: ['pdf'] as ('pdf' | 'docx')[],
+        allowed_template_tiers: ['free'],
+        monthly_document_limit: -1,
+        has_pdf_editor: false,
+        forced_watermark: true,
+      },
+    };
+  }
+
+  async changeTier(tier: import('./types').UserTierName): Promise<{ tier: import('./types').TierInfo; access_token: string; refresh_token: string }> {
+    const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_URL || process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:8080';
+    const makeRequest = () => fetch(`${AUTH_BASE_URL}/auth/tier`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.getAuthHeaders(),
+      },
+      body: JSON.stringify({ tier }),
+    });
+
+    const response = await makeRequest();
+    const result = await this.handleResponseWithRetry<{
+      success: boolean;
+      data: { tier: import('./types').TierInfo; access_token: string; refresh_token: string };
+    }>(response, makeRequest);
+
+    return result.data;
+  }
+
+  async getTierCapabilities(): Promise<Record<string, import('./types').TierCapabilities>> {
+    const AUTH_BASE_URL = process.env.NEXT_PUBLIC_AUTH_URL || process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:8080';
+    const makeRequest = () => fetch(`${AUTH_BASE_URL}/auth/tiers/capabilities`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const response = await makeRequest();
+    const result = await this.handleResponse<{
+      success: boolean;
+      data: Record<string, import('./types').TierCapabilities>;
+    }>(response);
+
+    return result.data;
+  }
+
+  // ---------------------------------------------------------------------------
+  // PDF Annotations
+  // ---------------------------------------------------------------------------
+
+  async getAnnotations(documentId: string): Promise<AnnotationResponse> {
+    const makeRequest = () => fetch(`${this.baseUrl}/documents/${documentId}/annotations`, {
+      headers: this.getAuthHeaders(),
+    });
+
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<AnnotationResponse>(response, makeRequest);
+  }
+
+  async saveAnnotations(documentId: string, data: string, version: number): Promise<AnnotationResponse> {
+    const makeRequest = () => fetch(`${this.baseUrl}/documents/${documentId}/annotations`, {
+      method: 'PUT',
+      headers: {
+        ...this.getAuthHeaders(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ data, version }),
+    });
+
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<AnnotationResponse>(response, makeRequest);
+  }
+
+  async finalizeDocument(documentId: string): Promise<FinalizeResponse> {
+    const makeRequest = () => fetch(`${this.baseUrl}/documents/${documentId}/finalize`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+    });
+
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<FinalizeResponse>(response, makeRequest);
+  }
+
+  async getPDFPreview(documentId: string): Promise<Blob> {
+    const makeRequest = () => fetch(`${this.baseUrl}/documents/${documentId}/pdf-preview`, {
+      headers: this.getAuthHeaders(),
+    });
+
+    const response = await makeRequest();
+
+    if (response.status === 401) {
+      const refreshed = await this.handleTokenRefresh();
+      if (refreshed) {
+        const retryResponse = await makeRequest();
+        if (!retryResponse.ok) {
+          throw new Error(`PDF preview failed: ${retryResponse.statusText}`);
+        }
+        return retryResponse.blob();
+      } else {
+        if (this.logoutCallback) {
+          this.logoutCallback();
+        }
+        throw new Error('Session expired. Please login again.');
+      }
+    }
+
+    if (!response.ok) {
+      throw new Error(`PDF preview failed: ${response.statusText}`);
+    }
+    return response.blob();
   }
 }
 

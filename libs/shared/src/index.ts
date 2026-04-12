@@ -7,7 +7,7 @@ export * from './api/types';
 
 // Auth
 export { AuthProvider, AuthContext } from './auth/context';
-export { useAuth, useIsAdmin, useQuota } from './auth/hooks';
+export { useAuth, useIsAdmin, useQuota, useTier } from './auth/hooks';
 export type * from './auth/types';
 
 // Constants

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ChevronLeft, User, X, Plus, RotateCcw } from 'lucide-react';
+import { ChevronLeft, User, X, Plus, RotateCcw, Crown, Shield, Zap } from 'lucide-react';
 import { apiClient } from '@dooform/shared/api/client';
 import type { UserListItem, Role, QuotaTransaction } from '@dooform/shared/auth/types';
 import { LogoLoaderInline } from '@dooform/shared';
@@ -57,6 +57,10 @@ export default function AdminUserDetailPage() {
   // Role form state
   const [selectedRole, setSelectedRole] = useState('');
   const [submittingRole, setSubmittingRole] = useState(false);
+
+  // Tier form state
+  const [submittingTier, setSubmittingTier] = useState(false);
+  const [tierReason, setTierReason] = useState('');
 
   const fetchUser = useCallback(async () => {
     try {
@@ -167,6 +171,36 @@ export default function AdminUserDetailPage() {
       fetchUser();
     } catch (err) {
       alert(err instanceof Error ? err.message : 'ไม่สามารถลบบทบาทได้');
+    }
+  };
+
+  const handleChangeTier = async (newTier: string) => {
+    const currentTier = user?.tier?.tier_name || 'free';
+    if (currentTier === newTier) return;
+
+    const tierLabels: Record<string, string> = { free: 'Free', pro: 'Pro', max: 'Max' };
+    if (!confirm(`เปลี่ยนแผนจาก ${tierLabels[currentTier]} เป็น ${tierLabels[newTier]}?`)) return;
+
+    try {
+      setSubmittingTier(true);
+      await apiClient.adminSetUserTier(userId, newTier, tierReason || undefined);
+      setTierReason('');
+      fetchUser();
+      fetchQuotaHistory();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'ไม่สามารถเปลี่ยนแผนได้');
+    } finally {
+      setSubmittingTier(false);
+    }
+  };
+
+  const handleToggleWatermark = async () => {
+    const current = user?.tier?.watermark_disabled ?? false;
+    try {
+      await apiClient.adminSetWatermarkDisabled(userId, !current);
+      fetchUser();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'ไม่สามารถอัปเดตการตั้งค่าได้');
     }
   };
 
@@ -401,6 +435,89 @@ export default function AdminUserDetailPage() {
               {submittingQuota ? 'กำลังอัปเดต...' : quotaMode === 'add' ? 'เพิ่มโควต้า' : 'กำหนดโควต้า'}
             </button>
           </form>
+        </div>
+      </div>
+
+      {/* Tier Management */}
+      <div className="bg-white border border-gray-200 rounded-lg p-5 mt-6">
+        <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Crown className="w-4 h-4 text-yellow-500" />
+          แผนการใช้งาน (Tier)
+        </h3>
+
+        {/* Current Tier */}
+        <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+          <div className="flex justify-between items-center">
+            <span className="text-xs text-gray-500">แผนปัจจุบัน:</span>
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full ${
+              (user.tier?.tier_name || 'free') === 'max' ? 'bg-purple-100 text-purple-700' :
+              (user.tier?.tier_name || 'free') === 'pro' ? 'bg-blue-100 text-blue-700' :
+              'bg-gray-100 text-gray-600'
+            }`}>
+              {(user.tier?.tier_name || 'free') === 'max' && <Zap className="w-3 h-3" />}
+              {(user.tier?.tier_name || 'free') === 'pro' && <Shield className="w-3 h-3" />}
+              {(user.tier?.tier_name || 'free') === 'free' ? 'Free' :
+               (user.tier?.tier_name || 'free') === 'pro' ? 'Pro' : 'Max'}
+            </span>
+          </div>
+        </div>
+
+        {/* Change Tier Buttons */}
+        <div className="space-y-3">
+          <p className="text-xs text-gray-500">เปลี่ยนแผน:</p>
+          <div className="flex gap-2">
+            {(['free', 'pro', 'max'] as const).map((t) => {
+              const isCurrent = (user.tier?.tier_name || 'free') === t;
+              const labels: Record<string, string> = { free: 'Free', pro: 'Pro', max: 'Max' };
+              const descs: Record<string, string> = { free: 'PDF เท่านั้น', pro: '200 เอกสาร/เดือน', max: 'ไม่จำกัด' };
+              return (
+                <button
+                  key={t}
+                  onClick={() => handleChangeTier(t)}
+                  disabled={isCurrent || submittingTier}
+                  className={`flex-1 py-3 px-3 rounded-lg text-center transition-colors ${
+                    isCurrent
+                      ? 'bg-blue-50 border-2 border-blue-500 cursor-default'
+                      : 'border border-gray-200 hover:border-blue-300 hover:bg-blue-50'
+                  } disabled:opacity-50`}
+                >
+                  <div className="text-sm font-semibold text-gray-900">{labels[t]}</div>
+                  <div className="text-xs text-gray-500 mt-0.5">{descs[t]}</div>
+                  {isCurrent && <div className="text-xs text-blue-600 font-medium mt-1">ปัจจุบัน</div>}
+                </button>
+              );
+            })}
+          </div>
+
+          <input
+            type="text"
+            value={tierReason}
+            onChange={(e) => setTierReason(e.target.value)}
+            placeholder="เหตุผลในการเปลี่ยนแผน (ไม่บังคับ)"
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+
+          {/* Watermark Toggle (for free tier) */}
+          {(user.tier?.tier_name || 'free') === 'free' && (
+            <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+              <div>
+                <p className="text-sm font-medium text-yellow-800">ลายน้ำ Dooform</p>
+                <p className="text-xs text-yellow-600">ปิดลายน้ำบังคับสำหรับผู้ใช้ Free tier</p>
+              </div>
+              <button
+                onClick={handleToggleWatermark}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  user.tier?.watermark_disabled ? 'bg-gray-300' : 'bg-yellow-500'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    user.tier?.watermark_disabled ? 'translate-x-1' : 'translate-x-6'
+                  }`}
+                />
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

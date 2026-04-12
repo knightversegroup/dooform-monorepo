@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight,
   FileText,
+  Lock,
   Search,
   X,
 } from "lucide-react";
@@ -66,25 +67,34 @@ function EmptyState() {
 function RecentDocumentThumbnail({ template }: { template: Template }) {
   const [imgError, setImgError] = useState(false);
   const thumbnailUrl = apiClient.getThumbnailUrl(template.id);
+  const isLocked = template.is_accessible === false;
 
   return (
     <Link
-      href={`/forms/${template.id}`}
+      href={isLocked ? "/pricing" : `/forms/${template.id}`}
       className="flex-shrink-0 block"
     >
-      <div className="w-[180px] h-[256px] border border-[#cdcdcd] rounded overflow-hidden bg-white hover:shadow-md transition-shadow">
+      <div className="relative w-[180px] h-[256px] border border-[#cdcdcd] rounded overflow-hidden bg-white hover:shadow-md transition-shadow">
         {thumbnailUrl && !imgError ? (
           <img
             src={thumbnailUrl}
             alt={template.name}
-            className="w-full h-full object-contain"
+            className={`w-full h-full object-contain ${isLocked ? "opacity-50" : ""}`}
             onError={() => setImgError(true)}
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-neutral-50 to-neutral-100 flex items-center justify-center">
-            <span className="text-3xl font-semibold text-neutral-300">
+            <span className={`text-3xl font-semibold text-neutral-300 ${isLocked ? "opacity-50" : ""}`}>
               {template.name.charAt(0)}
             </span>
+          </div>
+        )}
+        {isLocked && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+            <div className="flex items-center gap-1 px-2 py-1 bg-amber-500 text-white text-xs font-semibold rounded-full shadow">
+              <Lock className="w-3 h-3" />
+              Pro
+            </div>
           </div>
         )}
       </div>
@@ -429,13 +439,23 @@ export default function TemplateGroupList() {
 
                     {/* Action */}
                     <div className="w-[164px] flex-shrink-0 flex items-center gap-1">
-                      <Link
-                        href={`/forms/${tmpl.id}/fill`}
-                        className="inline-flex items-center gap-1 text-[14px] text-black underline hover:text-[#000091] transition-colors"
-                      >
-                        กรอกฟอร์ม
-                        <ArrowUpRight className="w-[18px] h-[18px]" />
-                      </Link>
+                      {tmpl.is_accessible === false ? (
+                        <Link
+                          href="/pricing"
+                          className="inline-flex items-center gap-1 text-[14px] text-amber-700 hover:text-amber-800 transition-colors"
+                        >
+                          <Lock className="w-3.5 h-3.5" />
+                          Pro
+                        </Link>
+                      ) : (
+                        <Link
+                          href={`/forms/${tmpl.id}/fill`}
+                          className="inline-flex items-center gap-1 text-[14px] text-black underline hover:text-[#000091] transition-colors"
+                        >
+                          กรอกฟอร์ม
+                          <ArrowUpRight className="w-[18px] h-[18px]" />
+                        </Link>
+                      )}
                     </div>
                   </div>
                 ))}

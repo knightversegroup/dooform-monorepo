@@ -29,6 +29,12 @@ import {
   ActionButtons,
   DownloadSection,
 } from "./components";
+import dynamic from "next/dynamic";
+
+const PdfEditor = dynamic(
+  () => import("./components/pdf-editor/PdfEditor").then((m) => m.PdfEditor),
+  { ssr: false, loading: () => <div className="flex items-center justify-center h-[70vh]"><Loader2 className="w-8 h-8 text-[#007398] animate-spin" /></div> }
+);
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -70,16 +76,18 @@ export default function FillFormPage({ params }: PageProps) {
     resetFormData,
   } = useFormData();
 
-  // Step navigation
+  // Step navigation (hasPdfEditor will be set based on user tier)
+  const hasPdfEditor = user?.tier?.capabilities?.has_pdf_editor ?? false;
   const {
     currentStep,
     currentStepIndex,
     currentStepConfig,
     goToFill,
     goToReview,
+    goToEditor,
     goToDownload,
     steps,
-  } = useStepNavigation();
+  } = useStepNavigation("fill", hasPdfEditor);
 
   // Local state
   const [processing, setProcessing] = useState(false);
@@ -238,14 +246,19 @@ export default function FillFormPage({ params }: PageProps) {
       });
 
       await refreshQuota();
-      goToDownload();
+      // Go to editor if available (Pro/Max), otherwise straight to download
+      if (hasPdfEditor) {
+        goToEditor();
+      } else {
+        goToDownload();
+      }
     } catch (err) {
       logger.error("FillFormPage", "Failed to process document:", err);
       setError(err instanceof Error ? err.message : "Failed to process document");
     } finally {
       setProcessing(false);
     }
-  }, [formData, localFieldDefinitions, templateId, refreshQuota, goToDownload]);
+  }, [formData, localFieldDefinitions, templateId, refreshQuota, goToDownload, goToEditor, hasPdfEditor]);
 
   const handleDownload = useCallback(
     async (format: "docx" | "pdf") => {
@@ -335,11 +348,11 @@ export default function FillFormPage({ params }: PageProps) {
 
       {/* Main Content */}
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className={hasPreview ? "flex gap-6" : ""}>
+        <div className={hasPreview && currentStep !== "editor" ? "flex gap-6" : ""}>
           {/* Form Card */}
           <div
             className={`bg-[#f6f6f6] flex flex-col gap-8 items-start p-8 rounded-lg ${
-              hasPreview ? "w-1/3 flex-shrink-0" : "w-full max-w-xl mx-auto"
+              currentStep === "editor" ? "w-full" : hasPreview ? "w-1/3 flex-shrink-0" : "w-full max-w-xl mx-auto"
             }`}
           >
             {/* Progress Indicator */}
@@ -375,6 +388,13 @@ export default function FillFormPage({ params }: PageProps) {
                 fieldDefinitions={localFieldDefinitions}
                 formData={formData}
                 aliases={aliases}
+              />
+            )}
+
+            {currentStep === "editor" && success && (
+              <PdfEditor
+                documentId={success.documentId}
+                onFinalized={goToDownload}
               />
             )}
 
@@ -433,8 +453,8 @@ export default function FillFormPage({ params }: PageProps) {
             )}
           </div>
 
-          {/* Right Column: Live Preview */}
-          {hasPreview && (
+          {/* Right Column: Live Preview (hidden during editor step) */}
+          {hasPreview && currentStep !== "editor" && (
             <div className="w-2/3 hidden lg:block">
               <div className="sticky top-4">
                 <div className="p-4 bg-[#0b4db7]/5 mb-4 border-l-4 border-[#0b4db7]">

@@ -14,6 +14,8 @@ import {
   TriangleAlert,
   Eye,
   Pencil,
+  Lock,
+  Crown,
 } from "lucide-react";
 import { LogoLoaderInline } from "@dooform/shared";
 import { apiClient } from "@dooform/shared/api/client";
@@ -148,13 +150,23 @@ function TemplateRow({
               <Eye className="w-2.5 h-2.5" />
               ดูตัวอย่าง
             </Link>
-            <Link
-              href={`/forms/${template.id}/fill`}
-              className="inline-flex items-center gap-0.5 px-2 py-1 bg-white border border-[#e6e6e6] rounded-full text-xs font-medium text-[#4d4d4d] hover:bg-gray-50 transition-colors"
-            >
-              <Pencil className="w-2.5 h-2.5" />
-              กรอกฟอร์ม
-            </Link>
+            {template.is_accessible === false ? (
+              <Link
+                href="/pricing"
+                className="inline-flex items-center gap-0.5 px-2 py-1 bg-amber-50 border border-amber-200 rounded-full text-xs font-medium text-amber-700 hover:bg-amber-100 transition-colors"
+              >
+                <Lock className="w-2.5 h-2.5" />
+                Pro
+              </Link>
+            ) : (
+              <Link
+                href={`/forms/${template.id}/fill`}
+                className="inline-flex items-center gap-0.5 px-2 py-1 bg-white border border-[#e6e6e6] rounded-full text-xs font-medium text-[#4d4d4d] hover:bg-gray-50 transition-colors"
+              >
+                <Pencil className="w-2.5 h-2.5" />
+                กรอกฟอร์ม
+              </Link>
+            )}
           </div>
         </div>
       )}
@@ -379,13 +391,23 @@ export default function TemplateCardGrid() {
               <p className="text-[14px] text-[#4d4d4d]">ตัวอย่างและรายละเอียดเกี่ยวกับเอกสาร</p>
             </div>
             {selectedTemplate && (
-              <Link
-                href={`/forms/${selectedTemplate.id}/fill`}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#013087] text-white text-[14px] font-medium rounded-lg hover:bg-[#013087]/90 transition-colors"
-              >
-                กรอกฟอร์ม
-                <ArrowUpRight className="w-4 h-4" />
-              </Link>
+              selectedTemplate.is_accessible === false ? (
+                <Link
+                  href="/pricing"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500 text-white text-[14px] font-medium rounded-lg hover:bg-amber-600 transition-colors"
+                >
+                  <Lock className="w-4 h-4" />
+                  อัปเกรดเพื่อใช้งาน
+                </Link>
+              ) : (
+                <Link
+                  href={`/forms/${selectedTemplate.id}/fill`}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#013087] text-white text-[14px] font-medium rounded-lg hover:bg-[#013087]/90 transition-colors"
+                >
+                  กรอกฟอร์ม
+                  <ArrowUpRight className="w-4 h-4" />
+                </Link>
+              )
             )}
           </div>
 

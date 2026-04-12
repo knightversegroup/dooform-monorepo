@@ -5,7 +5,7 @@
 /**
  * Step definitions for the multi-step form
  */
-export type FormStep = "fill" | "review" | "download";
+export type FormStep = "fill" | "review" | "editor" | "download";
 
 export interface StepConfig {
   id: FormStep;
@@ -15,6 +15,16 @@ export interface StepConfig {
 }
 
 export const FORM_STEPS: StepConfig[] = [
+  { id: "fill", number: 1, label: "ส่วนที่ 1", title: "กรอกข้อมูล" },
+  { id: "review", number: 2, label: "ส่วนที่ 2", title: "ตรวจสอบข้อมูล" },
+  { id: "editor", number: 3, label: "ส่วนที่ 3", title: "แก้ไข PDF" },
+  { id: "download", number: 4, label: "ส่วนที่ 4", title: "ดาวน์โหลดไฟล์" },
+];
+
+/**
+ * Steps without the editor (for free tier users)
+ */
+export const FORM_STEPS_NO_EDITOR: StepConfig[] = [
   { id: "fill", number: 1, label: "ส่วนที่ 1", title: "กรอกข้อมูล" },
   { id: "review", number: 2, label: "ส่วนที่ 2", title: "ตรวจสอบข้อมูล" },
   { id: "download", number: 3, label: "ส่วนที่ 3", title: "ดาวน์โหลดไฟล์" },

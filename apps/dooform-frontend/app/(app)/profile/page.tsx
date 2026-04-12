@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
     Mail,
     Calendar,
@@ -10,15 +11,43 @@ import {
     AlertCircle,
     CheckCircle,
     Trash2,
+    Crown,
+    Sparkles,
+    Zap,
+    ArrowUpRight,
 } from "lucide-react";
 import { useAuth } from "@dooform/shared/auth/hooks";
+import { useTier } from "@dooform/shared/auth/hooks";
 import { Button, Input } from "@dooform/shared";
+import type { UserTierName } from "@dooform/shared/auth/types";
 
 const DEFAULT_PROFILE_IMAGE = "/profile_default.webp";
+
+const TIER_DISPLAY: Record<UserTierName, { label: string; icon: React.ReactNode; className: string; badgeClass: string }> = {
+    free: {
+        label: "Free",
+        icon: <Zap className="w-4 h-4" />,
+        className: "bg-neutral-50 border-neutral-200",
+        badgeClass: "bg-neutral-600 text-white",
+    },
+    pro: {
+        label: "Pro",
+        icon: <Crown className="w-4 h-4" />,
+        className: "bg-blue-50 border-blue-200",
+        badgeClass: "bg-blue-600 text-white",
+    },
+    max: {
+        label: "Max",
+        icon: <Sparkles className="w-4 h-4" />,
+        className: "bg-violet-50 border-violet-200",
+        badgeClass: "bg-violet-600 text-white",
+    },
+};
 
 export default function ProfilePage() {
     const router = useRouter();
     const { user, isAuthenticated, isLoading: authLoading, updateUser } = useAuth();
+    const { tierName, monthlyUsage } = useTier();
 
     const [formData, setFormData] = useState({
         firstName: "",
@@ -257,6 +286,50 @@ export default function ProfilePage() {
                                     </span>
                                 </div>
                             </div>
+                        </div>
+
+                        {/* Current Plan Card */}
+                        <div className={`border rounded-xl p-6 mt-4 ${TIER_DISPLAY[tierName].className}`}>
+                            <div className="flex items-center justify-between mb-3">
+                                <h3 className="text-h4 text-foreground">แผนปัจจุบัน</h3>
+                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${TIER_DISPLAY[tierName].badgeClass}`}>
+                                    {TIER_DISPLAY[tierName].icon}
+                                    {TIER_DISPLAY[tierName].label}
+                                </span>
+                            </div>
+
+                            {/* Monthly usage for Pro users */}
+                            {tierName === "pro" && monthlyUsage && (
+                                <div className="mb-4">
+                                    <div className="flex items-center justify-between mb-1.5">
+                                        <span className="text-xs text-text-muted">
+                                            การใช้งานรายเดือน
+                                        </span>
+                                        <span className="text-xs font-semibold text-foreground">
+                                            {monthlyUsage.used}/{monthlyUsage.limit}
+                                        </span>
+                                    </div>
+                                    <div className="w-full h-1.5 bg-blue-100 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-blue-600 rounded-full transition-all"
+                                            style={{
+                                                width: `${Math.min(
+                                                    (monthlyUsage.used / monthlyUsage.limit) * 100,
+                                                    100
+                                                )}%`,
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            <Link
+                                href="/pricing"
+                                className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                            >
+                                {tierName === "free" ? "อัปเกรดแผน" : "จัดการแผน"}
+                                <ArrowUpRight className="w-3.5 h-3.5" />
+                            </Link>
                         </div>
                     </div>
 

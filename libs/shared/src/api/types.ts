@@ -1,6 +1,9 @@
 // API Types for Placeholder-Model Backend
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
 
+// Re-export tier types from auth for convenience
+export type { UserTierName, TierCapabilities, MonthlyUsage, TierInfo } from '../auth/types';
+
 // Enum Types
 export type Category = 'frequently_used' | string;
 
@@ -260,6 +263,9 @@ export interface Template {
 
   // Page orientation (detected from DOCX)
   page_orientation?: PageOrientation;
+
+  // Tier-based accessibility (set by backend based on user's tier)
+  is_accessible?: boolean;
 
   // Timestamps
   created_at: string;
@@ -741,4 +747,49 @@ export interface WatermarkPresetResponse {
 export interface WatermarkPresetInput {
   name: string;
   config: WatermarkConfig;
+}
+
+// -----------------------------------------------------------------------------
+// PDF Annotations
+// -----------------------------------------------------------------------------
+
+export type AnnotationType = 'text' | 'strikethrough';
+
+export interface AnnotationItem {
+  id: string;
+  type: AnnotationType;
+  pageIndex: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  // Text annotation properties
+  content?: string;
+  fontSize?: number;
+  fontColor?: string;
+  // Strikethrough properties
+  color?: string;
+  lineWidth?: number;
+}
+
+export interface DocumentAnnotation {
+  id: string;
+  document_id: string;
+  user_id: string;
+  version: number;
+  data: string; // JSON-encoded AnnotationItem[]
+  finalized: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AnnotationResponse {
+  annotation: DocumentAnnotation | null;
+}
+
+export interface FinalizeResponse {
+  message: string;
+  document_id: string;
+  filename: string;
+  download_url: string;
 }

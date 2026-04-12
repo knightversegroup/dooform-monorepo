@@ -3,6 +3,30 @@
 // Role types
 export type RoleName = 'admin' | 'user';
 
+// Tier types
+export type UserTierName = 'free' | 'pro' | 'max';
+
+export interface TierCapabilities {
+  allowed_formats: ('pdf' | 'docx')[];
+  allowed_template_tiers: string[];
+  monthly_document_limit: number; // -1 = unlimited
+  has_pdf_editor: boolean;
+  forced_watermark: boolean;
+}
+
+export interface MonthlyUsage {
+  used: number;
+  limit: number;
+}
+
+export interface TierInfo {
+  tier_name: UserTierName;
+  capabilities: TierCapabilities;
+  monthly_usage?: MonthlyUsage;
+  period_start?: string;
+  period_end?: string;
+}
+
 // Quota information
 export interface QuotaInfo {
   total: number;
@@ -25,6 +49,7 @@ export interface User {
   profile_completed: boolean;
   roles?: RoleName[];
   quota?: QuotaInfo;
+  tier?: TierInfo;
   created_at?: string;
   updated_at?: string;
 }
@@ -63,6 +88,13 @@ export interface AuthContextType extends AuthState {
   hasRole: (role: RoleName) => boolean;
   canGenerate: boolean;
   refreshQuota: () => Promise<void>;
+  // Tier-based helpers
+  userTier: UserTierName;
+  canDownloadDocx: boolean;
+  canAccessTemplate: (templateTier: string) => boolean;
+  hasPdfEditor: boolean;
+  monthlyUsage: MonthlyUsage | null;
+  refreshTier: () => Promise<void>;
 }
 
 // Admin types for user management

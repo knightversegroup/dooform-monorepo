@@ -2,7 +2,7 @@
 
 import { createContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import type { AuthContextType, User, AuthResponse, RoleName, QuotaInfo } from './types';
+import type { AuthContextType, User, AuthResponse, RoleName, QuotaInfo, UserTierName, MonthlyUsage, TierInfo } from './types';
 import { apiClient } from '../api/client';
 import { logger } from '../utils/logger';
 
@@ -204,6 +204,79 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [accessToken]);
 
+  // Tier-derived values
+  const userTier: UserTierName = user?.tier?.tier_name ?? 'free';
+  const canDownloadDocx = userTier !== 'free';
+
+  const canAccessTemplate = useCallback((templateTier: string): boolean => {
+    const allowedTiers = user?.tier?.capabilities?.allowed_template_tiers ?? ['free'];
+    return allowedTiers.includes(templateTier);
+  }, [user?.tier?.capabilities?.allowed_template_tiers]);
+
+  const hasPdfEditor = user?.tier?.capabilities?.has_pdf_editor ?? false;
+  const monthlyUsage: MonthlyUsage | null = user?.tier?.monthly_usage ?? null;
+
+  // Refresh user info from server (via /auth/me) — picks up tier, quota, and role changes.
+  // If tier changed, also refreshes the JWT so the gateway forwards the correct tier header.
+  const refreshUserInfo = useCallback(async () => {
+    if (!accessToken) return;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/me`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data) {
+          const serverTier = data.data.tier?.tier_name;
+          const currentTier = user?.tier?.tier_name;
+          const tierChanged = serverTier && currentTier && serverTier !== currentTier;
+
+          setUser((prevUser) => {
+            if (!prevUser) return prevUser;
+            return {
+              ...prevUser,
+              tier: data.data.tier,
+              quota: data.data.quota,
+              roles: data.data.roles ?? prevUser.roles,
+            };
+          });
+
+          // If tier changed, refresh the JWT token so the gateway gets the new tier claim
+          if (tierChanged && refreshToken) {
+            try {
+              await refreshAccessToken();
+            } catch {
+              // Non-fatal: user info is updated, JWT will refresh on next API call
+            }
+          }
+        }
+      }
+    } catch (error) {
+      logger.error('AuthContext', 'Failed to refresh user info:', error);
+    }
+  }, [accessToken, refreshToken, user?.tier?.tier_name, refreshAccessToken]);
+
+  // Alias for backward compatibility
+  const refreshTier = refreshUserInfo;
+
+  // Auto-refresh user info when tab becomes visible (picks up admin-side changes)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && accessToken) {
+        refreshUserInfo();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [accessToken, refreshUserInfo]);
+
   const value: AuthContextType = {
     user,
     accessToken,
@@ -220,6 +293,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     hasRole,
     canGenerate,
     refreshQuota,
+    // Tier-based helpers
+    userTier,
+    canDownloadDocx,
+    canAccessTemplate,
+    hasPdfEditor,
+    monthlyUsage,
+    refreshTier,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
