@@ -57,6 +57,7 @@ import {
   WatermarkPresetsResponse,
   AnnotationResponse,
   FinalizeResponse,
+  WatermarkConfig,
 } from './types';
 
 export class ApiClient {

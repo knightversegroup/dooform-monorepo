@@ -51,7 +51,7 @@ export function PdfEditor({ documentId, onFinalized }: PdfEditorProps) {
   // Save state
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "unsaved">("saved");
   const [finalizing, setFinalizing] = useState(false);
-  const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
 
   // Push current annotations to history stack
   const pushHistory = useCallback((newAnnotations: AnnotationItem[]) => {

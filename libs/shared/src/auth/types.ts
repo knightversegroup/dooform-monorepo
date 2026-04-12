@@ -25,6 +25,7 @@ export interface TierInfo {
   monthly_usage?: MonthlyUsage;
   period_start?: string;
   period_end?: string;
+  watermark_disabled?: boolean;
 }
 
 // Quota information
@@ -109,6 +110,7 @@ export interface UserListItem {
   is_active: boolean;
   roles: RoleName[];
   quota?: QuotaInfo;
+  tier?: TierInfo;
   created_at?: string;
   updated_at?: string;
 }
