@@ -29,8 +29,8 @@ export default function DictionaryPage() {
   useEffect(() => {
     apiClient
       .getDictionaryCategories()
-      .then(setCategories)
-      .catch(() => {});
+      .then((cats) => setCategories(cats ?? []))
+      .catch(() => setCategories([]));
   }, []);
 
   const fetchWords = useCallback(async () => {

@@ -2018,7 +2018,7 @@ export class ApiClient {
 
   async getDictionaryCategories(): Promise<DictionaryCategory[]> {
     const data = await this.get<{ categories: DictionaryCategory[] }>('/api/v1/dictionary/categories');
-    return data.categories;
+    return data.categories ?? [];
   }
 
   async getDictionaryCategory(id: string): Promise<DictionaryCategory> {
@@ -2058,7 +2058,7 @@ export class ApiClient {
 
   async getDictionaryWordsByCategory(categoryId: string): Promise<DictionaryWord[]> {
     const data = await this.get<{ words: DictionaryWord[] }>(`/api/v1/dictionary/categories/${categoryId}/words`);
-    return data.words;
+    return data.words ?? [];
   }
 
   async createDictionaryWord(req: DictionaryWordCreateRequest): Promise<DictionaryWord> {
