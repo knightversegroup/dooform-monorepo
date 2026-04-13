@@ -58,13 +58,13 @@ import {
   AnnotationResponse,
   FinalizeResponse,
   WatermarkConfig,
-  DictionaryCategory,
-  DictionaryWord,
-  DictionaryCategoryCreateRequest,
-  DictionaryCategoryUpdateRequest,
-  DictionaryWordCreateRequest,
-  DictionaryWordUpdateRequest,
-  DictionaryWordsResponse,
+  type DictionaryCategory,
+  type DictionaryWord,
+  type DictionaryCategoryCreateRequest,
+  type DictionaryCategoryUpdateRequest,
+  type DictionaryWordCreateRequest,
+  type DictionaryWordUpdateRequest,
+  type DictionaryWordsResponse,
 } from './types';
 
 export class ApiClient {
@@ -2017,24 +2017,49 @@ export class ApiClient {
   // ========== Dictionary ==========
 
   async getDictionaryCategories(): Promise<DictionaryCategory[]> {
-    const data = await this.get<{ categories: DictionaryCategory[] }>('/api/v1/dictionary/categories');
-    return data.categories ?? [];
+    const makeRequest = () => fetch(`${this.baseUrl}/dictionary/categories`, {
+      headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
+    });
+    const response = await makeRequest();
+    const result = await this.handleResponseWithRetry<{ categories: DictionaryCategory[] }>(response, makeRequest);
+    return result.categories || [];
   }
 
   async getDictionaryCategory(id: string): Promise<DictionaryCategory> {
-    return this.get<DictionaryCategory>(`/api/v1/dictionary/categories/${id}`);
+    const makeRequest = () => fetch(`${this.baseUrl}/dictionary/categories/${id}`, {
+      headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
+    });
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<DictionaryCategory>(response, makeRequest);
   }
 
   async createDictionaryCategory(req: DictionaryCategoryCreateRequest): Promise<DictionaryCategory> {
-    return this.post<DictionaryCategory>('/api/v1/dictionary/categories', req);
+    const makeRequest = () => fetch(`${this.baseUrl}/dictionary/categories`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
+      body: JSON.stringify(req),
+    });
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<DictionaryCategory>(response, makeRequest);
   }
 
   async updateDictionaryCategory(id: string, req: DictionaryCategoryUpdateRequest): Promise<DictionaryCategory> {
-    return this.put<DictionaryCategory>(`/api/v1/dictionary/categories/${id}`, req);
+    const makeRequest = () => fetch(`${this.baseUrl}/dictionary/categories/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
+      body: JSON.stringify(req),
+    });
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<DictionaryCategory>(response, makeRequest);
   }
 
   async deleteDictionaryCategory(id: string): Promise<void> {
-    await this.delete(`/api/v1/dictionary/categories/${id}`);
+    const makeRequest = () => fetch(`${this.baseUrl}/dictionary/categories/${id}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
+    });
+    const response = await makeRequest();
+    await this.handleResponseWithRetry<{ message: string }>(response, makeRequest);
   }
 
   async searchDictionaryWords(options?: {
@@ -2049,29 +2074,58 @@ export class ApiClient {
     if (options?.page) params.append('page', options.page.toString());
     if (options?.limit) params.append('limit', options.limit.toString());
     const query = params.toString();
-    const data = await this.get<DictionaryWordsResponse>(`/api/v1/dictionary/words${query ? `?${query}` : ''}`);
-    return { words: data.words ?? [], total: data.total ?? 0, page: data.page ?? 1, limit: data.limit ?? 50 };
+    const makeRequest = () => fetch(`${this.baseUrl}/dictionary/words${query ? `?${query}` : ''}`, {
+      headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
+    });
+    const response = await makeRequest();
+    const result = await this.handleResponseWithRetry<DictionaryWordsResponse>(response, makeRequest);
+    return { words: result.words || [], total: result.total || 0, page: result.page || 1, limit: result.limit || 50 };
   }
 
   async getDictionaryWord(id: string): Promise<DictionaryWord> {
-    return this.get<DictionaryWord>(`/api/v1/dictionary/words/${id}`);
+    const makeRequest = () => fetch(`${this.baseUrl}/dictionary/words/${id}`, {
+      headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
+    });
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<DictionaryWord>(response, makeRequest);
   }
 
   async getDictionaryWordsByCategory(categoryId: string): Promise<DictionaryWord[]> {
-    const data = await this.get<{ words: DictionaryWord[] }>(`/api/v1/dictionary/categories/${categoryId}/words`);
-    return data.words ?? [];
+    const makeRequest = () => fetch(`${this.baseUrl}/dictionary/categories/${categoryId}/words`, {
+      headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
+    });
+    const response = await makeRequest();
+    const result = await this.handleResponseWithRetry<{ words: DictionaryWord[] }>(response, makeRequest);
+    return result.words || [];
   }
 
   async createDictionaryWord(req: DictionaryWordCreateRequest): Promise<DictionaryWord> {
-    return this.post<DictionaryWord>('/api/v1/dictionary/words', req);
+    const makeRequest = () => fetch(`${this.baseUrl}/dictionary/words`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
+      body: JSON.stringify(req),
+    });
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<DictionaryWord>(response, makeRequest);
   }
 
   async updateDictionaryWord(id: string, req: DictionaryWordUpdateRequest): Promise<DictionaryWord> {
-    return this.put<DictionaryWord>(`/api/v1/dictionary/words/${id}`, req);
+    const makeRequest = () => fetch(`${this.baseUrl}/dictionary/words/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
+      body: JSON.stringify(req),
+    });
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<DictionaryWord>(response, makeRequest);
   }
 
   async deleteDictionaryWord(id: string): Promise<void> {
-    await this.delete(`/api/v1/dictionary/words/${id}`);
+    const makeRequest = () => fetch(`${this.baseUrl}/dictionary/words/${id}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
+    });
+    const response = await makeRequest();
+    await this.handleResponseWithRetry<{ message: string }>(response, makeRequest);
   }
 }
 

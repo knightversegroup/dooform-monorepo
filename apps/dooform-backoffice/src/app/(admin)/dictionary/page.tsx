@@ -47,7 +47,7 @@ export default function DictionaryManagementPage() {
   const fetchCategories = useCallback(async () => {
     try {
       const cats = await apiClient.getDictionaryCategories();
-      setCategories(cats);
+      setCategories(cats ?? []);
     } catch {
       // ignore
     }
