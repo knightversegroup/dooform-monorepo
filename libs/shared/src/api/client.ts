@@ -58,6 +58,13 @@ import {
   AnnotationResponse,
   FinalizeResponse,
   WatermarkConfig,
+  DictionaryCategory,
+  DictionaryWord,
+  DictionaryCategoryCreateRequest,
+  DictionaryCategoryUpdateRequest,
+  DictionaryWordCreateRequest,
+  DictionaryWordUpdateRequest,
+  DictionaryWordsResponse,
 } from './types';
 
 export class ApiClient {
@@ -2005,6 +2012,65 @@ export class ApiClient {
       throw new Error(`PDF preview failed: ${response.statusText}`);
     }
     return response.blob();
+  }
+
+  // ========== Dictionary ==========
+
+  async getDictionaryCategories(): Promise<DictionaryCategory[]> {
+    const data = await this.get<{ categories: DictionaryCategory[] }>('/api/v1/dictionary/categories');
+    return data.categories;
+  }
+
+  async getDictionaryCategory(id: string): Promise<DictionaryCategory> {
+    return this.get<DictionaryCategory>(`/api/v1/dictionary/categories/${id}`);
+  }
+
+  async createDictionaryCategory(req: DictionaryCategoryCreateRequest): Promise<DictionaryCategory> {
+    return this.post<DictionaryCategory>('/api/v1/dictionary/categories', req);
+  }
+
+  async updateDictionaryCategory(id: string, req: DictionaryCategoryUpdateRequest): Promise<DictionaryCategory> {
+    return this.put<DictionaryCategory>(`/api/v1/dictionary/categories/${id}`, req);
+  }
+
+  async deleteDictionaryCategory(id: string): Promise<void> {
+    await this.delete(`/api/v1/dictionary/categories/${id}`);
+  }
+
+  async searchDictionaryWords(options?: {
+    search?: string;
+    category_id?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<DictionaryWordsResponse> {
+    const params = new URLSearchParams();
+    if (options?.search) params.append('search', options.search);
+    if (options?.category_id) params.append('category_id', options.category_id);
+    if (options?.page) params.append('page', options.page.toString());
+    if (options?.limit) params.append('limit', options.limit.toString());
+    const query = params.toString();
+    return this.get<DictionaryWordsResponse>(`/api/v1/dictionary/words${query ? `?${query}` : ''}`);
+  }
+
+  async getDictionaryWord(id: string): Promise<DictionaryWord> {
+    return this.get<DictionaryWord>(`/api/v1/dictionary/words/${id}`);
+  }
+
+  async getDictionaryWordsByCategory(categoryId: string): Promise<DictionaryWord[]> {
+    const data = await this.get<{ words: DictionaryWord[] }>(`/api/v1/dictionary/categories/${categoryId}/words`);
+    return data.words;
+  }
+
+  async createDictionaryWord(req: DictionaryWordCreateRequest): Promise<DictionaryWord> {
+    return this.post<DictionaryWord>('/api/v1/dictionary/words', req);
+  }
+
+  async updateDictionaryWord(id: string, req: DictionaryWordUpdateRequest): Promise<DictionaryWord> {
+    return this.put<DictionaryWord>(`/api/v1/dictionary/words/${id}`, req);
+  }
+
+  async deleteDictionaryWord(id: string): Promise<void> {
+    await this.delete(`/api/v1/dictionary/words/${id}`);
   }
 }
 

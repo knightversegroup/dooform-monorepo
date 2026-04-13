@@ -793,3 +793,86 @@ export interface FinalizeResponse {
   filename: string;
   download_url: string;
 }
+
+// -----------------------------------------------------------------------------
+// Dictionary
+// -----------------------------------------------------------------------------
+
+export interface DictionaryCategory {
+  id: string;
+  code: string;
+  name: string;
+  name_en?: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  sort_order: number;
+  is_active: boolean;
+  word_count?: number;
+}
+
+export interface DictionaryWord {
+  id: string;
+  category_id: string;
+  word: string;
+  reading?: string;
+  meaning: string;
+  meaning_en?: string;
+  example?: string;
+  notes?: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  category?: DictionaryCategory;
+}
+
+export interface DictionaryCategoryCreateRequest {
+  code: string;
+  name: string;
+  name_en?: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  sort_order?: number;
+}
+
+export interface DictionaryCategoryUpdateRequest {
+  name?: string;
+  name_en?: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  sort_order?: number;
+  is_active?: boolean;
+}
+
+export interface DictionaryWordCreateRequest {
+  category_id: string;
+  word: string;
+  reading?: string;
+  meaning: string;
+  meaning_en?: string;
+  example?: string;
+  notes?: string;
+  sort_order?: number;
+}
+
+export interface DictionaryWordUpdateRequest {
+  category_id?: string;
+  word?: string;
+  reading?: string;
+  meaning?: string;
+  meaning_en?: string;
+  example?: string;
+  notes?: string;
+  sort_order?: number;
+  is_active?: boolean;
+}
+
+export interface DictionaryWordsResponse {
+  words: DictionaryWord[];
+  total: number;
+  page: number;
+  limit: number;
+}
