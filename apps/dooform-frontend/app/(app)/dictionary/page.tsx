@@ -42,8 +42,8 @@ export default function DictionaryPage() {
         page,
         limit,
       });
-      setWords(result.words);
-      setTotalWords(result.total);
+      setWords(result.words ?? []);
+      setTotalWords(result.total ?? 0);
     } catch {
       setWords([]);
       setTotalWords(0);

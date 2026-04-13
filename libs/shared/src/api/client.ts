@@ -2049,7 +2049,8 @@ export class ApiClient {
     if (options?.page) params.append('page', options.page.toString());
     if (options?.limit) params.append('limit', options.limit.toString());
     const query = params.toString();
-    return this.get<DictionaryWordsResponse>(`/api/v1/dictionary/words${query ? `?${query}` : ''}`);
+    const data = await this.get<DictionaryWordsResponse>(`/api/v1/dictionary/words${query ? `?${query}` : ''}`);
+    return { words: data.words ?? [], total: data.total ?? 0, page: data.page ?? 1, limit: data.limit ?? 50 };
   }
 
   async getDictionaryWord(id: string): Promise<DictionaryWord> {
