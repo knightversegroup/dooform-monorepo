@@ -1,5 +1,6 @@
 import { IBM_Plex_Sans_Thai } from 'next/font/google';
 import './global.css';
+import Header from '../components/layout/Header';
 
 const ibmPlexSansThai = IBM_Plex_Sans_Thai({
   subsets: ['thai'],
@@ -23,6 +24,7 @@ export default function RootLayout({
       <body
         className={`min-h-screen bg-white text-gray-900 antialiased ${ibmPlexSansThai.variable} ${ibmPlexSansThai.className}`}
       >
+        <Header />
         {children}
       </body>
     </html>

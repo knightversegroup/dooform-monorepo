@@ -1,15 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
 import { DooformLogo } from '@dooform/shared/components/ui/DooformLogo';
 
 const navItems = [
-  { label: 'Features', href: '#features' },
-  { label: 'Solutions', href: '#solutions' },
-  { label: 'Compliance', href: '#compliance' },
-  { label: 'Pricing', href: '#pricing' },
+  { label: 'Features', href: '/features' },
+  { label: 'Use Cases', href: '/usecases' },
+  { label: 'Compliance', href: '/compliance' },
+  { label: 'Plan', href: '/plan' },
 ];
 
 export default function Header() {
