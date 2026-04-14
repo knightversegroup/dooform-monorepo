@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
-import { DooformLogo } from '../../../../../libs/shared/src/components/ui/DooformLogo';
+import { DooformLogo } from '@dooform/shared/components/ui/DooformLogo';
 
 const navItems = [
   { label: 'Features', href: '#features' },
@@ -17,7 +17,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="border-b border-[#e7e7e7]">
+      <header className="sticky top-0 border-b border-[#e7e7e7]">
         <div className="mx-auto flex max-w-[1280px] items-center justify-between px-4 py-6 sticky top-0 bg-white">
           {/* Logo */}
 
@@ -52,8 +52,6 @@ export default function Header() {
           </button>
         </div>
       </header>
-
-      {/* Mobile Menu - Full screen slide from right */}
       <div
         className={`fixed inset-0 z-40 bg-white transition-transform duration-300 ease-in-out md:hidden ${
           mobileOpen ? 'translate-x-0' : 'translate-x-full'
@@ -62,7 +60,7 @@ export default function Header() {
         {/* Mobile Menu Header */}
         <div className="flex items-center justify-between px-4 py-6">
           <a href="/" onClick={() => setMobileOpen(false)}>
-            <Image src="/dooform.svg" alt="Dooform" width={124} height={24} />
+            <DooformLogo />
           </a>
           <button
             onClick={() => setMobileOpen(false)}
