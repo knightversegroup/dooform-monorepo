@@ -11,38 +11,30 @@
     "register": "ลงทะเบียน"
   },
   "footer": {
-    "stayUpdated": "ติดตามข่าวสาร",
-    "subscribeText": "สมัครรับเนื้อหา <strong>Dooform Business</strong> เกี่ยวกับการสร้างฟอร์ม การเก็บข้อมูล และ AI",
-    "receiveUpdates": "รับข่าวสาร",
-    "copyright": "การออกแบบเว็บไซต์ / โลโก้ © 2026 Dooform Inc.",
+    "copyright": "© 2025 Dooform by Knight Consultant\nUnder License of Rinkai",
+    "companyName": "knight consultant worldwide company limited",
+    "termsNotice": "การใช้งานเว็บไซต์นี้นับว่าคุณได้ยอมรับเงื่อนไขในการใช้งานเรียบร้อย",
     "sections": {
-      "ourStack": "ผลิตภัณฑ์ของเรา",
-      "company": "บริษัท",
-      "support": "สนับสนุน",
-      "elsewhere": "ช่องทางอื่น"
+      "members": "สมาชิก",
+      "aboutApp": "เกี่ยวกับแอปพลิเคชั่น",
+      "forBusiness": "สำหรับหน่วยงานธุรกิจ",
+      "legal": "ข้อบังคับทางกฎหมาย"
     },
     "links": {
-      "product": "ผลิตภัณฑ์",
-      "features": "ฟีเจอร์",
-      "customers": "ลูกค้า",
-      "security": "ความปลอดภัย",
-      "pricing": "ราคา",
-      "enterprise": "องค์กร",
-      "integrations": "การเชื่อมต่อ",
-      "partnerships": "พันธมิตร",
-      "leadership": "ผู้บริหาร",
-      "press": "สื่อมวลชน",
-      "careers": "ร่วมงานกับเรา",
-      "socialImpact": "ผลกระทบทางสังคม",
-      "contact": "ติดต่อเรา",
-      "helpCenter": "ศูนย์ช่วยเหลือ",
-      "terms": "ข้อกำหนด",
-      "privacyPolicy": "นโยบายความเป็นส่วนตัว",
-      "cookiePolicy": "นโยบายคุกกี้",
-      "blog": "บล็อก",
-      "newsletter": "จดหมายข่าว",
-      "podcast": "พอดแคสต์",
-      "releases": "อัปเดตเวอร์ชัน"
+      "enterprise": "สมาชิกระดับองค์กร",
+      "login": "เข้าสู่ระบบ",
+      "register": "สมัครสมาชิก",
+      "documents": "รายการเอกสาร",
+      "guide": "คำแนะนำในการใช้งาน",
+      "documentation": "เอกสารประกอบการใช้งาน",
+      "qualityReport": "รายงานวิเคราะห์คุณภาพ",
+      "devTeam": "ทีมพัฒนา",
+      "aboutWebsite": "เกี่ยวกับเว็บไซต์",
+      "businessPlan": "แพลนสำหรับหน่วยงาน",
+      "pricing": "ค่าบริการ",
+      "contact": "ติดต่อสอบถาม",
+      "terms": "ข้อตกลงในการใช้งาน",
+      "dataPolicy": "นโยบายการจัดเก็บข้อมูล"
     }
   }
 }

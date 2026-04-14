@@ -1,13 +1,15 @@
+import { DooformLogo } from '@dooform/shared/components/ui/DooformLogo';
+import { ArrowUpRight } from 'lucide-react';
+
 type FooterDict = {
-  stayUpdated: string;
-  subscribeText: string;
-  receiveUpdates: string;
   copyright: string;
+  companyName: string;
+  termsNotice: string;
   sections: {
-    ourStack: string;
-    company: string;
-    support: string;
-    elsewhere: string;
+    members: string;
+    aboutApp: string;
+    forBusiness: string;
+    legal: string;
   };
   links: Record<string, string>;
 };
@@ -15,135 +17,85 @@ type FooterDict = {
 export default function Footer({ dict }: { dict: FooterDict }) {
   const footerSections = [
     {
-      heading: dict.sections.ourStack,
+      heading: dict.sections.members,
       links: [
-        { label: dict.links.product, href: '/product/' },
-        { label: dict.links.features, href: '/product/features/', sub: true },
-        { label: dict.links.customers, href: '/product/customers/', sub: true },
-        { label: dict.links.security, href: '/product/security/', sub: true },
-        { label: dict.links.pricing, href: '/product/pricing/', sub: true },
-        { label: dict.links.enterprise, href: '/enterprise/' },
-        { label: dict.links.integrations, href: '/integrations/' },
-        { label: dict.links.partnerships, href: '/partnerships/' },
+        { label: dict.links.enterprise, href: '#' },
+        { label: dict.links.login, href: '#' },
+        { label: dict.links.register, href: '#' },
       ],
     },
     {
-      heading: dict.sections.company,
+      heading: dict.sections.aboutApp,
       links: [
-        { label: dict.links.leadership, href: '#' },
-        { label: dict.links.press, href: '#' },
-        { label: dict.links.careers, href: '#' },
-        { label: dict.links.socialImpact, href: '#' },
+        { label: dict.links.documents, href: '#' },
+        { label: dict.links.guide, href: '#' },
+        { label: dict.links.documentation, href: '#' },
+        { label: dict.links.qualityReport, href: '#' },
+        { label: dict.links.devTeam, href: '#' },
+        { label: dict.links.aboutWebsite, href: '#' },
       ],
     },
     {
-      heading: dict.sections.support,
+      heading: dict.sections.forBusiness,
       links: [
+        { label: dict.links.businessPlan, href: '#' },
+        { label: dict.links.pricing, href: '#' },
         { label: dict.links.contact, href: '#' },
-        { label: dict.links.helpCenter, href: '#' },
-        { label: dict.links.terms, href: '#' },
-        { label: dict.links.privacyPolicy, href: '#' },
-        { label: dict.links.cookiePolicy, href: '#' },
       ],
     },
     {
-      heading: dict.sections.elsewhere,
+      heading: dict.sections.legal,
       links: [
-        { label: dict.links.blog, href: '#' },
-        { label: dict.links.newsletter, href: '#' },
-        { label: dict.links.podcast, href: '#' },
-        { label: dict.links.releases, href: '#' },
+        { label: dict.links.terms, href: '#' },
+        { label: dict.links.dataPolicy, href: '#' },
       ],
     },
   ];
 
   return (
-    <footer>
-      <div className="m-3 bg-gray-100 p-6 pb-0">
-        <div className="flex sm:flex-col">
-          {/* Newsletter Signup */}
-          <section className="flex-1 pr-8">
-            <div className="mb-6 h-8 w-8 rounded bg-gray-800" />
-            <h2 className="mb-2 text-2xl font-bold text-gray-900">
-              {dict.stayUpdated}
-            </h2>
-            <p
-              className="mb-6 max-w-xs text-sm text-gray-600"
-              dangerouslySetInnerHTML={{ __html: dict.subscribeText }}
-            />
-            <button className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800">
-              {dict.receiveUpdates}
-            </button>
-          </section>
+    <footer className="flex justify-center px-[10px]">
+      <div className="flex w-full max-w-[1280px] flex-col gap-6 px-6 py-9">
+        {/* Top section */}
+        <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
+          {/* Logo + Copyright */}
+          <div className="flex flex-col gap-3">
+            <DooformLogo width={124} height={24} />
+            <p className="whitespace-pre-line text-base text-[#4d4d4d]">
+              {dict.copyright}
+            </p>
+          </div>
 
           {/* Link Columns */}
-          <div className="flex flex-[2] gap-6 sm:mt-8 sm:flex-col">
-            <div className="flex flex-1 gap-6 md:flex-col">
-              {footerSections.slice(0, 2).map((section) => (
-                <section key={section.heading} className="flex-1">
-                  <h3 className="mb-3 text-sm font-semibold text-gray-900">
-                    {section.heading}
-                  </h3>
-                  <ul className="space-y-1.5">
-                    {section.links.map((link) => (
-                      <li key={link.label}>
-                        <a
-                          href={link.href}
-                          className={`text-sm text-gray-500 transition hover:text-gray-800 ${
-                            'sub' in link && link.sub ? 'pl-3' : ''
-                          }`}
-                        >
-                          {link.label}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              ))}
-            </div>
-            <div className="flex flex-1 gap-6 md:flex-col">
-              {footerSections.slice(2).map((section) => (
-                <section key={section.heading} className="flex-1">
-                  <h3 className="mb-3 text-sm font-semibold text-gray-900">
-                    {section.heading}
-                  </h3>
-                  <ul className="space-y-1.5">
-                    {section.links.map((link) => (
-                      <li key={link.label}>
-                        <a
-                          href={link.href}
-                          className="text-sm text-gray-500 transition hover:text-gray-800"
-                        >
-                          {link.label}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              ))}
-            </div>
+          <div className="flex flex-col gap-6 md:flex-row">
+            {footerSections.map((section) => (
+              <div key={section.heading} className="flex flex-col gap-2">
+                <h3 className="text-base font-semibold text-[#262626]">
+                  {section.heading}
+                </h3>
+                {section.links.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    className="text-base text-[#262626] transition hover:opacity-70"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Large watermark logo placeholder */}
-        <div className="my-8 flex justify-center">
-          <div className="h-6 w-full max-w-4xl rounded bg-gray-200" />
-        </div>
-      </div>
-
-      {/* Bottom bar */}
-      <div className="flex items-center justify-between px-6 py-6 sm:flex-col sm:text-center">
-        <div className="text-xs text-gray-400">{dict.copyright}</div>
-        <div className="flex gap-2 sm:mt-3">
-          {['LinkedIn', 'X', 'YouTube'].map((social) => (
-            <a
-              key={social}
-              href="#"
-              className="rounded p-1.5 text-xs text-gray-500 transition hover:bg-orange-500 hover:text-white"
-            >
-              {social}
-            </a>
-          ))}
+        {/* Bottom bar */}
+        <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+          <a
+            href="#"
+            className="flex items-center gap-1 text-sm text-[#4d4d4d] transition hover:opacity-70"
+          >
+            {dict.companyName}
+            <ArrowUpRight className="h-3 w-3" />
+          </a>
+          <p className="text-sm text-[#4d4d4d]">{dict.termsNotice}</p>
         </div>
       </div>
     </footer>

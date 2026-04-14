@@ -16,7 +16,7 @@ export default function LanguageSwitcher({ locale }: { locale: string }) {
   return (
     <a
       href={newPath}
-      className="rounded-md border border-gray-300 px-2.5 py-1 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+      className="rounded-full bg-white px-3 py-1.5 text-base font-semibold text-black shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)]"
     >
       {localeLabels[switchedLocale]}
     </a>

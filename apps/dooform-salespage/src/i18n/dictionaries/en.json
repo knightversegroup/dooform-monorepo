@@ -11,38 +11,30 @@
     "register": "Register"
   },
   "footer": {
-    "stayUpdated": "Stay updated",
-    "subscribeText": "Subscribe to receive <strong>Dooform Business</strong> content around form building, data collection, and AI.",
-    "receiveUpdates": "Receive updates",
-    "copyright": "Site design / logo © 2026 Dooform Inc.",
+    "copyright": "© 2025 Dooform by Knight Consultant\nUnder License of Rinkai",
+    "companyName": "knight consultant worldwide company limited",
+    "termsNotice": "By using this website, you agree to the terms and conditions.",
     "sections": {
-      "ourStack": "Our Stack",
-      "company": "Company",
-      "support": "Support",
-      "elsewhere": "Elsewhere"
+      "members": "Members",
+      "aboutApp": "About Application",
+      "forBusiness": "For Business",
+      "legal": "Legal"
     },
     "links": {
-      "product": "Product",
-      "features": "Features",
-      "customers": "Customers",
-      "security": "Security",
+      "enterprise": "Enterprise Members",
+      "login": "Login",
+      "register": "Register",
+      "documents": "Documents",
+      "guide": "User Guide",
+      "documentation": "Documentation",
+      "qualityReport": "Quality Analysis Report",
+      "devTeam": "Development Team",
+      "aboutWebsite": "About Website",
+      "businessPlan": "Business Plan",
       "pricing": "Pricing",
-      "enterprise": "Enterprise",
-      "integrations": "Integrations",
-      "partnerships": "Partnerships",
-      "leadership": "Leadership",
-      "press": "Press",
-      "careers": "Careers",
-      "socialImpact": "Social Impact",
-      "contact": "Contact",
-      "helpCenter": "Help Center",
-      "terms": "Terms",
-      "privacyPolicy": "Privacy policy",
-      "cookiePolicy": "Cookie policy",
-      "blog": "Blog",
-      "newsletter": "Newsletter",
-      "podcast": "Podcast",
-      "releases": "Releases"
+      "contact": "Contact Us",
+      "terms": "Terms of Use",
+      "dataPolicy": "Data Collection Policy"
     }
   }
 }

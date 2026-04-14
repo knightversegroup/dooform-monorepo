@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Globe, Menu, X } from 'lucide-react';
 import { DooformLogo } from '@dooform/shared/components/ui/DooformLogo';
 import LanguageSwitcher from './LanguageSwitcher';
 
@@ -47,7 +47,7 @@ export default function Header({
             ))}
           </nav>
 
-          <div className="hidden items-center gap-4 md:flex">
+          <div className="hidden items-center gap-4 md:flex justify-center">
             <LanguageSwitcher locale={locale} />
             <a
               href="#trial"
