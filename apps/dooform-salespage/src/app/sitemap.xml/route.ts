@@ -1,6 +1,6 @@
 import { i18n } from '../../i18n/config';
 
-const BASE_URL = 'https://dooform.com';
+const BASE_URL = 'https://www.dooform.com';
 
 const routes = ['', '/features', '/compliance', '/plan', '/usecases'];
 

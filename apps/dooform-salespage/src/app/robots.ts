@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
     },
-    sitemap: 'https://dooform.com/sitemap.xml',
+    sitemap: 'https://www.dooform.com/sitemap.xml',
   };
 }
