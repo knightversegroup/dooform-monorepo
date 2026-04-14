@@ -3,43 +3,59 @@
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { DooformLogo } from '@dooform/shared/components/ui/DooformLogo';
+import LanguageSwitcher from './LanguageSwitcher';
 
-const navItems = [
-  { label: 'Features', href: '/features' },
-  { label: 'Use Cases', href: '/usecases' },
-  { label: 'Compliance', href: '/compliance' },
-  { label: 'Plan', href: '/plan' },
-];
+type NavDict = {
+  features: string;
+  useCases: string;
+  compliance: string;
+  plan: string;
+  register: string;
+};
 
-export default function Header() {
+export default function Header({
+  dict,
+  locale,
+}: {
+  dict: NavDict;
+  locale: string;
+}) {
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const navItems = [
+    { label: dict.features, href: `/${locale}/features` },
+    { label: dict.useCases, href: `/${locale}/usecases` },
+    { label: dict.compliance, href: `/${locale}/compliance` },
+    { label: dict.plan, href: `/${locale}/plan` },
+  ];
 
   return (
     <>
       <header className="sticky top-0 border-b border-[#e7e7e7]">
         <div className="mx-auto flex max-w-[1280px] items-center justify-between px-4 py-6 sticky top-0 bg-white">
           {/* Logo */}
-
-          <a href="/">
+          <a href={`/${locale}`}>
             <DooformLogo />
           </a>
 
           {/* Desktop Nav */}
           <nav className="hidden items-center gap-6 font-semibold text-base text-black md:flex">
             {navItems.map((item) => (
-              <a key={item.label} href={item.href}>
+              <a key={item.href} href={item.href}>
                 {item.label}
               </a>
             ))}
           </nav>
 
-          {/* CTA */}
-          <a
-            href="#trial"
-            className="hidden rounded-full bg-white px-3 py-1.5 text-base font-semibold text-black shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)] md:block"
-          >
-            Register
-          </a>
+          <div className="hidden items-center gap-4 md:flex">
+            <LanguageSwitcher locale={locale} />
+            <a
+              href="#trial"
+              className="rounded-full bg-white px-3 py-1.5 text-base font-semibold text-black shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)]"
+            >
+              {dict.register}
+            </a>
+          </div>
 
           {/* Mobile Menu Toggle */}
           <button
@@ -58,7 +74,7 @@ export default function Header() {
       >
         {/* Mobile Menu Header */}
         <div className="flex items-center justify-between px-4 py-6">
-          <a href="/" onClick={() => setMobileOpen(false)}>
+          <a href={`/${locale}`} onClick={() => setMobileOpen(false)}>
             <DooformLogo />
           </a>
           <button
@@ -75,7 +91,7 @@ export default function Header() {
           <nav className="flex flex-col gap-6 font-inter font-semibold text-2xl text-black">
             {navItems.map((item) => (
               <a
-                key={item.label}
+                key={item.href}
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
               >
@@ -83,9 +99,12 @@ export default function Header() {
               </a>
             ))}
             <a href="#trial" onClick={() => setMobileOpen(false)}>
-              Register
+              {dict.register}
             </a>
           </nav>
+          <div className="mt-8">
+            <LanguageSwitcher locale={locale} />
+          </div>
         </div>
       </div>
     </>

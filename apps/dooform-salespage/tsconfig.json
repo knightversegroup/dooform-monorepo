@@ -1,7 +1,8 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "jsx": "preserve",
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
     "strict": true,
     "noEmit": true,
     "emitDeclarationOnly": false,
@@ -15,10 +16,6 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "incremental": true,
-    "compilerOptions": {
-      "jsx": "react-jsx",
-      "jsxImportSource": "react"
-    },
     "plugins": [
       {
         "name": "next"
