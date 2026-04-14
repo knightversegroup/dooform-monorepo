@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
+import { DooformLogo } from '../../../../../libs/shared/src/components/ui/DooformLogo';
 
 const navItems = [
   { label: 'Features', href: '#features' },
@@ -19,8 +20,9 @@ export default function Header() {
       <header className="border-b border-[#e7e7e7]">
         <div className="mx-auto flex max-w-[1280px] items-center justify-between px-4 py-6 sticky top-0 bg-white">
           {/* Logo */}
+
           <a href="/">
-            <Image src="/dooform.svg" alt="Dooform" width={124} height={24} />
+            <DooformLogo />
           </a>
 
           {/* Desktop Nav */}
