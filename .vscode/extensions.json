@@ -2,7 +2,6 @@
   "recommendations": [
     "ms-playwright.playwright",
     "esbenp.prettier-vscode",
-    "firsttris.vscode-jest-runner",
-    "astro-build.astro-vscode"
+    "firsttris.vscode-jest-runner"
   ]
 }
