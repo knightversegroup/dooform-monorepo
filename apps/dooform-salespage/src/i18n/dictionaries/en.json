@@ -49,6 +49,65 @@
       }
     }
   },
+  "pricing": {
+    "heading": "Pricing Plans",
+    "subtitle": "Choose a plan that fits your needs",
+    "footnote": "All plans are billed monthly. All prices in ฿THB.",
+    "allFeatures": "All features",
+    "plans": {
+      "trial": {
+        "name": "Trial",
+        "price": "฿0",
+        "period": "/ 1 user",
+        "button": "Try for free",
+        "features": [
+          "Fill up to 5 basic documents",
+          "No team members",
+          "No historical data access"
+        ]
+      },
+      "starter": {
+        "name": "Starter",
+        "price": "฿2,490",
+        "period": "/ 10 users per month",
+        "button": "Subscribe",
+        "features": [
+          "Fill up to 500 basic documents/month",
+          "Up to 10 team members",
+          "View stored data up to 90 days"
+        ]
+      },
+      "plus": {
+        "name": "Plus",
+        "price": "฿4,990",
+        "period": "/ 10 users per month",
+        "button": "Subscribe",
+        "features": [
+          "Unlimited basic document filling",
+          "Up to 10 team members",
+          "View stored data up to 1 year",
+          "AI-powered data verification",
+          "Automatic text detection",
+          "Add up to 10 organization document sets"
+        ]
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "price": "Contact us",
+        "period": "Unlimited users per month",
+        "button": "Contact",
+        "features": [
+          "Unlimited basic document filling",
+          "Unlimited team members",
+          "Unlimited data retention",
+          "AI-powered data verification",
+          "Automatic text detection",
+          "Unlimited organization documents",
+          "Enterprise-level API Webhooks"
+        ]
+      }
+    }
+  },
   "footer": {
     "copyright": "© 2025 Dooform by Knight Consultant\nUnder License of Rinkai",
     "companyName": "knight consultant worldwide company limited",
