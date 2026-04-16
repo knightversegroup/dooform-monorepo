@@ -31,6 +31,24 @@
       }
     }
   },
+  "useCases": {
+    "heading": "Dooform Understands\nBusiness Owners & Translators",
+    "subtitle": "Choose a package that fits your needs",
+    "cards": {
+      "card1": {
+        "title": "Dooform Understands Business Owners & Translators",
+        "description": "Designed to streamline document workflows for business owners and professional translators alike."
+      },
+      "card2": {
+        "title": "Dooform Understands Business Owners & Translators",
+        "description": "Designed to streamline document workflows for business owners and professional translators alike."
+      },
+      "card3": {
+        "title": "Reduce Document Filling Time",
+        "description": "Automate repetitive document tasks and cut down on manual data entry with smart form processing."
+      }
+    }
+  },
   "footer": {
     "copyright": "© 2025 Dooform by Knight Consultant\nUnder License of Rinkai",
     "companyName": "knight consultant worldwide company limited",
