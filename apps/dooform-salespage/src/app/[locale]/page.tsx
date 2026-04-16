@@ -14,8 +14,8 @@ export default async function Page({ params }: Props) {
 
   return (
     <main>
-      <FeaturesSection dict={dict.features} locale={locale} />
       <UseCasesSection dict={dict.useCases} />
+      <FeaturesSection dict={dict.features} locale={locale} />
       <PricingSection dict={dict.pricing} />
     </main>
   );
