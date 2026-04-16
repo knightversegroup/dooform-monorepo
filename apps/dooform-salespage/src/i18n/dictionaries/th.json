@@ -12,6 +12,12 @@
     "documents": "เอกสาร",
     "register": "ลงทะเบียน"
   },
+  "hero": {
+    "heading": "กรอกฟอร์มไม่ใช่เรื่องยากอีกต่อไป",
+    "subtitle": "ให้การกรอกฟอร์มไม่เป็นเรื่องยากอีกต่อไป",
+    "primaryCta": "ทดลองใช้งาน",
+    "secondaryCta": "ทดลองใช้งาน"
+  },
   "features": {
     "heading": "ดูฟอร์มทำอะไรได้บ้าง",
     "viewUseCases": "ดู Use Case",

@@ -1,5 +1,6 @@
 import { getDictionary } from '../../i18n';
 import { type Locale } from '../../i18n/config';
+import HeroSection from '../../components/home/HeroSection';
 import FeaturesSection from '../../components/home/FeaturesSection';
 import UseCasesSection from '../../components/home/UseCasesSection';
 import VideoSection from '../../components/home/VideoSection';
@@ -18,6 +19,7 @@ export default async function Page({ params }: Props) {
 
   return (
     <main>
+      <HeroSection dict={dict.hero} />
       <PartnersSection dict={dict.partners} />
       <UseCasesSection dict={dict.useCases} />
       <FeaturesSection dict={dict.features} locale={locale} />

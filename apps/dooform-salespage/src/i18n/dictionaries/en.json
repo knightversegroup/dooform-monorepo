@@ -12,6 +12,12 @@
     "documents": "Documents",
     "register": "Register"
   },
+  "hero": {
+    "heading": "Filling Forms Is No Longer Difficult",
+    "subtitle": "Make form filling effortless from now on",
+    "primaryCta": "Try It Free",
+    "secondaryCta": "Learn More"
+  },
   "features": {
     "heading": "What can Dooform do?",
     "viewUseCases": "View Use Cases",
