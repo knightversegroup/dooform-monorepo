@@ -10,6 +10,27 @@
     "plan": "Plan",
     "register": "Register"
   },
+  "features": {
+    "heading": "What can Dooform do?",
+    "viewUseCases": "View Use Cases",
+    "cards": {
+      "business": {
+        "title": "Supports Diverse Businesses",
+        "description": "In addition to the government documents Dooform provides, you can also use Dooform's syntax to manage documents already in your system.",
+        "button": "View Examples"
+      },
+      "developer": {
+        "title": "Developer Friendly",
+        "description": "Business API Webhook designed to make it even easier for developers to integrate with Dooform.",
+        "button": "API Reference"
+      },
+      "performance": {
+        "title": "Fast Processing",
+        "description": "If your business needs to manage and export a large number of documents, you can call the API to generate up to 1,000 files per 10 seconds.",
+        "button": "View Performance"
+      }
+    }
+  },
   "footer": {
     "copyright": "© 2025 Dooform by Knight Consultant\nUnder License of Rinkai",
     "companyName": "knight consultant worldwide company limited",

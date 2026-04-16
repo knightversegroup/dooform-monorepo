@@ -10,6 +10,27 @@
     "plan": "แผนราคา",
     "register": "ลงทะเบียน"
   },
+  "features": {
+    "heading": "ดูฟอร์มทำอะไรได้บ้าง",
+    "viewUseCases": "ดู Use Case",
+    "cards": {
+      "business": {
+        "title": "รองรับธุรกิจที่หลากหลาย",
+        "description": "นอกจากเอกสารราชการที่ Dooform มีให้ใช้งานแล้ว คุณยังสามารถใช้ syntax จาก Dooform จัดการเอกสารที่มีอยู่ในระบบของคุณได้",
+        "button": "ตัวอย่างงาน"
+      },
+      "developer": {
+        "title": "Developer Friendly",
+        "description": "Business API Webhook ออกแบบมาเพื่อให้นักพัฒนาเชื่อมต่อกับ Dooform ได้ง่ายมากยิ่งขึ้น",
+        "button": "API Reference"
+      },
+      "performance": {
+        "title": "ประมวลผลไว",
+        "description": "หากธุรกิจของคุณต้องจัดการเอกสารและส่งออกเป็นจำนวนมาก คุณสามารถเรียก API เพื่อสร้างไฟล์ได้มากถึง 1,000 รายการ/10 seconds",
+        "button": "ดูกราฟวัดประสิทธิภาพ"
+      }
+    }
+  },
   "footer": {
     "copyright": "© 2025 Dooform by Knight Consultant\nUnder License of Rinkai",
     "companyName": "knight consultant worldwide company limited",

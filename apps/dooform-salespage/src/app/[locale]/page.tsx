@@ -1,9 +1,18 @@
-import { DooformLogo } from '@dooform/shared/components/ui/DooformLogo';
+import { getDictionary } from '../../i18n';
+import { type Locale } from '../../i18n/config';
+import FeaturesSection from '../../components/home/FeaturesSection';
 
-export default function Page() {
+type Props = {
+  params: Promise<{ locale: string }>;
+};
+
+export default async function Page({ params }: Props) {
+  const { locale } = await params;
+  const dict = await getDictionary(locale as Locale);
+
   return (
-    <main className="min-h-screen h-full w-full flex items-center justify-center">
-      <DooformLogo />
+    <main>
+      <FeaturesSection dict={dict.features} locale={locale} />
     </main>
   );
 }
