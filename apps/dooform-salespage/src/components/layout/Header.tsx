@@ -10,6 +10,7 @@ type NavDict = {
   useCases: string;
   compliance: string;
   plan: string;
+  articles: string;
   register: string;
 };
 
@@ -27,12 +28,13 @@ export default function Header({
     { label: dict.useCases, href: `/${locale}/usecases` },
     { label: dict.compliance, href: `/${locale}/compliance` },
     { label: dict.plan, href: `/${locale}/plan` },
+    { label: dict.articles, href: `/${locale}/articles` },
   ];
 
   return (
     <div className="sticky top-0 border-b border-[#e7e7e7] z-50 bg-white">
       <header className="">
-        <div className="mx-auto flex max-w-[1280px] items-center justify-between px-4 py-6 sticky top-0 bg-white">
+        <div className="mx-auto flex max-w-[1280px] items-center justify-between px-6 py-6 sticky top-0 bg-white">
           {/* Logo */}
           <a href={`/${locale}`}>
             <DooformLogo />

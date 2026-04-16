@@ -8,6 +8,7 @@
     "useCases": "Use Cases",
     "compliance": "Compliance",
     "plan": "Plan",
+    "articles": "Articles",
     "register": "Register"
   },
   "features": {
@@ -107,6 +108,52 @@
         ]
       }
     }
+  },
+  "video": {
+    "heading": "How Dooform Helps Reduce Business Costs",
+    "viewUseCases": "View Use Cases"
+  },
+  "partners": {
+    "heading": "Trusted by Leading Organizations",
+    "subtitle": "Dooform serves organizations across many industries"
+  },
+  "faq": {
+    "heading": "Frequently Asked Questions",
+    "subtitle": "Supports official government documents for translation and embassy submission",
+    "viewDocuments": "View Documents",
+    "readMore": "Read More",
+    "items": [
+      {
+        "question": "National ID Card",
+        "answer": "Supports filling and translating Thai national ID cards into English in embassy-accepted formats."
+      },
+      {
+        "question": "Birth Certificate",
+        "answer": "Supports filling and translating Thai birth certificates into English in embassy-accepted formats."
+      },
+      {
+        "question": "House Registration",
+        "answer": "Supports filling and translating Thai house registrations into English in embassy-accepted formats."
+      },
+      {
+        "question": "Marriage Certificate",
+        "answer": "Supports filling and translating Thai marriage certificates into English in embassy-accepted formats."
+      },
+      {
+        "question": "Others",
+        "answer": "Supports additional official government documents. Contact us for more information."
+      }
+    ]
+  },
+  "trial": {
+    "heading": "Try for Free",
+    "subtitle": "Simply register and start filling in your data right away",
+    "namePlaceholder": "Full name",
+    "emailPlaceholder": "Email",
+    "passwordPlaceholder": "Password",
+    "register": "Register",
+    "hasAccount": "Already have an account?",
+    "consent": "By registering, you consent to the collection of your usage data."
   },
   "footer": {
     "copyright": "© 2025 Dooform by Knight Consultant\nUnder License of Rinkai",
