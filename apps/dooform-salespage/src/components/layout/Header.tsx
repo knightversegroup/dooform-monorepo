@@ -11,6 +11,7 @@ type NavDict = {
   compliance: string;
   plan: string;
   articles: string;
+  documents: string;
   register: string;
 };
 
@@ -27,6 +28,7 @@ export default function Header({
     { label: dict.features, href: `/${locale}/features` },
     { label: dict.useCases, href: `/${locale}/usecases` },
     { label: dict.compliance, href: `/${locale}/compliance` },
+    { label: dict.documents, href: `/${locale}/documents` },
     { label: dict.plan, href: `/${locale}/plan` },
     { label: dict.articles, href: `/${locale}/articles` },
   ];
