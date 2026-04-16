@@ -30,8 +30,8 @@ export default function Header({
   ];
 
   return (
-    <>
-      <header className="sticky top-0 border-b border-[#e7e7e7]">
+    <div className="sticky top-0 border-b border-[#e7e7e7] z-50 bg-white">
+      <header className="">
         <div className="mx-auto flex max-w-[1280px] items-center justify-between px-4 py-6 sticky top-0 bg-white">
           {/* Logo */}
           <a href={`/${locale}`}>
@@ -107,6 +107,6 @@ export default function Header({
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
