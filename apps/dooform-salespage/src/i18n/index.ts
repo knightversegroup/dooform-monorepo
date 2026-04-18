@@ -15,7 +15,7 @@ export const getDictionary = async (locale: Locale): Promise<SalespageDict> => {
 
   try {
     const res = await fetch(`${apiUrl}/salespage-content/${locale}`, {
-      next: { tags: [`salespage:${locale}`], revalidate: 3600 },
+      next: { tags: [`salespage:${locale}`], revalidate: 60 },
     });
     if (!res.ok) {
       throw new Error(`content api returned ${res.status}`);
