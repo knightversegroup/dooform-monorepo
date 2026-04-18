@@ -4,13 +4,25 @@ import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import type {
   SalespageDict,
+  SalespageDocuments,
+  SalespageDocsArticleSection,
+  SalespageDocsSidebarItem,
+  SalespageDocsSidebarSection,
   SalespageFaq,
   SalespageFaqItem,
+  SalespageFeatureCard,
+  SalespageFeatures,
   SalespageFooter,
   SalespageHero,
+  SalespageMetadata,
+  SalespageNav,
+  SalespagePartners,
   SalespagePricing,
   SalespagePricingPlan,
   SalespageTrial,
+  SalespageUseCaseCard,
+  SalespageUseCases,
+  SalespageVideo,
 } from "@dooform/shared";
 
 const inputClass =
@@ -272,6 +284,451 @@ export function PricingEditor({ value, onChange }: EditorProps<"pricing">) {
             </div>
           ))}
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------- Metadata (SEO) ----------------
+
+export function MetadataEditor({ value, onChange }: EditorProps<"metadata">) {
+  const update = (patch: Partial<SalespageMetadata>) =>
+    onChange({ ...value, ...patch });
+  return (
+    <div className="flex flex-col gap-4">
+      <Field
+        label="Page title (browser tab / search result)"
+        value={value.title}
+        onChange={(v) => update({ title: v })}
+      />
+      <Field
+        label="Meta description (search snippet)"
+        value={value.description}
+        onChange={(v) => update({ description: v })}
+        multiline
+      />
+    </div>
+  );
+}
+
+// ---------------- Nav ----------------
+
+const NAV_LABELS: Record<keyof SalespageNav, string> = {
+  features: "Features",
+  useCases: "Use Cases",
+  compliance: "Compliance",
+  plan: "Plan",
+  articles: "Articles",
+  documents: "Documents",
+  register: "Register button",
+};
+
+export function NavEditor({ value, onChange }: EditorProps<"nav">) {
+  const update = (key: keyof SalespageNav, v: string) =>
+    onChange({ ...value, [key]: v });
+  return (
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      {(Object.keys(NAV_LABELS) as (keyof SalespageNav)[]).map((key) => (
+        <Field
+          key={key}
+          label={NAV_LABELS[key]}
+          value={value[key]}
+          onChange={(v) => update(key, v)}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ---------------- Video ----------------
+
+export function VideoEditor({ value, onChange }: EditorProps<"video">) {
+  const update = (patch: Partial<SalespageVideo>) =>
+    onChange({ ...value, ...patch });
+  return (
+    <div className="flex flex-col gap-4">
+      <Field label="Heading" value={value.heading} onChange={(v) => update({ heading: v })} />
+      <Field
+        label="View use cases button"
+        value={value.viewUseCases}
+        onChange={(v) => update({ viewUseCases: v })}
+      />
+    </div>
+  );
+}
+
+// ---------------- Partners ----------------
+
+export function PartnersEditor({ value, onChange }: EditorProps<"partners">) {
+  const update = (patch: Partial<SalespagePartners>) =>
+    onChange({ ...value, ...patch });
+  return (
+    <div className="flex flex-col gap-4">
+      <Field label="Heading" value={value.heading} onChange={(v) => update({ heading: v })} />
+      <Field
+        label="Subtitle"
+        value={value.subtitle}
+        onChange={(v) => update({ subtitle: v })}
+        multiline
+      />
+    </div>
+  );
+}
+
+// ---------------- Features ----------------
+
+const FEATURE_CARD_LABELS: Record<keyof SalespageFeatures["cards"], string> = {
+  business: "Card — Business",
+  developer: "Card — Developer",
+  performance: "Card — Performance",
+};
+
+export function FeaturesEditor({ value, onChange }: EditorProps<"features">) {
+  const update = (patch: Partial<SalespageFeatures>) =>
+    onChange({ ...value, ...patch });
+  const updateCard = (
+    key: keyof SalespageFeatures["cards"],
+    patch: Partial<SalespageFeatureCard>
+  ) =>
+    update({
+      cards: { ...value.cards, [key]: { ...value.cards[key], ...patch } },
+    });
+  return (
+    <div className="flex flex-col gap-4">
+      <Field label="Heading" value={value.heading} onChange={(v) => update({ heading: v })} />
+      <Field
+        label="View use cases button"
+        value={value.viewUseCases}
+        onChange={(v) => update({ viewUseCases: v })}
+      />
+      {(Object.keys(FEATURE_CARD_LABELS) as (keyof SalespageFeatures["cards"])[]).map(
+        (key) => {
+          const card = value.cards[key];
+          return (
+            <div key={key} className={cardClass}>
+              <h3 className="text-sm font-semibold text-gray-900">
+                {FEATURE_CARD_LABELS[key]}
+              </h3>
+              <Field
+                label="Title"
+                value={card.title}
+                onChange={(v) => updateCard(key, { title: v })}
+              />
+              <Field
+                label="Description"
+                value={card.description}
+                onChange={(v) => updateCard(key, { description: v })}
+                multiline
+              />
+              <Field
+                label="Button label"
+                value={card.button}
+                onChange={(v) => updateCard(key, { button: v })}
+              />
+            </div>
+          );
+        }
+      )}
+    </div>
+  );
+}
+
+// ---------------- Use Cases ----------------
+
+const USECASE_LABELS: Record<keyof SalespageUseCases["cards"], string> = {
+  card1: "Card 1",
+  card2: "Card 2",
+  card3: "Card 3",
+};
+
+export function UseCasesEditor({ value, onChange }: EditorProps<"useCases">) {
+  const update = (patch: Partial<SalespageUseCases>) =>
+    onChange({ ...value, ...patch });
+  const updateCard = (
+    key: keyof SalespageUseCases["cards"],
+    patch: Partial<SalespageUseCaseCard>
+  ) =>
+    update({
+      cards: { ...value.cards, [key]: { ...value.cards[key], ...patch } },
+    });
+  return (
+    <div className="flex flex-col gap-4">
+      <Field
+        label="Heading (use \\n for line breaks)"
+        value={value.heading}
+        onChange={(v) => update({ heading: v })}
+        multiline
+      />
+      <Field
+        label="Subtitle"
+        value={value.subtitle}
+        onChange={(v) => update({ subtitle: v })}
+      />
+      {(Object.keys(USECASE_LABELS) as (keyof SalespageUseCases["cards"])[]).map(
+        (key) => {
+          const card = value.cards[key];
+          return (
+            <div key={key} className={cardClass}>
+              <h3 className="text-sm font-semibold text-gray-900">
+                {USECASE_LABELS[key]}
+              </h3>
+              <Field
+                label="Title"
+                value={card.title}
+                onChange={(v) => updateCard(key, { title: v })}
+              />
+              <Field
+                label="Description"
+                value={card.description}
+                onChange={(v) => updateCard(key, { description: v })}
+                multiline
+              />
+            </div>
+          );
+        }
+      )}
+    </div>
+  );
+}
+
+// ---------------- Documents ----------------
+
+export function DocumentsEditor({ value, onChange }: EditorProps<"documents">) {
+  const update = (patch: Partial<SalespageDocuments>) =>
+    onChange({ ...value, ...patch });
+
+  const updateSidebarSection = (
+    index: number,
+    patch: Partial<SalespageDocsSidebarSection>
+  ) => {
+    const sections = value.sidebar.sections.map((s, i) =>
+      i === index ? { ...s, ...patch } : s
+    );
+    update({ sidebar: { sections } });
+  };
+  const addSidebarSection = () =>
+    update({
+      sidebar: {
+        sections: [...value.sidebar.sections, { title: "", items: [] }],
+      },
+    });
+  const removeSidebarSection = (index: number) =>
+    update({
+      sidebar: {
+        sections: value.sidebar.sections.filter((_, i) => i !== index),
+      },
+    });
+  const updateSidebarItem = (
+    sectionIndex: number,
+    itemIndex: number,
+    patch: Partial<SalespageDocsSidebarItem>
+  ) => {
+    const section = value.sidebar.sections[sectionIndex];
+    const items = section.items.map((it, i) =>
+      i === itemIndex ? { ...it, ...patch } : it
+    );
+    updateSidebarSection(sectionIndex, { items });
+  };
+  const addSidebarItem = (sectionIndex: number) => {
+    const section = value.sidebar.sections[sectionIndex];
+    updateSidebarSection(sectionIndex, {
+      items: [...section.items, { title: "", href: "" }],
+    });
+  };
+  const removeSidebarItem = (sectionIndex: number, itemIndex: number) => {
+    const section = value.sidebar.sections[sectionIndex];
+    updateSidebarSection(sectionIndex, {
+      items: section.items.filter((_, i) => i !== itemIndex),
+    });
+  };
+
+  const updateArticleSection = (
+    index: number,
+    patch: Partial<SalespageDocsArticleSection>
+  ) => {
+    const sections = value.article.sections.map((s, i) =>
+      i === index ? { ...s, ...patch } : s
+    );
+    update({ article: { ...value.article, sections } });
+  };
+  const addArticleSection = () =>
+    update({
+      article: {
+        ...value.article,
+        sections: [
+          ...value.article.sections,
+          { id: "", heading: "", body: "" },
+        ],
+      },
+    });
+  const removeArticleSection = (index: number) =>
+    update({
+      article: {
+        ...value.article,
+        sections: value.article.sections.filter((_, i) => i !== index),
+      },
+    });
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className={cardClass}>
+        <h3 className="text-sm font-semibold text-gray-900">Page chrome</h3>
+        <Field
+          label="Search placeholder"
+          value={value.search.placeholder}
+          onChange={(v) =>
+            update({ search: { placeholder: v } })
+          }
+        />
+        <Field
+          label="Table of contents heading"
+          value={value.toc.title}
+          onChange={(v) => update({ toc: { title: v } })}
+        />
+      </div>
+
+      <div className={cardClass}>
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-gray-900">Sidebar navigation</h3>
+          <button
+            type="button"
+            onClick={addSidebarSection}
+            className="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
+          >
+            <Plus className="h-3.5 w-3.5" /> Add section
+          </button>
+        </div>
+        {value.sidebar.sections.map((section, si) => (
+          <div key={si} className={cardClass}>
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-gray-500">
+                Section #{si + 1}
+              </span>
+              <button
+                type="button"
+                onClick={() => removeSidebarSection(si)}
+                className="rounded-md p-1 text-red-600 hover:bg-red-50"
+                aria-label="Remove section"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
+            <Field
+              label="Section title"
+              value={section.title}
+              onChange={(v) => updateSidebarSection(si, { title: v })}
+            />
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-gray-700">Links</span>
+              <button
+                type="button"
+                onClick={() => addSidebarItem(si)}
+                className="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
+              >
+                <Plus className="h-3.5 w-3.5" /> Add link
+              </button>
+            </div>
+            {section.items.map((item, ii) => (
+              <div
+                key={ii}
+                className="flex flex-col gap-2 rounded-md border border-gray-200 bg-gray-50 p-3 md:flex-row md:items-end md:gap-3"
+              >
+                <div className="flex-1">
+                  <Field
+                    label="Link label"
+                    value={item.title}
+                    onChange={(v) => updateSidebarItem(si, ii, { title: v })}
+                  />
+                </div>
+                <div className="flex-1">
+                  <Field
+                    label="URL slug (blank = index)"
+                    value={item.href}
+                    onChange={(v) => updateSidebarItem(si, ii, { href: v })}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeSidebarItem(si, ii)}
+                  className="rounded-md p-2 text-red-600 hover:bg-red-50"
+                  aria-label="Remove link"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      <div className={cardClass}>
+        <h3 className="text-sm font-semibold text-gray-900">Article (landing)</h3>
+        <Field
+          label="Eyebrow (small label above title)"
+          value={value.article.eyebrow}
+          onChange={(v) =>
+            update({ article: { ...value.article, eyebrow: v } })
+          }
+        />
+        <Field
+          label="Title"
+          value={value.article.title}
+          onChange={(v) =>
+            update({ article: { ...value.article, title: v } })
+          }
+        />
+        <Field
+          label="Description"
+          value={value.article.description}
+          onChange={(v) =>
+            update({ article: { ...value.article, description: v } })
+          }
+          multiline
+        />
+
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-semibold text-gray-700">Sections</span>
+          <button
+            type="button"
+            onClick={addArticleSection}
+            className="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
+          >
+            <Plus className="h-3.5 w-3.5" /> Add section
+          </button>
+        </div>
+        {value.article.sections.map((section, i) => (
+          <div key={i} className={cardClass}>
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-gray-500">
+                #{i + 1}
+              </span>
+              <button
+                type="button"
+                onClick={() => removeArticleSection(i)}
+                className="rounded-md p-1 text-red-600 hover:bg-red-50"
+                aria-label="Remove section"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
+            <Field
+              label="Anchor id (letters, dashes)"
+              value={section.id}
+              onChange={(v) => updateArticleSection(i, { id: v })}
+            />
+            <Field
+              label="Heading"
+              value={section.heading}
+              onChange={(v) => updateArticleSection(i, { heading: v })}
+            />
+            <Field
+              label="Body"
+              value={section.body}
+              onChange={(v) => updateArticleSection(i, { body: v })}
+              multiline
+            />
+          </div>
+        ))}
       </div>
     </div>
   );

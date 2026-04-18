@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Loader2, Save, CheckCircle2, AlertCircle } from "lucide-react";
+import { Loader2, Save, CheckCircle2, AlertCircle, ExternalLink } from "lucide-react";
 import { apiClient } from "@dooform/shared/api/client";
 import {
   SALESPAGE_SECTION_KEYS,
@@ -10,12 +10,18 @@ import {
   type SalespageSectionKey,
 } from "@dooform/shared";
 import {
+  DocumentsEditor,
   FaqEditor,
+  FeaturesEditor,
   FooterEditor,
   HeroEditor,
-  JsonEditor,
+  MetadataEditor,
+  NavEditor,
+  PartnersEditor,
   PricingEditor,
   TrialEditor,
+  UseCasesEditor,
+  VideoEditor,
 } from "./_components/editors";
 
 const LOCALES: { key: SalespageLocale; label: string }[] = [
@@ -42,6 +48,25 @@ const SECTION_LABELS: Record<SalespageSectionKey, string> = {
   documents: "Documents",
   trial: "Trial / Signup",
   footer: "Footer",
+};
+
+const SECTION_HELP: Record<SalespageSectionKey, string> = {
+  metadata: "Browser tab title and the description search engines show under your link.",
+  nav: "Links in the top navigation bar (Features, Use Cases, Compliance, …).",
+  hero: "The big banner at the very top of the homepage.",
+  features: "The “What can Dooform do?” block with three cards.",
+  useCases: "The dark navy strip with three overlapping cards about who it's for.",
+  pricing: "The pricing table — four plans (Trial, Starter, Plus, Enterprise).",
+  video: "The heading and button for the how-it-works video block.",
+  partners: "The “Trusted by leading organizations” strip.",
+  faq: "The FAQ block on the homepage. Add or remove items as needed.",
+  documents: "The /documents page — left sidebar, article body, and right TOC.",
+  trial: "The sign-up form at the bottom of the homepage (labels and placeholders).",
+  footer: "Copyright, section headings, and all link labels in the footer.",
+};
+
+const SECTION_PREVIEW_PATH: Partial<Record<SalespageSectionKey, string>> = {
+  documents: "/documents",
 };
 
 export default function SalespageContentPage() {
@@ -123,11 +148,36 @@ export default function SalespageContentPage() {
   const editor = useMemo(() => {
     if (!dict) return null;
     switch (activeSection) {
+      case "metadata":
+        return (
+          <MetadataEditor
+            value={dict.metadata}
+            onChange={(v) => setSection("metadata", v)}
+          />
+        );
+      case "nav":
+        return (
+          <NavEditor value={dict.nav} onChange={(v) => setSection("nav", v)} />
+        );
       case "hero":
         return (
           <HeroEditor
             value={dict.hero}
             onChange={(v) => setSection("hero", v)}
+          />
+        );
+      case "features":
+        return (
+          <FeaturesEditor
+            value={dict.features}
+            onChange={(v) => setSection("features", v)}
+          />
+        );
+      case "useCases":
+        return (
+          <UseCasesEditor
+            value={dict.useCases}
+            onChange={(v) => setSection("useCases", v)}
           />
         );
       case "pricing":
@@ -137,9 +187,30 @@ export default function SalespageContentPage() {
             onChange={(v) => setSection("pricing", v)}
           />
         );
+      case "video":
+        return (
+          <VideoEditor
+            value={dict.video}
+            onChange={(v) => setSection("video", v)}
+          />
+        );
+      case "partners":
+        return (
+          <PartnersEditor
+            value={dict.partners}
+            onChange={(v) => setSection("partners", v)}
+          />
+        );
       case "faq":
         return (
           <FaqEditor value={dict.faq} onChange={(v) => setSection("faq", v)} />
+        );
+      case "documents":
+        return (
+          <DocumentsEditor
+            value={dict.documents}
+            onChange={(v) => setSection("documents", v)}
+          />
         );
       case "trial":
         return (
@@ -153,19 +224,6 @@ export default function SalespageContentPage() {
           <FooterEditor
             value={dict.footer}
             onChange={(v) => setSection("footer", v)}
-          />
-        );
-      default:
-        return (
-          <JsonEditor
-            key={`${locale}:${activeSection}`}
-            value={dict[activeSection]}
-            onChange={(v) =>
-              setSection(
-                activeSection,
-                v as SalespageDict[typeof activeSection]
-              )
-            }
           />
         );
     }
@@ -247,20 +305,31 @@ export default function SalespageContentPage() {
           </nav>
 
           <section className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-6">
-            <div className="flex items-center justify-between border-b border-gray-200 pb-3">
-              <h2 className="text-base font-semibold text-gray-900">
-                {SECTION_LABELS[activeSection]}
-              </h2>
-              <div className="flex items-center gap-3">
-                <SaveStatus state={save} />
-                <button
-                  type="button"
-                  onClick={() => saveSection(activeSection)}
-                  disabled={!dirty[activeSection] || save.kind === "saving"}
-                  className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 disabled:bg-gray-300"
-                >
-                  <Save className="h-3.5 w-3.5" /> Save section
-                </button>
+            <div className="flex flex-col gap-2 border-b border-gray-200 pb-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-semibold text-gray-900">
+                  {SECTION_LABELS[activeSection]}
+                </h2>
+                <div className="flex items-center gap-3">
+                  <SaveStatus state={save} />
+                  <button
+                    type="button"
+                    onClick={() => saveSection(activeSection)}
+                    disabled={!dirty[activeSection] || save.kind === "saving"}
+                    className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 disabled:bg-gray-300"
+                  >
+                    <Save className="h-3.5 w-3.5" /> Save section
+                  </button>
+                </div>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-xs text-gray-500">
+                  {SECTION_HELP[activeSection]}
+                </p>
+                <PreviewLink
+                  locale={locale}
+                  path={SECTION_PREVIEW_PATH[activeSection] ?? "/"}
+                />
               </div>
             </div>
             {editor}
@@ -268,6 +337,22 @@ export default function SalespageContentPage() {
         </div>
       ) : null}
     </div>
+  );
+}
+
+function PreviewLink({ locale, path }: { locale: SalespageLocale; path: string }) {
+  const base =
+    process.env.NEXT_PUBLIC_SALESPAGE_URL ?? "https://www.dooform.com";
+  const href = `${base}/${locale}${path === "/" ? "" : path}`;
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-1 whitespace-nowrap text-xs font-medium text-blue-600 hover:text-blue-700"
+    >
+      Preview live <ExternalLink className="h-3 w-3" />
+    </a>
   );
 }
 
