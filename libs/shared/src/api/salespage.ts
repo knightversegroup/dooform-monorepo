@@ -117,16 +117,19 @@ export interface SalespageDocsArticleSection {
   body: string;
 }
 
+export interface SalespageDocumentPage {
+  eyebrow: string;
+  title: string;
+  description: string;
+  sections: SalespageDocsArticleSection[];
+}
+
 export interface SalespageDocuments {
   search: { placeholder: string };
   sidebar: { sections: SalespageDocsSidebarSection[] };
   toc: { title: string };
-  article: {
-    eyebrow: string;
-    title: string;
-    description: string;
-    sections: SalespageDocsArticleSection[];
-  };
+  article: SalespageDocumentPage;
+  pages: Record<string, SalespageDocumentPage>;
 }
 
 export interface SalespageTrial {

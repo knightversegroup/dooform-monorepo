@@ -208,6 +208,124 @@
           "body": "Follow the quick start to fill your first document, or jump to the API reference to wire Dooform into your backend."
         }
       ]
+    },
+    "pages": {
+      "quick-start": {
+        "eyebrow": "Getting Started",
+        "title": "Quick start",
+        "description": "Fill your first document in under five minutes.",
+        "sections": [
+          {
+            "id": "sign-up",
+            "heading": "1. Sign up",
+            "body": "Create an account at dooform.com and verify your email."
+          },
+          {
+            "id": "choose-template",
+            "heading": "2. Choose a template",
+            "body": "Pick from the official government templates or upload your own."
+          },
+          {
+            "id": "fill-and-export",
+            "heading": "3. Fill and export",
+            "body": "Fill the fields, preview the output, and download the finished PDF."
+          }
+        ]
+      },
+      "concepts": {
+        "eyebrow": "Getting Started",
+        "title": "Core concepts",
+        "description": "The handful of ideas that make Dooform click.",
+        "sections": [
+          {
+            "id": "templates",
+            "heading": "Templates",
+            "body": "A template is a reusable form layout with typed placeholders."
+          },
+          {
+            "id": "fields",
+            "heading": "Fields",
+            "body": "Fields are the inputs that fill a template — text, dates, IDs, addresses."
+          },
+          {
+            "id": "documents",
+            "heading": "Documents",
+            "body": "A document is a filled template — stored, versioned, and exportable."
+          }
+        ]
+      },
+      "national-id": {
+        "eyebrow": "Documents",
+        "title": "National ID card",
+        "description": "Fill and translate Thai national ID cards into embassy-accepted English.",
+        "sections": [
+          {
+            "id": "overview",
+            "heading": "Overview",
+            "body": "Supports the Thai national ID card layout. Automatically transliterates Thai names to English following RTGS rules."
+          }
+        ]
+      },
+      "birth-certificate": {
+        "eyebrow": "Documents",
+        "title": "Birth certificate",
+        "description": "Fill and translate Thai birth certificates into English.",
+        "sections": [
+          {
+            "id": "overview",
+            "heading": "Overview",
+            "body": "Supports the standard Thai birth certificate (Tor. Ror. 1/1)."
+          }
+        ]
+      },
+      "house-registration": {
+        "eyebrow": "Documents",
+        "title": "House registration",
+        "description": "Fill and translate Thai house registration (Tabien Baan) into English.",
+        "sections": [
+          {
+            "id": "overview",
+            "heading": "Overview",
+            "body": "Supports both the blue (resident) and yellow (non-resident) house registration books."
+          }
+        ]
+      },
+      "marriage-certificate": {
+        "eyebrow": "Documents",
+        "title": "Marriage certificate",
+        "description": "Fill and translate Thai marriage certificates into English.",
+        "sections": [
+          {
+            "id": "overview",
+            "heading": "Overview",
+            "body": "Supports Kor. Ror. 2 with parallel English translation."
+          }
+        ]
+      },
+      "webhooks": {
+        "eyebrow": "Integrations",
+        "title": "Webhooks",
+        "description": "Get notified when a document is processed.",
+        "sections": [
+          {
+            "id": "overview",
+            "heading": "Overview",
+            "body": "Configure a webhook URL in your org settings. Dooform POSTs a signed payload on document.created, document.updated, and document.finalized."
+          }
+        ]
+      },
+      "api": {
+        "eyebrow": "Integrations",
+        "title": "API reference",
+        "description": "Automate document generation with the Dooform REST API.",
+        "sections": [
+          {
+            "id": "authentication",
+            "heading": "Authentication",
+            "body": "Use a bearer token issued from your org's Developer settings. All requests use HTTPS."
+          }
+        ]
+      }
     }
   },
   "trial": {
