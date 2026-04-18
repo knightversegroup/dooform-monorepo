@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangle, ChevronDown, ChevronRight, Plus, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronRight, Plus, Trash2 } from "lucide-react";
 import type {
   SalespageDict,
   SalespageDocuments,
@@ -494,6 +494,23 @@ export function UseCasesEditor({ value, onChange }: EditorProps<"useCases">) {
 
 // ---------------- Documents ----------------
 
+const slugify = (raw: string) =>
+  raw
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\u0E00-\u0E7F-]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+const LANDING_KEY = "__landing__";
+
+const EMPTY_PAGE: SalespageDocumentPage = {
+  eyebrow: "",
+  title: "",
+  description: "",
+  sections: [],
+};
+
 function PageFields({
   value,
   onChange,
@@ -503,6 +520,21 @@ function PageFields({
 }) {
   const update = (patch: Partial<SalespageDocumentPage>) =>
     onChange({ ...value, ...patch });
+
+  const uniqueSlug = (base: string, excludeIndex: number) => {
+    const root = slugify(base) || "section";
+    let candidate = root;
+    let n = 1;
+    while (
+      value.sections.some(
+        (s, idx) => idx !== excludeIndex && s.id === candidate
+      )
+    ) {
+      candidate = `${root}-${++n}`;
+    }
+    return candidate;
+  };
+
   const updateSection = (
     index: number,
     patch: Partial<SalespageDocsArticleSection>
@@ -512,110 +544,348 @@ function PageFields({
         i === index ? { ...s, ...patch } : s
       ),
     });
+
+  const updateHeading = (index: number, heading: string) => {
+    const section = value.sections[index];
+    // Keep the anchor id in sync with the heading unless the admin has
+    // customized it to something that no longer matches the old heading.
+    const previousAuto = slugify(section.heading) || "section";
+    const headingDrivenId =
+      !section.id || section.id === previousAuto || section.id.startsWith(previousAuto + "-");
+    if (headingDrivenId) {
+      updateSection(index, { heading, id: uniqueSlug(heading, index) });
+    } else {
+      updateSection(index, { heading });
+    }
+  };
+
   const addSection = () =>
     update({
       sections: [
         ...value.sections,
-        { id: "", heading: "", body: "" },
+        { id: uniqueSlug("section", -1), heading: "", body: "" },
       ],
     });
+
   const removeSection = (index: number) =>
     update({ sections: value.sections.filter((_, i) => i !== index) });
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       <Field
-        label="Eyebrow (small label above title)"
+        label="Small label above title (optional)"
         value={value.eyebrow}
         onChange={(v) => update({ eyebrow: v })}
       />
       <Field
-        label="Title"
+        label="Page title"
         value={value.title}
         onChange={(v) => update({ title: v })}
       />
       <Field
-        label="Description"
+        label="Short description (one or two sentences)"
         value={value.description}
         onChange={(v) => update({ description: v })}
         multiline
       />
 
-      <div className="mt-2 flex items-center justify-between">
-        <span className="text-xs font-semibold text-gray-700">Body sections</span>
-        <button
-          type="button"
-          onClick={addSection}
-          className="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
-        >
-          <Plus className="h-3.5 w-3.5" /> Add section
-        </button>
-      </div>
-      {value.sections.map((section, i) => (
-        <div
-          key={i}
-          className="flex flex-col gap-2 rounded-md border border-gray-200 bg-gray-50 p-3"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-500">#{i + 1}</span>
-            <button
-              type="button"
-              onClick={() => removeSection(i)}
-              className="rounded-md p-1 text-red-600 hover:bg-red-50"
-              aria-label="Remove section"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
-          </div>
-          <Field
-            label="Anchor id (letters, dashes)"
-            value={section.id}
-            onChange={(v) => updateSection(i, { id: v })}
-          />
-          <Field
-            label="Heading"
-            value={section.heading}
-            onChange={(v) => updateSection(i, { heading: v })}
-          />
-          <Field
-            label="Body"
-            value={section.body}
-            onChange={(v) => updateSection(i, { body: v })}
-            multiline
-          />
+      <div className="mt-4 flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-semibold text-gray-900">Body</span>
+          <button
+            type="button"
+            onClick={addSection}
+            className="inline-flex items-center gap-1 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700"
+          >
+            <Plus className="h-3.5 w-3.5" /> Add heading + text
+          </button>
         </div>
-      ))}
+        <p className="text-xs text-gray-500">
+          Break the body into short headings with a paragraph under each. These become the right-side table of contents.
+        </p>
+
+        {value.sections.length === 0 ? (
+          <p className="rounded-md border border-dashed border-gray-300 bg-gray-50 px-4 py-6 text-center text-xs text-gray-500">
+            No body yet. Click "Add heading + text" to start.
+          </p>
+        ) : (
+          value.sections.map((section, i) => (
+            <div
+              key={i}
+              className="flex flex-col gap-2 rounded-md border border-gray-200 bg-gray-50 p-4"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-gray-500">
+                  {i + 1}.
+                </span>
+                <button
+                  type="button"
+                  onClick={() => removeSection(i)}
+                  className="rounded-md p-1 text-red-600 hover:bg-red-50"
+                  aria-label="Remove"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+              <Field
+                label="Heading"
+                value={section.heading}
+                onChange={(v) => updateHeading(i, v)}
+              />
+              <Field
+                label="Text"
+                value={section.body}
+                onChange={(v) => updateSection(i, { body: v })}
+                multiline
+              />
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
 
-const EMPTY_PAGE: SalespageDocumentPage = {
-  eyebrow: "",
-  title: "",
-  description: "",
-  sections: [],
-};
-
-const slugify = (raw: string) =>
-  raw
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9-]+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-
 export function DocumentsEditor({ value, onChange }: EditorProps<"documents">) {
   const pages = value.pages ?? {};
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({
-    __article__: true,
-  });
-  const toggle = (key: string) =>
-    setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
+  const [selected, setSelected] = useState<string>(LANDING_KEY);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const update = (patch: Partial<SalespageDocuments>) =>
     onChange({ ...value, pages, ...patch });
 
-  // ----- Sidebar helpers -----
+  // When a page is added / renamed / deleted, keep sidebar links in sync so
+  // the admin never has to think about hrefs.
+  const syncSidebar = (
+    op:
+      | { kind: "add"; slug: string; title: string }
+      | { kind: "rename"; from: string; to: string; title: string }
+      | { kind: "delete"; slug: string }
+  ): SalespageDocsSidebarSection[] => {
+    const sections = value.sidebar.sections.map((s) => ({ ...s, items: [...s.items] }));
+    if (op.kind === "add") {
+      const target = sections[sections.length - 1];
+      if (target) {
+        target.items.push({ title: op.title, href: op.slug });
+      } else {
+        sections.push({
+          title: "Documents",
+          items: [{ title: op.title, href: op.slug }],
+        });
+      }
+    } else if (op.kind === "rename") {
+      for (const s of sections) {
+        for (const it of s.items) {
+          if (it.href === op.from) {
+            it.href = op.to;
+            it.title = op.title || it.title;
+          }
+        }
+      }
+    } else if (op.kind === "delete") {
+      for (const s of sections) {
+        s.items = s.items.filter((it) => it.href !== op.slug);
+      }
+    }
+    return sections;
+  };
+
+  const addPage = () => {
+    if (typeof window === "undefined") return;
+    const title = window.prompt("What's the page title?")?.trim();
+    if (!title) return;
+    let slug = slugify(title);
+    if (!slug) slug = `page-${Date.now().toString(36)}`;
+    let unique = slug;
+    let n = 1;
+    while (pages[unique]) unique = `${slug}-${++n}`;
+    update({
+      pages: { ...pages, [unique]: { ...EMPTY_PAGE, title } },
+      sidebar: {
+        sections: syncSidebar({ kind: "add", slug: unique, title }),
+      },
+    });
+    setSelected(unique);
+  };
+
+  const deletePage = (slug: string) => {
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm(`Delete "${pages[slug]?.title || slug}"?`)
+    ) {
+      return;
+    }
+    const nextPages = { ...pages };
+    delete nextPages[slug];
+    update({
+      pages: nextPages,
+      sidebar: { sections: syncSidebar({ kind: "delete", slug }) },
+    });
+    setSelected(LANDING_KEY);
+  };
+
+  const renamePage = (slug: string) => {
+    if (typeof window === "undefined") return;
+    const newTitle = window.prompt("New page title:", pages[slug]?.title ?? "")?.trim();
+    if (!newTitle) return;
+    const newSlug = slugify(newTitle);
+    if (!newSlug) return;
+    let unique = newSlug;
+    let n = 1;
+    while (unique !== slug && pages[unique]) unique = `${newSlug}-${++n}`;
+    const moved = { ...pages };
+    moved[unique] = { ...moved[slug], title: newTitle };
+    if (unique !== slug) delete moved[slug];
+    update({
+      pages: moved,
+      sidebar: {
+        sections:
+          unique === slug
+            ? syncSidebar({ kind: "rename", from: slug, to: slug, title: newTitle })
+            : syncSidebar({ kind: "rename", from: slug, to: unique, title: newTitle }),
+      },
+    });
+    setSelected(unique);
+  };
+
+  const sortedSlugs = Object.keys(pages).sort((a, b) =>
+    (pages[a].title || a).localeCompare(pages[b].title || b)
+  );
+
+  const isLanding = selected === LANDING_KEY;
+  const selectedPage = isLanding ? value.article : pages[selected];
+  const setSelectedPage = (next: SalespageDocumentPage) => {
+    if (isLanding) {
+      update({ article: next });
+    } else {
+      update({ pages: { ...pages, [selected]: next } });
+    }
+  };
+
+  // Fall back to landing if selected slug disappears (e.g. after delete).
+  const effectivePage = selectedPage ?? value.article;
+  const effectiveIsLanding = !selectedPage || isLanding;
+
+  return (
+    <div className="flex flex-col gap-6">
+      {/* Page picker */}
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900">
+              Which page are you editing?
+            </h3>
+            <p className="text-xs text-gray-500">
+              The landing page is the main /documents page. Sub-pages are the links in the sidebar.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={addPage}
+            className="inline-flex items-center gap-1 rounded-md bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700"
+          >
+            <Plus className="h-3.5 w-3.5" /> New page
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-2 md:flex-row md:items-center">
+          <select
+            value={effectiveIsLanding ? LANDING_KEY : selected}
+            onChange={(e) => setSelected(e.target.value)}
+            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 md:flex-1"
+          >
+            <option value={LANDING_KEY}>
+              Landing page · /documents
+            </option>
+            {sortedSlugs.map((slug) => (
+              <option key={slug} value={slug}>
+                {pages[slug].title || slug} · /documents/{slug}
+              </option>
+            ))}
+          </select>
+
+          {!effectiveIsLanding && (
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => renamePage(selected)}
+                className="rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Rename
+              </button>
+              <button
+                type="button"
+                onClick={() => deletePage(selected)}
+                className="rounded-md border border-red-200 bg-white px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50"
+              >
+                Delete
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Selected page editor */}
+      <div className="flex flex-col gap-2 border-t border-gray-200 pt-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-base font-semibold text-gray-900">
+            {effectiveIsLanding ? "Landing page" : effectivePage.title || "Untitled page"}
+          </h3>
+          <span className="text-xs text-gray-500">
+            /documents{effectiveIsLanding ? "" : `/${selected}`}
+          </span>
+        </div>
+        <PageFields value={effectivePage} onChange={setSelectedPage} />
+      </div>
+
+      {/* Advanced */}
+      <div className="flex flex-col border-t border-gray-200 pt-4">
+        <button
+          type="button"
+          onClick={() => setShowAdvanced((v) => !v)}
+          className="flex items-center gap-2 text-xs font-medium text-gray-600 hover:text-gray-900"
+        >
+          {showAdvanced ? (
+            <ChevronDown className="h-3.5 w-3.5" />
+          ) : (
+            <ChevronRight className="h-3.5 w-3.5" />
+          )}
+          Advanced: sidebar order, search placeholder
+        </button>
+
+        {showAdvanced && (
+          <div className="mt-4 flex flex-col gap-6">
+            <div className={cardClass}>
+              <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                Page chrome
+              </h4>
+              <Field
+                label="Search box placeholder"
+                value={value.search.placeholder}
+                onChange={(v) => update({ search: { placeholder: v } })}
+              />
+              <Field
+                label="Right-side TOC heading"
+                value={value.toc.title}
+                onChange={(v) => update({ toc: { title: v } })}
+              />
+            </div>
+
+            <AdvancedSidebar value={value} update={update} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AdvancedSidebar({
+  value,
+  update,
+}: {
+  value: SalespageDocuments;
+  update: (patch: Partial<SalespageDocuments>) => void;
+}) {
   const updateSidebarSection = (
     index: number,
     patch: Partial<SalespageDocsSidebarSection>
@@ -661,292 +931,85 @@ export function DocumentsEditor({ value, onChange }: EditorProps<"documents">) {
     });
   };
 
-  // ----- Pages helpers -----
-  const setArticle = (next: SalespageDocumentPage) =>
-    update({ article: next });
-  const setPage = (slug: string, next: SalespageDocumentPage) =>
-    update({ pages: { ...pages, [slug]: next } });
-  const addPage = () => {
-    const raw = typeof window === "undefined" ? "" : window.prompt("URL slug for the new page (e.g. quick-start)")?.trim() ?? "";
-    const slug = slugify(raw);
-    if (!slug) return;
-    if (pages[slug]) {
-      if (typeof window !== "undefined") window.alert(`Page "${slug}" already exists.`);
-      return;
-    }
-    update({ pages: { ...pages, [slug]: { ...EMPTY_PAGE, title: slug } } });
-    setExpanded((prev) => ({ ...prev, [slug]: true }));
-  };
-  const removePage = (slug: string) => {
-    if (typeof window !== "undefined" && !window.confirm(`Delete page "${slug}"? This cannot be undone.`)) return;
-    const next = { ...pages };
-    delete next[slug];
-    update({ pages: next });
-  };
-  const renamePage = (slug: string) => {
-    if (typeof window === "undefined") return;
-    const raw = window.prompt(`Rename slug "${slug}" to:`, slug)?.trim() ?? "";
-    const next = slugify(raw);
-    if (!next || next === slug) return;
-    if (pages[next]) {
-      window.alert(`Page "${next}" already exists.`);
-      return;
-    }
-    const moved = { ...pages };
-    moved[next] = moved[slug];
-    delete moved[slug];
-    update({ pages: moved });
-  };
-
-  // Slug integrity warnings
-  const pageSlugs = new Set(Object.keys(pages));
-  const allLinks = value.sidebar.sections.flatMap((s) => s.items.map((i) => i.href));
-  const missingPageLinks = allLinks.filter(
-    (href) => href !== "" && !pageSlugs.has(href)
-  );
-  const orphanPages = Object.keys(pages).filter(
-    (slug) => !allLinks.includes(slug)
-  );
-
-  const sortedPageSlugs = Object.keys(pages).sort();
-
   return (
-    <div className="flex flex-col gap-6">
-      <div className={cardClass}>
-        <h3 className="text-sm font-semibold text-gray-900">Page chrome</h3>
-        <Field
-          label="Search placeholder"
-          value={value.search.placeholder}
-          onChange={(v) => update({ search: { placeholder: v } })}
-        />
-        <Field
-          label="Table of contents heading"
-          value={value.toc.title}
-          onChange={(v) => update({ toc: { title: v } })}
-        />
+    <div className={cardClass}>
+      <div className="flex items-center justify-between">
+        <div>
+          <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Sidebar groups
+          </h4>
+          <p className="mt-1 text-xs text-gray-500">
+            Pages added above appear here automatically. Use this to reorder or regroup them.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={addSidebarSection}
+          className="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
+        >
+          <Plus className="h-3.5 w-3.5" /> Add group
+        </button>
       </div>
 
-      {/* Sidebar */}
-      <div className={cardClass}>
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-gray-900">Sidebar navigation</h3>
-          <button
-            type="button"
-            onClick={addSidebarSection}
-            className="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
-          >
-            <Plus className="h-3.5 w-3.5" /> Add section
-          </button>
-        </div>
-        {value.sidebar.sections.map((section, si) => (
-          <div key={si} className={cardClass}>
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-gray-500">Section #{si + 1}</span>
+      {value.sidebar.sections.map((section, si) => (
+        <div
+          key={si}
+          className="flex flex-col gap-2 rounded-md border border-gray-200 bg-gray-50 p-3"
+        >
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={section.title}
+              placeholder="Group title"
+              onChange={(e) => updateSidebarSection(si, { title: e.target.value })}
+              className={inputClass}
+            />
+            <button
+              type="button"
+              onClick={() => removeSidebarSection(si)}
+              className="rounded-md p-2 text-red-600 hover:bg-red-50"
+              aria-label="Remove group"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+
+          {section.items.map((item, ii) => (
+            <div key={ii} className="flex items-center gap-2">
+              <input
+                type="text"
+                value={item.title}
+                placeholder="Link label"
+                onChange={(e) => updateSidebarItem(si, ii, { title: e.target.value })}
+                className={inputClass}
+              />
+              <input
+                type="text"
+                value={item.href}
+                placeholder="slug"
+                onChange={(e) => updateSidebarItem(si, ii, { href: e.target.value })}
+                className={`${inputClass} max-w-[180px]`}
+              />
               <button
                 type="button"
-                onClick={() => removeSidebarSection(si)}
-                className="rounded-md p-1 text-red-600 hover:bg-red-50"
-                aria-label="Remove section"
+                onClick={() => removeSidebarItem(si, ii)}
+                className="rounded-md p-2 text-red-600 hover:bg-red-50"
+                aria-label="Remove link"
               >
                 <Trash2 className="h-4 w-4" />
               </button>
             </div>
-            <Field
-              label="Section title"
-              value={section.title}
-              onChange={(v) => updateSidebarSection(si, { title: v })}
-            />
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-gray-700">Links</span>
-              <button
-                type="button"
-                onClick={() => addSidebarItem(si)}
-                className="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
-              >
-                <Plus className="h-3.5 w-3.5" /> Add link
-              </button>
-            </div>
-            {section.items.map((item, ii) => {
-              const linkBroken =
-                item.href !== "" && !pageSlugs.has(item.href);
-              return (
-                <div
-                  key={ii}
-                  className="flex flex-col gap-2 rounded-md border border-gray-200 bg-gray-50 p-3 md:flex-row md:items-end md:gap-3"
-                >
-                  <div className="flex-1">
-                    <Field
-                      label="Link label"
-                      value={item.title}
-                      onChange={(v) => updateSidebarItem(si, ii, { title: v })}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <Field
-                      label="URL slug (blank = landing)"
-                      value={item.href}
-                      onChange={(v) => updateSidebarItem(si, ii, { href: v })}
-                    />
-                    {linkBroken && (
-                      <p className="mt-1 inline-flex items-center gap-1 text-[11px] text-orange-700">
-                        <AlertTriangle className="h-3 w-3" /> No page exists for
-                        <code className="rounded bg-orange-100 px-1">/{item.href}</code>
-                        — create it below.
-                      </p>
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeSidebarItem(si, ii)}
-                    className="rounded-md p-2 text-red-600 hover:bg-red-50"
-                    aria-label="Remove link"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        ))}
-      </div>
+          ))}
 
-      {/* Landing article */}
-      <div className={cardClass}>
-        <button
-          type="button"
-          onClick={() => toggle("__article__")}
-          className="flex items-center justify-between"
-        >
-          <h3 className="text-sm font-semibold text-gray-900">
-            Landing page{" "}
-            <span className="ml-1 text-[11px] font-normal text-gray-500">
-              /documents
-            </span>
-          </h3>
-          {expanded.__article__ ? (
-            <ChevronDown className="h-4 w-4 text-gray-400" />
-          ) : (
-            <ChevronRight className="h-4 w-4 text-gray-400" />
-          )}
-        </button>
-        {expanded.__article__ && (
-          <PageFields value={value.article} onChange={setArticle} />
-        )}
-      </div>
-
-      {/* Sub-pages */}
-      <div className={cardClass}>
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-gray-900">
-            Sub-pages{" "}
-            <span className="ml-1 text-[11px] font-normal text-gray-500">
-              /documents/:slug
-            </span>
-          </h3>
           <button
             type="button"
-            onClick={addPage}
-            className="inline-flex items-center gap-1 rounded-md bg-blue-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-blue-700"
+            onClick={() => addSidebarItem(si)}
+            className="self-start rounded-md border border-gray-300 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
           >
-            <Plus className="h-3.5 w-3.5" /> New page
+            <Plus className="inline h-3 w-3" /> Add link
           </button>
         </div>
-
-        {missingPageLinks.length > 0 && (
-          <div className="flex items-start gap-2 rounded-md border border-orange-200 bg-orange-50 p-2 text-xs text-orange-800">
-            <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            <div>
-              Sidebar links to pages that don't exist yet:{" "}
-              {missingPageLinks.map((s) => (
-                <code
-                  key={s}
-                  className="mx-0.5 rounded bg-orange-100 px-1"
-                >
-                  {s}
-                </code>
-              ))}
-              . Click “New page” to create them.
-            </div>
-          </div>
-        )}
-
-        {orphanPages.length > 0 && (
-          <div className="flex items-start gap-2 rounded-md border border-yellow-200 bg-yellow-50 p-2 text-xs text-yellow-800">
-            <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            <div>
-              Pages not reachable from the sidebar:{" "}
-              {orphanPages.map((s) => (
-                <code
-                  key={s}
-                  className="mx-0.5 rounded bg-yellow-100 px-1"
-                >
-                  {s}
-                </code>
-              ))}
-              . Add a sidebar link or delete them.
-            </div>
-          </div>
-        )}
-
-        {sortedPageSlugs.length === 0 ? (
-          <p className="text-xs text-gray-500">
-            No sub-pages yet. Click "New page" to add one.
-          </p>
-        ) : (
-          sortedPageSlugs.map((slug) => {
-            const page = pages[slug];
-            const isOpen = !!expanded[slug];
-            return (
-              <div key={slug} className={cardClass}>
-                <div className="flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={() => toggle(slug)}
-                    className="flex min-w-0 flex-1 items-center gap-2 text-left"
-                  >
-                    {isOpen ? (
-                      <ChevronDown className="h-4 w-4 shrink-0 text-gray-400" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4 shrink-0 text-gray-400" />
-                    )}
-                    <div className="min-w-0">
-                      <div className="truncate text-sm font-medium text-gray-900">
-                        {page.title || <span className="text-gray-400">(untitled)</span>}
-                      </div>
-                      <div className="truncate text-[11px] text-gray-500">
-                        /documents/{slug}
-                      </div>
-                    </div>
-                  </button>
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => renamePage(slug)}
-                      className="rounded-md px-2 py-1 text-[11px] font-medium text-gray-600 hover:bg-gray-100"
-                    >
-                      Rename
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => removePage(slug)}
-                      className="rounded-md p-1 text-red-600 hover:bg-red-50"
-                      aria-label="Delete page"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-                {isOpen && (
-                  <PageFields
-                    value={page}
-                    onChange={(next) => setPage(slug, next)}
-                  />
-                )}
-              </div>
-            );
-          })
-        )}
-      </div>
+      ))}
     </div>
   );
 }
