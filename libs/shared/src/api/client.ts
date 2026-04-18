@@ -66,6 +66,11 @@ import {
   type DictionaryWordUpdateRequest,
   type DictionaryWordsResponse,
 } from './types';
+import type {
+  SalespageDict,
+  SalespageLocale,
+  SalespageSectionKey,
+} from './salespage';
 
 export class ApiClient {
   private baseUrl: string;
@@ -2126,6 +2131,51 @@ export class ApiClient {
     });
     const response = await makeRequest();
     await this.handleResponseWithRetry<{ message: string }>(response, makeRequest);
+  }
+
+  // =====================
+  // Salespage Content (i18n blob per locale)
+  // =====================
+
+  async getSalespageContent(locale: SalespageLocale): Promise<SalespageDict> {
+    const makeRequest = () => fetch(`${this.baseUrl}/salespage-content/${locale}`, {
+      headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
+    });
+    const response = await makeRequest();
+    return this.handleResponseWithRetry<SalespageDict>(response, makeRequest);
+  }
+
+  async putSalespageContent(locale: SalespageLocale, data: SalespageDict): Promise<void> {
+    const makeRequest = () => fetch(`${this.baseUrl}/salespage-content/${locale}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
+      body: JSON.stringify(data),
+    });
+    const response = await makeRequest();
+    await this.handleResponseWithRetry<unknown>(response, makeRequest);
+  }
+
+  async patchSalespageSection<K extends SalespageSectionKey>(
+    locale: SalespageLocale,
+    path: K,
+    data: SalespageDict[K]
+  ): Promise<void> {
+    const makeRequest = () => fetch(`${this.baseUrl}/salespage-content/${locale}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
+      body: JSON.stringify({ path, data }),
+    });
+    const response = await makeRequest();
+    await this.handleResponseWithRetry<unknown>(response, makeRequest);
+  }
+
+  async triggerSalespageRevalidate(locale: SalespageLocale): Promise<void> {
+    const makeRequest = () => fetch(`${this.baseUrl}/salespage-content/${locale}/revalidate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...this.getAuthHeaders() },
+    });
+    const response = await makeRequest();
+    await this.handleResponseWithRetry<unknown>(response, makeRequest);
   }
 }
 

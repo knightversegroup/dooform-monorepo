@@ -4,6 +4,7 @@ export type { OCRResponse } from './api/client';
 export { addressService, AddressService } from './api/addressService';
 export type { AdministrativeBoundary, AddressSelection } from './api/addressService';
 export * from './api/types';
+export * from './api/salespage';
 
 // Auth
 export { AuthProvider, AuthContext } from './auth/context';

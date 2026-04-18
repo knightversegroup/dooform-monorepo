@@ -152,6 +152,64 @@
       }
     ]
   },
+  "documents": {
+    "search": {
+      "placeholder": "Search the docs"
+    },
+    "sidebar": {
+      "sections": [
+        {
+          "title": "Getting Started",
+          "items": [
+            { "title": "Introduction", "href": "" },
+            { "title": "Quick start", "href": "quick-start" },
+            { "title": "Core concepts", "href": "concepts" }
+          ]
+        },
+        {
+          "title": "Documents",
+          "items": [
+            { "title": "National ID card", "href": "national-id" },
+            { "title": "Birth certificate", "href": "birth-certificate" },
+            { "title": "House registration", "href": "house-registration" },
+            { "title": "Marriage certificate", "href": "marriage-certificate" }
+          ]
+        },
+        {
+          "title": "Integrations",
+          "items": [
+            { "title": "Webhooks", "href": "webhooks" },
+            { "title": "API reference", "href": "api" }
+          ]
+        }
+      ]
+    },
+    "toc": {
+      "title": "On this page"
+    },
+    "article": {
+      "eyebrow": "Getting Started",
+      "title": "Introduction",
+      "description": "Dooform helps businesses and translators fill, translate, and export official documents in embassy-accepted formats.",
+      "sections": [
+        {
+          "id": "overview",
+          "heading": "Overview",
+          "body": "Dooform is a document-processing platform built for Thai government documents and enterprise paperwork. Fill forms once, translate instantly, and export in the format your destination requires."
+        },
+        {
+          "id": "who-is-it-for",
+          "heading": "Who is Dooform for?",
+          "body": "Business owners managing high document volume, professional translators producing embassy-ready output, and developers integrating document workflows into existing systems."
+        },
+        {
+          "id": "next-steps",
+          "heading": "Next steps",
+          "body": "Follow the quick start to fill your first document, or jump to the API reference to wire Dooform into your backend."
+        }
+      ]
+    }
+  },
   "trial": {
     "heading": "Try for Free",
     "subtitle": "Simply register and start filling in your data right away",
