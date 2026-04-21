@@ -164,6 +164,47 @@ export interface SalespageFeaturesPage {
   };
 }
 
+export interface SalespageCompliancePillar {
+  title: string;
+  description: string;
+}
+
+export interface SalespageComplianceCert {
+  name: string;
+  description: string;
+}
+
+export interface SalespageComplianceDataFlowStep {
+  step: string;
+  title: string;
+  description: string;
+}
+
+export interface SalespageCompliancePage {
+  hero: {
+    heading: string;
+    subtitle: string;
+  };
+  pillars: {
+    heading: string;
+    items: SalespageCompliancePillar[];
+  };
+  certifications: {
+    heading: string;
+    items: SalespageComplianceCert[];
+  };
+  dataFlow: {
+    heading: string;
+    subtitle: string;
+    steps: SalespageComplianceDataFlowStep[];
+  };
+  commitment: {
+    heading: string;
+    body: string;
+    cta: string;
+  };
+}
+
 export interface SalespagePlanPageCard {
   name: string;
   tagline: string;
@@ -239,6 +280,7 @@ export interface SalespageDict {
   faq: SalespageFaq;
   documents: SalespageDocuments;
   featuresPage: SalespageFeaturesPage;
+  compliancePage: SalespageCompliancePage;
   planPage: SalespagePlanPage;
   trial: SalespageTrial;
   footer: SalespageFooter;
@@ -258,6 +300,7 @@ export const SALESPAGE_SECTION_KEYS: SalespageSectionKey[] = [
   'faq',
   'documents',
   'featuresPage',
+  'compliancePage',
   'planPage',
   'trial',
   'footer',
