@@ -411,6 +411,128 @@
       ]
     }
   },
+  "planPage": {
+    "heading": "Pricing",
+    "subtitle": "Choose a plan that fits your needs",
+    "footnote": "All plans are billed monthly. All prices in THB. Pricing is subject to change.",
+    "plans": {
+      "trial": {
+        "name": "Trial",
+        "tagline": "For individuals getting started",
+        "price": "฿0",
+        "period": "",
+        "button": "Try for free",
+        "featureIntro": "Key features",
+        "features": [
+          "Fill up to 5 basic documents",
+          "Access to template library",
+          "Single user account",
+          "PDF export"
+        ]
+      },
+      "starter": {
+        "name": "Starter",
+        "tagline": "For small teams",
+        "price": "฿2,490",
+        "period": "/ month",
+        "button": "Subscribe",
+        "featureIntro": "Everything in Trial, plus",
+        "features": [
+          "Fill up to 500 documents/month",
+          "Up to 10 team members",
+          "90-day data retention",
+          "Multi-language translation",
+          "Email support"
+        ]
+      },
+      "plus": {
+        "name": "Plus",
+        "tagline": "For growing businesses",
+        "price": "฿4,990",
+        "period": "/ month",
+        "button": "Subscribe",
+        "featureIntro": "Everything in Starter, plus",
+        "features": [
+          "Unlimited document filling",
+          "AI-powered data verification",
+          "Automatic text detection",
+          "1-year data retention",
+          "10 custom document sets",
+          "Priority support"
+        ]
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "tagline": "For large organizations",
+        "price": "Contact us",
+        "period": "",
+        "button": "Contact sales",
+        "featureIntro": "Everything in Plus, plus",
+        "features": [
+          "Unlimited team members",
+          "Unlimited data retention",
+          "Unlimited custom documents",
+          "REST API & Webhooks",
+          "Dedicated account manager",
+          "Custom integrations"
+        ]
+      }
+    },
+    "comparison": {
+      "heading": "Compare plans",
+      "columns": ["Trial", "Starter", "Plus", "Enterprise"],
+      "sections": [
+        {
+          "name": "Features and capabilities",
+          "rows": [
+            { "feature": "Basic document filling", "values": ["5 docs", "500/mo", "Unlimited", "Unlimited"] },
+            { "feature": "Template library", "values": [true, true, true, true] },
+            { "feature": "Multi-language translation", "values": [false, true, true, true] },
+            { "feature": "Custom templates", "values": [false, false, true, true] },
+            { "feature": "AI data verification", "values": [false, false, true, true] },
+            { "feature": "Automatic text detection", "values": [false, false, true, true] },
+            { "feature": "Batch processing", "values": [false, false, true, true] },
+            { "feature": "Custom document sets", "values": [false, false, "10 sets", "Unlimited"] },
+            { "feature": "PDF export", "values": [true, true, true, true] }
+          ]
+        },
+        {
+          "name": "Team and collaboration",
+          "rows": [
+            { "feature": "Number of users", "values": ["1", "10", "10", "Unlimited"] },
+            { "feature": "Team management", "values": [false, true, true, true] },
+            { "feature": "Role-based access", "values": [false, false, true, true] },
+            { "feature": "Activity history", "values": [false, true, true, true] }
+          ]
+        },
+        {
+          "name": "Data and storage",
+          "rows": [
+            { "feature": "Data retention", "values": ["None", "90 days", "1 year", "Unlimited"] },
+            { "feature": "Data export", "values": [false, true, true, true] }
+          ]
+        },
+        {
+          "name": "Security and compliance",
+          "rows": [
+            { "feature": "Data encryption", "values": [true, true, true, true] },
+            { "feature": "PDPA compliance", "values": [true, true, true, true] },
+            { "feature": "Audit logs", "values": [false, false, true, true] }
+          ]
+        },
+        {
+          "name": "Integrations and support",
+          "rows": [
+            { "feature": "REST API", "values": [false, false, false, true] },
+            { "feature": "Webhooks", "values": [false, false, false, true] },
+            { "feature": "Email support", "values": [false, true, true, true] },
+            { "feature": "Priority support", "values": [false, false, true, true] },
+            { "feature": "Dedicated account manager", "values": [false, false, false, true] }
+          ]
+        }
+      ]
+    }
+  },
   "trial": {
     "heading": "Try for Free",
     "subtitle": "Simply register and start filling in your data right away",

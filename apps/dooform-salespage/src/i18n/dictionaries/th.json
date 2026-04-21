@@ -411,6 +411,128 @@
       ]
     }
   },
+  "planPage": {
+    "heading": "แพ็คเกจราคา",
+    "subtitle": "เลือกแพ็กเกจที่เหมาะกับความต้องการของคุณ",
+    "footnote": "ทุกแพ็กเกจเรียกเก็บเป็นรายเดือน ราคาทั้งหมดเป็นสกุลเงินบาท ราคาอาจมีการเปลี่ยนแปลง",
+    "plans": {
+      "trial": {
+        "name": "Trial",
+        "tagline": "สำหรับผู้เริ่มต้นใช้งาน",
+        "price": "฿0",
+        "period": "",
+        "button": "ทดลองใช้งานฟรี",
+        "featureIntro": "ฟีเจอร์หลัก",
+        "features": [
+          "กรอกเอกสารพื้นฐานได้ 5 รายการ",
+          "เข้าถึงคลังเทมเพลต",
+          "ผู้ใช้งาน 1 คน",
+          "ส่งออก PDF"
+        ]
+      },
+      "starter": {
+        "name": "Starter",
+        "tagline": "สำหรับทีมขนาดเล็ก",
+        "price": "฿2,490",
+        "period": "/ เดือน",
+        "button": "สมัครสมาชิก",
+        "featureIntro": "ทุกอย่างใน Trial รวมถึง",
+        "features": [
+          "กรอกเอกสารได้ 500 รายการ/เดือน",
+          "สมาชิกในทีมได้สูงสุด 10 คน",
+          "เก็บข้อมูลย้อนหลัง 90 วัน",
+          "แปลหลายภาษา",
+          "ซัพพอร์ตทางอีเมล"
+        ]
+      },
+      "plus": {
+        "name": "Plus",
+        "tagline": "สำหรับธุรกิจที่กำลังเติบโต",
+        "price": "฿4,990",
+        "period": "/ เดือน",
+        "button": "สมัครสมาชิก",
+        "featureIntro": "ทุกอย่างใน Starter รวมถึง",
+        "features": [
+          "กรอกเอกสารได้ไม่จำกัด",
+          "AI ช่วยตรวจสอบข้อมูล",
+          "ระบบตรวจจับข้อความอัตโนมัติ",
+          "เก็บข้อมูลย้อนหลัง 1 ปี",
+          "เอกสารองค์กร 10 ชุด",
+          "ซัพพอร์ตเร่งด่วน"
+        ]
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "tagline": "สำหรับองค์กรขนาดใหญ่",
+        "price": "ติดต่อเรา",
+        "period": "",
+        "button": "ติดต่อฝ่ายขาย",
+        "featureIntro": "ทุกอย่างใน Plus รวมถึง",
+        "features": [
+          "สมาชิกในทีมไม่จำกัด",
+          "เก็บข้อมูลย้อนหลังไม่จำกัด",
+          "เอกสารองค์กรไม่จำกัด",
+          "REST API & Webhooks",
+          "ผู้จัดการบัญชีเฉพาะ",
+          "เชื่อมต่อระบบแบบกำหนดเอง"
+        ]
+      }
+    },
+    "comparison": {
+      "heading": "เปรียบเทียบแพ็กเกจ",
+      "columns": ["Trial", "Starter", "Plus", "Enterprise"],
+      "sections": [
+        {
+          "name": "ฟีเจอร์และความสามารถ",
+          "rows": [
+            { "feature": "กรอกเอกสารพื้นฐาน", "values": ["5 รายการ", "500/เดือน", "ไม่จำกัด", "ไม่จำกัด"] },
+            { "feature": "คลังเทมเพลต", "values": [true, true, true, true] },
+            { "feature": "แปลหลายภาษา", "values": [false, true, true, true] },
+            { "feature": "เทมเพลตกำหนดเอง", "values": [false, false, true, true] },
+            { "feature": "AI ตรวจสอบข้อมูล", "values": [false, false, true, true] },
+            { "feature": "ตรวจจับข้อความอัตโนมัติ", "values": [false, false, true, true] },
+            { "feature": "ประมวลผลแบบกลุ่ม", "values": [false, false, true, true] },
+            { "feature": "เอกสารองค์กร", "values": [false, false, "10 ชุด", "ไม่จำกัด"] },
+            { "feature": "ส่งออก PDF", "values": [true, true, true, true] }
+          ]
+        },
+        {
+          "name": "ทีมและการทำงานร่วมกัน",
+          "rows": [
+            { "feature": "จำนวนผู้ใช้งาน", "values": ["1", "10", "10", "ไม่จำกัด"] },
+            { "feature": "จัดการทีม", "values": [false, true, true, true] },
+            { "feature": "กำหนดสิทธิ์ตามบทบาท", "values": [false, false, true, true] },
+            { "feature": "ประวัติการใช้งาน", "values": [false, true, true, true] }
+          ]
+        },
+        {
+          "name": "ข้อมูลและพื้นที่จัดเก็บ",
+          "rows": [
+            { "feature": "ระยะเวลาเก็บข้อมูล", "values": ["ไม่มี", "90 วัน", "1 ปี", "ไม่จำกัด"] },
+            { "feature": "ส่งออกข้อมูล", "values": [false, true, true, true] }
+          ]
+        },
+        {
+          "name": "ความปลอดภัยและการปฏิบัติตามข้อกำหนด",
+          "rows": [
+            { "feature": "การเข้ารหัสข้อมูล", "values": [true, true, true, true] },
+            { "feature": "สอดคล้อง PDPA", "values": [true, true, true, true] },
+            { "feature": "บันทึกการตรวจสอบ", "values": [false, false, true, true] }
+          ]
+        },
+        {
+          "name": "การเชื่อมต่อและซัพพอร์ต",
+          "rows": [
+            { "feature": "REST API", "values": [false, false, false, true] },
+            { "feature": "Webhooks", "values": [false, false, false, true] },
+            { "feature": "ซัพพอร์ตทางอีเมล", "values": [false, true, true, true] },
+            { "feature": "ซัพพอร์ตเร่งด่วน", "values": [false, false, true, true] },
+            { "feature": "ผู้จัดการบัญชีเฉพาะ", "values": [false, false, false, true] }
+          ]
+        }
+      ]
+    }
+  },
   "trial": {
     "heading": "ทดลองใช้งานฟรี",
     "subtitle": "เพียงสมัครสมาชิกและกรอกข้อมูลได้ทันที",

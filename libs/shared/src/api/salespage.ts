@@ -164,6 +164,45 @@ export interface SalespageFeaturesPage {
   };
 }
 
+export interface SalespagePlanPageCard {
+  name: string;
+  tagline: string;
+  price: string;
+  period: string;
+  button: string;
+  featureIntro: string;
+  features: string[];
+}
+
+export interface SalespagePlanComparisonRow {
+  feature: string;
+  values: (boolean | string)[];
+}
+
+export interface SalespagePlanComparisonSection {
+  name: string;
+  rows: SalespagePlanComparisonRow[];
+}
+
+export interface SalespagePlanComparison {
+  heading: string;
+  columns: string[];
+  sections: SalespagePlanComparisonSection[];
+}
+
+export interface SalespagePlanPage {
+  heading: string;
+  subtitle: string;
+  footnote: string;
+  plans: {
+    trial: SalespagePlanPageCard;
+    starter: SalespagePlanPageCard;
+    plus: SalespagePlanPageCard;
+    enterprise: SalespagePlanPageCard;
+  };
+  comparison: SalespagePlanComparison;
+}
+
 export interface SalespageTrial {
   heading: string;
   subtitle: string;
@@ -200,6 +239,7 @@ export interface SalespageDict {
   faq: SalespageFaq;
   documents: SalespageDocuments;
   featuresPage: SalespageFeaturesPage;
+  planPage: SalespagePlanPage;
   trial: SalespageTrial;
   footer: SalespageFooter;
 }
@@ -218,6 +258,7 @@ export const SALESPAGE_SECTION_KEYS: SalespageSectionKey[] = [
   'faq',
   'documents',
   'featuresPage',
+  'planPage',
   'trial',
   'footer',
 ];
