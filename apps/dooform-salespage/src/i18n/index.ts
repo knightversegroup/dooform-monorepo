@@ -7,10 +7,11 @@ const localDictionaries = {
 };
 
 export const getDictionary = async (locale: Locale): Promise<SalespageDict> => {
+  const local = (await localDictionaries[locale]()) as unknown as SalespageDict;
   const apiUrl = process.env.CONTENT_API_URL;
 
   if (!apiUrl) {
-    return (await localDictionaries[locale]()) as unknown as SalespageDict;
+    return local;
   }
 
   try {
@@ -20,9 +21,11 @@ export const getDictionary = async (locale: Locale): Promise<SalespageDict> => {
     if (!res.ok) {
       throw new Error(`content api returned ${res.status}`);
     }
-    return (await res.json()) as SalespageDict;
+    const remote = (await res.json()) as Partial<SalespageDict>;
+    // Merge: API values win, local fills in any missing sections
+    return { ...local, ...remote };
   } catch (err) {
     console.warn(`[salespage i18n] falling back to local ${locale}.json:`, err);
-    return (await localDictionaries[locale]()) as unknown as SalespageDict;
+    return local;
   }
 };
