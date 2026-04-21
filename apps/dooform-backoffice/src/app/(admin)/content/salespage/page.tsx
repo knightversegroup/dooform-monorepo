@@ -46,6 +46,7 @@ const SECTION_LABELS: Record<SalespageSectionKey, string> = {
   partners: "Partners",
   faq: "FAQ",
   documents: "Documents",
+  featuresPage: "Features Page",
   trial: "Trial / Signup",
   footer: "Footer",
 };
@@ -61,12 +62,14 @@ const SECTION_HELP: Record<SalespageSectionKey, string> = {
   partners: "The “Trusted by leading organizations” strip.",
   faq: "The FAQ block on the homepage. Add or remove items as needed.",
   documents: "The /documents page — left sidebar, article body, and right TOC.",
+  featuresPage: "The dedicated /features page — hero, showcase, quote, grid, and developer sections.",
   trial: "The sign-up form at the bottom of the homepage (labels and placeholders).",
   footer: "Copyright, section headings, and all link labels in the footer.",
 };
 
 const SECTION_PREVIEW_PATH: Partial<Record<SalespageSectionKey, string>> = {
   documents: "/documents",
+  featuresPage: "/features",
 };
 
 export default function SalespageContentPage() {

@@ -132,6 +132,38 @@ export interface SalespageDocuments {
   pages: Record<string, SalespageDocumentPage>;
 }
 
+export interface SalespageFeaturesPageHighlight {
+  title: string;
+  description: string;
+  link: string;
+}
+
+export interface SalespageFeaturesPageItem {
+  title: string;
+  description: string;
+}
+
+export interface SalespageFeaturesPage {
+  heading: string;
+  subtitle: string;
+  categories: string[];
+  highlights: SalespageFeaturesPageHighlight[];
+  quote: {
+    text: string;
+    author: string;
+    company: string;
+  };
+  allFeatures: {
+    heading: string;
+    items: SalespageFeaturesPageItem[];
+  };
+  developer: {
+    heading: string;
+    subtitle: string;
+    features: string[];
+  };
+}
+
 export interface SalespageTrial {
   heading: string;
   subtitle: string;
@@ -167,6 +199,7 @@ export interface SalespageDict {
   partners: SalespagePartners;
   faq: SalespageFaq;
   documents: SalespageDocuments;
+  featuresPage: SalespageFeaturesPage;
   trial: SalespageTrial;
   footer: SalespageFooter;
 }
@@ -184,6 +217,7 @@ export const SALESPAGE_SECTION_KEYS: SalespageSectionKey[] = [
   'partners',
   'faq',
   'documents',
+  'featuresPage',
   'trial',
   'footer',
 ];

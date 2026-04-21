@@ -328,6 +328,89 @@
       }
     }
   },
+  "featuresPage": {
+    "heading": "Features",
+    "subtitle": "Everything you need to process, translate, and export official documents — all in one platform.",
+    "categories": [
+      "Document Processing",
+      "Translation",
+      "API & Webhooks",
+      "Template Library",
+      "Team Management",
+      "Data Security",
+      "Batch Export",
+      "AI Verification",
+      "Custom Documents"
+    ],
+    "highlights": [
+      {
+        "title": "Smart Document Processing",
+        "description": "Auto-fill government forms with intelligent field mapping. Dooform understands Thai document layouts and maps your data to the correct fields, eliminating manual entry and reducing errors.",
+        "link": "Learn more"
+      },
+      {
+        "title": "Developer-First API",
+        "description": "Integrate document generation into your workflow with our REST API. Generate up to 1,000 documents per batch, receive webhook notifications, and automate your entire document pipeline.",
+        "link": "API reference"
+      }
+    ],
+    "quote": {
+      "text": "Dooform cut our document processing time by 90%. What used to take our team hours now happens in seconds.",
+      "author": "Document Operations Manager",
+      "company": "Translation Agency"
+    },
+    "allFeatures": {
+      "heading": "All features",
+      "items": [
+        {
+          "title": "Template Library",
+          "description": "Pre-built templates for Thai government documents including ID cards, birth certificates, and marriage certificates."
+        },
+        {
+          "title": "Multi-language Translation",
+          "description": "Automatic Thai-to-English translation following RTGS transliteration rules, accepted by embassies worldwide."
+        },
+        {
+          "title": "Team Collaboration",
+          "description": "Invite team members, assign roles, and manage permissions. Track who filled what and when."
+        },
+        {
+          "title": "Batch Processing",
+          "description": "Process thousands of documents at once via API. Generate up to 1,000 files per 10 seconds."
+        },
+        {
+          "title": "Data Security",
+          "description": "Enterprise-grade encryption for all stored data. Compliant with Thai PDPA regulations."
+        },
+        {
+          "title": "Custom Documents",
+          "description": "Create your own document templates with Dooform's syntax. Support any layout your business needs."
+        },
+        {
+          "title": "Export Options",
+          "description": "Download completed documents as PDF, or integrate with your existing systems via API."
+        },
+        {
+          "title": "AI Verification",
+          "description": "AI-powered data verification catches errors before they reach the final document."
+        },
+        {
+          "title": "Webhook Notifications",
+          "description": "Get notified instantly when documents are created, updated, or finalized."
+        }
+      ]
+    },
+    "developer": {
+      "heading": "Built for developers",
+      "subtitle": "A complete API for document automation",
+      "features": [
+        "RESTful API with comprehensive documentation",
+        "Webhook events for real-time notifications",
+        "Batch processing for high-volume workflows",
+        "SDK support for popular languages"
+      ]
+    }
+  },
   "trial": {
     "heading": "Try for Free",
     "subtitle": "Simply register and start filling in your data right away",
