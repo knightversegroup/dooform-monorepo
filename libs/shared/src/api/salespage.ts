@@ -164,6 +164,42 @@ export interface SalespageFeaturesPage {
   };
 }
 
+export interface SalespageUsecaseCard {
+  industry: string;
+  title: string;
+  description: string;
+  link: string;
+}
+
+export interface SalespageUsecasesStat {
+  value: string;
+  label: string;
+}
+
+export interface SalespageUsecasesPage {
+  hero: {
+    eyebrow: string;
+    heading: string;
+    subtitle: string;
+  };
+  grid: {
+    items: SalespageUsecaseCard[];
+  };
+  stats: {
+    items: SalespageUsecasesStat[];
+  };
+  quote: {
+    text: string;
+    author: string;
+    company: string;
+  };
+  cta: {
+    heading: string;
+    subtitle: string;
+    button: string;
+  };
+}
+
 export interface SalespageCompliancePillar {
   title: string;
   description: string;
@@ -280,6 +316,7 @@ export interface SalespageDict {
   faq: SalespageFaq;
   documents: SalespageDocuments;
   featuresPage: SalespageFeaturesPage;
+  usecasesPage: SalespageUsecasesPage;
   compliancePage: SalespageCompliancePage;
   planPage: SalespagePlanPage;
   trial: SalespageTrial;
@@ -300,6 +337,7 @@ export const SALESPAGE_SECTION_KEYS: SalespageSectionKey[] = [
   'faq',
   'documents',
   'featuresPage',
+  'usecasesPage',
   'compliancePage',
   'planPage',
   'trial',

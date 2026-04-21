@@ -411,6 +411,71 @@
       ]
     }
   },
+  "usecasesPage": {
+    "hero": {
+      "eyebrow": "Use Cases",
+      "heading": "See how teams use Dooform to transform document workflows",
+      "subtitle": "From translation agencies to enterprise HR departments, Dooform helps organizations process, translate, and export documents faster than ever."
+    },
+    "grid": {
+      "items": [
+        {
+          "industry": "Translation",
+          "title": "Translation agencies cut processing time by 90%",
+          "description": "Professional translators use Dooform to fill and translate government documents for embassy submissions, replacing hours of manual work with seconds of automation.",
+          "link": "Read story"
+        },
+        {
+          "industry": "Immigration",
+          "title": "Immigration consultants scale their practice",
+          "description": "Visa and immigration consultants process hundreds of document sets monthly using batch processing and multi-language translation to serve more clients.",
+          "link": "Read story"
+        },
+        {
+          "industry": "Legal",
+          "title": "Law firms ensure document accuracy",
+          "description": "Legal teams rely on AI-powered verification to catch errors before documents reach embassies, reducing rejection rates and costly resubmissions.",
+          "link": "Read story"
+        },
+        {
+          "industry": "Human Resources",
+          "title": "HR departments automate employee paperwork",
+          "description": "Companies with international staff use Dooform's API to integrate document generation into onboarding workflows, eliminating manual data entry.",
+          "link": "Read story"
+        },
+        {
+          "industry": "Government",
+          "title": "Government offices digitize citizen services",
+          "description": "Municipal offices adopt Dooform to help citizens fill official documents correctly the first time, reducing errors and wait times at service counters.",
+          "link": "Read story"
+        },
+        {
+          "industry": "Healthcare",
+          "title": "Hospitals streamline patient document translation",
+          "description": "Medical facilities translate patient records and consent forms across languages to serve diverse communities while maintaining PDPA compliance.",
+          "link": "Read story"
+        }
+      ]
+    },
+    "stats": {
+      "items": [
+        { "value": "90%", "label": "Reduction in document processing time" },
+        { "value": "50K+", "label": "Documents processed monthly" },
+        { "value": "99.8%", "label": "Accuracy with AI verification" },
+        { "value": "1,000", "label": "Documents generated per 10 seconds via API" }
+      ]
+    },
+    "quote": {
+      "text": "Dooform changed how we operate. What used to take our team an entire day of manual form filling now happens automatically in minutes. The accuracy is better than what we achieved by hand.",
+      "author": "Operations Director",
+      "company": "Bangkok Translation Services"
+    },
+    "cta": {
+      "heading": "Ready to transform your document workflow?",
+      "subtitle": "Join thousands of professionals who trust Dooform to handle their documents with speed and precision.",
+      "button": "Get started for free"
+    }
+  },
   "compliancePage": {
     "hero": {
       "heading": "Your Data Security Is Our Foundation",
