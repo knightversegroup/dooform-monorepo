@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Globe, Menu, X } from 'lucide-react';
 import { DooformLogo } from '@dooform/shared/components/ui/DooformLogo';
+import { Button } from '@dooform/ui';
 import LanguageSwitcher from './LanguageSwitcher';
 
 type NavDict = {
@@ -53,12 +54,14 @@ export default function Header({
 
           <div className="hidden items-center gap-4 md:flex justify-center">
             <LanguageSwitcher locale={locale} />
-            <a
+            <Button
+              variant="secondary"
+              size="md"
               href="#trial"
-              className="rounded-full bg-white px-3 py-1.5 text-base font-semibold text-black shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)]"
+              className="bg-white text-black shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)]"
             >
               {dict.register}
-            </a>
+            </Button>
           </div>
 
           {/* Mobile Menu Toggle */}

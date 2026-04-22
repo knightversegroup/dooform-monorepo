@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { Button } from '@dooform/ui';
+import { Section, Container } from '@dooform/ui';
 
 type FaqItem = {
   question: string;
@@ -26,8 +28,8 @@ export default function FaqSection({
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <section className="flex justify-center px-[10px]">
-      <div className="flex w-full max-w-[1280px] flex-col gap-9 px-6 py-9 md:flex-row md:items-start">
+    <Section padding="none">
+      <Container className="flex flex-col gap-9 py-9 md:flex-row md:items-start">
         {/* Left Column */}
         <div className="shrink-0 md:w-[389px]">
           <div className="flex flex-col gap-3">
@@ -40,18 +42,12 @@ export default function FaqSection({
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <a
-                href={`/${locale}/documents`}
-                className="flex h-8 items-center justify-center rounded-full bg-[#262626] px-3 text-xs font-medium text-[#fcfcfc] transition hover:bg-black"
-              >
+              <Button variant="dark" size="sm" href={`/${locale}/documents`}>
                 {dict.viewDocuments}
-              </a>
-              <a
-                href="#"
-                className="flex h-8 items-center justify-center rounded-full bg-[#fcfcfc] px-3 text-xs font-medium text-[#262626] transition hover:bg-gray-100"
-              >
+              </Button>
+              <Button variant="ghost" size="sm" href="#">
                 {dict.readMore}
-              </a>
+              </Button>
             </div>
           </div>
         </div>
@@ -90,7 +86,7 @@ export default function FaqSection({
             </div>
           ))}
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

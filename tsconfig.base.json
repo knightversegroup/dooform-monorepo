@@ -15,6 +15,8 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
+      "@dooform/ui": ["libs/ui/src/index.ts"],
+      "@dooform/ui/*": ["libs/ui/src/*"],
       "@dooform/shared": ["libs/shared/src/index.ts"],
       "@dooform/shared/*": ["libs/shared/src/*"],
       "@dooform-api-core/domain": ["libs/api-core/src/domain/index.ts"],

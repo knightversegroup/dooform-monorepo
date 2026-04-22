@@ -1,4 +1,6 @@
 import { FileText } from 'lucide-react';
+import { Button } from '@dooform/ui';
+import { Section, Container } from '@dooform/ui';
 
 type PlanCardDict = {
   name: string;
@@ -48,8 +50,8 @@ const planKeys: (keyof PlanPageDict['plans'])[] = [
 
 export default function PlanCards({ dict }: { dict: PlanPageDict }) {
   return (
-    <section className="bg-[#f5f0ea] px-[10px] pb-20 pt-12">
-      <div className="mx-auto max-w-[1280px] px-6">
+    <Section padding="none" className="bg-[#f5f0ea] pb-20 pt-12">
+      <Container>
         {/* Header */}
         <div className="mb-14 text-center">
           <h1 className="text-4xl font-bold text-[#262626] md:text-5xl">
@@ -100,16 +102,14 @@ export default function PlanCards({ dict }: { dict: PlanPageDict }) {
                 <div className="my-6 h-px bg-[#e5e0da]" />
 
                 {/* Button */}
-                <a
+                <Button
+                  variant={isHighlighted ? 'dark' : 'outline'}
+                  size="lg"
+                  fullWidth
                   href="#"
-                  className={`block rounded-full px-5 py-2.5 text-center text-sm font-medium transition ${
-                    isHighlighted
-                      ? 'bg-[#262626] text-white hover:bg-[#404040]'
-                      : 'border border-[#262626] text-[#262626] hover:bg-[#262626] hover:text-white'
-                  }`}
                 >
                   {plan.button}
-                </a>
+                </Button>
 
                 {/* Feature intro */}
                 <p className="mb-3 mt-6 text-sm font-semibold text-[#262626]">
@@ -137,7 +137,7 @@ export default function PlanCards({ dict }: { dict: PlanPageDict }) {
         <p className="mt-10 text-center text-sm text-[#666]">
           {dict.footnote}
         </p>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

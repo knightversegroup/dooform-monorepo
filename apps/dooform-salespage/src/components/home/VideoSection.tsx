@@ -1,4 +1,5 @@
 import { ArrowUpRight } from 'lucide-react';
+import { Section, Container } from '@dooform/ui';
 
 type VideoDict = {
   heading: string;
@@ -13,8 +14,8 @@ export default function VideoSection({
   locale: string;
 }) {
   return (
-    <section className="flex justify-center px-[10px]">
-      <div className="w-full max-w-[1280px] px-6 py-16">
+    <Section padding="md">
+      <Container>
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-3xl font-semibold text-black md:text-4xl">
@@ -41,7 +42,7 @@ export default function VideoSection({
             {/* <source src="/videos/demo.mp4" type="video/mp4" /> */}
           </video>
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

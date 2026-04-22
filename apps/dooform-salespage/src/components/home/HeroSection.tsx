@@ -1,4 +1,5 @@
-import Image from 'next/image';
+import { Button } from '@dooform/ui';
+import { Section, Container } from '@dooform/ui';
 
 type HeroDict = {
   heading: string;
@@ -9,12 +10,11 @@ type HeroDict = {
 
 export default function HeroSection({ dict }: { dict: HeroDict }) {
   return (
-    <section className="flex justify-center px-[10px]">
-      <div className="flex w-full max-w-[1280px] flex-col items-center px-6 pt-10 pb-16">
+    <Section padding="none">
+      <Container className="flex flex-col items-center pt-10 pb-16">
         {/* Hero Image */}
         <div className="aspect-[361/250] w-full rounded-xl bg-gradient-to-b from-[#d9d9d9] to-white md:aspect-[16/7] md:rounded-2xl">
           {/* Replace with actual hero image/video */}
-          {/* <Image src="/hero-image.png" alt="Dooform" fill className="object-cover rounded-xl md:rounded-2xl" /> */}
         </div>
 
         {/* Text Content */}
@@ -30,21 +30,15 @@ export default function HeroSection({ dict }: { dict: HeroDict }) {
 
           {/* CTA Buttons */}
           <div className="flex items-center gap-2">
-            <a
-              href="#trial"
-              className="rounded-full bg-[#2c2585] px-3 py-1.5 text-sm text-white transition hover:bg-[#231e6b]"
-            >
+            <Button variant="primary" size="md" href="#trial">
               {dict.primaryCta}
-            </a>
-            <a
-              href="#features"
-              className="rounded-full bg-[#e4e4e4] px-3 py-1.5 text-sm text-black transition hover:bg-[#d4d4d4]"
-            >
+            </Button>
+            <Button variant="secondary" size="md" href="#features">
               {dict.secondaryCta}
-            </a>
+            </Button>
           </div>
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

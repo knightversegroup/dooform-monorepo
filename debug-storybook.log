@@ -1,0 +1,23 @@
+[23:15:29.984] [INFO] storybook v10.3.5
+[23:15:32.262] [DEBUG] Getting package.json info for /Users/teruyuki/Documents/GitHub/dooform/dooform-monorepo/package.json...
+[23:15:32.269] [WARN] Could not resolve addon "@storybook/addon-essentials", skipping. Is it installed?
+[23:15:32.291] [INFO] Storybook collects completely anonymous usage telemetry. We use it to shape Storybook's roadmap and prioritize features. You can learn more, including how to opt out, at https://storybook.js.org/telemetry
+[23:15:32.432] [WARN] Could not resolve addon "@storybook/addon-essentials", skipping. Is it installed?
+[23:15:32.592] [INFO] Starting...
+[23:15:32.605] [WARN] unable to find package.json for typeorm
+[23:15:32.692] [DEBUG] Starting preview..
+[23:15:32.708] [ERROR] Failed to build the preview
+[23:15:32.710] [ERROR] [38;2;241;97;97mReferenceError: __dirname is not defined[39m
+    at Object.viteFinal (file://./.storybook/main.ts:11:37)
+    at file://./node_modules/.pnpm/storybook@10.3.5_@testing-library+dom@10.4.0_prettier@3.6.2_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/storybook/dist/_node-chunks/chunk-GOY6UMCB.js:10114:36
+    at async createViteServer (file://./node_modules/.pnpm/@storybook+builder-vite@10.3.5_esbuild@0.27.2_rollup@4.55.1_storybook@10.3.5_@testing-l_7352a9f018b560a8ce2859a88792426b/node_modules/@storybook/builder-vite/dist/index.js:1532:21)
+    at async Module.start (file://./node_modules/.pnpm/@storybook+builder-vite@10.3.5_esbuild@0.27.2_rollup@4.55.1_storybook@10.3.5_@testing-l_7352a9f018b560a8ce2859a88792426b/node_modules/@storybook/builder-vite/dist/index.js:1557:17)
+    at async storybookDevServer (file://./node_modules/.pnpm/storybook@10.3.5_@testing-library+dom@10.4.0_prettier@3.6.2_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/storybook/dist/core-server/index.js:7503:83)
+    at async buildOrThrow (file://./node_modules/.pnpm/storybook@10.3.5_@testing-library+dom@10.4.0_prettier@3.6.2_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/storybook/dist/core-server/index.js:4508:12)
+    at async buildDevStandalone (file://./node_modules/.pnpm/storybook@10.3.5_@testing-library+dom@10.4.0_prettier@3.6.2_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/storybook/dist/core-server/index.js:8033:41)
+    at async withTelemetry (file://./node_modules/.pnpm/storybook@10.3.5_@testing-library+dom@10.4.0_prettier@3.6.2_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/storybook/dist/_node-chunks/chunk-FIR43JGQ.js:225:12)
+    at async dev (file://./node_modules/.pnpm/storybook@10.3.5_@testing-library+dom@10.4.0_prettier@3.6.2_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/storybook/dist/bin/core.js:2736:3)
+    at async _Command.<anonymous> (file://./node_modules/.pnpm/storybook@10.3.5_@testing-library+dom@10.4.0_prettier@3.6.2_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/storybook/dist/bin/core.js:2806:92)
+[23:15:32.710] [WARN] Broken build, fix the error above.
+You may need to refresh the browser.
+[23:15:32.711] [WARN] Could not resolve addon "@storybook/addon-essentials", skipping. Is it installed?

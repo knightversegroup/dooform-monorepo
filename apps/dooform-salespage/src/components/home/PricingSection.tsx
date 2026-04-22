@@ -8,6 +8,8 @@ import {
   Link2,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { Button } from '@dooform/ui';
+import { Section, Container } from '@dooform/ui';
 
 type PlanDict = {
   name: string;
@@ -86,8 +88,8 @@ const planConfigs: PlanConfig[] = [
 
 export default function PricingSection({ dict }: { dict: PricingDict }) {
   return (
-    <section className="flex justify-center px-[10px] py-20">
-      <div className="w-full max-w-[1280px] px-6">
+    <Section padding="lg">
+      <Container>
         {/* Header */}
         <div className="mb-12 text-center">
           <h2 className="text-3xl font-bold md:text-4xl">{dict.heading}</h2>
@@ -150,12 +152,9 @@ export default function PricingSection({ dict }: { dict: PricingDict }) {
 
                 {/* Button */}
                 <div className="mt-auto pt-8">
-                  <a
-                    href="#"
-                    className="inline-block rounded-full border border-gray-900 bg-gray-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800"
-                  >
+                  <Button variant="dark" size="lg" href="#">
                     {plan.button}
-                  </a>
+                  </Button>
                 </div>
               </div>
             );
@@ -183,7 +182,7 @@ export default function PricingSection({ dict }: { dict: PricingDict }) {
         <p className="mt-10 text-center text-sm text-[#4d4d4d]">
           {dict.footnote}
         </p>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

@@ -1,3 +1,5 @@
+import { Section, Container } from '@dooform/ui';
+
 type PartnersDict = {
   heading: string;
   subtitle: string;
@@ -17,8 +19,8 @@ export default function PartnersSection({ dict }: { dict: PartnersDict }) {
   const logos = Array.from({ length: PARTNER_COUNT });
 
   return (
-    <section className="flex justify-center px-[10px]">
-      <div className="w-full max-w-[1280px] px-6 py-9">
+    <Section padding="none">
+      <Container className="py-9">
         {/* Header */}
         <div className="mb-9 text-center">
           <h2 className="text-2xl font-semibold text-[#262626]">
@@ -46,7 +48,7 @@ export default function PartnersSection({ dict }: { dict: PartnersDict }) {
             ))}
           </div>
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

@@ -1,5 +1,8 @@
 'use client';
 
+import { Button } from '@dooform/ui';
+import { Section, Container } from '@dooform/ui';
+
 type TrialDict = {
   heading: string;
   subtitle: string;
@@ -13,8 +16,8 @@ type TrialDict = {
 
 export default function TrialSection({ dict }: { dict: TrialDict }) {
   return (
-    <section id="trial" className="flex justify-center px-[10px]">
-      <div className="w-full max-w-[1280px] px-6 py-9">
+    <Section id="trial" padding="none">
+      <Container className="py-9">
         {/* Header */}
         <div className="mb-9 text-center">
           <h2 className="text-2xl font-semibold text-[#262626]">
@@ -47,18 +50,12 @@ export default function TrialSection({ dict }: { dict: TrialDict }) {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              type="submit"
-              className="flex h-8 items-center justify-center rounded-full bg-[#262626] px-3 text-xs font-medium text-[#fcfcfc] transition hover:bg-black"
-            >
+            <Button variant="dark" size="sm" type="submit">
               {dict.register}
-            </button>
-            <a
-              href="#"
-              className="flex h-8 items-center justify-center rounded-full bg-[#fcfcfc] px-3 text-xs font-medium text-[#262626] transition hover:bg-gray-100"
-            >
+            </Button>
+            <Button variant="ghost" size="sm" href="#">
               {dict.hasAccount}
-            </a>
+            </Button>
           </div>
         </form>
 
@@ -66,7 +63,7 @@ export default function TrialSection({ dict }: { dict: TrialDict }) {
         <p className="mt-9 text-center text-xs text-[#737373]">
           {dict.consent}
         </p>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

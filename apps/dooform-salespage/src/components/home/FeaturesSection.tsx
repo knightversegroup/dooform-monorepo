@@ -1,5 +1,7 @@
 import { Puzzle, CodeXml, Zap, ArrowUpRight } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { Button } from '@dooform/ui';
+import { Section, Container } from '@dooform/ui';
 
 type FeatureCardDict = {
   title: string;
@@ -39,8 +41,8 @@ export default function FeaturesSection({
   const cards = [...featureCards, ...featureCards];
 
   return (
-    <section className="flex justify-center px-[10px]">
-      <div className="w-full max-w-[1280px] px-6 py-16">
+    <Section padding="md">
+      <Container>
         {/* Header */}
         <div className="flex items-center justify-between mb-12">
           <h2 className="text-3xl font-bold md:text-4xl">{dict.heading}</h2>
@@ -69,18 +71,15 @@ export default function FeaturesSection({
                   {cardDict.description}
                 </p>
                 <div className="mt-auto pt-2">
-                  <a
-                    href="#"
-                    className="inline-block rounded-full border border-gray-900 bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
-                  >
+                  <Button variant="dark" size="md" href="#">
                     {cardDict.button}
-                  </a>
+                  </Button>
                 </div>
               </div>
             );
           })}
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

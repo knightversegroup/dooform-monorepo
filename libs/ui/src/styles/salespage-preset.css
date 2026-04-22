@@ -1,0 +1,40 @@
+/**
+ * Dooform Salespage CSS Preset
+ *
+ * Defines CSS custom properties for the salespage theme.
+ * Import this file in the salespage's global.css.
+ */
+
+:root {
+  /* Brand */
+  --ui-brand-primary: #2c2585;
+  --ui-brand-primary-hover: #231e6b;
+  --ui-brand-dark: #1B1464;
+  --ui-brand-accent: #4338ca;
+
+  /* Text */
+  --ui-text-heading: #262626;
+  --ui-text-body: #4d4d4d;
+  --ui-text-muted: #737373;
+
+  /* Surface */
+  --ui-surface-primary: #ffffff;
+  --ui-surface-soft: #fcfcfc;
+  --ui-surface-warm: #f5f0ea;
+  --ui-surface-warm-alt: #FAFAF8;
+  --ui-surface-neutral: #f5f5f5;
+
+  /* Border */
+  --ui-border-default: #e7e7e7;
+  --ui-border-warm: #c9c1b6;
+  --ui-border-divider: #e5e0da;
+
+  /* CTA */
+  --ui-cta-light-bg: #e4e4e4;
+  --ui-cta-light-hover: #d4d4d4;
+  --ui-cta-dark-bg: #262626;
+  --ui-cta-dark-hover: #404040;
+
+  /* Container */
+  --ui-container-max-width: 1280px;
+}

@@ -1,3 +1,5 @@
+@import '../../../../libs/ui/src/styles/salespage-preset.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

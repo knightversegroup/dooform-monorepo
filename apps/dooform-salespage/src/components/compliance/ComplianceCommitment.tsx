@@ -1,3 +1,6 @@
+import { Button } from '@dooform/ui';
+import { Container } from '@dooform/ui';
+
 export type ComplianceCommitmentDict = {
   heading: string;
   body: string;
@@ -27,7 +30,7 @@ export default function ComplianceCommitment({
         />
       </div>
 
-      <div className="relative mx-auto max-w-[1280px] px-6">
+      <Container className="relative">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold text-white md:text-4xl">
             {dict.heading}
@@ -35,14 +38,11 @@ export default function ComplianceCommitment({
           <p className="mt-5 text-base leading-relaxed text-white/60">
             {dict.body}
           </p>
-          <a
-            href="#trial"
-            className="mt-8 inline-block rounded-full bg-[#2c2585] px-8 py-3 text-sm font-medium text-white transition hover:bg-[#231e6b]"
-          >
+          <Button variant="primary" size="lg" href="#trial" className="mt-8">
             {dict.cta}
-          </a>
+          </Button>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }
