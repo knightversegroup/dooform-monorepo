@@ -8,7 +8,7 @@ import {
   Link2,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { Button } from '@dooform/ui';
+import { Button, Typography } from '@dooform/ui';
 import { Section, Container } from '@dooform/ui';
 
 type PlanDict = {
@@ -92,8 +92,8 @@ export default function PricingSection({ dict }: { dict: PricingDict }) {
       <Container>
         {/* Header */}
         <div className="mb-12 text-center">
-          <h2 className="text-3xl font-bold md:text-4xl">{dict.heading}</h2>
-          <p className="mt-3 text-base text-[#4d4d4d]">{dict.subtitle}</p>
+          <Typography variant="h2">{dict.heading}</Typography>
+          <Typography variant="body" className="mt-3">{dict.subtitle}</Typography>
         </div>
 
         {/* Pricing Cards */}

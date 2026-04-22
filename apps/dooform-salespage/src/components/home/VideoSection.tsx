@@ -1,4 +1,5 @@
 import { ArrowUpRight } from 'lucide-react';
+import { Typography } from '@dooform/ui';
 import { Section, Container } from '@dooform/ui';
 
 type VideoDict = {
@@ -18,9 +19,9 @@ export default function VideoSection({
       <Container>
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-3xl font-semibold text-black md:text-4xl">
+          <Typography variant="h2">
             {dict.heading}
-          </h2>
+          </Typography>
           <a
             href={`/${locale}/usecases`}
             className="flex shrink-0 items-center gap-0.5 text-sm text-[#424242] transition hover:text-gray-900"

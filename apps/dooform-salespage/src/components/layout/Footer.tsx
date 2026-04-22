@@ -1,5 +1,7 @@
 import { DooformLogo } from '@dooform/shared/components/ui/DooformLogo';
 import { ArrowUpRight } from 'lucide-react';
+import { Typography } from '@dooform/ui';
+import { Container } from '@dooform/ui';
 
 type FooterDict = {
   copyright: string;
@@ -53,25 +55,25 @@ export default function Footer({ dict }: { dict: FooterDict }) {
   ];
 
   return (
-    <footer className="flex justify-center px-[10px]">
-      <div className="flex w-full max-w-[1280px] flex-col gap-6 px-6 py-9">
+    <footer className="px-[10px]">
+      <Container className="flex flex-col gap-6 py-9">
         {/* Top section */}
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           {/* Logo + Copyright */}
           <div className="flex flex-col gap-3">
             <DooformLogo width={124} height={24} />
-            <p className="whitespace-pre-line text-base text-[#4d4d4d]">
+            <Typography variant="body" className="whitespace-pre-line">
               {dict.copyright}
-            </p>
+            </Typography>
           </div>
 
           {/* Link Columns */}
           <div className="flex flex-col gap-6 md:flex-row">
             {footerSections.map((section) => (
               <div key={section.heading} className="flex flex-col gap-2">
-                <h3 className="text-base font-semibold text-[#262626]">
+                <Typography variant="h4" as="h3">
                   {section.heading}
-                </h3>
+                </Typography>
                 {section.links.map((link) => (
                   <a
                     key={link.label}
@@ -95,9 +97,9 @@ export default function Footer({ dict }: { dict: FooterDict }) {
             {dict.companyName}
             <ArrowUpRight className="h-3 w-3" />
           </a>
-          <p className="text-sm text-[#4d4d4d]">{dict.termsNotice}</p>
+          <Typography variant="body-sm">{dict.termsNotice}</Typography>
         </div>
-      </div>
+      </Container>
     </footer>
   );
 }

@@ -1,4 +1,4 @@
-import { Button } from '@dooform/ui';
+import { Button, Typography } from '@dooform/ui';
 import { Section, Container } from '@dooform/ui';
 
 type HeroDict = {
@@ -20,12 +20,12 @@ export default function HeroSection({ dict }: { dict: HeroDict }) {
         {/* Text Content */}
         <div className="mt-8 flex flex-col items-center gap-3 text-center md:mt-12">
           <div>
-            <h1 className="text-2xl font-semibold text-black md:text-4xl">
+            <Typography variant="h1">
               {dict.heading}
-            </h1>
-            <p className="mt-0.5 text-sm text-black md:text-base">
+            </Typography>
+            <Typography variant="body" className="mt-0.5">
               {dict.subtitle}
-            </p>
+            </Typography>
           </div>
 
           {/* CTA Buttons */}

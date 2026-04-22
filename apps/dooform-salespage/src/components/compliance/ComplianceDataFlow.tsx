@@ -1,3 +1,6 @@
+import { Typography } from '@dooform/ui';
+import { Section, Container } from '@dooform/ui';
+
 export type ComplianceDataFlowStep = {
   step: string;
   title: string;
@@ -18,14 +21,14 @@ export default function ComplianceDataFlow({
   dict: ComplianceDataFlowDict;
 }) {
   return (
-    <section className="px-[10px] py-20">
-      <div className="mx-auto max-w-[1280px] px-6">
-        <h2 className="text-3xl font-bold text-[#262626] md:text-4xl">
+    <Section padding="lg">
+      <Container>
+        <Typography variant="h2">
           {dict.heading}
-        </h2>
-        <p className="mt-3 max-w-lg text-base text-[#4d4d4d]">
+        </Typography>
+        <Typography variant="body" className="mt-3 max-w-lg">
           {dict.subtitle}
-        </p>
+        </Typography>
         <div className="mt-4 h-1 w-16 bg-[#4338ca]" />
 
         <div className="mt-14 grid grid-cols-1 gap-0 md:grid-cols-4">
@@ -46,12 +49,12 @@ export default function ComplianceDataFlow({
                   {step.step}
                 </div>
 
-                <h3 className="mt-5 text-base font-bold text-[#262626]">
+                <Typography variant="h4" as="h3" className="mt-5">
                   {step.title}
-                </h3>
-                <p className="mt-2 pr-6 text-sm leading-relaxed text-[#4d4d4d]">
+                </Typography>
+                <Typography variant="body" className="mt-2 pr-6 leading-relaxed">
                   {step.description}
-                </p>
+                </Typography>
 
                 {!isLast && (
                   <div className="my-6 ml-[27px] h-8 w-[3px] bg-[#e5e5e5] md:hidden" />
@@ -60,7 +63,7 @@ export default function ComplianceDataFlow({
             );
           })}
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

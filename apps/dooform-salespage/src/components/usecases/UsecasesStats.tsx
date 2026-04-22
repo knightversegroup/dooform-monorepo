@@ -1,3 +1,5 @@
+import { Section, Container } from '@dooform/ui';
+
 export type UsecasesStat = {
   value: string;
   label: string;
@@ -13,8 +15,8 @@ export default function UsecasesStats({
   dict: UsecasesStatsDict;
 }) {
   return (
-    <section className="bg-[#1B1464] px-[10px] py-20">
-      <div className="mx-auto max-w-[1280px] px-6">
+    <Section padding="lg" className="bg-[#1B1464]">
+      <Container>
         <div className="grid grid-cols-2 gap-10 md:grid-cols-4">
           {dict.items.map((stat) => (
             <div key={stat.label}>
@@ -25,7 +27,7 @@ export default function UsecasesStats({
             </div>
           ))}
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

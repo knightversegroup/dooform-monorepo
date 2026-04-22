@@ -10,6 +10,8 @@ import {
   Bell,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { Typography } from '@dooform/ui';
+import { Section, Container } from '@dooform/ui';
 
 type FeaturesGridItem = {
   title: string;
@@ -35,11 +37,11 @@ const ICONS: LucideIcon[] = [
 
 export default function FeaturesGrid({ dict }: { dict: FeaturesGridDict }) {
   return (
-    <section className="flex justify-center px-[10px]">
-      <div className="w-full max-w-[1280px] px-6 py-16">
-        <h2 className="mb-10 text-2xl font-bold text-[#262626] md:text-3xl">
+    <Section padding="md">
+      <Container>
+        <Typography variant="h2" className="mb-10">
           {dict.heading}
-        </h2>
+        </Typography>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {dict.items.map((item, i) => {
@@ -53,17 +55,17 @@ export default function FeaturesGrid({ dict }: { dict: FeaturesGridDict }) {
                   className="h-8 w-8 text-[#2c2585]"
                   strokeWidth={1.5}
                 />
-                <h3 className="mt-4 text-base font-semibold text-[#262626]">
+                <Typography variant="h4" as="h3" className="mt-4">
                   {item.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-[#4d4d4d]">
+                </Typography>
+                <Typography variant="body" className="mt-2 leading-relaxed">
                   {item.description}
-                </p>
+                </Typography>
               </div>
             );
           })}
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

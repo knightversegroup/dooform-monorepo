@@ -7,7 +7,16 @@ const meta: Meta<typeof Typography> = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['h1', 'h2', 'h3', 'h4', 'body-lg', 'body', 'body-sm', 'eyebrow'],
+      options: [
+        'h1',
+        'h2',
+        'h3',
+        'h4',
+        'body-lg',
+        'body',
+        'body-sm',
+        'eyebrow',
+      ],
     },
     children: { control: 'text' },
   },
@@ -20,7 +29,11 @@ export default meta;
 type Story = StoryObj<typeof Typography>;
 
 export const Heading1: Story = {
-  args: { variant: 'h1', children: 'Heading 1' },
+  args: {
+    variant: 'h1',
+    children: 'Heading 1',
+    className: 'text-red',
+  },
 };
 
 export const Heading2: Story = {
@@ -36,15 +49,24 @@ export const Heading4: Story = {
 };
 
 export const BodyLarge: Story = {
-  args: { variant: 'body-lg', children: 'Body large text for introductions and key descriptions.' },
+  args: {
+    variant: 'body-lg',
+    children: 'Body large text for introductions and key descriptions.',
+  },
 };
 
 export const Body: Story = {
-  args: { variant: 'body', children: 'Standard body text for general content and paragraphs.' },
+  args: {
+    variant: 'body',
+    children: 'Standard body text for general content and paragraphs.',
+  },
 };
 
 export const BodySmall: Story = {
-  args: { variant: 'body-sm', children: 'Small body text for captions and secondary information.' },
+  args: {
+    variant: 'body-sm',
+    children: 'Small body text for captions and secondary information.',
+  },
 };
 
 export const Eyebrow: Story = {

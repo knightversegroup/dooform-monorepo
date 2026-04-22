@@ -1,3 +1,4 @@
+import { Typography } from '@dooform/ui';
 import { Section, Container } from '@dooform/ui';
 
 type PartnersDict = {
@@ -23,10 +24,12 @@ export default function PartnersSection({ dict }: { dict: PartnersDict }) {
       <Container className="py-9">
         {/* Header */}
         <div className="mb-9 text-center">
-          <h2 className="text-2xl font-semibold text-[#262626]">
+          <Typography variant="h2">
             {dict.heading}
-          </h2>
-          <p className="mt-0.5 text-base text-[#262626]">{dict.subtitle}</p>
+          </Typography>
+          <Typography variant="body" className="mt-0.5">
+            {dict.subtitle}
+          </Typography>
         </div>
 
         {/* Marquee with edge fade */}

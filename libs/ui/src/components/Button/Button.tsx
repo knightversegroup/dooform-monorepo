@@ -40,9 +40,9 @@ const variantStyles: Record<ButtonVariant, string> = {
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: 'h-8 px-3 text-xs font-medium',
-  md: 'px-4 py-2 text-sm font-medium',
-  lg: 'px-6 py-2.5 text-sm font-medium',
+  sm: 'h-8 px-3 text-sm font-medium',
+  md: 'px-5 py-2 text-base font-medium',
+  lg: 'px-7 py-3 text-base font-medium',
 };
 
 const baseStyles =

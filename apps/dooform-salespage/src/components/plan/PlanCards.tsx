@@ -1,5 +1,5 @@
 import { FileText } from 'lucide-react';
-import { Button } from '@dooform/ui';
+import { Button, Typography } from '@dooform/ui';
 import { Section, Container } from '@dooform/ui';
 
 type PlanCardDict = {
@@ -54,12 +54,12 @@ export default function PlanCards({ dict }: { dict: PlanPageDict }) {
       <Container>
         {/* Header */}
         <div className="mb-14 text-center">
-          <h1 className="text-4xl font-bold text-[#262626] md:text-5xl">
+          <Typography variant="h1">
             {dict.heading}
-          </h1>
-          <p className="mx-auto mt-4 max-w-lg text-base text-[#666]">
+          </Typography>
+          <Typography variant="body" className="mx-auto mt-4 max-w-lg">
             {dict.subtitle}
-          </p>
+          </Typography>
         </div>
 
         {/* Cards */}
@@ -79,9 +79,9 @@ export default function PlanCards({ dict }: { dict: PlanPageDict }) {
                 <FileText className="mb-4 h-7 w-7 text-[#262626]" />
 
                 {/* Name */}
-                <h3 className="text-xl font-bold text-[#262626]">
+                <Typography variant="h4" as="h3">
                   {plan.name}
-                </h3>
+                </Typography>
 
                 {/* Tagline */}
                 <p className="mt-1 text-sm text-[#666]">{plan.tagline}</p>

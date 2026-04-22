@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { Button } from '@dooform/ui';
+import { Button, Typography } from '@dooform/ui';
 import { Section, Container } from '@dooform/ui';
 
 type FaqItem = {
@@ -34,12 +34,12 @@ export default function FaqSection({
         <div className="shrink-0 md:w-[389px]">
           <div className="flex flex-col gap-3">
             <div>
-              <h2 className="text-2xl font-semibold text-[#262626]">
+              <Typography variant="h2">
                 {dict.heading}
-              </h2>
-              <p className="mt-0.5 text-base text-[#262626]">
+              </Typography>
+              <Typography variant="body" className="mt-0.5">
                 {dict.subtitle}
-              </p>
+              </Typography>
             </div>
             <div className="flex items-center gap-3">
               <Button variant="dark" size="sm" href={`/${locale}/documents`}>
@@ -78,9 +78,9 @@ export default function FaqSection({
                 }`}
               >
                 <div className="overflow-hidden">
-                  <p className="px-3 pb-3 text-sm text-[#737373]">
+                  <Typography variant="body-sm" className="px-3 pb-3">
                     {item.answer}
-                  </p>
+                  </Typography>
                 </div>
               </div>
             </div>

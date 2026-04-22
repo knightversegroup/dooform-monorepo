@@ -1,3 +1,5 @@
+import { Typography } from '@dooform/ui';
+
 type UseCaseCardDict = {
   title: string;
   description: string;
@@ -29,10 +31,12 @@ export default function UseCasesSection({ dict }: { dict: UseCasesDict }) {
     <section>
       {/* Dark navy header */}
       <div className="bg-[#1B1464] px-6 pb-48 pt-16 text-center md:pb-52">
-        <h2 className="whitespace-pre-line text-3xl font-bold leading-tight text-white md:text-4xl">
+        <Typography variant="h2" className="whitespace-pre-line leading-tight text-white">
           {dict.heading}
-        </h2>
-        <p className="mt-3 text-base text-white/60">{dict.subtitle}</p>
+        </Typography>
+        <Typography variant="body" className="mt-3 text-white/60">
+          {dict.subtitle}
+        </Typography>
       </div>
 
       {/* Cards overlapping the header */}
@@ -59,9 +63,9 @@ export default function UseCasesSection({ dict }: { dict: UseCasesDict }) {
                   </div>
 
                   {/* Title */}
-                  <h3 className="relative z-10 max-w-[55%] text-xl font-bold leading-snug text-[#1B1464]">
+                  <Typography variant="h4" as="h3" className="relative z-10 max-w-[55%] leading-snug text-[#1B1464]">
                     {card.title}
-                  </h3>
+                  </Typography>
                 </div>
 
                 {/* Separator */}
@@ -69,9 +73,9 @@ export default function UseCasesSection({ dict }: { dict: UseCasesDict }) {
 
                 {/* Description */}
                 <div className="p-8 pt-4">
-                  <p className="text-sm leading-relaxed text-[#4d4d4d]">
+                  <Typography variant="body" className="leading-relaxed">
                     {card.description}
-                  </p>
+                  </Typography>
                 </div>
               </div>
             );

@@ -1,3 +1,6 @@
+import { Typography } from '@dooform/ui';
+import { Section, Container } from '@dooform/ui';
+
 export type UsecasesQuoteDict = {
   text: string;
   author: string;
@@ -10,8 +13,8 @@ export default function UsecasesQuote({
   dict: UsecasesQuoteDict;
 }) {
   return (
-    <section className="px-[10px] py-24">
-      <div className="mx-auto max-w-[1280px] px-6">
+    <Section padding="xl">
+      <Container>
         <div className="mx-auto max-w-3xl">
           {/* Accent line */}
           <div className="h-px w-16 bg-[#2c2585]" />
@@ -27,7 +30,7 @@ export default function UsecasesQuote({
             <p className="mt-0.5 text-sm text-[#4d4d4d]">{dict.company}</p>
           </div>
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

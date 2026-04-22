@@ -1,3 +1,6 @@
+import { Typography } from '@dooform/ui';
+import { Section, Container } from '@dooform/ui';
+
 export type ComplianceCert = {
   name: string;
   description: string;
@@ -23,12 +26,12 @@ export default function ComplianceCerts({
   dict: ComplianceCertsDict;
 }) {
   return (
-    <section className="bg-[#FAFAF8] px-[10px] py-20">
-      <div className="mx-auto max-w-[1280px] px-6">
+    <Section padding="lg" className="bg-[#FAFAF8]">
+      <Container>
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <h2 className="text-3xl font-bold text-[#262626] md:text-4xl">
+          <Typography variant="h2">
             {dict.heading}
-          </h2>
+          </Typography>
           <div className="hidden h-10 w-10 rounded-full bg-[#2c2585] md:block" />
         </div>
 
@@ -40,16 +43,16 @@ export default function ComplianceCerts({
               key={cert.name}
               className={`border-l-4 bg-white py-6 pl-6 pr-8 ${accentColors[i % accentColors.length]}`}
             >
-              <h3 className="text-base font-bold text-[#262626]">
+              <Typography variant="h4" as="h3">
                 {cert.name}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-[#4d4d4d]">
+              </Typography>
+              <Typography variant="body" className="mt-2 leading-relaxed">
                 {cert.description}
-              </p>
+              </Typography>
             </div>
           ))}
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

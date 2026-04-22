@@ -1,5 +1,7 @@
 import { Shield, Lock, Eye, Server } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { Typography } from '@dooform/ui';
+import { Section, Container } from '@dooform/ui';
 
 export type CompliancePillar = {
   title: string;
@@ -44,11 +46,11 @@ export default function CompliancePillars({
   dict: CompliancePillarsDict;
 }) {
   return (
-    <section className="px-[10px] py-20">
-      <div className="mx-auto max-w-[1280px] px-6">
-        <h2 className="text-3xl font-bold text-[#262626] md:text-4xl">
+    <Section padding="lg">
+      <Container>
+        <Typography variant="h2">
           {dict.heading}
-        </h2>
+        </Typography>
 
         <div className="mt-4 h-1 w-16 bg-[#2c2585]" />
 
@@ -65,17 +67,17 @@ export default function CompliancePillars({
                   <Icon className="h-6 w-6 text-white" />
                 </div>
 
-                <h3 className="mt-6 text-lg font-bold text-[#262626]">
+                <Typography variant="h4" as="h3" className="mt-6">
                   {item.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-[#4d4d4d]">
+                </Typography>
+                <Typography variant="body" className="mt-2 leading-relaxed">
                   {item.description}
-                </p>
+                </Typography>
               </div>
             );
           })}
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

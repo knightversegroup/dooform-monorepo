@@ -1,6 +1,6 @@
 import { Puzzle, CodeXml, Zap, ArrowUpRight } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { Button } from '@dooform/ui';
+import { Button, Typography } from '@dooform/ui';
 import { Section, Container } from '@dooform/ui';
 
 type FeatureCardDict = {
@@ -45,7 +45,7 @@ export default function FeaturesSection({
       <Container>
         {/* Header */}
         <div className="flex items-center justify-between mb-12">
-          <h2 className="text-3xl font-bold md:text-4xl">{dict.heading}</h2>
+          <Typography variant="h2">{dict.heading}</Typography>
           <a
             href={`/${locale}/usecases`}
             className="flex items-center gap-1 text-base text-[#4d4d4d] transition hover:text-gray-900"
@@ -66,10 +66,10 @@ export default function FeaturesSection({
                   className={`h-14 w-14 ${card.iconColor}`}
                   strokeWidth={2.5}
                 />
-                <h3 className="text-xl font-bold">{cardDict.title}</h3>
-                <p className="text-base leading-relaxed text-[#4d4d4d]">
+                <Typography variant="h4" as="h3">{cardDict.title}</Typography>
+                <Typography variant="body" className="leading-relaxed">
                   {cardDict.description}
-                </p>
+                </Typography>
                 <div className="mt-auto pt-2">
                   <Button variant="dark" size="md" href="#">
                     {cardDict.button}

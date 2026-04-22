@@ -1,4 +1,6 @@
 import { ArrowRight } from 'lucide-react';
+import { Typography, Badge } from '@dooform/ui';
+import { Section, Container } from '@dooform/ui';
 
 export type UsecaseCard = {
   industry: string;
@@ -26,8 +28,8 @@ export default function UsecasesGrid({
   dict: UsecasesGridDict;
 }) {
   return (
-    <section className="px-[10px] pb-24">
-      <div className="mx-auto max-w-[1280px] px-6">
+    <Section padding="none" className="pb-24">
+      <Container>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {dict.items.map((item, i) => (
             <a
@@ -42,17 +44,17 @@ export default function UsecasesGrid({
 
               <div className="flex flex-1 flex-col p-6">
                 {/* Industry tag */}
-                <p className="text-xs font-medium uppercase tracking-widest text-[#2c2585]">
+                <Typography variant="eyebrow" className="tracking-widest text-[#2c2585]">
                   {item.industry}
-                </p>
+                </Typography>
 
-                <h3 className="mt-3 text-xl font-semibold leading-snug text-[#262626]">
+                <Typography variant="h4" as="h3" className="mt-3 leading-snug">
                   {item.title}
-                </h3>
+                </Typography>
 
-                <p className="mt-3 text-sm leading-relaxed text-[#4d4d4d]">
+                <Typography variant="body" className="mt-3 leading-relaxed">
                   {item.description}
-                </p>
+                </Typography>
 
                 {/* Read story link */}
                 <div className="mt-auto flex items-center gap-1.5 pt-6 text-sm font-medium text-[#1B1464]">
@@ -63,7 +65,7 @@ export default function UsecasesGrid({
             </a>
           ))}
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

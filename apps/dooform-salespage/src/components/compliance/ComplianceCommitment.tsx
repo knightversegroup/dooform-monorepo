@@ -1,4 +1,4 @@
-import { Button } from '@dooform/ui';
+import { Button, Typography } from '@dooform/ui';
 import { Container } from '@dooform/ui';
 
 export type ComplianceCommitmentDict = {
@@ -32,12 +32,12 @@ export default function ComplianceCommitment({
 
       <Container className="relative">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold text-white md:text-4xl">
+          <Typography variant="h2" className="text-white">
             {dict.heading}
-          </h2>
-          <p className="mt-5 text-base leading-relaxed text-white/60">
+          </Typography>
+          <Typography variant="body" className="mt-5 leading-relaxed text-white/60">
             {dict.body}
-          </p>
+          </Typography>
           <Button variant="primary" size="lg" href="#trial" className="mt-8">
             {dict.cta}
           </Button>

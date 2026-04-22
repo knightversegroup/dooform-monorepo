@@ -1,3 +1,6 @@
+import { Typography } from '@dooform/ui';
+import { Section, Container } from '@dooform/ui';
+
 export type UsecasesHeroDict = {
   eyebrow: string;
   heading: string;
@@ -10,16 +13,18 @@ export default function UsecasesHero({
   dict: UsecasesHeroDict;
 }) {
   return (
-    <section className="px-[10px] pb-16 pt-16 md:pb-24 md:pt-20">
-      <div className="mx-auto max-w-[1280px] px-6">
-        <p className="text-sm font-medium text-[#2c2585]">{dict.eyebrow}</p>
-        <h1 className="mt-4 max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight text-[#262626] md:text-6xl">
+    <Section padding="none" className="pb-16 pt-16 md:pb-24 md:pt-20">
+      <Container>
+        <Typography variant="eyebrow" className="text-[#2c2585]">
+          {dict.eyebrow}
+        </Typography>
+        <Typography variant="h1" className="mt-4 max-w-3xl leading-[1.1] tracking-tight">
           {dict.heading}
-        </h1>
-        <p className="mt-6 max-w-xl text-lg leading-relaxed text-[#4d4d4d]">
+        </Typography>
+        <Typography variant="body-lg" className="mt-6 max-w-xl leading-relaxed">
           {dict.subtitle}
-        </p>
-      </div>
-    </section>
+        </Typography>
+      </Container>
+    </Section>
   );
 }

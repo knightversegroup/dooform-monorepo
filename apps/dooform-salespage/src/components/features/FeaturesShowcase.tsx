@@ -1,4 +1,6 @@
 import { ArrowRight } from 'lucide-react';
+import { Typography } from '@dooform/ui';
+import { Section, Container } from '@dooform/ui';
 
 type HighlightDict = {
   title: string;
@@ -16,8 +18,8 @@ export default function FeaturesShowcase({
   dict: FeaturesShowcaseDict;
 }) {
   return (
-    <section className="flex justify-center px-[10px]">
-      <div className="w-full max-w-[1280px] space-y-8 px-6 py-8">
+    <Section padding="none">
+      <Container className="space-y-8 py-8">
         {dict.highlights.map((item, i) => (
           <div
             key={i}
@@ -30,12 +32,12 @@ export default function FeaturesShowcase({
 
             {/* Text area */}
             <div className="flex flex-col justify-center p-8 md:w-3/5 md:p-10">
-              <h3 className="text-xl font-bold text-[#262626] md:text-2xl">
+              <Typography variant="h3">
                 {item.title}
-              </h3>
-              <p className="mt-3 text-base leading-relaxed text-[#4d4d4d]">
+              </Typography>
+              <Typography variant="body" className="mt-3 leading-relaxed">
                 {item.description}
-              </p>
+              </Typography>
               <a
                 href="#"
                 className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-[#2c2585] transition hover:opacity-80"
@@ -46,7 +48,7 @@ export default function FeaturesShowcase({
             </div>
           </div>
         ))}
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

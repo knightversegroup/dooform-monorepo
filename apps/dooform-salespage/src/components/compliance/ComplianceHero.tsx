@@ -1,3 +1,6 @@
+import { Typography } from '@dooform/ui';
+import { Container } from '@dooform/ui';
+
 export type ComplianceHeroDict = {
   heading: string;
   subtitle: string;
@@ -33,17 +36,17 @@ export default function ComplianceHero({
         <div className="absolute bottom-16 right-1/4 h-12 w-12 border-[3px] border-white/15 md:h-16 md:w-16" />
       </div>
 
-      <div className="relative mx-auto max-w-[1280px] px-6">
-        <p className="text-xs font-bold uppercase tracking-[0.3em] text-white/50">
+      <Container className="relative">
+        <Typography variant="eyebrow" className="text-white/50">
           Security & Compliance
-        </p>
-        <h1 className="mt-4 max-w-3xl text-4xl font-bold leading-tight text-white md:text-6xl">
+        </Typography>
+        <Typography variant="h1" className="mt-4 max-w-3xl leading-tight text-white">
           {dict.heading}
-        </h1>
-        <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/60">
+        </Typography>
+        <Typography variant="body-lg" className="mt-6 max-w-xl leading-relaxed text-white/60">
           {dict.subtitle}
-        </p>
-      </div>
+        </Typography>
+      </Container>
     </section>
   );
 }

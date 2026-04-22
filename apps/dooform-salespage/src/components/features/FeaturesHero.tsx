@@ -1,3 +1,6 @@
+import { Typography } from '@dooform/ui';
+import { Section, Container } from '@dooform/ui';
+
 type FeaturesHeroDict = {
   heading: string;
   subtitle: string;
@@ -6,16 +9,16 @@ type FeaturesHeroDict = {
 
 export default function FeaturesHero({ dict }: { dict: FeaturesHeroDict }) {
   return (
-    <section className="flex justify-center px-[10px]">
-      <div className="w-full max-w-[1280px] px-6 pt-10 pb-8">
+    <Section padding="none">
+      <Container className="pt-10 pb-8">
         {/* Header row */}
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <h1 className="text-3xl font-bold text-[#262626] md:text-5xl">
+          <Typography variant="h1">
             {dict.heading}
-          </h1>
-          <p className="max-w-sm text-base leading-relaxed text-[#4d4d4d] md:text-right">
+          </Typography>
+          <Typography variant="body" className="max-w-sm leading-relaxed md:text-right">
             {dict.subtitle}
-          </p>
+          </Typography>
         </div>
 
         {/* Category grid on dark background */}
@@ -31,7 +34,7 @@ export default function FeaturesHero({ dict }: { dict: FeaturesHeroDict }) {
             ))}
           </div>
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

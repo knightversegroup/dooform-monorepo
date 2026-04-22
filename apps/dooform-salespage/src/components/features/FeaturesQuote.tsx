@@ -1,3 +1,5 @@
+import { Section, Container } from '@dooform/ui';
+
 type FeaturesQuoteDict = {
   text: string;
   author: string;
@@ -10,8 +12,8 @@ export default function FeaturesQuote({
   dict: FeaturesQuoteDict;
 }) {
   return (
-    <section className="flex justify-center px-[10px]">
-      <div className="w-full max-w-[1280px] px-6 py-8">
+    <Section padding="none">
+      <Container className="py-8">
         <div className="rounded-2xl bg-[#1B1464] px-8 py-12 md:px-16 md:py-16">
           {/* Quote mark */}
           <svg
@@ -34,7 +36,7 @@ export default function FeaturesQuote({
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }
