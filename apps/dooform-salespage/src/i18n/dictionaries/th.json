@@ -632,54 +632,88 @@
     },
     "comparison": {
       "heading": "เปรียบเทียบแพ็กเกจ",
-      "columns": ["Trial", "Starter", "Plus", "Enterprise"],
+      "columns": ["Free", "Basic", "Pro", "Advance"],
       "sections": [
         {
-          "name": "ฟีเจอร์และความสามารถ",
+          "name": "ราคาและเงื่อนไขการชำระเงิน",
           "rows": [
-            { "feature": "กรอกเอกสารพื้นฐาน", "values": ["5 รายการ", "500/เดือน", "ไม่จำกัด", "ไม่จำกัด"] },
-            { "feature": "คลังเทมเพลต", "values": [true, true, true, true] },
-            { "feature": "แปลหลายภาษา", "values": [false, true, true, true] },
-            { "feature": "เทมเพลตกำหนดเอง", "values": [false, false, true, true] },
-            { "feature": "AI ตรวจสอบข้อมูล", "values": [false, false, true, true] },
-            { "feature": "ตรวจจับข้อความอัตโนมัติ", "values": [false, false, true, true] },
-            { "feature": "ประมวลผลแบบกลุ่ม", "values": [false, false, true, true] },
-            { "feature": "เอกสารองค์กร", "values": [false, false, "10 ชุด", "ไม่จำกัด"] },
-            { "feature": "ส่งออก PDF", "values": [true, true, true, true] }
+            { "feature": "ราคารายเดือน (บาท)", "values": ["0", "2,990", "4,990", "6,990"] },
+            { "feature": "ส่วนลด 20% เมื่อจ่ายรายปี", "values": ["0", "2,392", "3,992", "5,592"] },
+            { "feature": "รอบการชำระ", "values": ["—", "รายเดือน/ปี", "รายเดือน/ปี", "รายเดือน/ปี"] },
+            { "feature": "วิธีการชำระเงิน", "values": ["ไม่ต้องใช้บัตร", "Online payment", "Online payment", "Online payment"] }
           ]
         },
         {
-          "name": "ทีมและการทำงานร่วมกัน",
+          "name": "โควตาการใช้งาน",
           "rows": [
-            { "feature": "จำนวนผู้ใช้งาน", "values": ["1", "10", "10", "ไม่จำกัด"] },
-            { "feature": "จัดการทีม", "values": [false, true, true, true] },
-            { "feature": "กำหนดสิทธิ์ตามบทบาท", "values": [false, false, true, true] },
-            { "feature": "ประวัติการใช้งาน", "values": [false, true, true, true] }
+            { "feature": "สร้างเอกสารต่อเดือน", "values": ["ไม่จำกัด", "ไม่จำกัด", "ไม่จำกัด", "ไม่จำกัด"] },
+            { "feature": "ประเภทเอกสาร", "values": ["20 รายการ", "60 รายการ", "80 รายการ", "ไม่จำกัด"] },
+            { "feature": "การสแกนเอกสาร / OCR", "values": ["—", "—", "✓ ใช้งานได้ ไม่จำกัด", "✓ ใช้งานได้ ไม่จำกัด"] },
+            { "feature": "พื้นที่เก็บเอกสาร / ประวัติการใช้งาน", "values": ["เก็บพื้นฐาน", "ขยายเพิ่ม", "ไม่จำกัด", "ไม่จำกัด + ปรับแต่งได้"] }
           ]
         },
         {
-          "name": "ข้อมูลและพื้นที่จัดเก็บ",
+          "name": "เทมเพลตและรูปแบบเอกสาร",
           "rows": [
-            { "feature": "ระยะเวลาเก็บข้อมูล", "values": ["ไม่มี", "90 วัน", "1 ปี", "ไม่จำกัด"] },
-            { "feature": "ส่งออกข้อมูล", "values": [false, true, true, true] }
+            { "feature": "คลังเทมเพลตเอกสารราชการ", "values": ["เฉพาะเทมเพลตฟรี", "ทุกเทมเพลต", "ทุกเทมเพลต", "ทุกเทมเพลต + เทมเพลตเฉพาะองค์กร"] },
+            { "feature": "ส่งออกไฟล์ PDF", "values": [true, true, true, true] },
+            { "feature": "ส่งออกไฟล์ DOCX (แก้ไขเองได้)", "values": [false, false, true, true] },
+            { "feature": "โปรแกรมแก้ไข PDF (วาด / เพิ่มข้อความ)", "values": [false, false, true, true] }
           ]
         },
         {
-          "name": "ความปลอดภัยและการปฏิบัติตามข้อกำหนด",
+          "name": "แสตมป์เอกสาร",
           "rows": [
-            { "feature": "การเข้ารหัสข้อมูล", "values": [true, true, true, true] },
-            { "feature": "สอดคล้อง PDPA", "values": [true, true, true, true] },
-            { "feature": "บันทึกการตรวจสอบ", "values": [false, false, true, true] }
+            { "feature": "อัปโหลดโลโก้ / แสตมป์", "values": ["—", "มาตรฐาน", "สามารถ Customized ได้", "สามารถ Customized ได้"] },
+            { "feature": "ลายเซ็น", "values": ["—", "—", "มี", "มี"] }
           ]
         },
         {
-          "name": "การเชื่อมต่อและซัพพอร์ต",
+          "name": "ลายน้ำ (Watermark)",
           "rows": [
-            { "feature": "REST API", "values": [false, false, false, true] },
-            { "feature": "Webhooks", "values": [false, false, false, true] },
-            { "feature": "ซัพพอร์ตทางอีเมล", "values": [false, true, true, true] },
-            { "feature": "ซัพพอร์ตเร่งด่วน", "values": [false, false, true, true] },
-            { "feature": "ผู้จัดการบัญชีเฉพาะ", "values": [false, false, false, true] }
+            { "feature": "ลายน้ำบนเอกสาร", "values": ["—", "ถอดออกได้ / ปรับแต่งเอง", "ถอดออกได้ / ปรับแต่งเอง", "ถอดออกได้ / ใช้ตราองค์กร"] }
+          ]
+        },
+        {
+          "name": "เครื่องมืออื่นๆ",
+          "rows": [
+            { "feature": "ย้อนดูประวัติเอกสาร", "values": ["—", "✓", "✓", "✓ + เก็บรวมระดับองค์กร"] },
+            { "feature": "แก้ไขประวัติเอกสารได้", "values": [false, false, true, true] },
+            { "feature": "ระยะเวลาในการดูประวัติ", "values": ["—", "3 เดือน", "6 เดือน", "ตลอดไป"] },
+            { "feature": "Dooform Learning", "values": [true, true, true, true] },
+            { "feature": "คลังคำศัพท์", "values": ["✓", "✓", "✓", "✓ + เพิ่มคำศัพท์เฉพาะหน่วยงานได้"] },
+            { "feature": "การตรวจสอบเลขบัตรประชาชน / เติมข้อมูลอัตโนมัติ", "values": ["✓", "✓", "✓", "ตรวจสอบ + เติมข้อมูล + API"] }
+          ]
+        },
+        {
+          "name": "การทำงานร่วมกัน (Collaboration)",
+          "rows": [
+            { "feature": "จำนวนผู้ใช้ (Seats)", "values": ["1 คน", "5 คน", "10 คน", "ไม่จำกัด / ตามใบอนุญาต"] },
+            { "feature": "แชร์ภายในองค์กร", "values": ["—", "✓ ระดับทีม", "✓ ระดับทีม", "✓ ระดับองค์กร + แยกตามแผนก"] },
+            { "feature": "แชร์เอกสารผ่านอีเมล", "values": [false, true, true, true] },
+            { "feature": "กำหนดสิทธิ์ผู้ใช้ / บทบาท (RBAC)", "values": ["—", "พื้นฐาน (Admin / Member)", "พื้นฐาน (Admin / Member)", "กำหนดบทบาทเองได้"] }
+          ]
+        },
+        {
+          "name": "แบรนด์และ White-label",
+          "rows": [
+            { "feature": "โลโก้และสีแบรนด์ขององค์กร", "values": ["—", "บนลายน้ำเท่านั้น", "✓ บนเอกสาร + ลายน้ำ", "✓ เต็มรูปแบบ"] },
+            { "feature": "อัปโหลดเอกสารในองค์กร", "values": ["—", "—", "—", "ออกแบบเองได้เต็มที่"] },
+            { "feature": "โดเมนเฉพาะองค์กร (Custom Domain)", "values": ["—", "—", "—", "✓ docs.yourgov.go.th"] }
+          ]
+        },
+        {
+          "name": "ความปลอดภัยและข้อกำหนด",
+          "rows": [
+            { "feature": "SSO (Google / Microsoft / ThaID)", "values": ["—", "Google / Microsoft", "Google / Microsoft", "Google / Microsoft"] },
+            { "feature": "ความสอดคล้องตาม PDPA ไทย", "values": [true, true, true, true] }
+          ]
+        },
+        {
+          "name": "การสนับสนุน",
+          "rows": [
+            { "feature": "ช่องทางการสนับสนุน", "values": ["เอกสารช่วยเหลือ", "อีเมลฝ่ายสนับสนุน", "อีเมล + แชท (เร่งด่วน)", "อีเมล + แชท (เร่งด่วน)"] },
+            { "feature": "เวลาตอบกลับ (SLA)", "values": ["ตามความเหมาะสม", "ภายใน 24 ชม.", "ภายใน 4 ชม.", "ภายใน 1 ชม. + สัญญา SLA"] }
           ]
         }
       ]

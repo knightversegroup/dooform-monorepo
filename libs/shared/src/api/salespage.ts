@@ -253,6 +253,7 @@ export interface SalespagePlanPageCard {
 
 export interface SalespagePlanComparisonRow {
   feature: string;
+  description?: string;
   values: (boolean | string)[];
 }
 

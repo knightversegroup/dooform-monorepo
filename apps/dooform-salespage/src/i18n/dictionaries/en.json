@@ -632,54 +632,88 @@
     },
     "comparison": {
       "heading": "Compare plans",
-      "columns": ["Trial", "Starter", "Plus", "Enterprise"],
+      "columns": ["Free", "Basic", "Pro", "Advance"],
       "sections": [
         {
-          "name": "Features and capabilities",
+          "name": "Pricing and payment",
           "rows": [
-            { "feature": "Basic document filling", "values": ["5 docs", "500/mo", "Unlimited", "Unlimited"] },
-            { "feature": "Template library", "values": [true, true, true, true] },
-            { "feature": "Multi-language translation", "values": [false, true, true, true] },
-            { "feature": "Custom templates", "values": [false, false, true, true] },
-            { "feature": "AI data verification", "values": [false, false, true, true] },
-            { "feature": "Automatic text detection", "values": [false, false, true, true] },
-            { "feature": "Batch processing", "values": [false, false, true, true] },
-            { "feature": "Custom document sets", "values": [false, false, "10 sets", "Unlimited"] },
-            { "feature": "PDF export", "values": [true, true, true, true] }
+            { "feature": "Monthly price (THB)", "values": ["0", "2,990", "4,990", "6,990"] },
+            { "feature": "20% discount with annual billing", "values": ["0", "2,392", "3,992", "5,592"] },
+            { "feature": "Billing cycle", "values": ["—", "Monthly/Annual", "Monthly/Annual", "Monthly/Annual"] },
+            { "feature": "Payment method", "values": ["No card required", "Online payment", "Online payment", "Online payment"] }
           ]
         },
         {
-          "name": "Team and collaboration",
+          "name": "Usage quotas",
           "rows": [
-            { "feature": "Number of users", "values": ["1", "10", "10", "Unlimited"] },
-            { "feature": "Team management", "values": [false, true, true, true] },
-            { "feature": "Role-based access", "values": [false, false, true, true] },
-            { "feature": "Activity history", "values": [false, true, true, true] }
+            { "feature": "Documents per month", "values": ["Unlimited", "Unlimited", "Unlimited", "Unlimited"] },
+            { "feature": "Document types", "values": ["20 types", "60 types", "80 types", "Unlimited"] },
+            { "feature": "Document scanning / OCR", "values": ["—", "—", "✓ Unlimited", "✓ Unlimited"] },
+            { "feature": "Document storage / history", "values": ["Basic", "Extended", "Unlimited", "Unlimited + Customizable"] }
           ]
         },
         {
-          "name": "Data and storage",
+          "name": "Templates and document formats",
           "rows": [
-            { "feature": "Data retention", "values": ["None", "90 days", "1 year", "Unlimited"] },
-            { "feature": "Data export", "values": [false, true, true, true] }
+            { "feature": "Government document template library", "values": ["Free templates only", "All templates", "All templates", "All templates + Organization-specific"] },
+            { "feature": "PDF export", "values": [true, true, true, true] },
+            { "feature": "DOCX export (editable)", "values": [false, false, true, true] },
+            { "feature": "PDF editor (draw / add text)", "values": [false, false, true, true] }
+          ]
+        },
+        {
+          "name": "Document stamps",
+          "rows": [
+            { "feature": "Upload logo / stamp", "values": ["—", "Standard", "Customizable", "Customizable"] },
+            { "feature": "Signature", "values": ["—", "—", "Available", "Available"] }
+          ]
+        },
+        {
+          "name": "Watermark",
+          "rows": [
+            { "feature": "Document watermark", "values": ["—", "Removable / Customizable", "Removable / Customizable", "Removable / Use organization logo"] }
+          ]
+        },
+        {
+          "name": "Other tools",
+          "rows": [
+            { "feature": "Document history review", "values": ["—", "✓", "✓", "✓ + Organization-level"] },
+            { "feature": "Edit document history", "values": [false, false, true, true] },
+            { "feature": "History retention period", "values": ["—", "3 months", "6 months", "Forever"] },
+            { "feature": "Dooform Learning", "values": [true, true, true, true] },
+            { "feature": "Vocabulary library", "values": ["✓", "✓", "✓", "✓ + Custom organization terms"] },
+            { "feature": "ID verification / auto-fill", "values": ["✓", "✓", "✓", "Verify + Auto-fill + API"] }
+          ]
+        },
+        {
+          "name": "Collaboration",
+          "rows": [
+            { "feature": "Number of users (seats)", "values": ["1", "5", "10", "Unlimited / Per license"] },
+            { "feature": "Organization sharing", "values": ["—", "✓ Team level", "✓ Team level", "✓ Organization + Department level"] },
+            { "feature": "Share documents via email", "values": [false, true, true, true] },
+            { "feature": "User permissions / roles (RBAC)", "values": ["—", "Basic (Admin / Member)", "Basic (Admin / Member)", "Custom roles"] }
+          ]
+        },
+        {
+          "name": "Branding and white-label",
+          "rows": [
+            { "feature": "Organization logo and brand colors", "values": ["—", "Watermark only", "✓ On documents + watermark", "✓ Full branding"] },
+            { "feature": "Organization document upload", "values": ["—", "—", "—", "Full custom design"] },
+            { "feature": "Custom domain", "values": ["—", "—", "—", "✓ docs.yourgov.go.th"] }
           ]
         },
         {
           "name": "Security and compliance",
           "rows": [
-            { "feature": "Data encryption", "values": [true, true, true, true] },
-            { "feature": "PDPA compliance", "values": [true, true, true, true] },
-            { "feature": "Audit logs", "values": [false, false, true, true] }
+            { "feature": "SSO (Google / Microsoft / ThaID)", "values": ["—", "Google / Microsoft", "Google / Microsoft", "Google / Microsoft"] },
+            { "feature": "Thai PDPA compliance", "values": [true, true, true, true] }
           ]
         },
         {
-          "name": "Integrations and support",
+          "name": "Support",
           "rows": [
-            { "feature": "REST API", "values": [false, false, false, true] },
-            { "feature": "Webhooks", "values": [false, false, false, true] },
-            { "feature": "Email support", "values": [false, true, true, true] },
-            { "feature": "Priority support", "values": [false, false, true, true] },
-            { "feature": "Dedicated account manager", "values": [false, false, false, true] }
+            { "feature": "Support channel", "values": ["Help docs", "Email support", "Email + Chat (priority)", "Email + Chat (priority)"] },
+            { "feature": "Response time (SLA)", "values": ["Best effort", "Within 24 hrs", "Within 4 hrs", "Within 1 hr + SLA contract"] }
           ]
         }
       ]

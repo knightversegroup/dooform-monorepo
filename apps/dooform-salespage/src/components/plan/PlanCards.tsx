@@ -27,6 +27,7 @@ export type PlanPageDict = {
 
 export type ComparisonRow = {
   feature: string;
+  description?: string;
   values: (boolean | string)[];
 };
 
