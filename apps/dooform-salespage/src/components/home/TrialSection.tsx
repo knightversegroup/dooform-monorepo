@@ -20,9 +20,7 @@ export default function TrialSection({ dict }: { dict: TrialDict }) {
       <Container className="py-9">
         {/* Header */}
         <div className="mb-9 text-center">
-          <Typography variant="h2">
-            {dict.heading}
-          </Typography>
+          <Typography variant="h2">{dict.heading}</Typography>
           <Typography variant="body" className="mt-0.5">
             {dict.subtitle}
           </Typography>
@@ -52,10 +50,10 @@ export default function TrialSection({ dict }: { dict: TrialDict }) {
           </div>
 
           <div className="flex items-center gap-3">
-            <Button variant="dark" size="sm" type="submit">
+            <Button variant="dark" size="md" type="submit">
               {dict.register}
             </Button>
-            <Button variant="ghost" size="sm" href="#">
+            <Button variant="ghost" size="md" href="#">
               {dict.hasAccount}
             </Button>
           </div>

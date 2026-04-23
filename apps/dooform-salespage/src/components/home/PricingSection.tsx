@@ -93,7 +93,9 @@ export default function PricingSection({ dict }: { dict: PricingDict }) {
         {/* Header */}
         <div className="mb-12 text-center">
           <Typography variant="h2">{dict.heading}</Typography>
-          <Typography variant="body" className="mt-3">{dict.subtitle}</Typography>
+          <Typography variant="body" className="mt-3">
+            {dict.subtitle}
+          </Typography>
         </div>
 
         {/* Pricing Cards */}
@@ -152,7 +154,7 @@ export default function PricingSection({ dict }: { dict: PricingDict }) {
 
                 {/* Button */}
                 <div className="mt-auto pt-8">
-                  <Button variant="dark" size="lg" href="#">
+                  <Button variant="dark" size="md" href="#">
                     {plan.button}
                   </Button>
                 </div>
