@@ -96,8 +96,8 @@
         ]
       },
       "starter": {
-        "name": "Starter",
-        "price": "฿2,490",
+        "name": "Basic",
+        "price": "฿2,990",
         "period": "/ 10 ผู้ใช้งานต่อเดือน",
         "button": "ชำระเงิน",
         "features": [
@@ -107,7 +107,7 @@
         ]
       },
       "plus": {
-        "name": "Plus",
+        "name": "Pro",
         "price": "฿4,990",
         "period": "/ 10 ผู้ใช้งานต่อเดือน",
         "button": "ชำระเงิน",
