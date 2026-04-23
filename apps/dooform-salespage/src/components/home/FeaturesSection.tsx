@@ -1,4 +1,12 @@
-import { Puzzle, CodeXml, Zap, ArrowUpRight } from 'lucide-react';
+import {
+  FileText,
+  ScanLine,
+  Stamp,
+  Users,
+  Palette,
+  ShieldCheck,
+  ArrowUpRight,
+} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Button, Typography } from '@dooform/ui';
 import { Section, Container } from '@dooform/ui';
@@ -13,9 +21,12 @@ type FeaturesDict = {
   heading: string;
   viewUseCases: string;
   cards: {
-    business: FeatureCardDict;
-    developer: FeatureCardDict;
-    performance: FeatureCardDict;
+    documents: FeatureCardDict;
+    templates: FeatureCardDict;
+    stamps: FeatureCardDict;
+    collaboration: FeatureCardDict;
+    branding: FeatureCardDict;
+    security: FeatureCardDict;
   };
 };
 
@@ -26,9 +37,12 @@ type FeatureCardConfig = {
 };
 
 const featureCards: FeatureCardConfig[] = [
-  { key: 'business', icon: Puzzle, iconColor: 'text-green-500' },
-  { key: 'developer', icon: CodeXml, iconColor: 'text-violet-600' },
-  { key: 'performance', icon: Zap, iconColor: 'text-amber-500' },
+  { key: 'documents', icon: FileText, iconColor: 'text-blue-500' },
+  { key: 'templates', icon: ScanLine, iconColor: 'text-green-500' },
+  { key: 'stamps', icon: Stamp, iconColor: 'text-amber-500' },
+  { key: 'collaboration', icon: Users, iconColor: 'text-violet-600' },
+  { key: 'branding', icon: Palette, iconColor: 'text-rose-500' },
+  { key: 'security', icon: ShieldCheck, iconColor: 'text-emerald-600' },
 ];
 
 export default function FeaturesSection({
@@ -38,7 +52,7 @@ export default function FeaturesSection({
   dict: FeaturesDict;
   locale: string;
 }) {
-  const cards = [...featureCards, ...featureCards];
+  const cards = featureCards;
 
   return (
     <Section padding="md">

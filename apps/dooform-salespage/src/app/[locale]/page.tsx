@@ -8,6 +8,7 @@ import PartnersSection from '../../components/home/PartnersSection';
 import PricingSection from '../../components/home/PricingSection';
 import FaqSection from '../../components/home/FaqSection';
 import TrialSection from '../../components/home/TrialSection';
+import UsecasesHero from '../../components/usecases/UsecasesHero';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -25,6 +26,7 @@ export default async function Page({ params }: Props) {
       <FeaturesSection dict={dict.features} locale={locale} />
       <VideoSection dict={dict.video} locale={locale} />
       <PricingSection dict={dict.pricing} />
+      <UsecasesHero dict={dict.usecasesPage.hero} />
       <FaqSection dict={dict.faq} locale={locale} />
       <TrialSection dict={dict.trial} />
     </main>

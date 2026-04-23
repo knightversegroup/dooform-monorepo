@@ -22,20 +22,35 @@
     "heading": "What can Dooform do?",
     "viewUseCases": "View Use Cases",
     "cards": {
-      "business": {
-        "title": "Supports Diverse Businesses",
-        "description": "In addition to the government documents Dooform provides, you can also use Dooform's syntax to manage documents already in your system.",
-        "button": "View Examples"
+      "documents": {
+        "title": "Unlimited Document Creation",
+        "description": "Create unlimited Thai government documents per month with access to 80+ official document types. Export as PDF or editable DOCX with a built-in PDF editor.",
+        "button": "View Templates"
       },
-      "developer": {
-        "title": "Developer Friendly",
-        "description": "Business API Webhook designed to make it even easier for developers to integrate with Dooform.",
-        "button": "API Reference"
+      "templates": {
+        "title": "OCR & Smart Auto-fill",
+        "description": "Scan documents with OCR, verify ID numbers automatically, and auto-fill data across forms. Review and edit document history up to forever on Advance plan.",
+        "button": "Learn More"
       },
-      "performance": {
-        "title": "Fast Processing",
-        "description": "If your business needs to manage and export a large number of documents, you can call the API to generate up to 1,000 files per 10 seconds.",
-        "button": "View Performance"
+      "stamps": {
+        "title": "Stamps, Signatures & Watermarks",
+        "description": "Upload your organization's logo and stamps, add digital signatures, and customize watermarks. Use your organization's branding on every document.",
+        "button": "See Examples"
+      },
+      "collaboration": {
+        "title": "Team Collaboration",
+        "description": "Work together with up to 10 team members, share documents via email, and manage permissions with role-based access control across teams and departments.",
+        "button": "Learn More"
+      },
+      "branding": {
+        "title": "White-label & Custom Domain",
+        "description": "Apply your organization's logo and brand colors on documents. On Advance plan, get full white-label branding with a custom domain like docs.yourgov.go.th.",
+        "button": "Learn More"
+      },
+      "security": {
+        "title": "Security & PDPA Compliance",
+        "description": "SSO with Google, Microsoft, and ThaID. Full Thai PDPA compliance on all plans. Priority SLA with response times as fast as 1 hour on Advance plan.",
+        "button": "Contact Sales"
       }
     }
   },
