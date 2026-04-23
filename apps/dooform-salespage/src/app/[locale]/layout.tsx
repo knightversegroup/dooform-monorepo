@@ -22,9 +22,33 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
   const dict = await getDictionary(locale as Locale);
+  const title = dict.metadata.title;
+  const description = dict.metadata.description;
+
   return {
-    title: dict.metadata.title,
-    description: dict.metadata.description,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      siteName: 'Dooform',
+      locale: locale === 'th' ? 'th_TH' : 'en_US',
+      type: 'website',
+      images: [
+        {
+          url: '/opengraph-df.webp',
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image' as const,
+      title,
+      description,
+      images: ['/opengraph-df.webp'],
+    },
   };
 }
 
