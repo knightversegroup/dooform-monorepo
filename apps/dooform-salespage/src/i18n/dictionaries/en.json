@@ -16,7 +16,13 @@
     "heading": "Filling Forms Is No Longer Difficult",
     "subtitle": "Make form filling effortless from now on",
     "primaryCta": "Try It Free",
-    "secondaryCta": "Learn More"
+    "secondaryCta": "Learn More",
+    "bento": {
+      "topRight": "Create unlimited government documents with PDF and DOCX export",
+      "bottomLeft": "Ready-to-use Templates",
+      "bottomCenter": "Auto OCR Scanning",
+      "bottomRight": "Start Using Dooform Today!"
+    }
   },
   "features": {
     "heading": "What can Dooform do?",

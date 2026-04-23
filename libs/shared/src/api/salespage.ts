@@ -24,6 +24,12 @@ export interface SalespageHero {
   subtitle: string;
   primaryCta: string;
   secondaryCta: string;
+  bento: {
+    topRight: string;
+    bottomLeft: string;
+    bottomCenter: string;
+    bottomRight: string;
+  };
 }
 
 export interface SalespageFeatureCard {
@@ -36,9 +42,12 @@ export interface SalespageFeatures {
   heading: string;
   viewUseCases: string;
   cards: {
-    business: SalespageFeatureCard;
-    developer: SalespageFeatureCard;
-    performance: SalespageFeatureCard;
+    documents: SalespageFeatureCard;
+    templates: SalespageFeatureCard;
+    stamps: SalespageFeatureCard;
+    collaboration: SalespageFeatureCard;
+    branding: SalespageFeatureCard;
+    security: SalespageFeatureCard;
   };
 }
 

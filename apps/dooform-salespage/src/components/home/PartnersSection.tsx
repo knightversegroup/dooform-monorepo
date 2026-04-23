@@ -6,18 +6,15 @@ type PartnersDict = {
   subtitle: string;
 };
 
-const PARTNER_COUNT = 6;
-
-function LogoCard() {
-  return (
-    <div className="flex h-[80px] w-[280px] shrink-0 items-center justify-center rounded-xl bg-white">
-      <div className="h-8 w-28 rounded bg-gray-200" />
-    </div>
-  );
-}
+const LOGOS = [
+  '/logo-group/logo-1.png',
+  '/logo-group/logo-2.png',
+  '/logo-group/logo-3.png',
+  '/logo-group/logo-4.png',
+];
 
 export default function PartnersSection({ dict }: { dict: PartnersDict }) {
-  const logos = Array.from({ length: PARTNER_COUNT });
+  const doubled = [...LOGOS, ...LOGOS];
 
   return (
     <Section padding="none">
@@ -34,7 +31,7 @@ export default function PartnersSection({ dict }: { dict: PartnersDict }) {
 
         {/* Marquee with edge fade */}
         <div
-          className="relative overflow-hidden rounded-2xl bg-[#f5f5f5] py-8"
+          className="relative overflow-hidden py-8"
           style={{
             maskImage:
               'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
@@ -43,11 +40,17 @@ export default function PartnersSection({ dict }: { dict: PartnersDict }) {
           }}
         >
           <div className="flex w-max animate-marquee gap-4">
-            {logos.map((_, i) => (
-              <LogoCard key={`a-${i}`} />
-            ))}
-            {logos.map((_, i) => (
-              <LogoCard key={`b-${i}`} />
+            {doubled.map((src, i) => (
+              <div
+                key={i}
+                className="flex h-[60px] w-[160px] shrink-0 items-center justify-center"
+              >
+                <img
+                  src={src}
+                  alt=""
+                  className="h-10 max-w-full object-contain"
+                />
+              </div>
             ))}
           </div>
         </div>
