@@ -74,6 +74,7 @@ export default function FeaturesSection({
           {cards.map((card, index) => {
             const Icon = card.icon;
             const cardDict = dict.cards[card.key];
+            if (!cardDict) return null;
             return (
               <div key={index} className="flex flex-col gap-4">
                 <Icon
