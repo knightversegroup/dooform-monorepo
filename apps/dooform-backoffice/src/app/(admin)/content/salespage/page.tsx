@@ -15,6 +15,7 @@ import {
   FeaturesEditor,
   FooterEditor,
   HeroEditor,
+  JsonEditor,
   MetadataEditor,
   NavEditor,
   PartnersEditor,
@@ -47,22 +48,28 @@ const SECTION_LABELS: Record<SalespageSectionKey, string> = {
   faq: "FAQ",
   documents: "Documents",
   featuresPage: "Features Page",
+  usecasesPage: "Use Cases Page",
+  compliancePage: "Compliance Page",
+  planPage: "Plan Page",
   trial: "Trial / Signup",
   footer: "Footer",
 };
 
 const SECTION_HELP: Record<SalespageSectionKey, string> = {
   metadata: "Browser tab title and the description search engines show under your link.",
-  nav: "Links in the top navigation bar (Features, Use Cases, Compliance, …).",
+  nav: "Links in the top navigation bar (Features, Use Cases, Compliance, etc.).",
   hero: "The big banner at the very top of the homepage.",
-  features: "The “What can Dooform do?” block with three cards.",
+  features: 'The "What can Dooform do?" block with feature cards.',
   useCases: "The dark navy strip with three overlapping cards about who it's for.",
-  pricing: "The pricing table — four plans (Trial, Starter, Plus, Enterprise).",
+  pricing: "The pricing table - four plans (Trial, Starter, Plus, Enterprise).",
   video: "The heading and button for the how-it-works video block.",
-  partners: "The “Trusted by leading organizations” strip.",
+  partners: 'The "Trusted by leading organizations" strip.',
   faq: "The FAQ block on the homepage. Add or remove items as needed.",
-  documents: "The /documents page — left sidebar, article body, and right TOC.",
-  featuresPage: "The dedicated /features page — hero, showcase, quote, grid, and developer sections.",
+  documents: "The /documents page - left sidebar, article body, and right TOC.",
+  featuresPage: "The dedicated /features page - hero, showcase, quote, grid, and developer sections.",
+  usecasesPage: "The dedicated /use-cases page with detailed use case content.",
+  compliancePage: "The /compliance page with regulatory and compliance information.",
+  planPage: "The /plan page with detailed plan comparison and features.",
   trial: "The sign-up form at the bottom of the homepage (labels and placeholders).",
   footer: "Copyright, section headings, and all link labels in the footer.",
 };
@@ -70,6 +77,9 @@ const SECTION_HELP: Record<SalespageSectionKey, string> = {
 const SECTION_PREVIEW_PATH: Partial<Record<SalespageSectionKey, string>> = {
   documents: "/documents",
   featuresPage: "/features",
+  usecasesPage: "/use-cases",
+  compliancePage: "/compliance",
+  planPage: "/plan",
 };
 
 export default function SalespageContentPage() {
@@ -227,6 +237,34 @@ export default function SalespageContentPage() {
           <FooterEditor
             value={dict.footer}
             onChange={(v) => setSection("footer", v)}
+          />
+        );
+      case "featuresPage":
+        return (
+          <JsonEditor
+            value={dict.featuresPage}
+            onChange={(v) => setSection("featuresPage", v as typeof dict.featuresPage)}
+          />
+        );
+      case "usecasesPage":
+        return (
+          <JsonEditor
+            value={dict.usecasesPage}
+            onChange={(v) => setSection("usecasesPage", v as typeof dict.usecasesPage)}
+          />
+        );
+      case "compliancePage":
+        return (
+          <JsonEditor
+            value={dict.compliancePage}
+            onChange={(v) => setSection("compliancePage", v as typeof dict.compliancePage)}
+          />
+        );
+      case "planPage":
+        return (
+          <JsonEditor
+            value={dict.planPage}
+            onChange={(v) => setSection("planPage", v as typeof dict.planPage)}
           />
         );
     }

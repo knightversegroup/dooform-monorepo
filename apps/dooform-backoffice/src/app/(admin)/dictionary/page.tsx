@@ -12,6 +12,11 @@ import {
   ChevronRight,
   Loader2,
   Tag,
+  Upload,
+  FileText,
+  CheckCircle2,
+  AlertCircle,
+  Download,
 } from "lucide-react";
 import { apiClient } from "@dooform/shared/api/client";
 import type {
@@ -26,7 +31,8 @@ type ModalType =
   | "create-category"
   | "edit-category"
   | "create-word"
-  | "edit-word";
+  | "edit-word"
+  | "bulk-upload";
 
 export default function DictionaryManagementPage() {
   const [categories, setCategories] = useState<DictionaryCategory[]>([]);
@@ -214,17 +220,27 @@ export default function DictionaryManagementPage() {
             คำศัพท์
             <span className="text-neutral-400 font-normal">({totalWords})</span>
           </h2>
-          <button
-            onClick={() => {
-              setEditingWord(null);
-              setModal("create-word");
-            }}
-            disabled={categories.length === 0}
-            className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-white bg-neutral-900 rounded-lg hover:bg-neutral-800 transition-colors disabled:opacity-40"
-          >
-            <Plus className="w-3 h-3" />
-            เพิ่มคำศัพท์
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setModal("bulk-upload")}
+              disabled={categories.length === 0}
+              className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-neutral-700 border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors disabled:opacity-40"
+            >
+              <Upload className="w-3 h-3" />
+              อัปโหลด CSV
+            </button>
+            <button
+              onClick={() => {
+                setEditingWord(null);
+                setModal("create-word");
+              }}
+              disabled={categories.length === 0}
+              className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-white bg-neutral-900 rounded-lg hover:bg-neutral-800 transition-colors disabled:opacity-40"
+            >
+              <Plus className="w-3 h-3" />
+              เพิ่มคำศัพท์
+            </button>
+          </div>
         </div>
 
         {/* Search */}
@@ -408,6 +424,17 @@ export default function DictionaryManagementPage() {
           }}
         />
       )}
+      {modal === "bulk-upload" && (
+        <BulkUploadModal
+          categories={categories}
+          defaultCategoryId={selectedCategory}
+          onClose={() => {
+            setModal(null);
+            fetchWords();
+            fetchCategories();
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -551,6 +578,383 @@ function CategoryModal({
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  );
+}
+
+// ========== Bulk Upload Modal ==========
+
+function parseCSV(text: string): Record<string, string>[] {
+  const lines = text.split(/\r?\n/).filter((l) => l.trim());
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(",").map((h) => h.trim().toLowerCase());
+  const rows: Record<string, string>[] = [];
+  for (let i = 1; i < lines.length; i++) {
+    const values: string[] = [];
+    let current = "";
+    let inQuotes = false;
+    for (const ch of lines[i]) {
+      if (ch === '"') {
+        inQuotes = !inQuotes;
+      } else if (ch === "," && !inQuotes) {
+        values.push(current.trim());
+        current = "";
+      } else {
+        current += ch;
+      }
+    }
+    values.push(current.trim());
+    const row: Record<string, string> = {};
+    headers.forEach((h, idx) => {
+      row[h] = values[idx] ?? "";
+    });
+    rows.push(row);
+  }
+  return rows;
+}
+
+type BulkRowStatus = "pending" | "uploading" | "success" | "error";
+
+interface BulkRow {
+  word: string;
+  reading: string;
+  meaning: string;
+  meaning_en: string;
+  example: string;
+  notes: string;
+  category_code: string;
+  status: BulkRowStatus;
+  error?: string;
+}
+
+function BulkUploadModal({
+  categories,
+  defaultCategoryId,
+  onClose,
+}: {
+  categories: DictionaryCategory[];
+  defaultCategoryId?: string | null;
+  onClose: () => void;
+}) {
+  const [step, setStep] = useState<"select" | "preview" | "uploading" | "done">("select");
+  const [rows, setRows] = useState<BulkRow[]>([]);
+  const [defaultCategory, setDefaultCategory] = useState(defaultCategoryId ?? categories[0]?.id ?? "");
+  const [progress, setProgress] = useState({ success: 0, error: 0, total: 0 });
+  const [dragOver, setDragOver] = useState(false);
+
+  const categoryByCode = new Map(categories.map((c) => [c.code, c.id]));
+
+  const processFile = (file: File) => {
+    if (!file.name.endsWith(".csv")) {
+      alert("กรุณาเลือกไฟล์ .csv เท่านั้น");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      const parsed = parseCSV(text);
+      if (parsed.length === 0) {
+        alert("ไม่พบข้อมูลในไฟล์ CSV");
+        return;
+      }
+      const bulkRows: BulkRow[] = parsed.map((r) => ({
+        word: r.word ?? "",
+        reading: r.reading ?? "",
+        meaning: r.meaning ?? "",
+        meaning_en: r.meaning_en ?? "",
+        example: r.example ?? "",
+        notes: r.notes ?? "",
+        category_code: r.category_code ?? "",
+        status: "pending" as const,
+      }));
+      setRows(bulkRows);
+      setStep("preview");
+    };
+    reader.readAsText(file);
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) processFile(file);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file) processFile(file);
+  };
+
+  const validRows = rows.filter((r) => r.word && r.meaning);
+  const invalidRows = rows.filter((r) => !r.word || !r.meaning);
+
+  const startUpload = async () => {
+    setStep("uploading");
+    const total = validRows.length;
+    let success = 0;
+    let error = 0;
+    setProgress({ success: 0, error: 0, total });
+
+    const updated = [...rows];
+    for (let i = 0; i < updated.length; i++) {
+      const row = updated[i];
+      if (!row.word || !row.meaning) {
+        updated[i] = { ...row, status: "error", error: "ขาดข้อมูลที่จำเป็น" };
+        error++;
+        setRows([...updated]);
+        setProgress({ success, error, total });
+        continue;
+      }
+
+      const categoryId = (row.category_code && categoryByCode.get(row.category_code)) || defaultCategory;
+      if (!categoryId) {
+        updated[i] = { ...row, status: "error", error: "ไม่พบหมวดหมู่" };
+        error++;
+        setRows([...updated]);
+        setProgress({ success, error, total });
+        continue;
+      }
+
+      updated[i] = { ...row, status: "uploading" };
+      setRows([...updated]);
+
+      try {
+        await apiClient.createDictionaryWord({
+          category_id: categoryId,
+          word: row.word,
+          reading: row.reading || undefined,
+          meaning: row.meaning,
+          meaning_en: row.meaning_en || undefined,
+          example: row.example || undefined,
+          notes: row.notes || undefined,
+        });
+        updated[i] = { ...row, status: "success" };
+        success++;
+      } catch (err) {
+        updated[i] = { ...row, status: "error", error: err instanceof Error ? err.message : "เกิดข้อผิดพลาด" };
+        error++;
+      }
+      setRows([...updated]);
+      setProgress({ success, error, total });
+    }
+    setStep("done");
+  };
+
+  const downloadTemplate = () => {
+    const header = "word,reading,meaning,meaning_en,example,notes,category_code";
+    const example = "สัญญา,สัน-ยา,ข้อตกลงระหว่างบุคคลสองฝ่ายขึ้นไป,Contract,สัญญาเช่า,กฎหมายแพ่ง,legal_terms";
+    const blob = new Blob([header + "\n" + example + "\n"], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "dictionary_template.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 p-5 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-base font-semibold flex items-center gap-2">
+            <Upload className="w-4 h-4" />
+            อัปโหลด CSV คำศัพท์
+          </h3>
+          <button onClick={onClose} className="p-1 rounded hover:bg-neutral-100 text-neutral-400 hover:text-neutral-600">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {step === "select" && (
+          <div className="space-y-4">
+            <div
+              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={handleDrop}
+              className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
+                dragOver ? "border-neutral-900 bg-neutral-50" : "border-neutral-200"
+              }`}
+            >
+              <FileText className="w-8 h-8 mx-auto text-neutral-300 mb-3" />
+              <p className="text-sm text-neutral-600 mb-2">ลากไฟล์ CSV มาวางที่นี่</p>
+              <p className="text-xs text-neutral-400 mb-3">หรือ</p>
+              <label className="inline-flex items-center gap-1 px-4 py-2 text-xs font-medium text-white bg-neutral-900 rounded-lg hover:bg-neutral-800 cursor-pointer transition-colors">
+                <Upload className="w-3 h-3" />
+                เลือกไฟล์
+                <input type="file" accept=".csv" onChange={handleFileSelect} className="hidden" />
+              </label>
+            </div>
+
+            <div className="bg-neutral-50 rounded-lg p-3 space-y-2">
+              <p className="text-xs font-medium text-neutral-600">รูปแบบ CSV ที่รองรับ:</p>
+              <code className="block text-[11px] text-neutral-500 bg-white rounded p-2 overflow-x-auto">
+                word,reading,meaning,meaning_en,example,notes,category_code
+              </code>
+              <div className="text-[11px] text-neutral-400 space-y-0.5">
+                <p>* <strong>word</strong> และ <strong>meaning</strong> จำเป็นต้องมี</p>
+                <p>* <strong>category_code</strong> ใช้ระบุหมวดหมู่ (ถ้าไม่ระบุจะใช้หมวดหมู่เริ่มต้น)</p>
+              </div>
+              <button
+                onClick={downloadTemplate}
+                className="flex items-center gap-1 text-[11px] text-neutral-500 hover:text-neutral-700 transition-colors"
+              >
+                <Download className="w-3 h-3" />
+                ดาวน์โหลดเทมเพลต
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === "preview" && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div>
+                <label className="text-xs font-medium text-neutral-600">หมวดหมู่เริ่มต้น</label>
+                <select
+                  value={defaultCategory}
+                  onChange={(e) => setDefaultCategory(e.target.value)}
+                  className="w-full mt-1 px-3 py-2 text-sm border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900/10"
+                >
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center gap-3 text-xs text-neutral-500 mt-5">
+                <span className="flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                  {validRows.length} รายการพร้อม
+                </span>
+                {invalidRows.length > 0 && (
+                  <span className="flex items-center gap-1">
+                    <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
+                    {invalidRows.length} รายการไม่ครบ
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="overflow-x-auto max-h-[40vh] overflow-y-auto border border-neutral-200 rounded-lg">
+              <table className="w-full text-xs">
+                <thead className="sticky top-0 bg-neutral-50">
+                  <tr className="border-b border-neutral-200">
+                    <th className="text-left py-2 px-2 font-medium text-neutral-500">#</th>
+                    <th className="text-left py-2 px-2 font-medium text-neutral-500">คำศัพท์</th>
+                    <th className="text-left py-2 px-2 font-medium text-neutral-500">ความหมาย</th>
+                    <th className="text-left py-2 px-2 font-medium text-neutral-500">หมวดหมู่</th>
+                    <th className="text-left py-2 px-2 font-medium text-neutral-500">สถานะ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row, idx) => {
+                    const isValid = row.word && row.meaning;
+                    return (
+                      <tr key={idx} className={`border-b border-neutral-50 ${!isValid ? "bg-amber-50/50" : ""}`}>
+                        <td className="py-1.5 px-2 text-neutral-400">{idx + 1}</td>
+                        <td className="py-1.5 px-2 font-medium text-neutral-900">{row.word || <span className="text-red-400">-</span>}</td>
+                        <td className="py-1.5 px-2 text-neutral-600 max-w-[200px] truncate">{row.meaning || <span className="text-red-400">-</span>}</td>
+                        <td className="py-1.5 px-2 text-neutral-500">{row.category_code || "ค่าเริ่มต้น"}</td>
+                        <td className="py-1.5 px-2">
+                          {isValid ? (
+                            <span className="text-green-600">พร้อม</span>
+                          ) : (
+                            <span className="text-amber-600">ข้อมูลไม่ครบ</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="flex justify-between items-center pt-2">
+              <button
+                onClick={() => { setRows([]); setStep("select"); }}
+                className="px-4 py-2 text-xs font-medium text-neutral-600 border border-neutral-200 rounded-lg hover:bg-neutral-50"
+              >
+                เลือกไฟล์ใหม่
+              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={onClose}
+                  className="px-4 py-2 text-xs font-medium text-neutral-600 border border-neutral-200 rounded-lg hover:bg-neutral-50"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  onClick={startUpload}
+                  disabled={validRows.length === 0}
+                  className="px-4 py-2 text-xs font-medium text-white bg-neutral-900 rounded-lg hover:bg-neutral-800 disabled:opacity-50"
+                >
+                  อัปโหลด {validRows.length} รายการ
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {(step === "uploading" || step === "done") && (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs text-neutral-600">
+                <span>กำลังอัปโหลด...</span>
+                <span>{progress.success + progress.error} / {progress.total}</span>
+              </div>
+              <div className="w-full bg-neutral-100 rounded-full h-2">
+                <div
+                  className="bg-neutral-900 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${progress.total ? ((progress.success + progress.error) / progress.total) * 100 : 0}%` }}
+                />
+              </div>
+              <div className="flex gap-4 text-xs">
+                <span className="flex items-center gap-1 text-green-600">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  สำเร็จ {progress.success}
+                </span>
+                {progress.error > 0 && (
+                  <span className="flex items-center gap-1 text-red-500">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    ล้มเหลว {progress.error}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {step === "done" && progress.error > 0 && (
+              <div className="max-h-[30vh] overflow-y-auto border border-neutral-200 rounded-lg">
+                <table className="w-full text-xs">
+                  <thead className="sticky top-0 bg-neutral-50">
+                    <tr className="border-b border-neutral-200">
+                      <th className="text-left py-2 px-2 font-medium text-neutral-500">คำศัพท์</th>
+                      <th className="text-left py-2 px-2 font-medium text-neutral-500">ข้อผิดพลาด</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.filter((r) => r.status === "error").map((row, idx) => (
+                      <tr key={idx} className="border-b border-neutral-50">
+                        <td className="py-1.5 px-2 font-medium text-neutral-900">{row.word || `แถว ${idx + 1}`}</td>
+                        <td className="py-1.5 px-2 text-red-500">{row.error}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {step === "done" && (
+              <div className="flex justify-end pt-2">
+                <button
+                  onClick={onClose}
+                  className="px-4 py-2 text-xs font-medium text-white bg-neutral-900 rounded-lg hover:bg-neutral-800"
+                >
+                  เสร็จสิ้น
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

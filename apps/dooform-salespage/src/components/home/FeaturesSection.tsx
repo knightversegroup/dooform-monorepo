@@ -81,7 +81,9 @@ export default function FeaturesSection({
                   className={`h-14 w-14 ${card.iconColor}`}
                   strokeWidth={2.5}
                 />
-                <Typography variant="h4" as="h3">{cardDict.title}</Typography>
+                <Typography variant="h4" as="h3">
+                  {cardDict.title}
+                </Typography>
                 <Typography variant="body" className="leading-relaxed">
                   {cardDict.description}
                 </Typography>

@@ -379,9 +379,12 @@ export function PartnersEditor({ value, onChange }: EditorProps<"partners">) {
 // ---------------- Features ----------------
 
 const FEATURE_CARD_LABELS: Record<keyof SalespageFeatures["cards"], string> = {
-  business: "Card — Business",
-  developer: "Card — Developer",
-  performance: "Card — Performance",
+  documents: "Card — Documents",
+  templates: "Card — Templates",
+  stamps: "Card — Stamps",
+  collaboration: "Card — Collaboration",
+  branding: "Card — Branding",
+  security: "Card — Security",
 };
 
 export function FeaturesEditor({ value, onChange }: EditorProps<"features">) {
