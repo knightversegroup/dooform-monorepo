@@ -8,28 +8,22 @@ const localDictionaries = {
 
 /** Deep-merge `source` into `target`. Arrays and primitives from source win;
  *  objects are merged recursively so missing nested keys fall back to target. */
-function deepMerge<T extends Record<string, unknown>>(target: T, source: Partial<T>): T {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function deepMerge(target: any, source: any): any {
+  if (
+    source === null ||
+    source === undefined ||
+    typeof source !== 'object' ||
+    Array.isArray(source)
+  ) {
+    return source !== undefined ? source : target;
+  }
+  if (typeof target !== 'object' || target === null || Array.isArray(target)) {
+    return source;
+  }
   const result = { ...target };
-  for (const key of Object.keys(source) as (keyof T)[]) {
-    const sv = source[key];
-    const tv = target[key];
-    if (
-      sv !== null &&
-      sv !== undefined &&
-      typeof sv === 'object' &&
-      !Array.isArray(sv) &&
-      tv !== null &&
-      tv !== undefined &&
-      typeof tv === 'object' &&
-      !Array.isArray(tv)
-    ) {
-      result[key] = deepMerge(
-        tv as Record<string, unknown>,
-        sv as Record<string, unknown>,
-      ) as T[keyof T];
-    } else if (sv !== undefined) {
-      result[key] = sv as T[keyof T];
-    }
+  for (const key of Object.keys(source)) {
+    result[key] = deepMerge(target[key], source[key]);
   }
   return result;
 }
@@ -51,7 +45,7 @@ export const getDictionary = async (locale: Locale): Promise<SalespageDict> => {
     }
     const remote = (await res.json()) as Partial<SalespageDict>;
     // Deep merge: API values win, local fills in any missing nested keys
-    return deepMerge(local, remote);
+    return deepMerge(local, remote) as SalespageDict;
   } catch (err) {
     console.warn(`[salespage i18n] falling back to local ${locale}.json:`, err);
     return local;
