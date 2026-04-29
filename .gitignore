@@ -52,3 +52,6 @@ next-env.d.ts
 .nx/workspace-data
 vitest.config.*.timestamp*
 .astro
+
+storage
+docs

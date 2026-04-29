@@ -15,6 +15,8 @@ interface GetTemplateByIdResult {
   status: string
   type: string
   tier: string
+  filePath?: string | null
+  originalFilename?: string | null
   createdAt: Date
   updatedAt: Date
 }
@@ -45,6 +47,8 @@ export class GetTemplateByIdUseCase implements UseCase<GetTemplateByIdDto, GetTe
       status: props.status,
       type: props.type,
       tier: props.tier,
+      filePath: props.filePath,
+      originalFilename: props.originalFilename,
       createdAt: props.createdAt!,
       updatedAt: props.updatedAt!,
     } as any
