@@ -52,6 +52,20 @@ export interface SalespageFeatures {
   };
 }
 
+export interface SalespageWorkspaceCard {
+  label: string;
+  tagline: string;
+}
+
+export interface SalespageWorkspace {
+  heading: string;
+  cards: {
+    docs: SalespageWorkspaceCard;
+    knowledgeBase: SalespageWorkspaceCard;
+    projects: SalespageWorkspaceCard;
+  };
+}
+
 export interface SalespageUseCaseCard {
   title: string;
   description: string;
@@ -321,6 +335,7 @@ export interface SalespageDict {
   metadata: SalespageMetadata;
   nav: SalespageNav;
   hero: SalespageHero;
+  workspace: SalespageWorkspace;
   features: SalespageFeatures;
   useCases: SalespageUseCases;
   pricing: SalespagePricing;
@@ -342,6 +357,7 @@ export const SALESPAGE_SECTION_KEYS: SalespageSectionKey[] = [
   'metadata',
   'nav',
   'hero',
+  'workspace',
   'features',
   'useCases',
   'pricing',

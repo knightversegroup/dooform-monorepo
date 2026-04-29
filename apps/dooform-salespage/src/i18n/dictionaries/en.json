@@ -61,6 +61,23 @@
       }
     }
   },
+  "workspace": {
+    "heading": "Bring all your work together.",
+    "cards": {
+      "docs": {
+        "label": "Docs",
+        "tagline": "Simple and powerful."
+      },
+      "knowledgeBase": {
+        "label": "Knowledge Base",
+        "tagline": "One source of truth for teams and agents."
+      },
+      "projects": {
+        "label": "Projects",
+        "tagline": "Less tracking. More progress."
+      }
+    }
+  },
   "useCases": {
     "heading": "Dooform Understands\nBusiness Owners & Translators",
     "subtitle": "Choose a package that fits your needs",
