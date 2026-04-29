@@ -9,15 +9,12 @@ import {
   UseFilters,
 } from '@nestjs/common'
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger'
+import { LazyModuleLoader } from '@nestjs/core'
 import type { Response } from 'express'
 
 import { getResultValue } from '@dooform-api-core/shared'
-import { HttpResultExceptionFilter } from '@dooform-api-core/interface/nestjs'
+import { LazyBaseController, HttpResultExceptionFilter } from '@dooform-api-core/interface/nestjs'
 
-import { GetAnnotationsUseCase } from '../../../application/use-cases/get-annotations/get-annotations.use-case'
-import { SaveAnnotationsUseCase } from '../../../application/use-cases/save-annotations/save-annotations.use-case'
-import { FinalizeDocumentUseCase } from '../../../application/use-cases/finalize-document/finalize-document.use-case'
-import { GetPdfPreviewUseCase } from '../../../application/use-cases/get-pdf-preview/get-pdf-preview.use-case'
 import type { AnnotationItem } from '../../../domain/entities/document-annotation.entity'
 import { SaveAnnotationsBodyDto } from '../swagger/swagger-dtos'
 import { CurrentUser, type UserContext } from '../decorators/user-context.decorator'
@@ -25,13 +22,10 @@ import { CurrentUser, type UserContext } from '../decorators/user-context.decora
 @ApiTags('Document Annotations')
 @Controller('v1/documents')
 @UseFilters(HttpResultExceptionFilter)
-export class AnnotationController {
-  constructor(
-    private readonly getAnnotationsUseCase: GetAnnotationsUseCase,
-    private readonly saveAnnotationsUseCase: SaveAnnotationsUseCase,
-    private readonly finalizeDocumentUseCase: FinalizeDocumentUseCase,
-    private readonly getPdfPreviewUseCase: GetPdfPreviewUseCase,
-  ) {}
+export class AnnotationController extends LazyBaseController {
+  constructor(lazyModuleLoader: LazyModuleLoader) {
+    super(lazyModuleLoader)
+  }
 
   @Get(':id/annotations')
   @ApiOperation({ summary: 'Get annotations for a document' })
@@ -39,7 +33,11 @@ export class AnnotationController {
     @Param('id') id: string,
     @CurrentUser() user: UserContext,
   ) {
-    const result = await this.getAnnotationsUseCase.execute({
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/get-annotations/get-annotations.use-case.module'),
+      () => import('../../../application/use-cases/get-annotations/get-annotations.use-case'),
+    )
+    const result = await uc.execute({
       id,
       userId: user.userId,
     })
@@ -54,7 +52,11 @@ export class AnnotationController {
     @Body() body: { data: AnnotationItem[]; version: number },
     @CurrentUser() user: UserContext,
   ) {
-    const result = await this.saveAnnotationsUseCase.execute({
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/save-annotations/save-annotations.use-case.module'),
+      () => import('../../../application/use-cases/save-annotations/save-annotations.use-case'),
+    )
+    const result = await uc.execute({
       documentId: id,
       data: body.data,
       version: body.version,
@@ -69,7 +71,11 @@ export class AnnotationController {
     @Param('id') id: string,
     @CurrentUser() user: UserContext,
   ) {
-    const result = await this.finalizeDocumentUseCase.execute({
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/finalize-document/finalize-document.use-case.module'),
+      () => import('../../../application/use-cases/finalize-document/finalize-document.use-case'),
+    )
+    const result = await uc.execute({
       documentId: id,
       userId: user.userId,
     })
@@ -83,7 +89,11 @@ export class AnnotationController {
     @CurrentUser() user: UserContext,
     @Res() res: Response,
   ) {
-    const result = await this.getPdfPreviewUseCase.execute({
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/get-pdf-preview/get-pdf-preview.use-case.module'),
+      () => import('../../../application/use-cases/get-pdf-preview/get-pdf-preview.use-case'),
+    )
+    const result = await uc.execute({
       id,
       userId: user.userId,
     })

@@ -12,19 +12,14 @@ import {
   UploadedFile,
 } from '@nestjs/common'
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger'
+import { LazyModuleLoader } from '@nestjs/core'
 import { FileInterceptor } from '@nestjs/platform-express'
 import type { Response } from 'express'
 import 'multer'
 
 import { getResultValue } from '@dooform-api-core/shared'
-import { HttpResultExceptionFilter } from '@dooform-api-core/interface/nestjs'
+import { LazyBaseController, HttpResultExceptionFilter } from '@dooform-api-core/interface/nestjs'
 
-import { CreateWatermarkPresetUseCase } from '../../../application/use-cases/create-watermark-preset/create-watermark-preset.use-case'
-import { UpdateWatermarkPresetUseCase } from '../../../application/use-cases/update-watermark-preset/update-watermark-preset.use-case'
-import { DeleteWatermarkPresetUseCase } from '../../../application/use-cases/delete-watermark-preset/delete-watermark-preset.use-case'
-import { ListWatermarkPresetsUseCase } from '../../../application/use-cases/list-watermark-presets/list-watermark-presets.use-case'
-import { GetWatermarkPresetUseCase } from '../../../application/use-cases/get-watermark-preset/get-watermark-preset.use-case'
-import { UploadWatermarkLogoUseCase } from '../../../application/use-cases/upload-watermark-logo/upload-watermark-logo.use-case'
 import type { WatermarkConfig } from '../../../domain/entities/watermark-preset.entity'
 import { CreateWatermarkPresetBodyDto, UpdateWatermarkPresetBodyDto } from '../swagger/swagger-dtos'
 import { CurrentUser, type UserContext } from '../decorators/user-context.decorator'
@@ -32,20 +27,19 @@ import { CurrentUser, type UserContext } from '../decorators/user-context.decora
 @ApiTags('Watermark Presets')
 @Controller('v1/watermark-presets')
 @UseFilters(HttpResultExceptionFilter)
-export class WatermarkPresetController {
-  constructor(
-    private readonly createPresetUseCase: CreateWatermarkPresetUseCase,
-    private readonly updatePresetUseCase: UpdateWatermarkPresetUseCase,
-    private readonly deletePresetUseCase: DeleteWatermarkPresetUseCase,
-    private readonly listPresetsUseCase: ListWatermarkPresetsUseCase,
-    private readonly getPresetUseCase: GetWatermarkPresetUseCase,
-    private readonly uploadLogoUseCase: UploadWatermarkLogoUseCase,
-  ) {}
+export class WatermarkPresetController extends LazyBaseController {
+  constructor(lazyModuleLoader: LazyModuleLoader) {
+    super(lazyModuleLoader)
+  }
 
   @Get()
   @ApiOperation({ summary: 'List watermark presets' })
   async listPresets(@CurrentUser() user: UserContext) {
-    const result = await this.listPresetsUseCase.execute({ userId: user.userId })
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/list-watermark-presets/list-watermark-presets.use-case.module'),
+      () => import('../../../application/use-cases/list-watermark-presets/list-watermark-presets.use-case'),
+    )
+    const result = await uc.execute({ userId: user.userId })
     return getResultValue(result)
   }
 
@@ -55,7 +49,11 @@ export class WatermarkPresetController {
     @Param('id') id: string,
     @CurrentUser() user: UserContext,
   ) {
-    const result = await this.getPresetUseCase.execute({
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/get-watermark-preset/get-watermark-preset.use-case.module'),
+      () => import('../../../application/use-cases/get-watermark-preset/get-watermark-preset.use-case'),
+    )
+    const result = await uc.execute({
       id,
       userId: user.userId,
     })
@@ -69,7 +67,11 @@ export class WatermarkPresetController {
     @Body() body: { name: string; config: WatermarkConfig },
     @CurrentUser() user: UserContext,
   ) {
-    const result = await this.createPresetUseCase.execute({
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/create-watermark-preset/create-watermark-preset.use-case.module'),
+      () => import('../../../application/use-cases/create-watermark-preset/create-watermark-preset.use-case'),
+    )
+    const result = await uc.execute({
       name: body.name,
       config: body.config,
       userId: user.userId,
@@ -85,7 +87,11 @@ export class WatermarkPresetController {
     @Body() body: { name?: string; config?: WatermarkConfig },
     @CurrentUser() user: UserContext,
   ) {
-    const result = await this.updatePresetUseCase.execute({
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/update-watermark-preset/update-watermark-preset.use-case.module'),
+      () => import('../../../application/use-cases/update-watermark-preset/update-watermark-preset.use-case'),
+    )
+    const result = await uc.execute({
       id,
       name: body.name,
       config: body.config,
@@ -100,7 +106,11 @@ export class WatermarkPresetController {
     @Param('id') id: string,
     @CurrentUser() user: UserContext,
   ) {
-    const result = await this.deletePresetUseCase.execute({
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/delete-watermark-preset/delete-watermark-preset.use-case.module'),
+      () => import('../../../application/use-cases/delete-watermark-preset/delete-watermark-preset.use-case'),
+    )
+    const result = await uc.execute({
       id,
       userId: user.userId,
     })
@@ -129,7 +139,11 @@ export class WatermarkPresetController {
     @UploadedFile() file: Express.Multer.File,
     @CurrentUser() user: UserContext,
   ) {
-    const result = await this.uploadLogoUseCase.execute({
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/upload-watermark-logo/upload-watermark-logo.use-case.module'),
+      () => import('../../../application/use-cases/upload-watermark-logo/upload-watermark-logo.use-case'),
+    )
+    const result = await uc.execute({
       presetId: id,
       userId: user.userId,
       file: {
@@ -149,7 +163,11 @@ export class WatermarkPresetController {
     @CurrentUser() user: UserContext,
     @Res() res: Response,
   ) {
-    const presetResult = await this.getPresetUseCase.execute({
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/get-watermark-preset/get-watermark-preset.use-case.module'),
+      () => import('../../../application/use-cases/get-watermark-preset/get-watermark-preset.use-case'),
+    )
+    const presetResult = await uc.execute({
       id,
       userId: user.userId,
     })

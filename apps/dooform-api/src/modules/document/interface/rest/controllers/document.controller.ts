@@ -13,41 +13,33 @@ import {
   BadRequestException,
 } from '@nestjs/common'
 import { ApiTags, ApiOperation, ApiQuery, ApiConsumes, ApiBody } from '@nestjs/swagger'
+import { LazyModuleLoader } from '@nestjs/core'
 import { FileInterceptor } from '@nestjs/platform-express'
 import type { Response } from 'express'
 import 'multer'
 
 import { getResultValue } from '@dooform-api-core/shared'
-import { HttpResultExceptionFilter } from '@dooform-api-core/interface/nestjs'
+import { LazyBaseController, HttpResultExceptionFilter } from '@dooform-api-core/interface/nestjs'
 
 import { DocumentFormat } from '../../../domain/enums/document.enum'
-import { ProcessDocumentUseCase } from '../../../application/use-cases/process-document/process-document.use-case'
-import { GetDocumentUseCase } from '../../../application/use-cases/get-document/get-document.use-case'
-import { DownloadDocumentUseCase } from '../../../application/use-cases/download-document/download-document.use-case'
-import { DeleteDocumentUseCase } from '../../../application/use-cases/delete-document/delete-document.use-case'
-import { GetDocumentHistoryUseCase } from '../../../application/use-cases/get-document-history/get-document-history.use-case'
-import { RegenerateDocumentUseCase } from '../../../application/use-cases/regenerate-document/regenerate-document.use-case'
-import { HealthCheckUseCase } from '../../../application/use-cases/health-check/health-check.use-case'
 import { CurrentUser, type UserContext } from '../decorators/user-context.decorator'
 
 @ApiTags('Documents')
 @Controller('v1')
 @UseFilters(HttpResultExceptionFilter)
-export class DocumentController {
-  constructor(
-    private readonly processDocumentUseCase: ProcessDocumentUseCase,
-    private readonly getDocumentUseCase: GetDocumentUseCase,
-    private readonly downloadDocumentUseCase: DownloadDocumentUseCase,
-    private readonly deleteDocumentUseCase: DeleteDocumentUseCase,
-    private readonly getDocumentHistoryUseCase: GetDocumentHistoryUseCase,
-    private readonly regenerateDocumentUseCase: RegenerateDocumentUseCase,
-    private readonly healthCheckUseCase: HealthCheckUseCase,
-  ) {}
+export class DocumentController extends LazyBaseController {
+  constructor(lazyModuleLoader: LazyModuleLoader) {
+    super(lazyModuleLoader)
+  }
 
   @Get('documents/health')
   @ApiOperation({ summary: 'Document service health check' })
   async healthCheck() {
-    const result = await this.healthCheckUseCase.execute({})
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/health-check/health-check.use-case.module'),
+      () => import('../../../application/use-cases/health-check/health-check.use-case'),
+    )
+    const result = await uc.execute({})
     return getResultValue(result)
   }
 
@@ -81,7 +73,11 @@ export class DocumentController {
       ? { buffer: file.buffer, originalname: file.originalname, mimetype: file.mimetype, size: file.size }
       : undefined
 
-    const result = await this.processDocumentUseCase.execute(
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/process-document/process-document.use-case.module'),
+      () => import('../../../application/use-cases/process-document/process-document.use-case'),
+    )
+    const result = await uc.execute(
       {
         templateId,
         data,
@@ -99,7 +95,11 @@ export class DocumentController {
     @Param('id') id: string,
     @CurrentUser() user: UserContext,
   ) {
-    const result = await this.getDocumentUseCase.execute({
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/get-document/get-document.use-case.module'),
+      () => import('../../../application/use-cases/get-document/get-document.use-case'),
+    )
+    const result = await uc.execute({
       id,
       userId: user.userId,
     })
@@ -117,7 +117,11 @@ export class DocumentController {
     @CurrentUser() user: UserContext,
     @Res() res: Response,
   ) {
-    const result = await this.downloadDocumentUseCase.execute({
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/download-document/download-document.use-case.module'),
+      () => import('../../../application/use-cases/download-document/download-document.use-case'),
+    )
+    const result = await uc.execute({
       documentId: id,
       format,
       watermarkPresetId,
@@ -141,7 +145,11 @@ export class DocumentController {
     @Param('id') id: string,
     @CurrentUser() user: UserContext,
   ) {
-    const result = await this.deleteDocumentUseCase.execute({
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/delete-document/delete-document.use-case.module'),
+      () => import('../../../application/use-cases/delete-document/delete-document.use-case'),
+    )
+    const result = await uc.execute({
       id,
       userId: user.userId,
     })
@@ -157,7 +165,11 @@ export class DocumentController {
     @Query('pageSize') pageSize: number | undefined,
     @CurrentUser() user: UserContext,
   ) {
-    const result = await this.getDocumentHistoryUseCase.execute({
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/get-document-history/get-document-history.use-case.module'),
+      () => import('../../../application/use-cases/get-document-history/get-document-history.use-case'),
+    )
+    const result = await uc.execute({
       page: page ? Number(page) : undefined,
       pageSize: pageSize ? Number(pageSize) : undefined,
       userId: user.userId,
@@ -171,7 +183,11 @@ export class DocumentController {
     @Param('id') id: string,
     @CurrentUser() user: UserContext,
   ) {
-    const result = await this.regenerateDocumentUseCase.execute({
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/regenerate-document/regenerate-document.use-case.module'),
+      () => import('../../../application/use-cases/regenerate-document/regenerate-document.use-case'),
+    )
+    const result = await uc.execute({
       documentId: id,
       userId: user.userId,
       userTier: user.userTier,
@@ -185,7 +201,11 @@ export class DocumentController {
     @Param('id') id: string,
     @CurrentUser() user: UserContext,
   ) {
-    const result = await this.regenerateDocumentUseCase.execute({
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/regenerate-document/regenerate-document.use-case.module'),
+      () => import('../../../application/use-cases/regenerate-document/regenerate-document.use-case'),
+    )
+    const result = await uc.execute({
       documentId: id,
       userId: user.userId,
       userTier: user.userTier,

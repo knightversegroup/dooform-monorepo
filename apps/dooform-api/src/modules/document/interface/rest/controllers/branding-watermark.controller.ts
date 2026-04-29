@@ -7,13 +7,11 @@ import {
   UseFilters,
 } from '@nestjs/common'
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger'
+import { LazyModuleLoader } from '@nestjs/core'
 
 import { getResultValue } from '@dooform-api-core/shared'
-import { HttpResultExceptionFilter } from '@dooform-api-core/interface/nestjs'
+import { LazyBaseController, HttpResultExceptionFilter } from '@dooform-api-core/interface/nestjs'
 
-import { GetBrandingWatermarkUseCase } from '../../../application/use-cases/get-branding-watermark/get-branding-watermark.use-case'
-import { UpdateBrandingWatermarkUseCase } from '../../../application/use-cases/update-branding-watermark/update-branding-watermark.use-case'
-import { DeleteBrandingWatermarkUseCase } from '../../../application/use-cases/delete-branding-watermark/delete-branding-watermark.use-case'
 import type { WatermarkConfig } from '../../../domain/entities/watermark-preset.entity'
 import { UpdateBrandingWatermarkBodyDto } from '../swagger/swagger-dtos'
 import { CurrentUser, type UserContext } from '../decorators/user-context.decorator'
@@ -21,17 +19,19 @@ import { CurrentUser, type UserContext } from '../decorators/user-context.decora
 @ApiTags('Branding Watermark (Admin)')
 @Controller('v1/admin/branding-watermark')
 @UseFilters(HttpResultExceptionFilter)
-export class BrandingWatermarkController {
-  constructor(
-    private readonly getBrandingWatermarkUseCase: GetBrandingWatermarkUseCase,
-    private readonly updateBrandingWatermarkUseCase: UpdateBrandingWatermarkUseCase,
-    private readonly deleteBrandingWatermarkUseCase: DeleteBrandingWatermarkUseCase,
-  ) {}
+export class BrandingWatermarkController extends LazyBaseController {
+  constructor(lazyModuleLoader: LazyModuleLoader) {
+    super(lazyModuleLoader)
+  }
 
   @Get()
   @ApiOperation({ summary: 'Get system branding watermark configuration' })
   async getBrandingWatermark() {
-    const result = await this.getBrandingWatermarkUseCase.execute({})
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/get-branding-watermark/get-branding-watermark.use-case.module'),
+      () => import('../../../application/use-cases/get-branding-watermark/get-branding-watermark.use-case'),
+    )
+    const result = await uc.execute({})
     return getResultValue(result)
   }
 
@@ -42,7 +42,11 @@ export class BrandingWatermarkController {
     @Body() body: { config: WatermarkConfig },
     @CurrentUser() user: UserContext,
   ) {
-    const result = await this.updateBrandingWatermarkUseCase.execute({
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/update-branding-watermark/update-branding-watermark.use-case.module'),
+      () => import('../../../application/use-cases/update-branding-watermark/update-branding-watermark.use-case'),
+    )
+    const result = await uc.execute({
       config: body.config,
       userId: user.userId,
     })
@@ -52,7 +56,11 @@ export class BrandingWatermarkController {
   @Delete()
   @ApiOperation({ summary: 'Reset branding watermark to default' })
   async deleteBrandingWatermark() {
-    const result = await this.deleteBrandingWatermarkUseCase.execute({})
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/delete-branding-watermark/delete-branding-watermark.use-case.module'),
+      () => import('../../../application/use-cases/delete-branding-watermark/delete-branding-watermark.use-case'),
+    )
+    const result = await uc.execute({})
     return getResultValue(result)
   }
 }
