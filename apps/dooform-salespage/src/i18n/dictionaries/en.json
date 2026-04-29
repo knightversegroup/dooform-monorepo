@@ -25,6 +25,25 @@
       "bottomRight": "Start Using Dooform Today!"
     }
   },
+  "featuresHighlight": {
+    "badge": "Features highlight",
+    "heading": "All the tools your document team needs",
+    "subtitle": "Enterprise-grade features at an accessible price for every organization",
+    "cards": {
+      "card1": {
+        "eyebrow": "Enterprise-grade features",
+        "title": "Omnichannel Document Collection",
+        "description": "Collect documents from every channel — online forms, uploads, scans, and integrations — unified into a single document profile automatically.",
+        "image": "/images/workspace-preview.png"
+      },
+      "card2": {
+        "eyebrow": "Beyond templates & exports",
+        "title": "Dynamic Workflow & Smart Processing",
+        "description": "Auto-classify documents, route approvals by type, track status in real-time, and personalize outputs at the individual level.",
+        "image": "/images/workspace-preview.png"
+      }
+    }
+  },
   "features": {
     "heading": "What can Dooform do?",
     "viewUseCases": "View Use Cases",

@@ -9,6 +9,7 @@ import PricingSection from '../../components/home/PricingSection';
 import FaqSection from '../../components/home/FaqSection';
 import TrialSection from '../../components/home/TrialSection';
 import WorkspaceSection from '../../components/home/WorkspaceSection';
+import FeaturesHighlightSection from '../../components/home/FeaturesHighlightSection';
 import UsecasesHero from '../../components/usecases/UsecasesHero';
 
 type Props = {
@@ -24,6 +25,7 @@ export default async function Page({ params }: Props) {
       <HeroSection dict={dict.hero} />
       <PartnersSection dict={dict.partners} />
       <UseCasesSection dict={dict.useCases} />
+      <FeaturesHighlightSection dict={dict.featuresHighlight} />
       <FeaturesSection dict={dict.features} locale={locale} />
       <WorkspaceSection dict={dict.workspace} />
       {/* <VideoSection dict={dict.video} locale={locale} /> */}
