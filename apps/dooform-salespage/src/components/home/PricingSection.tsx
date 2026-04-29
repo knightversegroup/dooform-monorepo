@@ -12,6 +12,7 @@ type PlanDict = {
 type PricingDict = {
   heading: string;
   subtitle: string;
+  recommendLabel: string;
   footnote: string;
   allFeatures: string;
   plans: {
@@ -114,14 +115,22 @@ const planCardConfigs: PlanCardConfig[] = [
 function PlanCard({
   plan,
   config,
+  recommendLabel,
 }: {
   plan: PlanDict;
   config: PlanCardConfig;
+  recommendLabel?: string;
 }) {
   const isEnterprise = config.key === 'enterprise';
+  const isRecommended = config.key === 'plus';
 
   return (
-    <div className="row-span-2 grid grid-rows-subgrid overflow-hidden rounded-lg border border-[#e7e7e7] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+    <div className={`relative row-span-2 grid grid-rows-subgrid overflow-visible rounded-lg border bg-white shadow-[0_1px_3px_rgba(0,0,0,0.05)] ${isRecommended ? 'border-[#262626]' : 'border-[#e7e7e7]'}`}>
+      {isRecommended && recommendLabel && (
+        <div className="absolute -top-10 left-1/2 -translate-x-1/2 rounded-t-lg bg-[#262626] px-12 py-2 text-center text-sm font-semibold text-white whitespace-nowrap">
+          {recommendLabel}
+        </div>
+      )}
       {/* ── Top section ── */}
       <div className="flex flex-col gap-2 border-b border-[#e7e7e7] p-7 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
         {/* Header: name + icon */}
@@ -189,12 +198,13 @@ export default function PricingSection({ dict }: { dict: PricingDict }) {
         </div>
 
         {/* Cards grid */}
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4 lg:grid-rows-[auto_1fr]">
+        <div className="grid grid-cols-1 gap-5 pt-10 md:grid-cols-2 lg:grid-cols-4 lg:grid-rows-[auto_1fr]">
           {planCardConfigs.map((config) => (
             <PlanCard
               key={config.key}
               plan={dict.plans[config.key]}
               config={config}
+              recommendLabel={dict.recommendLabel}
             />
           ))}
         </div>

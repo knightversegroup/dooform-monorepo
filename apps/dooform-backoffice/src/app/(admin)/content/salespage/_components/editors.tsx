@@ -228,6 +228,7 @@ export function PricingEditor({ value, onChange }: EditorProps<"pricing">) {
       <Field label="Heading" value={value.heading} onChange={(v) => update({ heading: v })} />
       <Field label="Subtitle" value={value.subtitle} onChange={(v) => update({ subtitle: v })} />
       <Field label="Footnote" value={value.footnote} onChange={(v) => update({ footnote: v })} />
+      <Field label="Recommend label" value={value.recommendLabel} onChange={(v) => update({ recommendLabel: v })} />
       <Field label="All features label" value={value.allFeatures} onChange={(v) => update({ allFeatures: v })} />
 
       <div className="mt-2 flex gap-1 rounded-lg bg-gray-100 p-1">
@@ -322,6 +323,7 @@ const NAV_LABELS: Record<keyof SalespageNav, string> = {
   articles: "Articles",
   documents: "Documents",
   register: "Register button",
+  login: "Login button",
 };
 
 export function NavEditor({ value, onChange }: EditorProps<"nav">) {

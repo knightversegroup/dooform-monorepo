@@ -17,6 +17,7 @@ export interface SalespageNav {
   articles: string;
   documents: string;
   register: string;
+  login: string;
 }
 
 export interface SalespageHero {
@@ -77,6 +78,7 @@ export interface SalespagePricingPlan {
 export interface SalespagePricing {
   heading: string;
   subtitle: string;
+  recommendLabel: string;
   footnote: string;
   allFeatures: string;
   plans: {
@@ -280,6 +282,7 @@ export interface SalespagePlanComparison {
 export interface SalespagePlanPage {
   heading: string;
   subtitle: string;
+  recommendLabel: string;
   footnote: string;
   plans: {
     trial: SalespagePlanPageCard;

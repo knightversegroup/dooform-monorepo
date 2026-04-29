@@ -15,6 +15,7 @@ type PlanCardDict = {
 export type PlanPageDict = {
   heading: string;
   subtitle: string;
+  recommendLabel: string;
   footnote: string;
   plans: {
     trial: PlanCardDict;
@@ -72,10 +73,16 @@ export default function PlanCards({ dict }: { dict: PlanPageDict }) {
             return (
               <div
                 key={key}
-                className={`flex flex-col rounded-2xl border bg-white p-8 ${
+                className={`flex flex-col overflow-hidden rounded-2xl border bg-white ${
                   isHighlighted ? 'border-[#262626]' : 'border-[#e5e0da]'
                 }`}
               >
+                {isHighlighted && (
+                  <div className="bg-[#262626] py-2 text-center text-sm font-semibold text-white">
+                    {dict.recommendLabel}
+                  </div>
+                )}
+                <div className="flex flex-col p-8">
                 {/* Icon */}
                 <FileText className="mb-4 h-7 w-7 text-[#262626]" />
 
@@ -129,6 +136,7 @@ export default function PlanCards({ dict }: { dict: PlanPageDict }) {
                     </li>
                   ))}
                 </ul>
+                </div>
               </div>
             );
           })}

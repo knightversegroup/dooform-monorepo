@@ -82,6 +82,7 @@
   "pricing": {
     "heading": "Pricing Plans",
     "subtitle": "Choose a plan that fits your needs",
+    "recommendLabel": "Recommended",
     "footnote": "All plans are billed monthly. All prices in ฿THB.",
     "allFeatures": "All features",
     "plans": {
@@ -588,6 +589,7 @@
   "planPage": {
     "heading": "Pricing",
     "subtitle": "Choose a plan that fits your needs",
+    "recommendLabel": "Recommended",
     "footnote": "All plans are billed monthly. All prices in THB. Pricing is subject to change.",
     "plans": {
       "trial": {
