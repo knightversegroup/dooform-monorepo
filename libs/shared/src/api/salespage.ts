@@ -324,6 +324,37 @@ export interface SalespagePlanPage {
   comparison: SalespagePlanComparison;
 }
 
+export interface SalespageContactStat {
+  value: string;
+  label: string;
+}
+
+export interface SalespageContactForm {
+  firstName: string;
+  firstNamePlaceholder: string;
+  company: string;
+  companyPlaceholder: string;
+  phone: string;
+  phonePlaceholder: string;
+  email: string;
+  emailPlaceholder: string;
+  details: string;
+  detailsPlaceholder: string;
+  submit: string;
+}
+
+export interface SalespageContact {
+  heading: string;
+  subtitle: string;
+  aiLabel: string;
+  stats: {
+    month1: SalespageContactStat;
+    month2: SalespageContactStat;
+    month3: SalespageContactStat;
+  };
+  form: SalespageContactForm;
+}
+
 export interface SalespageTrial {
   heading: string;
   subtitle: string;
@@ -365,6 +396,7 @@ export interface SalespageDict {
   usecasesPage: SalespageUsecasesPage;
   compliancePage: SalespageCompliancePage;
   planPage: SalespagePlanPage;
+  contact: SalespageContact;
   trial: SalespageTrial;
   footer: SalespageFooter;
 }
@@ -388,6 +420,7 @@ export const SALESPAGE_SECTION_KEYS: SalespageSectionKey[] = [
   'usecasesPage',
   'compliancePage',
   'planPage',
+  'contact',
   'trial',
   'footer',
 ];

@@ -929,6 +929,29 @@
       ]
     }
   },
+  "contact": {
+    "heading": "ลูกค้าของคุณ กำลังรออยู่",
+    "subtitle": "ระบบสมาชิกครบวงจร พร้อม AI ดูแลลูกค้าทุกราย เริ่มใช้งานระบบสมาชิกได้ภายใน 2 สัปดาห์",
+    "aiLabel": "World's first AI Processing for Documents",
+    "stats": {
+      "month1": { "value": "1,192", "label": "มกราคม" },
+      "month2": { "value": "6,200", "label": "กุมภาพันธ์" },
+      "month3": { "value": "10,420", "label": "มีนาคม" }
+    },
+    "form": {
+      "firstName": "ชื่อ-นามสกุล",
+      "firstNamePlaceholder": "กรอกชื่อ",
+      "company": "บริษัท",
+      "companyPlaceholder": "กรอกชื่อบริษัท",
+      "phone": "เบอร์โทรศัพท์",
+      "phonePlaceholder": "0xx-xxx-xxxx",
+      "email": "อีเมล",
+      "emailPlaceholder": "name@company.com",
+      "details": "รายละเอียดเพิ่มเติม",
+      "detailsPlaceholder": "บอกเราเกี่ยวกับความต้องการด้านเอกสารของคุณ",
+      "submit": "ติดต่อเลย"
+    }
+  },
   "trial": {
     "heading": "ทดลองใช้งานฟรี",
     "subtitle": "เพียงสมัครสมาชิกด้วย Google และเริ่มใช้งานได้ทันที",

@@ -779,6 +779,29 @@
       ]
     }
   },
+  "contact": {
+    "heading": "Your customers are waiting.",
+    "subtitle": "Full-cycle document management system powered by AI. Start using the system within 2 weeks.",
+    "aiLabel": "World's first AI Processing for Documents",
+    "stats": {
+      "month1": { "value": "1,192", "label": "January" },
+      "month2": { "value": "6,200", "label": "February" },
+      "month3": { "value": "10,420", "label": "March" }
+    },
+    "form": {
+      "firstName": "Full Name",
+      "firstNamePlaceholder": "Enter your name",
+      "company": "Company",
+      "companyPlaceholder": "Enter company name",
+      "phone": "Phone Number",
+      "phonePlaceholder": "0xx-xxx-xxxx",
+      "email": "Email",
+      "emailPlaceholder": "name@company.com",
+      "details": "Additional Details",
+      "detailsPlaceholder": "Tell us about your document needs",
+      "submit": "Contact Us"
+    }
+  },
   "trial": {
     "heading": "Try for Free",
     "subtitle": "Simply sign up with Google and start right away",
