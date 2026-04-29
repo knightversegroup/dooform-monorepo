@@ -1,0 +1,9 @@
+{
+  "name": "salespage",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/salespage",
+  "projectType": "application",
+  "tags": [],
+  "// targets": "to see all targets run: nx show project salespage --web",
+  "targets": {}
+}
