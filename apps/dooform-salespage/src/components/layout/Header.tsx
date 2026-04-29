@@ -56,10 +56,10 @@ export default function Header({
           <div className="hidden items-center gap-4 md:flex justify-center">
             <LanguageSwitcher locale={locale} />
             <Button
-              variant="ghost"
+              variant="secondary"
               size="md"
               href="https://legacy.dooform.com/"
-              className="text-black"
+              className="bg-white text-black shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)]"
             >
               {dict.login}
             </Button>

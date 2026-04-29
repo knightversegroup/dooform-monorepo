@@ -171,24 +171,24 @@
     "readMore": "Read More",
     "items": [
       {
-        "question": "National ID Card",
-        "answer": "Supports filling and translating Thai national ID cards into English in embassy-accepted formats."
+        "question": "What is Dooform?",
+        "answer": "Dooform is an automated document translation platform that translates official Thai documents into English while preserving the original format — in just minutes."
       },
       {
-        "question": "Birth Certificate",
-        "answer": "Supports filling and translating Thai birth certificates into English in embassy-accepted formats."
+        "question": "What types of documents are supported?",
+        "answer": "We support a wide range of official documents including national ID cards, birth certificates, house registrations, marriage certificates, driver's licenses, passports, and other documents for embassy submission."
       },
       {
-        "question": "House Registration",
-        "answer": "Supports filling and translating Thai house registrations into English in embassy-accepted formats."
+        "question": "Can translated documents be used for embassy submission?",
+        "answer": "Documents translated through Dooform are designed to meet embassy-accepted formats. However, each embassy may have additional requirements, so please verify with your destination embassy."
       },
       {
-        "question": "Marriage Certificate",
-        "answer": "Supports filling and translating Thai marriage certificates into English in embassy-accepted formats."
+        "question": "How long does it take to translate a document?",
+        "answer": "Our system translates documents automatically within minutes, compared to manual translation which can take hours — saving you significant time."
       },
       {
-        "question": "Others",
-        "answer": "Supports additional official government documents. Contact us for more information."
+        "question": "What plans are available?",
+        "answer": "Dooform offers a free plan for trial use, and Pro / Max plans for users who need to translate large volumes of documents or require additional features. See our pricing page for details."
       }
     ]
   },
@@ -762,10 +762,7 @@
   },
   "trial": {
     "heading": "Try for Free",
-    "subtitle": "Simply register and start filling in your data right away",
-    "namePlaceholder": "Full name",
-    "emailPlaceholder": "Email",
-    "passwordPlaceholder": "Password",
+    "subtitle": "Simply sign up with Google and start right away",
     "register": "Register",
     "hasAccount": "Already have an account?",
     "consent": "By registering, you consent to the collection of your usage data."
