@@ -14,6 +14,7 @@ type NavDict = {
   articles: string;
   documents: string;
   register: string;
+  login: string;
 };
 
 export default function Header({
@@ -54,6 +55,14 @@ export default function Header({
 
           <div className="hidden items-center gap-4 md:flex justify-center">
             <LanguageSwitcher locale={locale} />
+            <Button
+              variant="ghost"
+              size="md"
+              href="https://legacy.dooform.com/"
+              className="text-black"
+            >
+              {dict.login}
+            </Button>
             <Button
               variant="secondary"
               size="md"
@@ -105,6 +114,9 @@ export default function Header({
                 {item.label}
               </a>
             ))}
+            <a href="https://legacy.dooform.com/" onClick={() => setMobileOpen(false)}>
+              {dict.login}
+            </a>
             <a href="#trial" onClick={() => setMobileOpen(false)}>
               {dict.register}
             </a>

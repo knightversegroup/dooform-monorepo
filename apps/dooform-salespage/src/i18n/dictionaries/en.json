@@ -10,7 +10,8 @@
     "plan": "Plan",
     "articles": "Articles",
     "documents": "Documents",
-    "register": "Register"
+    "register": "Register",
+    "login": "Login"
   },
   "hero": {
     "heading": "Filling Forms Is No Longer Difficult",
