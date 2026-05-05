@@ -67,6 +67,19 @@ export class AzureBlobStorageService implements IStorageService {
     return blockBlobClient.exists()
   }
 
+  /**
+   * Streams every blob under `prefix` and sums `properties.contentLength`. This is the
+   * production reconcile path: the SDK handles pagination, and we never load all the
+   * blob metadata into memory.
+   */
+  async getTotalSize(prefix: string): Promise<number> {
+    let total = 0
+    for await (const blob of this.containerClient.listBlobsFlat({ prefix })) {
+      total += blob.properties.contentLength ?? 0
+    }
+    return total
+  }
+
   private detectContentType(filePath: string): string {
     if (filePath.endsWith('.pdf')) return 'application/pdf'
     if (filePath.endsWith('.docx')) return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'

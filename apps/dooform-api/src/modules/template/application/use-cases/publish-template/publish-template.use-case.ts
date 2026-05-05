@@ -6,6 +6,7 @@ import type { Result } from '@dooform-api-core/shared'
 import { UseResult, ValidateInput, UseClassLogger } from '@dooform-api-core/shared/decorators'
 
 import type { ITemplateRepository } from '../../../domain/repositories/template.repository'
+import { assertCanEditTemplate } from '../../policies/template-access.policy'
 import { GetTemplateByIdDto } from '../../dtos/get-template-by-id.dto'
 
 @Injectable()
@@ -23,6 +24,12 @@ export class PublishTemplateUseCase implements UseCase<GetTemplateByIdDto, { id:
     if (!template) {
       throw new EntityNotFoundException(`Template with id ${dto.id} not found`)
     }
+
+    assertCanEditTemplate(template, {
+      callerRole: dto.callerRole,
+      callerOrganizationId: dto.callerOrganizationId,
+      callerUserId: dto.callerUserId,
+    })
 
     template.publish()
     const saved = await this.templateRepository.save(template)

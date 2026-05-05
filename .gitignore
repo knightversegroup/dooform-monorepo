@@ -55,3 +55,4 @@ vitest.config.*.timestamp*
 
 storage
 docs
+vite.config.*.timestamp*

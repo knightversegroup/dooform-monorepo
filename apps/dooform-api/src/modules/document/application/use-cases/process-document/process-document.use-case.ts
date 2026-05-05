@@ -15,6 +15,9 @@ import type { IPdfConverterService } from '../../../domain/services/pdf-converte
 import type { WatermarkConfig } from '../../../domain/entities/watermark-preset.entity'
 import { PdfLibManipulatorService } from '../../../infrastructure/services/pdf-lib-manipulator.service'
 import { ProcessDocumentDto } from '../../dtos/process-document.dto'
+import { OrgPath } from '../../../../../common/storage/org-path'
+import { StorageQuotaService } from '../../../../user/application/services/storage-quota.service'
+import { TierConfigService } from '../../../../user/application/services/tier-config.service'
 
 const BRANDING_WATERMARK_KEY = 'branding_watermark'
 
@@ -44,6 +47,8 @@ export class ProcessDocumentUseCase implements UseCase<ProcessDocumentDto, Proce
     @Inject('ISystemConfigRepository')
     private readonly systemConfigRepository: ISystemConfigRepository,
     private readonly pdfManipulator: PdfLibManipulatorService,
+    private readonly quota: StorageQuotaService,
+    private readonly tierConfig: TierConfigService,
   ) {}
 
   @UseResult()
@@ -52,35 +57,50 @@ export class ProcessDocumentUseCase implements UseCase<ProcessDocumentDto, Proce
     dto: ProcessDocumentDto,
     templateFile?: { buffer: Buffer; originalname: string; mimetype: string; size: number },
   ): Promise<Result<ProcessDocumentResult>> {
-    const { templateId, data, userId, userTier } = dto
+    const { templateId, data, userId, userTier, organizationId } = dto
+    const customFilename = dto.filename?.trim()
+    if (!organizationId) {
+      throw new Error('organizationId is required to process documents')
+    }
 
     // 1. Get template DOCX: use uploaded file, or read from storage
+    //    Template files are looked up first by their org-scoped path, falling back to
+    //    the legacy unscoped path so pre-multi-tenancy templates keep working.
     let templateBuffer: Buffer
+    const orgTemplateKey = OrgPath.for(organizationId, 'templates', templateId, 'template.docx')
+    const legacyTemplateKey = `templates/${templateId}/template.docx`
     if (templateFile) {
       templateBuffer = templateFile.buffer
-      // Save uploaded template for future regeneration
-      const templateStoragePath = `templates/${templateId}/template.docx`
-      await this.storageService.save(templateStoragePath, templateBuffer)
+      await this.storageService.save(orgTemplateKey, templateBuffer)
+    } else if (await this.storageService.exists(orgTemplateKey)) {
+      templateBuffer = await this.storageService.read(orgTemplateKey)
     } else {
-      const templateStoragePath = `templates/${templateId}/template.docx`
-      templateBuffer = await this.storageService.read(templateStoragePath)
+      // Legacy fallback: pre-multi-tenancy templates were stored without an org prefix.
+      templateBuffer = await this.storageService.read(legacyTemplateKey)
     }
 
     // 2. Process template with docxtemplater
     const processedDocx = await this.templateProcessor.processTemplate(templateBuffer, data)
 
-    // 3. Create document entity
-    const filename = `document_${Date.now()}.docx`
+    // 3. Create document entity. If the caller passed a custom filename, sanitize it
+    //    (no path separators, ensure .docx extension); otherwise fall back to a
+    //    timestamped default.
+    const filename = customFilename
+      ? sanitizeFilename(customFilename)
+      : `document_${Date.now()}.docx`
     const document = Document.create({
       templateId,
       userId,
       filename,
       data,
+      organizationId,
     })
 
-    // 4. Save processed DOCX to storage
-    const docxPath = `documents/${document.id}/${filename}`
+    // 4. Quota-check + save processed DOCX to org-scoped storage
+    await this.quota.assertCanWrite(organizationId, processedDocx.length)
+    const docxPath = OrgPath.for(organizationId, 'documents', document.id, filename)
     await this.storageService.save(docxPath, processedDocx)
+    await this.quota.recordWrite(organizationId, processedDocx.length)
     document.setFilePathDocx(docxPath)
     document.setFileSize(processedDocx.length)
     document.setMimeType('application/vnd.openxmlformats-officedocument.wordprocessingml.document')
@@ -92,13 +112,18 @@ export class ProcessDocumentUseCase implements UseCase<ProcessDocumentDto, Proce
         let pdfBuffer = await this.pdfConverter.convertDocxToPdf(processedDocx)
 
         // 6. Apply branding watermark for free-tier users
-        if (userTier === UserTier.FREE) {
+        // Watermark applied based on the tier's `applyBrandingWatermark` config
+        // (managed at /settings/tiers by GLOBAL_ADMIN). Falls back to "on" for
+        // unknown tiers so we never miss-stamp.
+        if (await this.tierConfig.shouldApplyWatermark(userTier)) {
           pdfBuffer = await this.applyBrandingWatermark(pdfBuffer)
         }
 
         const pdfFilename = filename.replace('.docx', '.pdf')
-        const pdfPath = `documents/${document.id}/${pdfFilename}`
+        const pdfPath = OrgPath.for(organizationId, 'documents', document.id, pdfFilename)
+        await this.quota.assertCanWrite(organizationId, pdfBuffer.length)
         await this.storageService.save(pdfPath, pdfBuffer)
+        await this.quota.recordWrite(organizationId, pdfBuffer.length)
         document.setFilePathPdf(pdfPath)
       } else {
         new Logger('ProcessDocumentUseCase').warn('LibreOffice service unavailable, skipping PDF conversion')
@@ -138,4 +163,18 @@ export class ProcessDocumentUseCase implements UseCase<ProcessDocumentDto, Proce
       return pdfBuffer
     }
   }
+}
+
+/**
+ * Make a user-supplied filename safe for storage paths and download headers:
+ * strip directory separators and characters that would break Content-Disposition,
+ * and guarantee a `.docx` extension.
+ */
+function sanitizeFilename(input: string): string {
+  let name = input.replace(/[\\/]/g, '_').replace(/[\x00-\x1f"<>|*?]/g, '')
+  name = name.trim()
+  if (!name) name = `document_${Date.now()}`
+  if (!/\.docx$/i.test(name)) name = `${name}.docx`
+  if (name.length > 255) name = name.slice(0, 250) + '.docx'
+  return name
 }

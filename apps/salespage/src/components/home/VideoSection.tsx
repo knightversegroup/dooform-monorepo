@@ -1,0 +1,49 @@
+import { ArrowUpRight } from 'lucide-react';
+import { Typography } from '@dooform/ui';
+import { Section, Container } from '@dooform/ui';
+
+type VideoDict = {
+  heading: string;
+  viewUseCases: string;
+};
+
+export default function VideoSection({
+  dict,
+  locale,
+}: {
+  dict: VideoDict;
+  locale: string;
+}) {
+  return (
+    <Section padding="md">
+      <Container>
+        {/* Header */}
+        <div className="mb-6 flex items-center justify-between">
+          <Typography variant="h2">
+            {dict.heading}
+          </Typography>
+          <a
+            href={`/${locale}/usecases`}
+            className="flex shrink-0 items-center gap-0.5 text-sm text-[#424242] transition hover:text-gray-900"
+          >
+            {dict.viewUseCases}
+            <ArrowUpRight className="h-3 w-3" />
+          </a>
+        </div>
+
+        {/* Video */}
+        <div className="aspect-video w-full overflow-hidden rounded-3xl bg-gradient-to-b from-[#d9d9d9] to-white">
+          <video
+            className="h-full w-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+          >
+            {/* <source src="/videos/demo.mp4" type="video/mp4" /> */}
+          </video>
+        </div>
+      </Container>
+    </Section>
+  );
+}

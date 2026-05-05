@@ -1,7 +1,13 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator'
+import { Allow, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
-import { TemplateTier, TemplateType, TemplateCategory, PageOrientation } from '../../domain/enums/template.enum'
+import {
+  TemplateTier,
+  TemplateType,
+  TemplateCategory,
+  PageOrientation,
+  TemplateVisibility,
+} from '../../domain/enums/template.enum'
 
 export class CreateTemplateDto {
   @ApiProperty({ example: 'Customer Feedback Form' })
@@ -24,23 +30,44 @@ export class CreateTemplateDto {
   @IsOptional()
   author?: string
 
-  @ApiPropertyOptional({ enum: TemplateType, example: TemplateType.FORM })
-  @IsEnum(TemplateType)
+  // Type / tier / category are runtime-configurable codes from the taxonomy and
+  // tier-config tables. Validated as plain strings here; the use case re-checks
+  // against the live catalog and rejects unknown codes.
+  @ApiPropertyOptional({ example: 'FORM' })
+  @IsString()
   @IsOptional()
-  type?: TemplateType
+  type?: string
 
-  @ApiPropertyOptional({ enum: TemplateTier, example: TemplateTier.FREE })
-  @IsEnum(TemplateTier)
+  @ApiPropertyOptional({ example: 'free' })
+  @IsString()
   @IsOptional()
-  tier?: TemplateTier
+  tier?: string
 
-  @ApiPropertyOptional({ enum: TemplateCategory, example: TemplateCategory.OTHER })
-  @IsEnum(TemplateCategory)
+  @ApiPropertyOptional({ example: 'OTHER' })
+  @IsString()
   @IsOptional()
-  category?: TemplateCategory
+  category?: string
 
   @ApiPropertyOptional({ enum: PageOrientation, example: PageOrientation.PORTRAIT })
   @IsEnum(PageOrientation)
   @IsOptional()
   pageOrientation?: PageOrientation
+
+  @ApiPropertyOptional({
+    enum: TemplateVisibility,
+    description: 'GLOBAL is reserved for GLOBAL_ADMIN — silently downgraded to ORGANIZATION otherwise.',
+  })
+  @IsEnum(TemplateVisibility)
+  @IsOptional()
+  visibility?: TemplateVisibility
+
+  // Injected from request context
+  @Allow()
+  organizationId!: string | null
+
+  @Allow()
+  callerRole!: string
+
+  @Allow()
+  ownerUserId!: string
 }

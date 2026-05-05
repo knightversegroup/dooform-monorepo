@@ -38,3 +38,11 @@ export enum PageOrientation {
   PORTRAIT = 'PORTRAIT',
   LANDSCAPE = 'LANDSCAPE',
 }
+
+export enum TemplateVisibility {
+  // Visible only to members of the owning organization. Default for org-admin uploads.
+  ORGANIZATION = 'ORGANIZATION',
+  // Visible to every tenant. Only GLOBAL_ADMIN may set this. Used for marketplace /
+  // platform-wide templates.
+  GLOBAL = 'GLOBAL',
+}

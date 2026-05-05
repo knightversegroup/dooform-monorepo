@@ -18,6 +18,8 @@ import { LazyBaseController, HttpResultExceptionFilter } from '@dooform-api-core
 import type { AnnotationItem } from '../../../domain/entities/document-annotation.entity'
 import { SaveAnnotationsBodyDto } from '../swagger/swagger-dtos'
 import { CurrentUser, type UserContext } from '../decorators/user-context.decorator'
+import { RequirePermission } from '../../../../auth/interface/rest/decorators/require-permission.decorator'
+import { contentDisposition } from '../../../../../common/http/content-disposition'
 
 @ApiTags('Document Annotations')
 @Controller('v1/documents')
@@ -28,6 +30,7 @@ export class AnnotationController extends LazyBaseController {
   }
 
   @Get(':id/annotations')
+  @RequirePermission('documents:read')
   @ApiOperation({ summary: 'Get annotations for a document' })
   async getAnnotations(
     @Param('id') id: string,
@@ -45,6 +48,7 @@ export class AnnotationController extends LazyBaseController {
   }
 
   @Put(':id/annotations')
+  @RequirePermission('documents:update')
   @ApiOperation({ summary: 'Save/update annotations for a document' })
   @ApiBody({ type: SaveAnnotationsBodyDto })
   async saveAnnotations(
@@ -66,6 +70,7 @@ export class AnnotationController extends LazyBaseController {
   }
 
   @Post(':id/finalize')
+  @RequirePermission('documents:sign')
   @ApiOperation({ summary: 'Finalize annotations into PDF' })
   async finalizeDocument(
     @Param('id') id: string,
@@ -83,6 +88,7 @@ export class AnnotationController extends LazyBaseController {
   }
 
   @Get(':id/pdf-preview')
+  @RequirePermission('documents:read')
   @ApiOperation({ summary: 'Stream base PDF for editor preview' })
   async getPdfPreview(
     @Param('id') id: string,
@@ -102,7 +108,7 @@ export class AnnotationController extends LazyBaseController {
 
     res.set({
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `inline; filename="${value.filename}"`,
+      'Content-Disposition': contentDisposition('inline', value.filename),
       'Content-Length': value.buffer.length.toString(),
     })
     res.send(value.buffer)

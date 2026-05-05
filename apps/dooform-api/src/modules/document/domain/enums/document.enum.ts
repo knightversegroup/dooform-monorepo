@@ -14,3 +14,11 @@ export enum UserTier {
   PRO = 'pro',
   MAX = 'max',
 }
+
+export enum DocumentLifecycleStatus {
+  DRAFT = 'DRAFT',
+  IN_REVIEW = 'IN_REVIEW',
+  APPROVED = 'APPROVED',
+  SIGNED = 'SIGNED',
+  ARCHIVED = 'ARCHIVED',
+}

@@ -6,8 +6,12 @@ export interface FieldValidation {
 }
 
 export interface RadioOption {
-  label: string
-  value: string
+  /** The bracket placeholder this option fills in the DOCX (e.g. `S_1_1`). */
+  placeholder: string
+  /** Display label shown next to the radio button. */
+  label?: string
+  /** Tick character written into the chosen placeholder; others get an empty string. */
+  value?: string
 }
 
 export interface FieldDefinition {

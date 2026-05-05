@@ -6,7 +6,11 @@ import type { IUnitOfWork } from '@dooform-api-core/application'
 import { UNIT_OF_WORK_TOKEN, BaseTypeOrmRepository } from '@dooform-api-core/infrastructure/persistence/typeorm'
 
 import { Template, type TemplateProps } from '../../../../domain/entities/template.entity'
-import type { ITemplateRepository } from '../../../../domain/repositories/template.repository'
+import { TemplateVisibility } from '../../../../domain/enums/template.enum'
+import type {
+  ITemplateRepository,
+  ListTemplatesForOrgOptions,
+} from '../../../../domain/repositories/template.repository'
 import { TemplateModel } from '../models/template.model'
 
 @Injectable()
@@ -29,6 +33,77 @@ export class TypeOrmTemplateRepository
       order: { variantOrder: 'ASC', createdAt: 'DESC' },
     })
     return models.map((m) => this.toEntity(m))
+  }
+
+  async findVisibleToOrg(
+    options: ListTemplatesForOrgOptions,
+  ): Promise<{ data: Template[]; total: number }> {
+    const qb = this.getRepository().createQueryBuilder('t')
+
+    const isGlobalAdmin = options.callerRole === 'GLOBAL_ADMIN'
+    const isOrgAdmin = options.callerRole === 'ORG_ADMIN'
+
+    // Public marketing site: only true GLOBAL + PUBLISHED rows. No legacy fallback —
+    // an org-scoped template must never leak out, even if it was uploaded with a
+    // null organizationId by an old code path.
+    if (options.publicOnly) {
+      qb.where('(t.visibility = :global AND t.status = :pub)', {
+        global: TemplateVisibility.GLOBAL,
+        pub: 'PUBLISHED',
+      })
+    } else if (isGlobalAdmin) {
+      // Visibility / status rules:
+      //  - GLOBAL_ADMIN: sees everything (org filter still applies if org code requested it).
+      //  - ORG_ADMIN of org X: sees own-org rows (any status) + (GLOBAL or legacy) rows that are PUBLISHED.
+      //  - USER: sees PUBLISHED rows in own-org or (GLOBAL or legacy).
+      if (options.organizationId) {
+        qb.where(
+          '(t.organization_id = :orgId OR t.visibility = :global OR t.organization_id IS NULL)',
+          { orgId: options.organizationId, global: TemplateVisibility.GLOBAL },
+        )
+      } else {
+        qb.where('1=1')
+      }
+    } else if (isOrgAdmin && options.organizationId) {
+      qb.where(
+        '(t.organization_id = :orgId OR ((t.visibility = :global OR t.organization_id IS NULL) AND t.status = :pub))',
+        { orgId: options.organizationId, global: TemplateVisibility.GLOBAL, pub: 'PUBLISHED' },
+      )
+    } else if (options.organizationId) {
+      // Regular USER with an org.
+      qb.where(
+        '((t.organization_id = :orgId OR t.visibility = :global OR t.organization_id IS NULL) AND t.status = :pub)',
+        { orgId: options.organizationId, global: TemplateVisibility.GLOBAL, pub: 'PUBLISHED' },
+      )
+    } else {
+      // No org context: only PUBLISHED globals/legacy.
+      qb.where('((t.visibility = :global OR t.organization_id IS NULL) AND t.status = :pub)', {
+        global: TemplateVisibility.GLOBAL,
+        pub: 'PUBLISHED',
+      })
+    }
+
+    if (options.status) qb.andWhere('t.status = :status', { status: options.status })
+    if (options.type) qb.andWhere('t.type = :type', { type: options.type })
+    if (options.tier) qb.andWhere('t.tier = :tier', { tier: options.tier })
+    else if (options.tiers && options.tiers.length)
+      qb.andWhere('t.tier IN (:...tiers)', { tiers: options.tiers })
+    if (options.category) qb.andWhere('t.category = :category', { category: options.category })
+    if (options.documentTypeId)
+      qb.andWhere('t.document_type_id = :dtId', { dtId: options.documentTypeId })
+    if (options.search) {
+      qb.andWhere(
+        '(t.name ILIKE :s OR COALESCE(t.display_name, \'\') ILIKE :s OR COALESCE(t.description, \'\') ILIKE :s)',
+        { s: `%${options.search}%` },
+      )
+    }
+
+    qb.orderBy('t.created_at', 'DESC')
+      .skip(options.page * options.pageSize)
+      .take(options.pageSize)
+
+    const [models, total] = await qb.getManyAndCount()
+    return { data: models.map((m) => this.toEntity(m)), total }
   }
 
   protected toEntity(model: TemplateModel): Template {
@@ -61,6 +136,9 @@ export class TypeOrmTemplateRepository
       variantName: model.variantName,
       variantOrder: model.variantOrder,
       pageOrientation: model.pageOrientation,
+      organizationId: model.organizationId,
+      ownerUserId: model.ownerUserId,
+      visibility: model.visibility,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
       deletedAt: model.deletedAt,
@@ -99,6 +177,9 @@ export class TypeOrmTemplateRepository
       variantName: props.variantName,
       variantOrder: props.variantOrder,
       pageOrientation: props.pageOrientation,
+      organizationId: props.organizationId ?? null,
+      ownerUserId: props.ownerUserId ?? null,
+      visibility: props.visibility,
       createdAt: props.createdAt,
       updatedAt: props.updatedAt,
       deletedAt: props.deletedAt,

@@ -1,0 +1,22 @@
+.strikethrough-mode .textLayer {
+  pointer-events: auto !important;
+  z-index: 5;
+}
+
+.strikethrough-mode .textLayer span {
+  cursor: crosshair !important;
+}
+
+.strikethrough-mode .textLayer span:hover {
+  background-color: rgba(255, 0, 0, 0.15) !important;
+  color: transparent !important;
+  border-radius: 2px;
+}
+
+.select-mode .textLayer {
+  pointer-events: none;
+}
+
+.text-mode .textLayer {
+  pointer-events: none;
+}

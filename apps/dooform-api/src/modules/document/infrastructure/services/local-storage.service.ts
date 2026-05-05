@@ -51,6 +51,36 @@ export class LocalStorageService implements IStorageService {
     }
   }
 
+  /**
+   * Recursively walks the directory under `prefix` (relative to basePath) and sums
+   * file sizes. In dev this gives an accurate answer for "how much space is this
+   * tenant using" without needing to consult Postgres counters.
+   */
+  async getTotalSize(prefix: string): Promise<number> {
+    const root = this.resolvePath(prefix)
+    let total = 0
+    const walk = async (dir: string): Promise<void> => {
+      let entries: import('fs').Dirent[]
+      try {
+        entries = await fs.readdir(dir, { withFileTypes: true })
+      } catch (err: any) {
+        if (err.code === 'ENOENT') return // empty tenant
+        throw err
+      }
+      for (const entry of entries) {
+        const full = path.join(dir, entry.name)
+        if (entry.isDirectory()) {
+          await walk(full)
+        } else if (entry.isFile()) {
+          const stat = await fs.stat(full)
+          total += stat.size
+        }
+      }
+    }
+    await walk(root)
+    return total
+  }
+
   private resolvePath(filePath: string): string {
     const resolved = path.resolve(this.basePath, filePath)
     if (!resolved.startsWith(path.resolve(this.basePath))) {

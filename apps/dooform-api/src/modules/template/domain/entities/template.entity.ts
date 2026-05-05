@@ -1,6 +1,6 @@
 import { Entity, type IEntityProps } from '@dooform-api-core/domain'
 
-import { TemplateStatus, TemplateType, TemplateTier, TemplateCategory, PageOrientation } from '../enums/template.enum'
+import { TemplateStatus, TemplateType, TemplateTier, TemplateCategory, PageOrientation, TemplateVisibility } from '../enums/template.enum'
 import type { FieldDefinition } from './field-definition.interface'
 
 export interface TemplateProps extends IEntityProps {
@@ -31,6 +31,9 @@ export interface TemplateProps extends IEntityProps {
   variantName?: string | null
   variantOrder?: number | null
   pageOrientation?: PageOrientation | null
+  organizationId?: string | null
+  ownerUserId?: string | null
+  visibility?: TemplateVisibility
 }
 
 export class Template extends Entity<TemplateProps> {
@@ -43,6 +46,9 @@ export class Template extends Entity<TemplateProps> {
     tier?: TemplateTier
     category?: TemplateCategory | null
     pageOrientation?: PageOrientation | null
+    organizationId?: string | null
+    ownerUserId?: string | null
+    visibility?: TemplateVisibility
   }): Template {
     return new Template({
       name: props.name,
@@ -72,8 +78,15 @@ export class Template extends Entity<TemplateProps> {
       variantName: null,
       variantOrder: null,
       pageOrientation: props.pageOrientation ?? null,
+      organizationId: props.organizationId ?? null,
+      ownerUserId: props.ownerUserId ?? null,
+      visibility: props.visibility ?? TemplateVisibility.ORGANIZATION,
     })
   }
+
+  get organizationId(): string | null { return this.getProp('organizationId') ?? null }
+  get ownerUserId(): string | null { return this.getProp('ownerUserId') ?? null }
+  get visibility(): TemplateVisibility { return this.getProp('visibility') ?? TemplateVisibility.ORGANIZATION }
 
   // --- Getters ---
 
@@ -128,6 +141,7 @@ export class Template extends Entity<TemplateProps> {
 
   publish(): void { this.updateProp('status', TemplateStatus.PUBLISHED) }
   archive(): void { this.updateProp('status', TemplateStatus.ARCHIVED) }
+  unpublish(): void { this.updateProp('status', TemplateStatus.DRAFT) }
   verify(): void { this.updateProp('isVerified', true) }
   unverify(): void { this.updateProp('isVerified', false) }
 
@@ -142,4 +156,6 @@ export class Template extends Entity<TemplateProps> {
   updatePageOrientation(orientation: PageOrientation | null): void { this.updateProp('pageOrientation', orientation) }
   updateGroup(group: string | null): void { this.updateProp('group', group) }
   updateIsAIAvailable(value: boolean): void { this.updateProp('isAIAvailable', value) }
+  updateVisibility(visibility: TemplateVisibility): void { this.updateProp('visibility', visibility) }
+  updateOrganizationId(organizationId: string | null): void { this.updateProp('organizationId', organizationId) }
 }

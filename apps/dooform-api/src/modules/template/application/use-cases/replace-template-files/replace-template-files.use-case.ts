@@ -10,6 +10,7 @@ import type { ITemplateRepository } from '../../../domain/repositories/template.
 import type { IStorageService } from '../../../../document/domain/services/storage.service'
 import type { IPlaceholderExtractorService } from '../../../domain/services/placeholder-extractor.service'
 import type { IFieldDefinitionGeneratorService } from '../../../domain/services/field-definition-generator.service'
+import { assertCanEditTemplate } from '../../policies/template-access.policy'
 import { GetTemplateByIdDto } from '../../dtos/get-template-by-id.dto'
 
 @Injectable()
@@ -36,6 +37,12 @@ export class ReplaceTemplateFilesUseCase implements UseCase<GetTemplateByIdDto, 
     if (!template) {
       throw new EntityNotFoundException(`Template with id ${dto.id} not found`)
     }
+
+    assertCanEditTemplate(template, {
+      callerRole: dto.callerRole,
+      callerOrganizationId: dto.callerOrganizationId,
+      callerUserId: dto.callerUserId,
+    })
 
     if (templateFile) {
       // Delete old file if exists

@@ -7,6 +7,7 @@ import { DocumentModel } from './models/document.model'
 import { DocumentAnnotationModel } from './models/document-annotation.model'
 import { WatermarkPresetModel } from './models/watermark-preset.model'
 import { SystemConfigModel } from './models/system-config.model'
+import { DocumentShareModel } from '../../../../workflow/infrastructure/persistence/typeorm/models/document-share.model'
 import { TypeOrmDocumentRepository } from './repositories/document.repository'
 import { TypeOrmDocumentAnnotationRepository } from './repositories/document-annotation.repository'
 import { TypeOrmWatermarkPresetRepository } from './repositories/watermark-preset.repository'
@@ -19,6 +20,8 @@ import { TypeOrmSystemConfigRepository } from './repositories/system-config.repo
       DocumentAnnotationModel,
       WatermarkPresetModel,
       SystemConfigModel,
+      // Used by TypeOrmDocumentRepository to filter history by `OR exists in shares`
+      DocumentShareModel,
     ]),
     UnitOfWorkTypeOrmModule,
   ],

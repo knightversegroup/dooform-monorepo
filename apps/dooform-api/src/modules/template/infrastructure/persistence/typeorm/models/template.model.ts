@@ -8,11 +8,25 @@ import {
   TemplateTier,
   TemplateCategory,
   PageOrientation,
+  TemplateVisibility,
 } from '../../../../domain/enums/template.enum'
 import type { FieldDefinition } from '../../../../domain/entities/field-definition.interface'
 
 @Entity('templates')
 export class TemplateModel extends BaseTypeOrmModel {
+  @Column({ name: 'owner_user_id', type: 'uuid', nullable: true })
+  ownerUserId!: string | null
+
+  @Column({ name: 'organization_id', type: 'uuid', nullable: true })
+  organizationId!: string | null
+
+  @Column({
+    type: 'enum',
+    enum: TemplateVisibility,
+    default: TemplateVisibility.ORGANIZATION,
+  })
+  visibility!: TemplateVisibility
+
   @Column({ type: 'varchar', length: 255 })
   name!: string
 
@@ -39,10 +53,14 @@ export class TemplateModel extends BaseTypeOrmModel {
   })
   type!: TemplateType
 
+  // Tier is now a free-form code that references `tier_configs.code` — the unified
+  // subscription tier table managed at /settings/tiers. Keeping it as varchar lets
+  // admins add custom tiers without an enum migration; the value is validated
+  // server-side against the live tier list.
   @Column({
-    type: 'enum',
-    enum: TemplateTier,
-    default: TemplateTier.FREE,
+    type: 'varchar',
+    length: 32,
+    default: 'free',
   })
   tier!: TemplateTier
 

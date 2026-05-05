@@ -1,6 +1,6 @@
 import { Entity, type IEntityProps } from '@dooform-api-core/domain'
 
-import { DocumentStatus } from '../enums/document.enum'
+import { DocumentStatus, DocumentLifecycleStatus } from '../enums/document.enum'
 
 export interface DocumentProps extends IEntityProps {
   templateId: string
@@ -11,6 +11,9 @@ export interface DocumentProps extends IEntityProps {
   filePathFinalizedPdf?: string | null
   data: Record<string, string>
   status: DocumentStatus
+  lifecycleStatus: DocumentLifecycleStatus
+  ownerUserId: string
+  organizationId?: string | null
   fileSize?: number | null
   mimeType?: string | null
 }
@@ -21,13 +24,17 @@ export class Document extends Entity<DocumentProps> {
     userId: string
     filename: string
     data: Record<string, string>
+    organizationId?: string | null
   }): Document {
     return new Document({
       templateId: props.templateId,
       userId: props.userId,
+      ownerUserId: props.userId,
+      organizationId: props.organizationId ?? null,
       filename: props.filename,
       data: props.data,
       status: DocumentStatus.PROCESSING,
+      lifecycleStatus: DocumentLifecycleStatus.DRAFT,
       filePathDocx: null,
       filePathPdf: null,
       filePathFinalizedPdf: null,
@@ -104,7 +111,28 @@ export class Document extends Entity<DocumentProps> {
     this.updateProp('mimeType', mimeType)
   }
 
+  get lifecycleStatus(): DocumentLifecycleStatus {
+    return this.getProp('lifecycleStatus')
+  }
+
+  get ownerUserId(): string {
+    const explicit = this.getProp('ownerUserId')
+    return explicit && explicit.length > 0 ? explicit : this.getProp('userId')
+  }
+
+  get organizationId(): string | null {
+    return this.getProp('organizationId') ?? null
+  }
+
+  setLifecycleStatus(next: DocumentLifecycleStatus): void {
+    this.updateProp('lifecycleStatus', next)
+  }
+
+  rename(filename: string): void {
+    this.updateProp('filename', filename)
+  }
+
   isOwnedBy(userId: string): boolean {
-    return this.userId === userId
+    return this.ownerUserId === userId
   }
 }

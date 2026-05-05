@@ -23,6 +23,7 @@ import { LazyBaseController, HttpResultExceptionFilter } from '@dooform-api-core
 import type { WatermarkConfig } from '../../../domain/entities/watermark-preset.entity'
 import { CreateWatermarkPresetBodyDto, UpdateWatermarkPresetBodyDto } from '../swagger/swagger-dtos'
 import { CurrentUser, type UserContext } from '../decorators/user-context.decorator'
+import { RequirePermission } from '../../../../auth/interface/rest/decorators/require-permission.decorator'
 
 @ApiTags('Watermark Presets')
 @Controller('v1/watermark-presets')
@@ -33,6 +34,7 @@ export class WatermarkPresetController extends LazyBaseController {
   }
 
   @Get()
+  @RequirePermission('watermarks:read')
   @ApiOperation({ summary: 'List watermark presets' })
   async listPresets(@CurrentUser() user: UserContext) {
     const uc = await this.loadUseCase<any>(
@@ -44,6 +46,7 @@ export class WatermarkPresetController extends LazyBaseController {
   }
 
   @Get(':id')
+  @RequirePermission('watermarks:read')
   @ApiOperation({ summary: 'Get watermark preset by ID' })
   async getPreset(
     @Param('id') id: string,
@@ -61,6 +64,7 @@ export class WatermarkPresetController extends LazyBaseController {
   }
 
   @Post()
+  @RequirePermission('watermarks:manage')
   @ApiOperation({ summary: 'Create a watermark preset' })
   @ApiBody({ type: CreateWatermarkPresetBodyDto })
   async createPreset(
@@ -80,6 +84,7 @@ export class WatermarkPresetController extends LazyBaseController {
   }
 
   @Put(':id')
+  @RequirePermission('watermarks:manage')
   @ApiOperation({ summary: 'Update a watermark preset' })
   @ApiBody({ type: UpdateWatermarkPresetBodyDto })
   async updatePreset(
@@ -101,6 +106,7 @@ export class WatermarkPresetController extends LazyBaseController {
   }
 
   @Delete(':id')
+  @RequirePermission('watermarks:manage')
   @ApiOperation({ summary: 'Delete a watermark preset' })
   async deletePreset(
     @Param('id') id: string,
@@ -118,6 +124,7 @@ export class WatermarkPresetController extends LazyBaseController {
   }
 
   @Post(':id/logo')
+  @RequirePermission('watermarks:manage')
   @ApiOperation({ summary: 'Upload logo for watermark preset' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -157,6 +164,7 @@ export class WatermarkPresetController extends LazyBaseController {
   }
 
   @Get(':id/logo')
+  @RequirePermission('watermarks:read')
   @ApiOperation({ summary: 'Serve watermark logo image' })
   async getLogo(
     @Param('id') id: string,

@@ -15,6 +15,7 @@ import { LazyBaseController, HttpResultExceptionFilter } from '@dooform-api-core
 import type { WatermarkConfig } from '../../../domain/entities/watermark-preset.entity'
 import { UpdateBrandingWatermarkBodyDto } from '../swagger/swagger-dtos'
 import { CurrentUser, type UserContext } from '../decorators/user-context.decorator'
+import { RequirePermission } from '../../../../auth/interface/rest/decorators/require-permission.decorator'
 
 @ApiTags('Branding Watermark (Admin)')
 @Controller('v1/admin/branding-watermark')
@@ -25,6 +26,7 @@ export class BrandingWatermarkController extends LazyBaseController {
   }
 
   @Get()
+  @RequirePermission('watermarks:read')
   @ApiOperation({ summary: 'Get system branding watermark configuration' })
   async getBrandingWatermark() {
     const uc = await this.loadUseCase<any>(
@@ -36,6 +38,7 @@ export class BrandingWatermarkController extends LazyBaseController {
   }
 
   @Put()
+  @RequirePermission('watermarks:manage')
   @ApiOperation({ summary: 'Update system branding watermark configuration' })
   @ApiBody({ type: UpdateBrandingWatermarkBodyDto })
   async updateBrandingWatermark(
@@ -54,6 +57,7 @@ export class BrandingWatermarkController extends LazyBaseController {
   }
 
   @Delete()
+  @RequirePermission('watermarks:manage')
   @ApiOperation({ summary: 'Reset branding watermark to default' })
   async deleteBrandingWatermark() {
     const uc = await this.loadUseCase<any>(

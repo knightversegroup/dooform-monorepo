@@ -6,6 +6,7 @@ import type { Result } from '@dooform-api-core/shared'
 import { UseResult, ValidateInput, UseClassLogger } from '@dooform-api-core/shared/decorators'
 
 import type { ITemplateRepository } from '../../../domain/repositories/template.repository'
+import { assertCanDeleteTemplate } from '../../policies/template-access.policy'
 import { GetTemplateByIdDto } from '../../dtos/get-template-by-id.dto'
 
 @Injectable()
@@ -19,10 +20,16 @@ export class DeleteTemplateUseCase implements UseCase<GetTemplateByIdDto, { succ
   @UseResult()
   @ValidateInput(GetTemplateByIdDto)
   async execute(dto: GetTemplateByIdDto): Promise<Result<{ success: boolean }>> {
-    const exists = await this.templateRepository.exists(dto.id)
-    if (!exists) {
+    const template = await this.templateRepository.findById(dto.id)
+    if (!template) {
       throw new EntityNotFoundException(`Template with id ${dto.id} not found`)
     }
+
+    assertCanDeleteTemplate(template, {
+      callerRole: dto.callerRole,
+      callerOrganizationId: dto.callerOrganizationId,
+      callerUserId: dto.callerUserId,
+    })
 
     await this.templateRepository.deleteById(dto.id)
     return { success: true } as any

@@ -1,21 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common'
 
 import type { UseCase } from '@dooform-api-core/application'
-import type { Result, SearchOptions, FilterCondition } from '@dooform-api-core/shared'
+import type { Result } from '@dooform-api-core/shared'
 import { UseResult, UseClassLogger } from '@dooform-api-core/shared/decorators'
 
-import { TemplateTier } from '../../../domain/enums/template.enum'
-import type { TemplateProps } from '../../../domain/entities/template.entity'
 import type { ITemplateRepository } from '../../../domain/repositories/template.repository'
+import { TierConfigService } from '../../../../user/application/services/tier-config.service'
 import { GetAllTemplatesDto } from '../../dtos/get-all-templates.dto'
-
-const TIER_HIERARCHY: Record<string, string[]> = {
-  [TemplateTier.FREE]: [TemplateTier.FREE],
-  [TemplateTier.BASIC]: [TemplateTier.FREE, TemplateTier.BASIC],
-  [TemplateTier.PRO]: [TemplateTier.FREE, TemplateTier.BASIC, TemplateTier.PRO],
-  [TemplateTier.PREMIUM]: [TemplateTier.FREE, TemplateTier.BASIC, TemplateTier.PRO, TemplateTier.PREMIUM],
-  [TemplateTier.ENTERPRISE]: [TemplateTier.FREE, TemplateTier.BASIC, TemplateTier.PRO, TemplateTier.PREMIUM, TemplateTier.ENTERPRISE],
-}
 
 interface TemplateListItem {
   id: string
@@ -27,10 +18,14 @@ interface TemplateListItem {
   type: string
   tier: string
   category?: string | null
+  visibility?: string | null
+  organizationId?: string | null
+  ownerUserId?: string | null
   filePath?: string | null
   originalFilename?: string | null
   documentTypeId?: string | null
   createdAt: Date
+  updatedAt?: Date
 }
 
 interface GetAllTemplatesResult {
@@ -45,43 +40,43 @@ interface GetAllTemplatesResult {
 export class GetAllTemplatesUseCase implements UseCase<GetAllTemplatesDto, GetAllTemplatesResult> {
   constructor(
     @Inject('ITemplateRepository')
-    private readonly templateRepository: ITemplateRepository
+    private readonly templateRepository: ITemplateRepository,
+    private readonly tierConfig: TierConfigService,
   ) {}
 
   @UseResult()
   async execute(dto: GetAllTemplatesDto, userTier?: string): Promise<Result<GetAllTemplatesResult>> {
+    const isAdmin = dto.callerRole === 'GLOBAL_ADMIN' || dto.callerRole === 'ORG_ADMIN'
+
     // Grouped query: return templates grouped by document type
     if (dto.grouped) {
-      return this.executeGrouped(dto, userTier)
+      return this.executeGrouped(dto, userTier, isAdmin)
     }
 
-    const conditions: FilterCondition<TemplateProps>[] = []
+    // Allowed tiers come from the unified TierConfig table — same source as the
+    // /settings/tiers admin console and the org subscription tier. Lower-sortOrder
+    // tiers fold into higher ones.
+    const allowedTiers =
+      userTier && !dto.tier
+        ? await this.tierConfig.getAllowedTierCodesForUser(userTier)
+        : undefined
 
-    if (dto.status) conditions.push({ field: 'status', operator: 'eq', value: dto.status })
-    if (dto.type) conditions.push({ field: 'type', operator: 'eq', value: dto.type })
-    if (dto.tier) conditions.push({ field: 'tier', operator: 'eq', value: dto.tier })
-    if (dto.category) conditions.push({ field: 'category', operator: 'eq', value: dto.category })
-    if (dto.documentTypeId) conditions.push({ field: 'documentTypeId', operator: 'eq', value: dto.documentTypeId })
-
-    // Tier-based access control
-    if (userTier && !dto.tier) {
-      const allowedTiers = TIER_HIERARCHY[userTier.toUpperCase()] ?? [TemplateTier.FREE]
-      conditions.push({ field: 'tier', operator: 'in', value: allowedTiers })
-    }
-
-    const searchOptions: SearchOptions<TemplateProps> = {
-      filter: {
-        conditions: conditions.length > 0 ? conditions : undefined,
-        searchText: dto.search ? { fields: ['name', 'displayName', 'description'], value: dto.search } : undefined,
-      },
-      paging: {
-        currentPage: dto.page ?? 0,
-        pageSize: dto.pageSize ?? 20,
-      },
-      order: { field: 'createdAt', type: 'DESC' },
-    }
-
-    const result = await this.templateRepository.findWithSearchOptions(searchOptions)
+    // Visibility scope is enforced inside the repository based on callerRole:
+    // ORG_ADMIN sees own-org any-status + GLOBAL PUBLISHED; USER sees PUBLISHED only.
+    const result = await this.templateRepository.findVisibleToOrg({
+      organizationId: dto.organizationId ?? null,
+      status: dto.status,
+      type: dto.type,
+      tier: dto.tier,
+      tiers: allowedTiers,
+      category: dto.category,
+      search: dto.search,
+      documentTypeId: dto.documentTypeId,
+      page: dto.page ?? 0,
+      pageSize: dto.pageSize ?? 20,
+      callerRole: dto.callerRole,
+      publicOnly: dto.publicOnly,
+    })
 
     const items: TemplateListItem[] = result.data.map((template) => {
       const props = template.getProps()
@@ -95,29 +90,52 @@ export class GetAllTemplatesUseCase implements UseCase<GetAllTemplatesDto, GetAl
         type: props.type,
         tier: props.tier,
         category: props.category,
+        visibility: props.visibility,
+        organizationId: props.organizationId,
+        ownerUserId: props.ownerUserId,
         filePath: props.filePath,
         originalFilename: props.originalFilename,
         documentTypeId: props.documentTypeId,
         createdAt: props.createdAt!,
+        updatedAt: props.updatedAt!,
       }
     })
 
     return {
       data: items,
       total: result.total,
-      page: result.page,
+      page: dto.page ?? 0,
       pageSize: dto.pageSize ?? 20,
     } as any
   }
 
-  private async executeGrouped(_dto: GetAllTemplatesDto, userTier?: string): Promise<Result<any>> {
+  private async executeGrouped(dto: GetAllTemplatesDto, userTier?: string, _isAdmin = false): Promise<Result<any>> {
     const allTemplates = await this.templateRepository.findAll()
 
-    // Filter by tier access
+    // Filter by tier access using the unified TierConfig hierarchy.
     let filtered = allTemplates
     if (userTier) {
-      const allowedTiers = TIER_HIERARCHY[userTier.toUpperCase()] ?? [TemplateTier.FREE]
-      filtered = allTemplates.filter((t) => allowedTiers.includes(t.tier))
+      const allowedTiers = await this.tierConfig.getAllowedTierCodesForUser(userTier)
+      filtered = filtered.filter((t) => allowedTiers.includes(t.tier))
+    }
+
+    // Apply the same visibility/status rules as the flat list:
+    //  - GLOBAL_ADMIN: no further filter.
+    //  - ORG_ADMIN of org X: own-org any-status + (GLOBAL or legacy) PUBLISHED.
+    //  - USER: PUBLISHED only (own-org or GLOBAL/legacy).
+    const callerRole = dto.callerRole
+    const orgId = dto.organizationId ?? null
+    if (callerRole !== 'GLOBAL_ADMIN') {
+      filtered = filtered.filter((t) => {
+        const p = t.getProps()
+        const sameOrg = !!orgId && p.organizationId === orgId
+        const isGlobalOrLegacy = p.visibility === 'GLOBAL' || p.organizationId == null
+        const isPublished = p.status === 'PUBLISHED'
+        if (callerRole === 'ORG_ADMIN') {
+          return sameOrg || (isGlobalOrLegacy && isPublished)
+        }
+        return (sameOrg || isGlobalOrLegacy) && isPublished
+      })
     }
 
     // Group by documentTypeId

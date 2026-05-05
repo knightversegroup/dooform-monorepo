@@ -14,6 +14,8 @@ interface DocumentHistoryItem {
   filePathDocx: string | null | undefined
   filePathPdf: string | null | undefined
   status: string
+  lifecycleStatus: string
+  ownerUserId: string
   createdAt: Date
 }
 
@@ -37,7 +39,12 @@ export class GetDocumentHistoryUseCase implements UseCase<GetDocumentHistoryDto,
     const page = dto.page ?? 0
     const pageSize = dto.pageSize ?? 20
 
-    const { data, total } = await this.documentRepository.findByUserId(dto.userId, page, pageSize)
+    const { data, total } = await this.documentRepository.findByUserId(
+      dto.userId,
+      page,
+      pageSize,
+      { scope: dto.scope, lifecycleStatus: dto.lifecycleStatus },
+    )
 
     const items: DocumentHistoryItem[] = data.map((doc) => {
       const props = doc.getProps()
@@ -48,6 +55,8 @@ export class GetDocumentHistoryUseCase implements UseCase<GetDocumentHistoryDto,
         filePathDocx: props.filePathDocx,
         filePathPdf: props.filePathPdf,
         status: props.status,
+        lifecycleStatus: props.lifecycleStatus,
+        ownerUserId: props.ownerUserId ?? props.userId,
         createdAt: props.createdAt!,
       }
     })

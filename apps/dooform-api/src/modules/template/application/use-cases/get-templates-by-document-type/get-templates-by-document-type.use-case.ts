@@ -30,7 +30,25 @@ export class GetTemplatesByDocumentTypeUseCase implements UseCase<GetTemplateByI
   @UseResult()
   @ValidateInput(GetTemplateByIdDto)
   async execute(dto: GetTemplateByIdDto): Promise<Result<TemplateListItem[]>> {
-    const templates = await this.templateRepository.findByDocumentTypeId(dto.id)
+    const all = await this.templateRepository.findByDocumentTypeId(dto.id)
+
+    // Apply the same per-row visibility / status rules used by the flat list:
+    //  - GLOBAL_ADMIN: sees everything.
+    //  - ORG_ADMIN of org X: own-org rows (any status) + (GLOBAL or legacy) PUBLISHED.
+    //  - USER: PUBLISHED rows in own-org or (GLOBAL or legacy).
+    const callerRole = dto.callerRole
+    const orgId = dto.callerOrganizationId ?? null
+    const templates =
+      callerRole === 'GLOBAL_ADMIN'
+        ? all
+        : all.filter((t) => {
+            const p = t.getProps()
+            const sameOrg = !!orgId && p.organizationId === orgId
+            const isGlobalOrLegacy = p.visibility === 'GLOBAL' || p.organizationId == null
+            const isPublished = p.status === 'PUBLISHED'
+            if (callerRole === 'ORG_ADMIN') return sameOrg || (isGlobalOrLegacy && isPublished)
+            return (sameOrg || isGlobalOrLegacy) && isPublished
+          })
 
     const items: TemplateListItem[] = templates.map((template) => {
       const props = template.getProps()

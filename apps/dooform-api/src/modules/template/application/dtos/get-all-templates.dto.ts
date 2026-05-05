@@ -1,4 +1,4 @@
-import { IsBoolean, IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator'
+import { Allow, IsBoolean, IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator'
 import { ApiPropertyOptional } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 
@@ -55,4 +55,17 @@ export class GetAllTemplatesDto {
   @IsOptional()
   @Type(() => Boolean)
   grouped?: boolean
+
+  // Injected from request context — restricts results to the caller's org plus globals.
+  @Allow()
+  organizationId!: string | null
+
+  // Injected from request context — non-admin callers only see PUBLISHED templates.
+  @Allow()
+  callerRole?: string
+
+  // Set by the public marketing-site controller. Forces strict visibility=GLOBAL,
+  // no legacy null-org fallback, regardless of any other filter.
+  @Allow()
+  publicOnly?: boolean
 }

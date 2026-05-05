@@ -8,8 +8,53 @@ import { DocumentModel } from '../modules/document/infrastructure/persistence/ty
 import { DocumentAnnotationModel } from '../modules/document/infrastructure/persistence/typeorm/models/document-annotation.model'
 import { WatermarkPresetModel } from '../modules/document/infrastructure/persistence/typeorm/models/watermark-preset.model'
 import { SystemConfigModel } from '../modules/document/infrastructure/persistence/typeorm/models/system-config.model'
+import { UserModel } from '../modules/workflow/infrastructure/persistence/typeorm/models/user.model'
+import { DocumentShareModel } from '../modules/workflow/infrastructure/persistence/typeorm/models/document-share.model'
+import { DocumentCommentModel } from '../modules/workflow/infrastructure/persistence/typeorm/models/document-comment.model'
+import { DocumentActivityModel } from '../modules/workflow/infrastructure/persistence/typeorm/models/document-activity.model'
+import { DocumentSignatureModel } from '../modules/workflow/infrastructure/persistence/typeorm/models/document-signature.model'
+import { NotificationModel } from '../modules/workflow/infrastructure/persistence/typeorm/models/notification.model'
+import { DataTypeModel } from '../modules/field-types/infrastructure/persistence/typeorm/models/data-type.model'
+import { OrganizationModel } from '../modules/user/infrastructure/persistence/typeorm/models/organization.model'
+import { RefreshTokenModel } from '../modules/auth/infrastructure/persistence/typeorm/models/refresh-token.model'
+import { PasswordResetTokenModel } from '../modules/auth/infrastructure/persistence/typeorm/models/password-reset-token.model'
+import { InviteCodeModel } from '../modules/auth/infrastructure/persistence/typeorm/models/invite-code.model'
+import { RolePermissionModel } from '../modules/auth/infrastructure/persistence/typeorm/models/role-permission.model'
+import { AuditLogModel } from '../modules/auth/infrastructure/persistence/typeorm/models/audit-log.model'
+import { ComplianceRuleModel } from '../modules/auth/infrastructure/persistence/typeorm/models/compliance-rule.model'
+import { ComplianceAlertModel } from '../modules/auth/infrastructure/persistence/typeorm/models/compliance-alert.model'
+import { TemplateTaxonomyModel } from '../modules/template/infrastructure/persistence/typeorm/models/template-taxonomy.model'
+import { TierConfigModel } from '../modules/user/infrastructure/persistence/typeorm/models/tier-config.model'
+import { DictionaryCollectionModel } from '../modules/dictionary/infrastructure/persistence/typeorm/models/dictionary-collection.model'
+import { DictionaryEntryModel } from '../modules/dictionary/infrastructure/persistence/typeorm/models/dictionary-entry.model'
 
-const entities = [TemplateModel, DocumentTypeModel, DocumentModel, DocumentAnnotationModel, WatermarkPresetModel, SystemConfigModel]
+const entities = [
+  TemplateModel,
+  DocumentTypeModel,
+  DocumentModel,
+  DocumentAnnotationModel,
+  WatermarkPresetModel,
+  SystemConfigModel,
+  UserModel,
+  DocumentShareModel,
+  DocumentCommentModel,
+  DocumentActivityModel,
+  DocumentSignatureModel,
+  NotificationModel,
+  DataTypeModel,
+  OrganizationModel,
+  RefreshTokenModel,
+  PasswordResetTokenModel,
+  InviteCodeModel,
+  RolePermissionModel,
+  AuditLogModel,
+  ComplianceRuleModel,
+  ComplianceAlertModel,
+  TemplateTaxonomyModel,
+  TierConfigModel,
+  DictionaryCollectionModel,
+  DictionaryEntryModel,
+]
 
 @Module({
   imports: [

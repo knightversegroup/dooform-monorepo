@@ -4,6 +4,8 @@ import { LazyModuleLoader } from '@nestjs/core'
 
 import { getResultValue } from '@dooform-api-core/shared'
 import { LazyBaseController, HttpResultExceptionFilter } from '@dooform-api-core/interface/nestjs'
+import { RequirePermission } from '../../../../auth/interface/rest/decorators/require-permission.decorator'
+import { CurrentUser, type UserContext } from '../../../../document/interface/rest/decorators/user-context.decorator'
 
 @ApiTags('Document Types')
 @Controller('document-types')
@@ -14,6 +16,7 @@ export class DocumentTypeController extends LazyBaseController {
   }
 
   @Get('categories')
+  @RequirePermission('document-types:read')
   @ApiOperation({ summary: 'Get all document type categories' })
   async getCategories() {
     const uc = await this.loadUseCase<any>(
@@ -25,6 +28,7 @@ export class DocumentTypeController extends LazyBaseController {
   }
 
   @Get('code/:code')
+  @RequirePermission('document-types:read')
   @ApiOperation({ summary: 'Get document type by code' })
   async getByCode(@Param('code') code: string) {
     const uc = await this.loadUseCase<any>(
@@ -36,6 +40,7 @@ export class DocumentTypeController extends LazyBaseController {
   }
 
   @Get()
+  @RequirePermission('document-types:read')
   @ApiOperation({ summary: 'Get all document types' })
   async getAll() {
     const uc = await this.loadUseCase<any>(
@@ -47,6 +52,7 @@ export class DocumentTypeController extends LazyBaseController {
   }
 
   @Get(':id')
+  @RequirePermission('document-types:read')
   @ApiOperation({ summary: 'Get document type by ID' })
   async getById(@Param('id') id: string) {
     const uc = await this.loadUseCase<any>(
@@ -58,6 +64,7 @@ export class DocumentTypeController extends LazyBaseController {
   }
 
   @Post()
+  @RequirePermission('document-types:manage')
   @ApiOperation({ summary: 'Create a document type' })
   async create(@Body() body: Record<string, any>) {
     const uc = await this.loadUseCase<any>(
@@ -69,6 +76,7 @@ export class DocumentTypeController extends LazyBaseController {
   }
 
   @Put(':id')
+  @RequirePermission('document-types:manage')
   @ApiOperation({ summary: 'Update a document type' })
   async update(@Param('id') id: string, @Body() body: Record<string, any>) {
     const uc = await this.loadUseCase<any>(
@@ -80,6 +88,7 @@ export class DocumentTypeController extends LazyBaseController {
   }
 
   @Delete(':id')
+  @RequirePermission('document-types:manage')
   @ApiOperation({ summary: 'Delete a document type' })
   async delete(@Param('id') id: string) {
     const uc = await this.loadUseCase<any>(
@@ -91,17 +100,24 @@ export class DocumentTypeController extends LazyBaseController {
   }
 
   @Get(':id/templates')
+  @RequirePermission('document-types:read')
   @ApiOperation({ summary: 'Get templates assigned to document type' })
-  async getTemplates(@Param('id') id: string) {
+  async getTemplates(@Param('id') id: string, @CurrentUser() user?: UserContext) {
     const uc = await this.loadUseCase<any>(
       () => import('../../../application/use-cases/get-templates-by-document-type/get-templates-by-document-type.use-case.module'),
       () => import('../../../application/use-cases/get-templates-by-document-type/get-templates-by-document-type.use-case'),
     )
-    const result = await uc.execute({ id })
+    const result = await uc.execute({
+      id,
+      callerRole: user?.role,
+      callerOrganizationId: user?.organizationId,
+      callerUserId: user?.userId,
+    })
     return getResultValue(result)
   }
 
   @Post(':id/templates')
+  @RequirePermission('document-types:manage')
   @ApiOperation({ summary: 'Assign a template to document type' })
   async assignTemplate(
     @Param('id') id: string,
@@ -121,6 +137,7 @@ export class DocumentTypeController extends LazyBaseController {
   }
 
   @Post(':id/templates/bulk')
+  @RequirePermission('document-types:manage')
   @ApiOperation({ summary: 'Bulk assign templates to document type' })
   async bulkAssignTemplates(
     @Param('id') id: string,
@@ -138,6 +155,7 @@ export class DocumentTypeController extends LazyBaseController {
   }
 
   @Delete(':id/templates/:templateId')
+  @RequirePermission('document-types:manage')
   @ApiOperation({ summary: 'Unassign a template from document type' })
   async unassignTemplate(
     @Param('id') id: string,

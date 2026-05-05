@@ -6,12 +6,15 @@ import { Logger } from '@dooform-api-core/shared'
 import { UseResult, ValidateInput, UseClassLogger } from '@dooform-api-core/shared/decorators'
 
 import { Template } from '../../../domain/entities/template.entity'
+import { TemplateVisibility } from '../../../domain/enums/template.enum'
 import type { ITemplateRepository } from '../../../domain/repositories/template.repository'
 import type { IStorageService } from '../../../../document/domain/services/storage.service'
 import type { IPlaceholderExtractorService } from '../../../domain/services/placeholder-extractor.service'
 import type { IFieldDefinitionGeneratorService } from '../../../domain/services/field-definition-generator.service'
 import type { ITemplatePreviewService } from '../../../domain/services/template-preview.service'
 import { CreateTemplateDto } from '../../dtos/create-template.dto'
+import { OrgPath } from '../../../../../common/storage/org-path'
+import { StorageQuotaService } from '../../../../user/application/services/storage-quota.service'
 
 interface CreateTemplateResult {
   id: string
@@ -39,6 +42,7 @@ export class CreateTemplateUseCase implements UseCase<CreateTemplateDto, CreateT
     private readonly fieldDefinitionGenerator: IFieldDefinitionGeneratorService,
     @Inject('ITemplatePreviewService')
     private readonly previewService: ITemplatePreviewService,
+    private readonly quota: StorageQuotaService,
   ) {}
 
   @UseResult()
@@ -47,21 +51,49 @@ export class CreateTemplateUseCase implements UseCase<CreateTemplateDto, CreateT
     dto: CreateTemplateDto,
     templateFile?: { buffer: Buffer; originalname: string; mimetype: string; size: number },
   ): Promise<Result<CreateTemplateResult>> {
+    // Visibility / tier guarding: only GLOBAL_ADMIN may publish a template across orgs.
+    // For everyone else, force ORGANIZATION visibility regardless of what the body asked.
+    const isGlobalAdmin = dto.callerRole === 'GLOBAL_ADMIN'
+    const visibility = isGlobalAdmin
+      ? dto.visibility ?? TemplateVisibility.ORGANIZATION
+      : TemplateVisibility.ORGANIZATION
+
+    if (!isGlobalAdmin && !dto.organizationId) {
+      throw new Error('organizationId is required to upload a template')
+    }
+    // Org-scoped uploads bind to the caller's org. GLOBAL templates may have organizationId=null.
+    const orgId = visibility === TemplateVisibility.GLOBAL ? null : dto.organizationId
+    // Storage prefix: org-scoped for tenant uploads, a `global/` namespace for platform-wide ones.
+    const storagePrefix = (segments: string[]) =>
+      orgId ? OrgPath.for(orgId, ...segments) : `global/${segments.join('/')}`
+
+    // type / tier / category are configurable codes (string at the API boundary).
+    // The entity types still reference the legacy enums, so cast through unknown.
     const template = Template.create({
       name: dto.name,
       displayName: dto.displayName,
       description: dto.description,
       author: dto.author,
-      type: dto.type,
-      tier: dto.tier,
-      category: dto.category,
+      type: dto.type as unknown as never,
+      tier: (dto.tier ? String(dto.tier).toLowerCase() : dto.tier) as unknown as never,
+      category: dto.category as unknown as never,
       pageOrientation: dto.pageOrientation,
+      organizationId: orgId,
+      ownerUserId: dto.ownerUserId ?? null,
+      visibility,
     })
 
     // Save the DOCX file to storage if provided
     if (templateFile) {
-      const filePath = `templates/${template.id}/template.docx`
+      // Quota only applies to org-scoped uploads — global templates aren't billed to a tenant.
+      if (orgId) {
+        await this.quota.assertCanWrite(orgId, templateFile.size)
+      }
+      const filePath = storagePrefix(['templates', template.id, 'template.docx'])
       await this.storageService.save(filePath, templateFile.buffer)
+      if (orgId) {
+        await this.quota.recordWrite(orgId, templateFile.size)
+      }
       template.setFilePath(filePath, templateFile.originalname)
       template.setFileSize(templateFile.size)
       template.setMimeType(templateFile.mimetype)
@@ -80,14 +112,14 @@ export class CreateTemplateUseCase implements UseCase<CreateTemplateDto, CreateT
       // Generate previews (non-fatal)
       try {
         const pdfBuffer = await this.previewService.generatePdfPreview(templateFile.buffer)
-        const pdfPath = `templates/${template.id}/preview.pdf`
+        const pdfPath = storagePrefix(['templates', template.id, 'preview.pdf'])
         await this.storageService.save(pdfPath, pdfBuffer)
         template.setFilePathPDF(pdfPath)
 
         // Generate thumbnail from PDF
         try {
           const thumbnailBuffer = await this.previewService.generateThumbnail(pdfBuffer)
-          const thumbnailPath = `templates/${template.id}/thumbnail.png`
+          const thumbnailPath = storagePrefix(['templates', template.id, 'thumbnail.png'])
           await this.storageService.save(thumbnailPath, thumbnailBuffer)
           template.setFilePathThumbnail(thumbnailPath)
         } catch {
@@ -99,7 +131,7 @@ export class CreateTemplateUseCase implements UseCase<CreateTemplateDto, CreateT
 
       try {
         const htmlBuffer = await this.previewService.generateHtmlPreview(templateFile.buffer)
-        const htmlPath = `templates/${template.id}/preview.html`
+        const htmlPath = storagePrefix(['templates', template.id, 'preview.html'])
         await this.storageService.save(htmlPath, htmlBuffer)
         template.setFilePathHTML(htmlPath)
       } catch {
