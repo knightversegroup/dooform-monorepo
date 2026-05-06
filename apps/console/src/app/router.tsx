@@ -23,6 +23,7 @@ import AuditLogPage from '../pages/settings/AuditLogPage';
 import CompliancePage from '../pages/settings/CompliancePage';
 import TaxonomyAdminPage from '../pages/settings/TaxonomyAdminPage';
 import TiersAdminPage from '../pages/settings/TiersAdminPage';
+import AnnouncementsAdminPage from '../pages/settings/AnnouncementsAdminPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
@@ -135,6 +136,14 @@ export const router = createBrowserRouter([
         ),
       },
       { path: '/settings/field-types', element: <SettingsDataTypesPage /> },
+      {
+        path: '/settings/announcements',
+        element: (
+          <RequirePermission anyOf={['announcements:manage']}>
+            <AnnouncementsAdminPage />
+          </RequirePermission>
+        ),
+      },
       {
         path: '/dictionary',
         element: (

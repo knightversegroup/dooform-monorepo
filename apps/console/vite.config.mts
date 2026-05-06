@@ -13,7 +13,7 @@ export default defineConfig(() => ({
     allowedHosts: true,
     proxy: {
       '/api': {
-        target: 'https://dooform-npd-02.dooform.com',
+        target: process.env.VITE_API_PROXY ?? 'http://localhost:3000',
         changeOrigin: true,
       },
     },

@@ -16,6 +16,31 @@ import { CreateTemplateDto } from '../../dtos/create-template.dto'
 import { OrgPath } from '../../../../../common/storage/org-path'
 import { StorageQuotaService } from '../../../../user/application/services/storage-quota.service'
 
+/**
+ * Best-effort serialization of an unknown caught error so a log line carries
+ * usable diagnostic info even when the thrown value isn't a stock Error
+ * (e.g. AxiosError surfaces extra `code`, `response.status`, etc.).
+ */
+function describeError(err: unknown): string {
+  if (err && typeof err === 'object') {
+    const e = err as {
+      message?: unknown
+      code?: unknown
+      name?: unknown
+      response?: { status?: unknown; statusText?: unknown }
+    }
+    const parts = [
+      e.name ? `name=${String(e.name)}` : null,
+      e.message ? `message=${String(e.message)}` : null,
+      e.code ? `code=${String(e.code)}` : null,
+      e.response?.status ? `status=${String(e.response.status)}` : null,
+      e.response?.statusText ? `statusText=${String(e.response.statusText)}` : null,
+    ].filter(Boolean)
+    if (parts.length > 0) return parts.join(' | ')
+  }
+  return String(err)
+}
+
 interface CreateTemplateResult {
   id: string
   name: string
@@ -116,17 +141,37 @@ export class CreateTemplateUseCase implements UseCase<CreateTemplateDto, CreateT
         await this.storageService.save(pdfPath, pdfBuffer)
         template.setFilePathPDF(pdfPath)
 
-        // Generate thumbnail from PDF
+        // Generate thumbnails from PDF — HD (default) for detail views and SM
+        // (low-res, ~400px) for compact list previews on the dashboard. Run
+        // sequentially because the LibreOffice service is single-threaded under
+        // load and parallel calls have caused timeouts in the past.
         try {
           const thumbnailBuffer = await this.previewService.generateThumbnail(pdfBuffer)
           const thumbnailPath = storagePrefix(['templates', template.id, 'thumbnail.png'])
           await this.storageService.save(thumbnailPath, thumbnailBuffer)
           template.setFilePathThumbnail(thumbnailPath)
-        } catch {
-          new Logger('CreateTemplateUseCase').warn('Failed to generate thumbnail, continuing without')
+        } catch (err) {
+          new Logger('CreateTemplateUseCase').warn(
+            `Failed to generate HD thumbnail, continuing without: ${describeError(err)}`,
+          )
         }
-      } catch {
-        new Logger('CreateTemplateUseCase').warn('Failed to generate PDF preview, continuing without')
+        try {
+          const smBuffer = await this.previewService.generateThumbnail(pdfBuffer, {
+            quality: 'normal',
+            width: 480,
+          })
+          const smPath = storagePrefix(['templates', template.id, 'thumbnail-sm.png'])
+          await this.storageService.save(smPath, smBuffer)
+          template.setFilePathThumbnailSm(smPath)
+        } catch (err) {
+          new Logger('CreateTemplateUseCase').warn(
+            `Failed to generate small thumbnail, continuing without: ${describeError(err)}`,
+          )
+        }
+      } catch (err) {
+        new Logger('CreateTemplateUseCase').warn(
+          `Failed to generate PDF preview, continuing without: ${describeError(err)}`,
+        )
       }
 
       try {
@@ -134,8 +179,10 @@ export class CreateTemplateUseCase implements UseCase<CreateTemplateDto, CreateT
         const htmlPath = storagePrefix(['templates', template.id, 'preview.html'])
         await this.storageService.save(htmlPath, htmlBuffer)
         template.setFilePathHTML(htmlPath)
-      } catch {
-        new Logger('CreateTemplateUseCase').warn('Failed to generate HTML preview, continuing without')
+      } catch (err) {
+        new Logger('CreateTemplateUseCase').warn(
+          `Failed to generate HTML preview, continuing without: ${describeError(err)}`,
+        )
       }
     }
 

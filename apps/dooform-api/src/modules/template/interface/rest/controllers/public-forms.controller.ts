@@ -96,7 +96,12 @@ export class PublicFormsController extends LazyBaseController {
 
   @Get(':id/thumbnail')
   @ApiOperation({ summary: 'Get the thumbnail image for a public template' })
-  async getThumbnail(@Param('id') id: string, @Res() res: Response) {
+  @ApiQuery({ name: 'size', required: false, enum: ['hd', 'sm'] })
+  async getThumbnail(
+    @Param('id') id: string,
+    @Res() res: Response,
+    @Query('size') size?: 'hd' | 'sm',
+  ) {
     // Gate on the access policy first — anonymous callers only see PUBLISHED + GLOBAL.
     // If the template doesn't qualify, get-template-by-id throws and we return 404.
     const guard = await this.loadUseCase<any>(
@@ -109,7 +114,7 @@ export class PublicFormsController extends LazyBaseController {
       () => import('../../../application/use-cases/get-template-thumbnail/get-template-thumbnail.use-case.module'),
       () => import('../../../application/use-cases/get-template-thumbnail/get-template-thumbnail.use-case'),
     )
-    const value = getResultValue(await uc.execute({ id })) as { buffer: Buffer; filename: string }
+    const value = getResultValue(await uc.execute({ id, size })) as { buffer: Buffer; filename: string }
     res.set({
       'Content-Type': 'image/png',
       'Cache-Control': 'public, max-age=300',

@@ -17,6 +17,7 @@ export interface TemplateProps extends IEntityProps {
   filePathHTML?: string | null
   filePathPDF?: string | null
   filePathThumbnail?: string | null
+  filePathThumbnailSm?: string | null
   fileSize?: number | null
   mimeType?: string | null
   placeholders?: string[] | null
@@ -64,6 +65,7 @@ export class Template extends Entity<TemplateProps> {
       filePathHTML: null,
       filePathPDF: null,
       filePathThumbnail: null,
+      filePathThumbnailSm: null,
       fileSize: null,
       mimeType: null,
       placeholders: null,
@@ -103,6 +105,7 @@ export class Template extends Entity<TemplateProps> {
   get filePathHTML(): string | null | undefined { return this.getProp('filePathHTML') }
   get filePathPDF(): string | null | undefined { return this.getProp('filePathPDF') }
   get filePathThumbnail(): string | null | undefined { return this.getProp('filePathThumbnail') }
+  get filePathThumbnailSm(): string | null | undefined { return this.getProp('filePathThumbnailSm') }
   get fileSize(): number | null | undefined { return this.getProp('fileSize') }
   get mimeType(): string | null | undefined { return this.getProp('mimeType') }
   get placeholders(): string[] | null | undefined { return this.getProp('placeholders') }
@@ -128,6 +131,7 @@ export class Template extends Entity<TemplateProps> {
   setFilePathHTML(path: string): void { this.updateProp('filePathHTML', path) }
   setFilePathPDF(path: string): void { this.updateProp('filePathPDF', path) }
   setFilePathThumbnail(path: string): void { this.updateProp('filePathThumbnail', path) }
+  setFilePathThumbnailSm(path: string): void { this.updateProp('filePathThumbnailSm', path) }
   setFileSize(size: number): void { this.updateProp('fileSize', size) }
   setMimeType(mimeType: string): void { this.updateProp('mimeType', mimeType) }
   setPlaceholders(placeholders: string[]): void { this.updateProp('placeholders', placeholders) }

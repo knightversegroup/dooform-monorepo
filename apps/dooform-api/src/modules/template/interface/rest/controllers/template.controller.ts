@@ -340,12 +340,17 @@ export class TemplateController extends LazyBaseController {
   @Get(':id/thumbnail')
   @RequirePermission('templates:read')
   @ApiOperation({ summary: 'Get template thumbnail image' })
-  async getThumbnail(@Param('id') id: string, @Res() res: Response) {
+  @ApiQuery({ name: 'size', required: false, enum: ['hd', 'sm'] })
+  async getThumbnail(
+    @Param('id') id: string,
+    @Res() res: Response,
+    @Query('size') size?: 'hd' | 'sm',
+  ) {
     const uc = await this.loadUseCase<any>(
       () => import('../../../application/use-cases/get-template-thumbnail/get-template-thumbnail.use-case.module'),
       () => import('../../../application/use-cases/get-template-thumbnail/get-template-thumbnail.use-case'),
     )
-    const value = getResultValue(await uc.execute({ id })) as { buffer: Buffer; filename: string }
+    const value = getResultValue(await uc.execute({ id, size })) as { buffer: Buffer; filename: string }
     res.set({ 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=60', 'Content-Length': value.buffer.length.toString() })
     res.send(value.buffer)
   }

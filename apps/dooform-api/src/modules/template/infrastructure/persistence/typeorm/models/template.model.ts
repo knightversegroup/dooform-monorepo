@@ -86,6 +86,9 @@ export class TemplateModel extends BaseTypeOrmModel {
   @Column({ name: 'file_path_thumbnail', type: 'text', nullable: true })
   filePathThumbnail!: string | null
 
+  @Column({ name: 'file_path_thumbnail_sm', type: 'text', nullable: true })
+  filePathThumbnailSm!: string | null
+
   @Column({ name: 'file_size', type: 'bigint', nullable: true })
   fileSize!: number | null
 

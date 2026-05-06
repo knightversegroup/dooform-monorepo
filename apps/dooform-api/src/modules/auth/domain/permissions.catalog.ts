@@ -62,6 +62,9 @@ export const PERMISSIONS: PermissionDefinition[] = [
   { key: 'dictionary:update', group: 'Dictionary', label: 'Edit dictionary entries', description: 'Edit your own entries (org admins can edit org-scoped entries).' },
   { key: 'dictionary:delete', group: 'Dictionary', label: 'Delete dictionary entries', description: 'Delete your own entries (org admins can delete org-scoped entries).' },
 
+  // Announcements (org/global broadcast banner shown in the console)
+  { key: 'announcements:manage', group: 'Platform', label: 'Manage announcements', description: 'Create, edit, and delete the announcement banner shown in the console. GLOBAL_ADMIN only.' },
+
   // Platform (GLOBAL_ADMIN territory — typically not granted to other roles)
   { key: 'platform:permissions:manage', group: 'Platform', label: 'Manage permissions', description: 'Edit which roles have which permissions. GLOBAL_ADMIN only.' },
   { key: 'platform:tenants:manage', group: 'Platform', label: 'Manage tenants', description: 'View and set storage quotas for any organization. GLOBAL_ADMIN only.' },

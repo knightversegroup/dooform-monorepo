@@ -88,4 +88,9 @@ export const queryKeys = {
     entries: (collectionId: string, params: Record<string, unknown> = {}) =>
       ['dictionary', 'collection', collectionId, 'entries', u(), params] as const,
   },
+  announcements: {
+    all: ['announcements'] as const,
+    active: () => ['announcements', 'active', u()] as const,
+    adminList: () => ['announcements', 'admin', 'list', u()] as const,
+  },
 };

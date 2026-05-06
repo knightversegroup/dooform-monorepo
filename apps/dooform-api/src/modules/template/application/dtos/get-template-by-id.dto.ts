@@ -14,4 +14,9 @@ export class GetTemplateByIdDto {
 
   @Allow()
   callerUserId?: string
+
+  // Optional thumbnail size — 'sm' returns the low-res variant for list previews,
+  // any other value (or undefined) returns the HD default.
+  @Allow()
+  size?: 'sm' | 'hd'
 }

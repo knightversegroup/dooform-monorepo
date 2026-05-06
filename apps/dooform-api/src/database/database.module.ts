@@ -27,6 +27,7 @@ import { TemplateTaxonomyModel } from '../modules/template/infrastructure/persis
 import { TierConfigModel } from '../modules/user/infrastructure/persistence/typeorm/models/tier-config.model'
 import { DictionaryCollectionModel } from '../modules/dictionary/infrastructure/persistence/typeorm/models/dictionary-collection.model'
 import { DictionaryEntryModel } from '../modules/dictionary/infrastructure/persistence/typeorm/models/dictionary-entry.model'
+import { AnnouncementModel } from '../modules/announcement/infrastructure/persistence/typeorm/models/announcement.model'
 
 const entities = [
   TemplateModel,
@@ -54,6 +55,7 @@ const entities = [
   TierConfigModel,
   DictionaryCollectionModel,
   DictionaryEntryModel,
+  AnnouncementModel,
 ]
 
 @Module({

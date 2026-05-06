@@ -152,9 +152,14 @@ export class TemplatePreviewService implements ITemplatePreviewService {
     return Buffer.from(response.data)
   }
 
-  async generateThumbnail(pdfBuffer: Buffer): Promise<Buffer> {
+  async generateThumbnail(
+    pdfBuffer: Buffer,
+    overrides?: { quality?: string; width?: number },
+  ): Promise<Buffer> {
+    const quality = overrides?.quality ?? this.thumbnailQuality
+    const width = overrides?.width ?? this.thumbnailWidth
     this.logger.debug(
-      `Generating thumbnail from PDF (${pdfBuffer.length} bytes, quality=${this.thumbnailQuality}, width=${this.thumbnailWidth})`,
+      `Generating thumbnail from PDF (${pdfBuffer.length} bytes, quality=${quality}, width=${width})`,
     )
 
     const formData = new FormData()
@@ -171,10 +176,7 @@ export class TemplatePreviewService implements ITemplatePreviewService {
       formData,
       {
         headers: formData.getHeaders(),
-        params: {
-          quality: this.thumbnailQuality,
-          width: this.thumbnailWidth,
-        },
+        params: { quality, width },
         responseType: 'arraybuffer',
         timeout: this.timeout,
       },

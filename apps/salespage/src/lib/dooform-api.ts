@@ -105,8 +105,10 @@ export function getPublicFormsStats(): Promise<PublicFormsStats> {
 /**
  * Browser-safe URL for a template thumbnail. Goes through the salespage's
  * same-origin proxy (`/api/dooform/...` → dooform-api) so no CORS is needed
- * and the <img> can be rendered directly.
+ * and the <img> can be rendered directly. `size: 'sm'` returns a low-res
+ * variant for compact lists; default returns the HD version.
  */
-export function getPublicThumbnailUrl(id: string): string {
-  return `${CLIENT_BASE_URL}/public/forms/${id}/thumbnail`;
+export function getPublicThumbnailUrl(id: string, size?: 'sm' | 'hd'): string {
+  const qs = size ? `?size=${size}` : '';
+  return `${CLIENT_BASE_URL}/public/forms/${id}/thumbnail${qs}`;
 }

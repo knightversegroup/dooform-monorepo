@@ -1,6 +1,8 @@
+import { useEffect, useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
+  ArrowRight,
   Bell,
   Book,
   Building2,
@@ -9,6 +11,7 @@ import {
   HardDrive,
   History,
   Layers,
+  Megaphone,
   Scale,
   ScrollText,
   Settings,
@@ -19,6 +22,10 @@ import {
 } from 'lucide-react';
 import { UserMenu } from '../components/auth/UserMenu';
 import { listNotifications } from '../lib/api/notifications';
+import {
+  listActiveAnnouncements,
+  type Announcement,
+} from '../lib/api/announcements';
 import { useAuth } from '../lib/auth/AuthContext';
 import { useCanFn } from '../lib/auth/useCan';
 import { queryKeys } from '../lib/queryClient';
@@ -67,6 +74,7 @@ const navSections: NavSection[] = [
       { to: '/settings/taxonomy', label: 'Template taxonomy', icon: Layers, requiresAny: ['platform:taxonomy:manage'] },
       { to: '/settings/tiers', label: 'Subscription tiers', icon: CreditCard, requiresAny: ['platform:tiers:manage'] },
       { to: '/settings/field-types', label: 'Field types', icon: Settings, requiresAny: ['settings:field-types:read'] },
+      { to: '/settings/announcements', label: 'Announcements', icon: Megaphone, requiresAny: ['announcements:manage'] },
     ],
   },
 ];
@@ -147,11 +155,125 @@ export default function AppShell() {
       </aside>
 
       <main className="flex-1 min-w-0 h-full overflow-y-auto bg-bg">
+        <AnnouncementBar />
         <Outlet />
       </main>
 
       <RightPanel />
     </div>
     </RightPanelProvider>
+  );
+}
+
+// How long each announcement stays before rolling to the next.
+const ANNOUNCEMENT_INTERVAL_MS = 6000;
+// Must match the Tailwind `duration-500` on the sliding layers below.
+const ANNOUNCEMENT_TRANSITION_MS = 500;
+
+function AnnouncementBar() {
+  const { user } = useAuth();
+  const query = useQuery({
+    queryKey: queryKeys.announcements.active(),
+    queryFn: listActiveAnnouncements,
+    enabled: Boolean(user),
+    refetchInterval: 5 * 60_000,
+    staleTime: 60_000,
+  });
+
+  const announcements = query.data ?? [];
+  const [index, setIndex] = useState(0);
+  const [animating, setAnimating] = useState(false);
+
+  // Reset to first when the active set changes (e.g. an admin published a new one).
+  useEffect(() => {
+    setIndex(0);
+    setAnimating(false);
+  }, [announcements.length]);
+
+  useEffect(() => {
+    if (announcements.length <= 1) return;
+    const interval = window.setInterval(() => {
+      setAnimating(true);
+      // After the slide finishes, advance the index and snap layers back to
+      // their resting positions in the same render (transition class is removed
+      // when `animating` flips to false, so the snap is instant).
+      window.setTimeout(() => {
+        setIndex((i) => (i + 1) % announcements.length);
+        setAnimating(false);
+      }, ANNOUNCEMENT_TRANSITION_MS);
+    }, ANNOUNCEMENT_INTERVAL_MS);
+    return () => window.clearInterval(interval);
+  }, [announcements.length]);
+
+  if (announcements.length === 0) return null;
+
+  const current = announcements[index];
+  const next = announcements[(index + 1) % announcements.length];
+  const hasMultiple = announcements.length > 1;
+
+  // Each frame phase:
+  //   rest:        current at y=0,  next at y=100% (off-screen below), no transition
+  //   animating:   current to y=-100%, next to y=0,                    transition on
+  // Both layers share the same classes; only their translate values differ.
+  const transitionCls = animating
+    ? 'transition-transform duration-500 ease-in-out'
+    : '';
+
+  return (
+    <div className="relative h-9 shrink-0 overflow-hidden bg-[#0f2d3d] text-[12px] text-white">
+      <div
+        className={`absolute inset-0 ${transitionCls} ${
+          animating ? '-translate-y-full' : 'translate-y-0'
+        }`}
+      >
+        <AnnouncementContent announcement={current} />
+      </div>
+      {hasMultiple ? (
+        <div
+          className={`absolute inset-0 ${transitionCls} ${
+            animating ? 'translate-y-0' : 'translate-y-full'
+          }`}
+        >
+          <AnnouncementContent announcement={next} />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function AnnouncementContent({ announcement }: { announcement: Announcement }) {
+  const message = announcement.message?.trim() ?? '';
+  const linkText = announcement.linkText?.trim() ?? '';
+  const href = announcement.linkUrl?.trim() || null;
+
+  const inner = (
+    <span className="flex min-w-0 items-center gap-2 text-white/90 hover:text-white">
+      <span className="truncate">{message}</span>
+      {linkText ? (
+        <span className="hidden sm:inline-flex shrink-0 items-center gap-1 font-medium text-white">
+          {linkText}
+          {href ? <ArrowRight className="w-3 h-3" /> : null}
+        </span>
+      ) : href ? (
+        <ArrowRight className="w-3 h-3 shrink-0" />
+      ) : null}
+    </span>
+  );
+
+  return (
+    <div className="flex h-full items-center gap-4 px-4 sm:px-6">
+      {href ? (
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex min-w-0 flex-1"
+        >
+          {inner}
+        </a>
+      ) : (
+        <div className="flex min-w-0 flex-1">{inner}</div>
+      )}
+    </div>
   );
 }
