@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "buildCommand": "cd ../.. && pnpm nx build console",
+  "outputDirectory": "../../dist/apps/console",
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://dooform-api-dev.grayisland-254b5fe0.southeastasia.azurecontainerapps.io/api/:path*"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
+}
