@@ -22,13 +22,13 @@ export default function UsecasesHero({
             className="absolute inset-0 h-full w-full object-cover"
           />
           <div className="absolute inset-0 bg-black/50" />
-          <Typography variant="eyebrow" className="relative text-white/70">
+          <Typography variant="eyebrow" tone="inverse-muted" className="relative">
             {dict.eyebrow}
           </Typography>
-          <Typography variant="h1" className="relative mt-4 max-w-3xl leading-[1.1] tracking-tight text-white">
+          <Typography variant="h1" tone="inverse" className="relative mt-4 max-w-3xl">
             {dict.heading}
           </Typography>
-          <Typography variant="body-lg" className="relative mt-6 max-w-xl leading-relaxed text-white/70">
+          <Typography variant="lead" tone="inverse-muted" className="relative mt-6 max-w-xl">
             {dict.subtitle}
           </Typography>
         </div>

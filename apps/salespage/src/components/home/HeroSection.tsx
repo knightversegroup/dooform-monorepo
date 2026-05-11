@@ -1,3 +1,12 @@
+import {
+  FileText,
+  PenLine,
+  ShieldCheck,
+  Sparkles,
+  Users,
+  Zap,
+  type LucideIcon,
+} from 'lucide-react';
 import { Button, Typography } from '@dooform/ui';
 
 type HeroDict = {
@@ -12,6 +21,80 @@ type HeroDict = {
     bottomRight: string;
   };
 };
+
+/* Floating feature chips arranged around the hero copy. Each chip names a
+ * Dooform value prop, reinforcing what the product does without competing
+ * with the workspace screenshot below. Class strings are written as
+ * literals (not interpolated) so Tailwind's content scanner picks them up. */
+type FloatingChip = {
+  icon: LucideIcon;
+  label: string;
+  /* Background tint behind the icon — paired with `iconColor`. */
+  iconBg: string;
+  iconColor: string;
+  /* Tailwind absolute positioning. */
+  position: string;
+  /* Bob duration + start delay; varied per chip so they never sync up. */
+  duration: string;
+  delay: string;
+};
+
+const FLOATING_CHIPS: readonly FloatingChip[] = [
+  {
+    icon: FileText,
+    label: 'เทมเพลตพร้อมใช้',
+    iconBg: 'bg-blue-50',
+    iconColor: 'text-blue-600',
+    position: 'left-[2%] top-[18%]',
+    duration: '4.2s',
+    delay: '0s',
+  },
+  {
+    icon: PenLine,
+    label: 'เซ็นต์ออนไลน์',
+    iconBg: 'bg-emerald-50',
+    iconColor: 'text-emerald-600',
+    position: 'left-[6%] top-[48%]',
+    duration: '5.1s',
+    delay: '-1.4s',
+  },
+  {
+    icon: ShieldCheck,
+    label: 'ปลอดภัยระดับองค์กร',
+    iconBg: 'bg-violet-50',
+    iconColor: 'text-violet-600',
+    position: 'left-[3%] top-[74%]',
+    duration: '3.7s',
+    delay: '-0.6s',
+  },
+  {
+    icon: Sparkles,
+    label: 'AI กรอกอัตโนมัติ',
+    iconBg: 'bg-amber-50',
+    iconColor: 'text-amber-600',
+    position: 'right-[3%] top-[16%]',
+    duration: '4.6s',
+    delay: '-2.1s',
+  },
+  {
+    icon: Zap,
+    label: 'สร้างใน 30 วินาที',
+    iconBg: 'bg-rose-50',
+    iconColor: 'text-rose-600',
+    position: 'right-[6%] top-[46%]',
+    duration: '3.9s',
+    delay: '-1.0s',
+  },
+  {
+    icon: Users,
+    label: 'ทำงานร่วมกัน',
+    iconBg: 'bg-sky-50',
+    iconColor: 'text-sky-600',
+    position: 'right-[2%] top-[72%]',
+    duration: '5.4s',
+    delay: '-2.8s',
+  },
+];
 
 export default function HeroSection({ dict }: { dict: HeroDict }) {
   return (
@@ -107,42 +190,45 @@ export default function HeroSection({ dict }: { dict: HeroDict }) {
         <circle cx="1300" cy="350" r="4" fill="#8b7355" />
       </svg>
 
-      {/* Floating decorative icons */}
-      <div className="pointer-events-none absolute inset-0 hidden md:block">
-        {/* Top-left area */}
-        <div className="absolute left-[8%] top-[18%] flex h-10 w-10 items-center justify-center rounded-full bg-[#ff6b35] text-lg shadow-lg shadow-orange-500/20">
-          📄
-        </div>
-        <div className="absolute left-[5%] top-[45%] flex h-8 w-8 items-center justify-center rounded-full bg-[#22c55e] text-sm shadow-lg shadow-green-500/20">
-          ✓
-        </div>
-        <div className="absolute left-[15%] top-[70%] flex h-9 w-9 items-center justify-center rounded-full bg-[#a855f7] text-base shadow-lg shadow-purple-500/20">
-          🔒
-        </div>
-        {/* Top-right area */}
-        <div className="absolute right-[10%] top-[15%] flex h-9 w-9 items-center justify-center rounded-full bg-[#3b82f6] text-base shadow-lg shadow-blue-500/20">
-          📋
-        </div>
-        <div className="absolute right-[6%] top-[42%] flex h-10 w-10 items-center justify-center rounded-full bg-[#f59e0b] text-lg shadow-lg shadow-amber-500/20">
-          ⚡
-        </div>
-        <div className="absolute right-[14%] top-[68%] flex h-8 w-8 items-center justify-center rounded-full bg-[#ec4899] text-sm shadow-lg shadow-pink-500/20">
-          🏷️
-        </div>
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 hidden md:block"
+      >
+        {FLOATING_CHIPS.map((chip) => {
+          const Icon = chip.icon;
+          return (
+            <div
+              key={chip.label}
+              className={`animate-float absolute flex items-center gap-2 whitespace-nowrap rounded-full border border-[#e5e0da] bg-white/90 py-1.5 pl-1.5 pr-4 shadow-sm backdrop-blur-sm ${chip.position}`}
+              style={
+                {
+                  '--float-duration': chip.duration,
+                  '--float-delay': chip.delay,
+                } as React.CSSProperties
+              }
+            >
+              <span
+                className={`flex h-7 w-7 items-center justify-center rounded-full ${chip.iconBg}`}
+              >
+                <Icon className={`h-3.5 w-3.5 ${chip.iconColor}`} strokeWidth={2.5} />
+              </span>
+              <Typography as="span" variant="body-sm" weight="medium" tone="heading">
+                {chip.label}
+              </Typography>
+            </div>
+          );
+        })}
       </div>
 
       {/* Content */}
       <div className="relative z-[1] mx-auto flex w-full max-w-[1280px] flex-col items-center px-6 pt-16 text-center md:pt-24">
         {/* Heading */}
-        <Typography
-          variant="h1"
-          className="max-w-3xl text-4xl leading-tight text-[#262626] md:text-5xl lg:text-6xl"
-        >
+        <Typography variant="display" className="max-w-3xl">
           {dict.heading}
         </Typography>
-        <p className="mt-5 max-w-xl text-base leading-relaxed text-[#737373] md:text-lg">
+        <Typography variant="lead" className="mt-5 max-w-xl">
           {dict.subtitle}
-        </p>
+        </Typography>
 
         {/* CTA buttons — side by side */}
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
@@ -159,17 +245,17 @@ export default function HeroSection({ dict }: { dict: HeroDict }) {
           </Button>
         </div>
 
-        {/* Product screenshot */}
-        <div className="relative mt-14 w-full max-w-5xl md:mt-20">
-          {/* Glow effect behind the image */}
-          <div className="relative overflow-hidden rounded-t-xl">
+        {/* Product screenshot — fills the hero container width on desktop.
+         * Cropped via aspect-ratio so the empty whitespace at the bottom of
+         * the source PNG is hidden. */}
+        <div className="relative mt-14 w-full max-w-7xl md:mt-20">
+          <div className="relative aspect-[16/9] overflow-hidden rounded-t-xl">
             <img
               src="/images/workspace-preview-2.png"
               alt="Dooform app preview"
-              className="w-full"
+              className="absolute inset-0 h-full w-full object-cover object-top"
             />
-            {/* Bottom fade */}
-            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#f5f0ea] to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#f5f0ea] to-transparent" />
           </div>
         </div>
       </div>

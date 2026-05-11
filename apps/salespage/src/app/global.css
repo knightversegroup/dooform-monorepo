@@ -16,3 +16,13 @@
 .animate-marquee {
   animation: marquee 40s linear infinite;
 }
+
+@keyframes float {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float var(--float-duration, 4s) ease-in-out var(--float-delay, 0s)
+    infinite alternate;
+}

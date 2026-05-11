@@ -44,9 +44,9 @@ export default function TrialSection({ dict }: { dict: TrialDict }) {
         </div>
 
         {/* Consent */}
-        <p className="mt-9 text-center text-xs text-[#737373]">
+        <Typography variant="caption" align="center" className="mt-9">
           {dict.consent}
-        </p>
+        </Typography>
       </Container>
     </Section>
   );

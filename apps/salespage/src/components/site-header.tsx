@@ -1,5 +1,9 @@
 import Link from 'next/link';
 import { DooformLogo } from '@dooform/shared/components/ui/DooformLogo';
+import { Typography } from '@dooform/ui';
+
+const NAV_LINK_CLASS =
+  'text-neutral-600 transition-colors hover:text-neutral-900';
 
 export function SiteHeader() {
   return (
@@ -10,44 +14,36 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
-          <Link
-            href="/templates"
-            className="text-sm text-neutral-600 transition-colors hover:text-neutral-900"
-          >
-            เทมเพลต
+          <Link href="/templates" className={NAV_LINK_CLASS}>
+            <Typography as="span" variant="body-sm" tone="inherit">เทมเพลต</Typography>
           </Link>
-          <Link
-            href="/#features"
-            className="text-sm text-neutral-600 transition-colors hover:text-neutral-900"
-          >
-            ฟีเจอร์
+          <Link href="/#features" className={NAV_LINK_CLASS}>
+            <Typography as="span" variant="body-sm" tone="inherit">ฟีเจอร์</Typography>
           </Link>
-          <Link
-            href="/#pricing"
-            className="text-sm text-neutral-600 transition-colors hover:text-neutral-900"
-          >
-            ราคา
+          <Link href="/#pricing" className={NAV_LINK_CLASS}>
+            <Typography as="span" variant="body-sm" tone="inherit">ราคา</Typography>
           </Link>
-          <Link
-            href="/#contact"
-            className="text-sm text-neutral-600 transition-colors hover:text-neutral-900"
-          >
-            ติดต่อเรา
+          <Link href="/#contact" className={NAV_LINK_CLASS}>
+            <Typography as="span" variant="body-sm" tone="inherit">ติดต่อเรา</Typography>
           </Link>
         </nav>
 
         <div className="flex items-center gap-2">
           <Link
             href="/templates"
-            className="hidden rounded-full px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 sm:inline-flex"
+            className="hidden items-center rounded-full px-4 py-2 text-neutral-700 transition-colors hover:bg-neutral-100 sm:inline-flex"
           >
-            เข้าสู่ระบบ
+            <Typography as="span" variant="body-sm" weight="medium" tone="inherit">
+              เข้าสู่ระบบ
+            </Typography>
           </Link>
           <Link
             href="/templates"
-            className="inline-flex items-center rounded-full bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-neutral-800"
+            className="inline-flex items-center rounded-full bg-neutral-900 px-4 py-2 text-white transition-colors hover:bg-neutral-800"
           >
-            เริ่มต้นใช้งาน
+            <Typography as="span" variant="body-sm" weight="medium" tone="inherit">
+              เริ่มต้นใช้งาน
+            </Typography>
           </Link>
         </div>
       </div>

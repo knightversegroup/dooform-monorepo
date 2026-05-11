@@ -127,31 +127,33 @@ function PlanCard({
   return (
     <div className={`relative row-span-2 grid grid-rows-subgrid overflow-visible rounded-lg border bg-white shadow-[0_1px_3px_rgba(0,0,0,0.05)] ${isRecommended ? 'border-[#262626]' : 'border-[#e7e7e7]'}`}>
       {isRecommended && recommendLabel && (
-        <div className="absolute -top-10 left-1/2 -translate-x-1/2 rounded-t-lg bg-[#262626] px-12 py-2 text-center text-sm font-semibold text-white whitespace-nowrap">
-          {recommendLabel}
+        <div className="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-t-lg bg-[#262626] px-12 py-2 text-center">
+          <Typography as="span" variant="body-sm" weight="semibold" tone="inverse">
+            {recommendLabel}
+          </Typography>
         </div>
       )}
       {/* ── Top section ── */}
       <div className="flex flex-col gap-2 border-b border-[#e7e7e7] p-7 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
         {/* Header: name + icon */}
         <div className="flex items-start justify-between gap-4">
-          <h3 className="text-xl font-medium text-[#262626]">{plan.name}</h3>
+          <Typography variant="h3" as="h3" weight="medium">{plan.name}</Typography>
           {config.icon}
         </div>
 
         {/* Description */}
-        <p className="text-base leading-relaxed text-[#737373]">
+        <Typography variant="body" tone="muted">
           {config.description}
-        </p>
+        </Typography>
 
         {/* Price + period */}
         <div className="mt-auto flex items-baseline gap-2 pt-3">
-          <span className="text-4xl font-bold tracking-tight text-[#262626]">
+          <Typography as="span" variant="h1" weight="bold">
             {plan.price}
-          </span>
-          <span className="text-xs font-semibold uppercase tracking-wider text-[#737373]">
+          </Typography>
+          <Typography as="span" variant="overline" weight="semibold">
             {plan.period}
-          </span>
+          </Typography>
         </div>
 
         {/* CTA */}
@@ -168,16 +170,25 @@ function PlanCard({
 
       {/* ── Bottom section: features ── */}
       <div className="flex flex-col gap-5 p-7">
-        <h4
-          className="text-sm font-semibold uppercase tracking-wider"
-          style={{ color: config.accentColor }}
+        <Typography
+          as="h4"
+          variant="overline"
+          weight="semibold"
+          tone="inherit"
+          className="uppercase"
+          // The accent color is plan-specific and resolved at runtime,
+          // so it stays as an inline style on the heading.
         >
-          {config.highlightsLabel}
-        </h4>
+          <span style={{ color: config.accentColor }}>{config.highlightsLabel}</span>
+        </Typography>
 
-        <ul className="list-disc space-y-2 pl-4 text-sm leading-relaxed text-[#4d4d4d]">
+        <ul className="list-disc space-y-2 pl-4">
           {plan.features.map((feature, i) => (
-            <li key={i}>{feature}</li>
+            <li key={i}>
+              <Typography as="span" variant="body-sm" tone="body">
+                {feature}
+              </Typography>
+            </li>
           ))}
         </ul>
       </div>
@@ -219,9 +230,9 @@ export default function PricingSection({ dict }: { dict: PricingDict }) {
         </div>
 
         {/* Footnote */}
-        <p className="mt-14 text-center text-sm text-[#737373] md:mt-20">
+        <Typography variant="body-sm" align="center" className="mt-14 md:mt-20">
           {dict.footnote}
-        </p>
+        </Typography>
       </Container>
     </Section>
   );

@@ -54,38 +54,42 @@ function DocumentCollectionPreview() {
             >
               <ch.icon size={20} />
             </div>
-            <span className="text-[10px] font-medium text-[#737373]">
+            <Typography as="span" variant="micro">
               {ch.label}
-            </span>
+            </Typography>
           </div>
         ))}
       </div>
 
       {/* Document submission card */}
       <div className="rounded-xl border border-[#e5e0da] bg-white p-5 shadow-sm">
-        <div className="flex items-center gap-2 text-sm font-semibold text-[#262626]">
+        <Typography variant="body-sm" weight="semibold" tone="heading" className="flex items-center gap-2">
           <FileText size={16} className="text-blue-500" />
           Submit document for processing
-        </div>
+        </Typography>
 
         <div className="mt-4 space-y-3">
           <div className="flex items-center gap-2 rounded-lg border border-[#e5e0da] px-3 py-2.5">
-            <span className="text-xs text-[#999]">Document ID :</span>
-            <span className="font-mono text-sm tracking-widest text-[#262626]">
+            <Typography as="span" variant="caption" tone="inherit" className="text-[#999]">
+              Document ID :
+            </Typography>
+            <Typography as="span" variant="mono">
               DF-2026-00482
-            </span>
+            </Typography>
           </div>
 
           <div className="flex items-center gap-2">
             <CheckCircle2 size={14} className="text-emerald-500" />
-            <span className="text-xs text-[#737373]">
+            <Typography as="span" variant="caption">
               Auto-classified as: Government Form
-            </span>
+            </Typography>
           </div>
         </div>
 
-        <button className="mt-4 w-full rounded-lg bg-[#0d4b3b] py-2.5 text-sm font-semibold text-white">
-          Process now
+        <button className="mt-4 w-full rounded-lg bg-[#0d4b3b] py-2.5">
+          <Typography as="span" variant="body-sm" weight="semibold" tone="inverse">
+            Process now
+          </Typography>
         </button>
       </div>
     </div>
@@ -101,43 +105,53 @@ function SmartProcessingPreview() {
       <div className="rounded-xl border border-[#e5e0da] bg-white p-5 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-violet-500 text-sm font-bold text-white">
-              DF
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-violet-500">
+              <Typography as="span" variant="body-sm" weight="bold" tone="inverse">DF</Typography>
             </div>
             <div>
-              <div className="text-sm font-semibold text-[#262626]">
+              <Typography variant="body-sm" weight="semibold" tone="heading">
                 Dooform Workspace
-              </div>
-              <div className="text-xs text-[#999]">team@dooform.com</div>
+              </Typography>
+              <Typography variant="caption" tone="inherit" className="text-[#999]">
+                team@dooform.com
+              </Typography>
             </div>
           </div>
-          <span className="rounded-md bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+          <Typography
+            as="span"
+            variant="micro"
+            weight="bold"
+            tone="inherit"
+            className="rounded-md bg-amber-100 px-2 py-0.5 uppercase text-amber-700"
+          >
             PRO
-          </span>
+          </Typography>
         </div>
 
         {/* Stats */}
         <div className="mt-4 rounded-lg bg-gradient-to-r from-amber-50 to-orange-50 p-4">
-          <div className="text-[10px] font-medium uppercase tracking-wider text-amber-600">
+          <Typography variant="micro" tone="inherit" className="uppercase text-amber-600">
             Documents processed
-          </div>
+          </Typography>
           <div className="mt-1 flex items-baseline gap-1">
-            <span className="text-3xl font-bold text-[#262626]">1,248</span>
+            <Typography as="span" variant="h2" weight="bold">1,248</Typography>
             <Star size={16} className="text-amber-500" fill="#f59e0b" />
           </div>
           <div className="mt-1 flex items-center justify-between">
-            <span className="text-xs font-medium text-amber-700">
+            <Typography as="span" variant="caption" weight="medium" tone="inherit" className="text-amber-700">
               Starter plan
-            </span>
-            <span className="text-[10px] text-[#999]">Since Jan 2026</span>
+            </Typography>
+            <Typography as="span" variant="micro" tone="inherit" className="text-[#999]">
+              Since Jan 2026
+            </Typography>
           </div>
         </div>
 
         {/* Benefits list */}
         <div className="mt-4 space-y-2">
-          <div className="text-[10px] font-medium uppercase tracking-wider text-[#999]">
+          <Typography variant="micro" tone="inherit" className="uppercase text-[#999]">
             Benefits
-          </div>
+          </Typography>
           {[
             { icon: Zap, text: 'AI auto-classification', active: true },
             { icon: Users, text: 'Up to 10 team members', active: true },
@@ -149,19 +163,24 @@ function SmartProcessingPreview() {
                 size={13}
                 className={item.active ? 'text-emerald-500' : 'text-[#ccc]'}
               />
-              <span
-                className={`text-xs ${item.active ? 'text-[#4d4d4d]' : 'text-[#ccc]'}`}
+              <Typography
+                as="span"
+                variant="caption"
+                tone="inherit"
+                className={item.active ? 'text-[#4d4d4d]' : 'text-[#ccc]'}
               >
                 {item.text}
-              </span>
+              </Typography>
             </div>
           ))}
         </div>
 
         {/* Progress bar */}
         <div className="mt-4 rounded-lg border border-[#f0ece6] p-3">
-          <div className="flex items-center justify-between text-[10px]">
-            <span className="text-[#737373]">774 pts to Plus</span>
+          <div className="flex items-center justify-between">
+            <Typography as="span" variant="micro" tone="muted">
+              774 pts to Plus
+            </Typography>
           </div>
           <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[#f0ece6]">
             <div className="h-full w-3/5 rounded-full bg-gradient-to-r from-amber-400 to-orange-400" />
@@ -187,9 +206,15 @@ export default function FeaturesHighlightSection({
       <Container>
         {/* Badge */}
         <div className="mb-6 flex justify-center">
-          <span className="rounded-full border border-[#e5e0da] bg-white px-5 py-2 text-sm font-medium text-[#737373] shadow-sm">
+          <Typography
+            as="span"
+            variant="body-sm"
+            weight="medium"
+            tone="muted"
+            className="rounded-full border border-[#e5e0da] bg-white px-5 py-2 shadow-sm"
+          >
             {dict.badge}
-          </span>
+          </Typography>
         </div>
 
         {/* Heading */}
@@ -214,15 +239,15 @@ export default function FeaturesHighlightSection({
               >
                 {/* Text content */}
                 <div className="p-6 md:p-8">
-                  <span className="text-xs font-medium uppercase tracking-wider text-[#737373]">
+                  <Typography variant="overline" as="span">
                     {card.eyebrow}
-                  </span>
-                  <h3 className="mt-2 text-2xl font-bold tracking-tight text-[#262626] md:text-3xl">
+                  </Typography>
+                  <Typography variant="h2" as="h3" className="mt-2">
                     {card.title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-[#737373] md:text-base">
+                  </Typography>
+                  <Typography variant="lead" className="mt-3">
                     {card.description}
-                  </p>
+                  </Typography>
                 </div>
 
                 {/* Native preview */}

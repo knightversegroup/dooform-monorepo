@@ -43,12 +43,12 @@ export default function WorkspaceSection({ dict }: { dict: WorkspaceDict }) {
                 {/* Label + arrow */}
                 <div className="flex items-center justify-between p-6 pb-4 md:p-8 md:pb-4">
                   <div>
-                    <span className="text-sm font-semibold uppercase tracking-wider text-[#737373] md:text-base">
+                    <Typography variant="overline" as="span">
                       {card.label}
-                    </span>
-                    <p className="mt-1 text-xl font-semibold text-[#262626] md:text-2xl">
+                    </Typography>
+                    <Typography variant="h3" as="p" className="mt-1">
                       {card.tagline}
-                    </p>
+                    </Typography>
                   </div>
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#0d4b3b]">
                     <ArrowRight size={20} className="text-white" />

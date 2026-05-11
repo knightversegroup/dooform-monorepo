@@ -62,9 +62,11 @@ export default function FeaturesSection({
           <Typography variant="h2">{dict.heading}</Typography>
           <a
             href={`/${locale}/usecases`}
-            className="flex items-center gap-1 text-base text-[#4d4d4d] transition hover:text-gray-900"
+            className="flex items-center gap-1 text-[#4d4d4d] transition hover:text-gray-900"
           >
-            {dict.viewUseCases}
+            <Typography as="span" variant="body" tone="inherit">
+              {dict.viewUseCases}
+            </Typography>
             <ArrowUpRight className="h-4 w-4" />
           </a>
         </div>
@@ -84,7 +86,7 @@ export default function FeaturesSection({
                 <Typography variant="h4" as="h3">
                   {cardDict.title}
                 </Typography>
-                <Typography variant="body" className="leading-relaxed">
+                <Typography variant="body">
                   {cardDict.description}
                 </Typography>
                 <div className="mt-auto pt-2">

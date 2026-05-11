@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Eye, X } from 'lucide-react';
+import { Typography } from '@dooform/ui';
 import { getPublicThumbnailUrl } from '../lib/dooform-api';
 
 export function ThumbnailLightbox({
@@ -34,10 +35,12 @@ export function ThumbnailLightbox({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center justify-center gap-2 rounded-full border border-neutral-300 bg-white/90 px-6 py-3 text-sm font-medium text-neutral-900 backdrop-blur transition hover:bg-white"
+        className="inline-flex items-center justify-center gap-2 rounded-full border border-neutral-300 bg-white/90 px-6 py-3 text-neutral-900 backdrop-blur transition hover:bg-white"
       >
         <Eye className="h-4 w-4" />
-        {label}
+        <Typography as="span" variant="body-sm" weight="medium" tone="inherit">
+          {label}
+        </Typography>
       </button>
       {/* aria-label handled below */}
 

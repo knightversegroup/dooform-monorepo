@@ -24,9 +24,11 @@ export default function VideoSection({
           </Typography>
           <a
             href={`/${locale}/usecases`}
-            className="flex shrink-0 items-center gap-0.5 text-sm text-[#424242] transition hover:text-gray-900"
+            className="flex shrink-0 items-center gap-0.5 text-[#424242] transition hover:text-gray-900"
           >
-            {dict.viewUseCases}
+            <Typography as="span" variant="body-sm" tone="inherit">
+              {dict.viewUseCases}
+            </Typography>
             <ArrowUpRight className="h-3 w-3" />
           </a>
         </div>

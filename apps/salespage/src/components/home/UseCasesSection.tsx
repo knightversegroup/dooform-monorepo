@@ -31,10 +31,10 @@ export default function UseCasesSection({ dict }: { dict: UseCasesDict }) {
     <section>
       {/* Dark navy header */}
       <div className="bg-[#1B1464] px-6 pb-48 pt-16 text-center md:pb-52">
-        <Typography variant="h2" className="whitespace-pre-line leading-tight text-white">
+        <Typography variant="h2" tone="inverse" className="whitespace-pre-line">
           {dict.heading}
         </Typography>
-        <Typography variant="body" className="mt-3 text-white/60">
+        <Typography variant="body" tone="inverse-muted" className="mt-3">
           {dict.subtitle}
         </Typography>
       </div>
@@ -63,7 +63,7 @@ export default function UseCasesSection({ dict }: { dict: UseCasesDict }) {
                   </div>
 
                   {/* Title */}
-                  <Typography variant="h4" as="h3" className="relative z-10 max-w-[55%] leading-snug text-[#1B1464]">
+                  <Typography variant="h4" as="h3" tone="inherit" className="relative z-10 max-w-[55%] text-[#1B1464]">
                     {card.title}
                   </Typography>
                 </div>
@@ -73,7 +73,7 @@ export default function UseCasesSection({ dict }: { dict: UseCasesDict }) {
 
                 {/* Description */}
                 <div className="p-8 pt-4">
-                  <Typography variant="body" className="leading-relaxed">
+                  <Typography variant="body">
                     {card.description}
                   </Typography>
                 </div>

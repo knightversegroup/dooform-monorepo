@@ -1,6 +1,6 @@
 'use client';
 
-import { Section, Container } from '@dooform/ui';
+import { Section, Container, Typography } from '@dooform/ui';
 
 export type ContactDict = {
   heading: string;
@@ -26,6 +26,12 @@ export type ContactDict = {
   };
 };
 
+/* Form-input typography lives outside the Typography component because it
+ * styles a single self-closing element (input/textarea); centralising the
+ * class string keeps form fields consistent and the typography scale honest. */
+const INPUT_CLASS =
+  'w-full rounded-lg border border-[#e5e0da] px-4 py-2.5 text-sm text-[#262626] placeholder:text-[#ccc] focus:border-[#0d4b3b] focus:outline-none';
+
 export default function ContactSection({ dict }: { dict: ContactDict }) {
   return (
     <Section padding="lg">
@@ -34,12 +40,12 @@ export default function ContactSection({ dict }: { dict: ContactDict }) {
           {/* Left — Dark side */}
           <div className="flex flex-col justify-between bg-[#1a1a2e] p-8 md:p-12">
             <div>
-              <h2 className="text-2xl font-bold leading-tight text-white md:text-3xl lg:text-4xl">
+              <Typography variant="h2" as="h2" tone="inverse">
                 {dict.heading}
-              </h2>
-              <p className="mt-4 text-sm leading-relaxed text-white/60 md:text-base">
+              </Typography>
+              <Typography variant="lead" tone="inverse-muted" className="mt-4">
                 {dict.subtitle}
-              </p>
+              </Typography>
             </div>
 
             {/* Growth chart */}
@@ -47,31 +53,31 @@ export default function ContactSection({ dict }: { dict: ContactDict }) {
               <div className="flex items-end gap-4 md:gap-6">
                 {/* Month 1 */}
                 <div className="flex flex-col items-center gap-2">
-                  <div className="text-xs font-semibold text-white">
+                  <Typography variant="caption" weight="semibold" tone="inverse">
                     {dict.stats.month1.value}
-                  </div>
+                  </Typography>
                   <div className="h-20 w-14 rounded-t-lg bg-gradient-to-t from-blue-600/40 to-blue-500/20 md:w-20" />
-                  <div className="text-[10px] text-white/50">
+                  <Typography variant="micro" tone="inherit" className="text-white/50">
                     {dict.stats.month1.label}
-                  </div>
+                  </Typography>
                 </div>
 
                 {/* Month 2 */}
                 <div className="flex flex-col items-center gap-2">
-                  <div className="text-xs font-semibold text-white">
+                  <Typography variant="caption" weight="semibold" tone="inverse">
                     {dict.stats.month2.value}
-                  </div>
+                  </Typography>
                   <div className="h-32 w-14 rounded-t-lg bg-gradient-to-t from-blue-500/60 to-blue-400/30 md:w-20" />
-                  <div className="text-[10px] text-white/50">
+                  <Typography variant="micro" tone="inherit" className="text-white/50">
                     {dict.stats.month2.label}
-                  </div>
+                  </Typography>
                 </div>
 
                 {/* Month 3 */}
                 <div className="flex flex-col items-center gap-2">
-                  <div className="text-xs font-semibold text-white">
+                  <Typography variant="caption" weight="semibold" tone="inverse">
                     {dict.stats.month3.value}
-                  </div>
+                  </Typography>
                   <div className="relative h-44 w-14 rounded-t-lg bg-gradient-to-t from-blue-500 to-blue-400 md:w-20">
                     {/* Upward trend line */}
                     <svg
@@ -88,20 +94,20 @@ export default function ContactSection({ dict }: { dict: ContactDict }) {
                       <path d="M38 4 L44 4 L44 10" stroke="currentColor" strokeWidth="2" />
                     </svg>
                   </div>
-                  <div className="text-[10px] text-white/50">
+                  <Typography variant="micro" tone="inherit" className="text-white/50">
                     {dict.stats.month3.label}
-                  </div>
+                  </Typography>
                 </div>
               </div>
 
               {/* AI badge */}
               <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2">
-                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs text-white">
-                  +
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500">
+                  <Typography as="span" variant="caption" tone="inverse">+</Typography>
                 </div>
-                <span className="text-xs font-medium text-white/80">
+                <Typography as="span" variant="caption" weight="medium" tone="inherit" className="text-white/80">
                   {dict.aiLabel}
-                </span>
+                </Typography>
               </div>
             </div>
           </div>
@@ -115,23 +121,23 @@ export default function ContactSection({ dict }: { dict: ContactDict }) {
               {/* Row 1: Name + Company */}
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-[#262626]">
+                  <Typography as="label" variant="label" className="mb-1.5 block">
                     {dict.form.firstName}
-                  </label>
+                  </Typography>
                   <input
                     type="text"
                     placeholder={dict.form.firstNamePlaceholder}
-                    className="w-full rounded-lg border border-[#e5e0da] px-4 py-2.5 text-sm text-[#262626] placeholder:text-[#ccc] focus:border-[#0d4b3b] focus:outline-none"
+                    className={INPUT_CLASS}
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-[#262626]">
+                  <Typography as="label" variant="label" className="mb-1.5 block">
                     {dict.form.company}
-                  </label>
+                  </Typography>
                   <input
                     type="text"
                     placeholder={dict.form.companyPlaceholder}
-                    className="w-full rounded-lg border border-[#e5e0da] px-4 py-2.5 text-sm text-[#262626] placeholder:text-[#ccc] focus:border-[#0d4b3b] focus:outline-none"
+                    className={INPUT_CLASS}
                   />
                 </div>
               </div>
@@ -139,45 +145,47 @@ export default function ContactSection({ dict }: { dict: ContactDict }) {
               {/* Row 2: Phone + Email */}
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-[#262626]">
+                  <Typography as="label" variant="label" className="mb-1.5 block">
                     {dict.form.phone}
-                  </label>
+                  </Typography>
                   <input
                     type="tel"
                     placeholder={dict.form.phonePlaceholder}
-                    className="w-full rounded-lg border border-[#e5e0da] px-4 py-2.5 text-sm text-[#262626] placeholder:text-[#ccc] focus:border-[#0d4b3b] focus:outline-none"
+                    className={INPUT_CLASS}
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-[#262626]">
+                  <Typography as="label" variant="label" className="mb-1.5 block">
                     {dict.form.email}
-                  </label>
+                  </Typography>
                   <input
                     type="email"
                     placeholder={dict.form.emailPlaceholder}
-                    className="w-full rounded-lg border border-[#e5e0da] px-4 py-2.5 text-sm text-[#262626] placeholder:text-[#ccc] focus:border-[#0d4b3b] focus:outline-none"
+                    className={INPUT_CLASS}
                   />
                 </div>
               </div>
 
               {/* Details */}
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-[#262626]">
+                <Typography as="label" variant="label" className="mb-1.5 block">
                   {dict.form.details}
-                </label>
+                </Typography>
                 <textarea
                   rows={3}
                   placeholder={dict.form.detailsPlaceholder}
-                  className="w-full resize-none rounded-lg border border-[#e5e0da] px-4 py-2.5 text-sm text-[#262626] placeholder:text-[#ccc] focus:border-[#0d4b3b] focus:outline-none"
+                  className={`${INPUT_CLASS} resize-none`}
                 />
               </div>
 
               {/* Submit */}
               <button
                 type="submit"
-                className="mt-2 w-full rounded-lg bg-[#262626] py-3 text-sm font-semibold text-white transition hover:bg-[#1a1a1a]"
+                className="mt-2 w-full rounded-lg bg-[#262626] py-3 transition hover:bg-[#1a1a1a]"
               >
-                {dict.form.submit}
+                <Typography as="span" variant="body-sm" weight="semibold" tone="inverse">
+                  {dict.form.submit}
+                </Typography>
               </button>
             </form>
           </div>

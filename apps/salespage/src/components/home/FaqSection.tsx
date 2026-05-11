@@ -65,7 +65,9 @@ export default function FaqSection({
                 }
                 className="flex w-full items-center justify-between px-3 py-2 text-left"
               >
-                <span className="text-base text-black">{item.question}</span>
+                <Typography as="span" variant="body" tone="inherit" className="text-black">
+                  {item.question}
+                </Typography>
                 <ChevronDown
                   className={`h-4 w-4 shrink-0 text-black transition-transform duration-200 ${
                     openIndex === index ? 'rotate-180' : ''

@@ -1,5 +1,8 @@
 import Link from 'next/link';
 import { DooformLogo } from '@dooform/shared/components/ui/DooformLogo';
+import { Typography } from '@dooform/ui';
+
+const FOOTER_LINK_CLASS = 'text-neutral-600 hover:text-neutral-900';
 
 export function SiteFooter() {
   return (
@@ -9,78 +12,88 @@ export function SiteFooter() {
           <div className="flex items-center">
             <DooformLogo width={124} height={24} />
           </div>
-          <p className="mt-3 text-sm leading-relaxed text-neutral-600">
+          <Typography variant="body-sm" tone="inherit" className="mt-3 text-neutral-600">
             ระบบจัดการเอกสารอัตโนมัติสำหรับทีมยุคใหม่
-          </p>
+          </Typography>
         </div>
 
         <div>
-          <h4 className="text-sm font-semibold text-neutral-900">ผลิตภัณฑ์</h4>
-          <ul className="mt-3 space-y-2 text-sm text-neutral-600">
+          <Typography as="h4" variant="body-sm" weight="semibold" tone="inherit" className="text-neutral-900">
+            ผลิตภัณฑ์
+          </Typography>
+          <ul className="mt-3 space-y-2">
             <li>
-              <Link href="/templates" className="hover:text-neutral-900">
-                เทมเพลต
+              <Link href="/templates" className={FOOTER_LINK_CLASS}>
+                <Typography as="span" variant="body-sm" tone="inherit">เทมเพลต</Typography>
               </Link>
             </li>
             <li>
-              <Link href="/#features" className="hover:text-neutral-900">
-                ฟีเจอร์
+              <Link href="/#features" className={FOOTER_LINK_CLASS}>
+                <Typography as="span" variant="body-sm" tone="inherit">ฟีเจอร์</Typography>
               </Link>
             </li>
             <li>
-              <Link href="/#pricing" className="hover:text-neutral-900">
-                ราคา
+              <Link href="/#pricing" className={FOOTER_LINK_CLASS}>
+                <Typography as="span" variant="body-sm" tone="inherit">ราคา</Typography>
               </Link>
             </li>
           </ul>
         </div>
 
         <div>
-          <h4 className="text-sm font-semibold text-neutral-900">บริษัท</h4>
-          <ul className="mt-3 space-y-2 text-sm text-neutral-600">
+          <Typography as="h4" variant="body-sm" weight="semibold" tone="inherit" className="text-neutral-900">
+            บริษัท
+          </Typography>
+          <ul className="mt-3 space-y-2">
             <li>
-              <Link href="/#contact" className="hover:text-neutral-900">
-                ติดต่อเรา
+              <Link href="/#contact" className={FOOTER_LINK_CLASS}>
+                <Typography as="span" variant="body-sm" tone="inherit">ติดต่อเรา</Typography>
               </Link>
             </li>
             <li>
-              <a href="#" className="hover:text-neutral-900">
-                เกี่ยวกับเรา
+              <a href="#" className={FOOTER_LINK_CLASS}>
+                <Typography as="span" variant="body-sm" tone="inherit">เกี่ยวกับเรา</Typography>
               </a>
             </li>
             <li>
-              <a href="#" className="hover:text-neutral-900">
-                ร่วมงานกับเรา
+              <a href="#" className={FOOTER_LINK_CLASS}>
+                <Typography as="span" variant="body-sm" tone="inherit">ร่วมงานกับเรา</Typography>
               </a>
             </li>
           </ul>
         </div>
 
         <div>
-          <h4 className="text-sm font-semibold text-neutral-900">ข้อกำหนด</h4>
-          <ul className="mt-3 space-y-2 text-sm text-neutral-600">
+          <Typography as="h4" variant="body-sm" weight="semibold" tone="inherit" className="text-neutral-900">
+            ข้อกำหนด
+          </Typography>
+          <ul className="mt-3 space-y-2">
             <li>
-              <a href="#" className="hover:text-neutral-900">
-                นโยบายความเป็นส่วนตัว
+              <a href="#" className={FOOTER_LINK_CLASS}>
+                <Typography as="span" variant="body-sm" tone="inherit">นโยบายความเป็นส่วนตัว</Typography>
               </a>
             </li>
             <li>
-              <a href="#" className="hover:text-neutral-900">
-                เงื่อนไขการใช้งาน
+              <a href="#" className={FOOTER_LINK_CLASS}>
+                <Typography as="span" variant="body-sm" tone="inherit">เงื่อนไขการใช้งาน</Typography>
               </a>
             </li>
             <li>
-              <a href="#" className="hover:text-neutral-900">
-                ความปลอดภัย
+              <a href="#" className={FOOTER_LINK_CLASS}>
+                <Typography as="span" variant="body-sm" tone="inherit">ความปลอดภัย</Typography>
               </a>
             </li>
           </ul>
         </div>
       </div>
       <div className="border-t border-neutral-200 py-6">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 text-xs text-neutral-500 sm:flex-row sm:px-6 lg:px-8">
-          <p>© {new Date().getFullYear()} Dooform สงวนลิขสิทธิ์</p>
-          <p>สร้างขึ้นเพื่อทีมที่ใส่ใจในเอกสารทุกฉบับ</p>
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 sm:flex-row sm:px-6 lg:px-8">
+          <Typography variant="caption" tone="inherit" className="text-neutral-500">
+            © {new Date().getFullYear()} Dooform สงวนลิขสิทธิ์
+          </Typography>
+          <Typography variant="caption" tone="inherit" className="text-neutral-500">
+            สร้างขึ้นเพื่อทีมที่ใส่ใจในเอกสารทุกฉบับ
+          </Typography>
         </div>
       </div>
     </footer>

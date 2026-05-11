@@ -19,6 +19,7 @@ import {
   FileText,
   Search,
 } from 'lucide-react';
+import { Typography } from '@dooform/ui';
 import {
   listPublicForms,
   type PublicForm,
@@ -28,6 +29,15 @@ import { TemplateThumbnail } from './template-thumbnail';
 import { categoryLabel, formatDate, formatTier, formatType } from '../lib/format';
 
 const PAGE_SIZE = 12;
+
+/* The search input is a single self-closing element so its typography lives
+ * here as a constant; the chip and pagination buttons share their own
+ * constants below for the same reason. */
+const SEARCH_INPUT_CLASS =
+  'w-full rounded-full border border-neutral-300 bg-white py-2.5 pl-10 pr-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-900/10';
+const CHIP_BASE_CLASS = 'rounded-full px-3.5 py-1.5 text-xs font-medium transition';
+const PAGER_BUTTON_CLASS =
+  'inline-flex items-center gap-1 rounded-full border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50';
 
 export function TemplatesTable() {
   const [search, setSearch] = useState('');
@@ -90,13 +100,22 @@ export function TemplatesTable() {
                 />
               </div>
               <div className="min-w-0">
-                <div className="truncate text-sm font-medium text-neutral-900 group-hover:text-indigo-600">
+                <Typography
+                  variant="body-sm"
+                  weight="medium"
+                  tone="inherit"
+                  className="truncate text-neutral-900 group-hover:text-indigo-600"
+                >
                   {t.displayName ?? t.name}
-                </div>
+                </Typography>
                 {t.description && (
-                  <div className="line-clamp-1 text-xs text-neutral-500">
+                  <Typography
+                    variant="caption"
+                    tone="inherit"
+                    className="line-clamp-1 text-neutral-500"
+                  >
                     {t.description}
-                  </div>
+                  </Typography>
                 )}
               </div>
             </Link>
@@ -107,27 +126,33 @@ export function TemplatesTable() {
         accessorKey: 'category',
         header: 'หมวดหมู่',
         cell: ({ row }) => (
-          <span className="text-sm text-neutral-700">
+          <Typography as="span" variant="body-sm" tone="inherit" className="text-neutral-700">
             {categoryLabel(row.original.category)}
-          </span>
+          </Typography>
         ),
       },
       {
         accessorKey: 'type',
         header: 'ประเภท',
         cell: ({ row }) => (
-          <span className="text-sm text-neutral-700">
+          <Typography as="span" variant="body-sm" tone="inherit" className="text-neutral-700">
             {formatType(row.original.type)}
-          </span>
+          </Typography>
         ),
       },
       {
         accessorKey: 'tier',
         header: 'ระดับ',
         cell: ({ row }) => (
-          <span className="inline-flex rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-700">
+          <Typography
+            as="span"
+            variant="caption"
+            weight="medium"
+            tone="inherit"
+            className="inline-flex rounded-full bg-neutral-100 px-2.5 py-0.5 text-neutral-700"
+          >
             {formatTier(row.original.tier)}
-          </span>
+          </Typography>
         ),
       },
       {
@@ -143,9 +168,9 @@ export function TemplatesTable() {
           </button>
         ),
         cell: ({ row }) => (
-          <span className="text-sm text-neutral-500">
+          <Typography as="span" variant="body-sm" tone="inherit" className="text-neutral-500">
             {formatDate(row.original.updatedAt)}
-          </span>
+          </Typography>
         ),
       },
       {
@@ -154,9 +179,11 @@ export function TemplatesTable() {
         cell: ({ row }) => (
           <Link
             href={`/templates/${row.original.id}`}
-            className="inline-flex items-center gap-1 text-sm font-medium text-neutral-700 hover:text-neutral-900"
+            className="inline-flex items-center gap-1 text-neutral-700 hover:text-neutral-900"
           >
-            ดูรายละเอียด
+            <Typography as="span" variant="body-sm" weight="medium" tone="inherit">
+              ดูรายละเอียด
+            </Typography>
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         ),
@@ -196,7 +223,7 @@ export function TemplatesTable() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="ค้นหาเทมเพลต…"
-            className="w-full rounded-full border border-neutral-300 bg-white py-2.5 pl-10 pr-4 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-900/10"
+            className={SEARCH_INPUT_CLASS}
           />
         </div>
 
@@ -207,7 +234,7 @@ export function TemplatesTable() {
               setCategory('');
               setPage(0);
             }}
-            className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition ${
+            className={`${CHIP_BASE_CLASS} ${
               category === ''
                 ? 'bg-neutral-900 text-white'
                 : 'border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100'
@@ -223,7 +250,7 @@ export function TemplatesTable() {
                 setCategory(c);
                 setPage(0);
               }}
-              className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition ${
+              className={`${CHIP_BASE_CLASS} ${
                 category === c
                   ? 'bg-neutral-900 text-white'
                   : 'border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-100'
@@ -245,11 +272,13 @@ export function TemplatesTable() {
                   {hg.headers.map((h) => (
                     <th
                       key={h.id}
-                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-neutral-500"
+                      className="px-6 py-3 text-left text-neutral-500"
                     >
-                      {h.isPlaceholder
-                        ? null
-                        : flexRender(h.column.columnDef.header, h.getContext())}
+                      <Typography as="span" variant="overline" weight="medium" tone="inherit">
+                        {h.isPlaceholder
+                          ? null
+                          : flexRender(h.column.columnDef.header, h.getContext())}
+                      </Typography>
                     </th>
                   ))}
                 </tr>
@@ -262,18 +291,22 @@ export function TemplatesTable() {
                 <tr>
                   <td
                     colSpan={columns.length}
-                    className="px-6 py-16 text-center text-sm text-red-600"
+                    className="px-6 py-16 text-center text-red-600"
                   >
-                    ไม่สามารถโหลดเทมเพลตได้ กรุณาลองใหม่อีกครั้ง
+                    <Typography as="span" variant="body-sm" tone="inherit">
+                      ไม่สามารถโหลดเทมเพลตได้ กรุณาลองใหม่อีกครั้ง
+                    </Typography>
                   </td>
                 </tr>
               ) : data.length === 0 ? (
                 <tr>
                   <td
                     colSpan={columns.length}
-                    className="px-6 py-16 text-center text-sm text-neutral-500"
+                    className="px-6 py-16 text-center text-neutral-500"
                   >
-                    ไม่พบเทมเพลตที่ตรงกับตัวกรอง
+                    <Typography as="span" variant="body-sm" tone="inherit">
+                      ไม่พบเทมเพลตที่ตรงกับตัวกรอง
+                    </Typography>
                   </td>
                 </tr>
               ) : (
@@ -299,45 +332,47 @@ export function TemplatesTable() {
 
         {/* Pagination */}
         <div className="flex items-center justify-between border-t border-neutral-200 bg-neutral-50 px-6 py-3">
-          <p className="text-xs text-neutral-600">
+          <Typography variant="caption" tone="inherit" className="text-neutral-600">
             {total > 0 ? (
               <>
                 แสดง{' '}
-                <span className="font-medium text-neutral-900">
+                <Typography as="span" variant="caption" weight="medium" tone="inherit" className="text-neutral-900">
                   {page * PAGE_SIZE + 1}
-                </span>
+                </Typography>
                 –
-                <span className="font-medium text-neutral-900">
+                <Typography as="span" variant="caption" weight="medium" tone="inherit" className="text-neutral-900">
                   {Math.min((page + 1) * PAGE_SIZE, total)}
-                </span>{' '}
+                </Typography>{' '}
                 จาก{' '}
-                <span className="font-medium text-neutral-900">{total}</span>{' '}
+                <Typography as="span" variant="caption" weight="medium" tone="inherit" className="text-neutral-900">
+                  {total}
+                </Typography>{' '}
                 รายการ
               </>
             ) : (
               '—'
             )}
-          </p>
+          </Typography>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setPage((p) => Math.max(0, p - 1))}
               disabled={page === 0 || query.isFetching}
-              className="inline-flex items-center gap-1 rounded-full border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50"
+              className={PAGER_BUTTON_CLASS}
             >
               <ChevronLeft className="h-3.5 w-3.5" />
               ก่อนหน้า
             </button>
-            <span className="text-xs text-neutral-600">
+            <Typography as="span" variant="caption" tone="inherit" className="text-neutral-600">
               หน้า {page + 1} จาก {pageCount}
-            </span>
+            </Typography>
             <button
               type="button"
               onClick={() =>
                 setPage((p) => Math.min(pageCount - 1, p + 1))
               }
               disabled={page >= pageCount - 1 || query.isFetching}
-              className="inline-flex items-center gap-1 rounded-full border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50"
+              className={PAGER_BUTTON_CLASS}
             >
               ถัดไป
               <ChevronRight className="h-3.5 w-3.5" />

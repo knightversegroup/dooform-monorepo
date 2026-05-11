@@ -9,12 +9,22 @@ import {
   Workflow,
   Zap,
 } from 'lucide-react';
+import { Typography } from '@dooform/ui';
 import {
   getPublicForm,
   getPublicThumbnailUrl,
   type PublicForm,
 } from '../../../lib/dooform-api';
 import { ThumbnailLightbox } from '../../../components/thumbnail-lightbox';
+
+/* These pill-shaped CTAs share the same typography styling, so the class
+ * lives in one place rather than scattered across multiple inputs. */
+const PILL_BUTTON_DARK_CLASS =
+  'inline-flex items-center justify-center gap-2 rounded-full bg-neutral-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-neutral-800';
+const PILL_BUTTON_LIGHT_CLASS =
+  'inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-neutral-900 transition hover:bg-neutral-100';
+const PILL_BUTTON_OUTLINE_CLASS =
+  'inline-flex items-center justify-center rounded-full border border-neutral-700 bg-white/5 px-6 py-3 text-sm font-medium text-white transition hover:bg-white/10';
 import {
   categoryLabel,
   formatDate,
@@ -94,42 +104,47 @@ export default async function TemplateDetailPage({ params }: Props) {
 
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Breadcrumbs */}
-          <nav className="flex flex-wrap items-center gap-1 pt-10 text-sm text-neutral-600">
+          <nav className="flex flex-wrap items-center gap-1 pt-10 text-neutral-600">
             <Link
               href="/"
               className="underline-offset-2 hover:text-neutral-900 hover:underline"
             >
-              หน้าแรก
+              <Typography as="span" variant="body-sm" tone="inherit">หน้าแรก</Typography>
             </Link>
             <ChevronRight className="h-4 w-4" />
             <Link
               href="/templates"
               className="underline-offset-2 hover:text-neutral-900 hover:underline"
             >
-              เทมเพลต
+              <Typography as="span" variant="body-sm" tone="inherit">เทมเพลต</Typography>
             </Link>
             <ChevronRight className="h-4 w-4" />
-            <span className="text-neutral-900">{title}</span>
+            <Typography as="span" variant="body-sm" tone="inherit" className="text-neutral-900">
+              {title}
+            </Typography>
           </nav>
 
           <div className="grid gap-8 pb-24 pt-10 lg:grid-cols-12 lg:gap-12 lg:pb-32 lg:pt-12">
             <div className="lg:col-span-7">
-              <span className="inline-flex items-center rounded-full border border-neutral-300 bg-white/80 px-3 py-1 text-xs font-medium text-neutral-700 backdrop-blur">
+              <Typography
+                as="span"
+                variant="caption"
+                weight="medium"
+                tone="inherit"
+                className="inline-flex items-center rounded-full border border-neutral-300 bg-white/80 px-3 py-1 text-neutral-700 backdrop-blur"
+              >
                 {category}
-              </span>
-              <h1 className="mt-5 text-4xl font-semibold tracking-tight text-neutral-900 sm:text-5xl">
+              </Typography>
+              <Typography as="h1" variant="h1" weight="semibold" tone="inherit" className="mt-5 text-neutral-900">
                 {title}
-              </h1>
-              <p className="mt-5 max-w-2xl text-base leading-relaxed text-neutral-700 sm:text-lg">
+              </Typography>
+              <Typography variant="lead" tone="inherit" className="mt-5 max-w-2xl text-neutral-700">
                 {tpl.description ??
                   'เทมเพลตเอกสารที่พร้อมใช้งาน ปรับแต่งให้เข้ากับขั้นตอนการทำงานของคุณได้ภายในไม่กี่นาที'}
-              </p>
+              </Typography>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                <button
-                  type="button"
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-neutral-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-neutral-800"
-                >
+                <button type="button" className={PILL_BUTTON_DARK_CLASS}>
                   ใช้เทมเพลตนี้
                   <ArrowRight className="h-4 w-4" />
                 </button>
@@ -156,31 +171,31 @@ export default async function TemplateDetailPage({ params }: Props) {
       <Section id="overview" title="ทำไมต้องใช้เทมเพลตนี้" eyebrow="ภาพรวม">
         <div className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-7">
-            <p className="text-base leading-relaxed text-neutral-700 sm:text-lg">
+            <Typography variant="lead" tone="inherit" className="text-neutral-700">
               {tpl.description ??
                 'ลดเวลาที่ใช้กับการจัดรูปแบบ และทุ่มเวลาให้กับเนื้อหาสำคัญ เทมเพลตนี้มาพร้อมค่าเริ่มต้นที่เหมาะสม ระบบควบคุมเวอร์ชัน และความสามารถด้านระบบอัตโนมัติเช่นเดียวกับเอกสาร Dooform ทุกฉบับ'}
-            </p>
-            <p className="mt-4 text-base leading-relaxed text-neutral-700">
+            </Typography>
+            <Typography variant="body" tone="inherit" className="mt-4 text-neutral-700">
               เช่นเดียวกับเทมเพลตอื่นในคลังของ Dooform
               เทมเพลตนี้สามารถแก้ไขได้ทั้งหมด ปรับแต่งฟิลด์ แบรนด์ดิ้ง
               และเงื่อนไขเชิงตรรกะ จากนั้นเผยแพร่ภายในพื้นที่ทำงานของคุณ
-            </p>
+            </Typography>
           </div>
           <div className="lg:col-span-5">
             <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-6">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
+              <Typography as="h3" variant="overline" weight="semibold" tone="muted">
                 ข้อมูลโดยสรุป
-              </h3>
-              <ul className="mt-4 space-y-3 text-sm">
+              </Typography>
+              <ul className="mt-4 space-y-3">
                 {atGlance(tpl).map((row) => (
                   <li
                     key={row.label}
                     className="flex items-center justify-between gap-4 border-b border-neutral-200 pb-2 last:border-none last:pb-0"
                   >
-                    <span className="text-neutral-500">{row.label}</span>
-                    <span className="font-medium text-neutral-900">
+                    <Typography as="span" variant="body-sm" tone="muted">{row.label}</Typography>
+                    <Typography as="span" variant="body-sm" weight="medium" tone="inherit" className="text-neutral-900">
                       {row.value}
-                    </span>
+                    </Typography>
                   </li>
                 ))}
               </ul>
@@ -226,12 +241,12 @@ export default async function TemplateDetailPage({ params }: Props) {
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-900 text-white">
                 <f.icon className="h-5 w-5" />
               </div>
-              <h3 className="mt-4 text-base font-semibold text-neutral-900">
+              <Typography as="h3" variant="h5" weight="semibold" tone="inherit" className="mt-4 text-neutral-900">
                 {f.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-neutral-600">
+              </Typography>
+              <Typography variant="body-sm" tone="inherit" className="mt-2 text-neutral-600">
                 {f.body}
-              </p>
+              </Typography>
             </div>
           ))}
         </div>
@@ -261,15 +276,15 @@ export default async function TemplateDetailPage({ params }: Props) {
               key={s.step}
               className="rounded-2xl border border-neutral-200 bg-white p-6"
             >
-              <div className="text-xs font-semibold tracking-widest text-indigo-600">
+              <Typography variant="overline" weight="semibold" tone="inherit" className="text-indigo-600">
                 {s.step}
-              </div>
-              <h3 className="mt-3 text-base font-semibold text-neutral-900">
+              </Typography>
+              <Typography as="h3" variant="h5" weight="semibold" tone="inherit" className="mt-3 text-neutral-900">
                 {s.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-neutral-600">
+              </Typography>
+              <Typography variant="body-sm" tone="inherit" className="mt-2 text-neutral-600">
                 {s.body}
-              </p>
+              </Typography>
             </li>
           ))}
         </ol>
@@ -300,13 +315,13 @@ export default async function TemplateDetailPage({ params }: Props) {
               key={item.q}
               className="rounded-2xl border border-neutral-200 bg-white p-6"
             >
-              <h3 className="flex items-start gap-2 text-sm font-semibold text-neutral-900">
+              <Typography as="h3" variant="body-sm" weight="semibold" tone="inherit" className="flex items-start gap-2 text-neutral-900">
                 <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-indigo-600" />
                 {item.q}
-              </h3>
-              <p className="mt-2 pl-6 text-sm leading-relaxed text-neutral-600">
+              </Typography>
+              <Typography variant="body-sm" tone="inherit" className="mt-2 pl-6 text-neutral-600">
                 {item.a}
-              </p>
+              </Typography>
             </div>
           ))}
         </div>
@@ -320,24 +335,18 @@ export default async function TemplateDetailPage({ params }: Props) {
       >
         <div className="flex flex-col items-start justify-between gap-6 rounded-3xl border border-neutral-200 bg-gradient-to-br from-neutral-900 to-neutral-800 p-8 text-white sm:flex-row sm:items-center sm:p-12">
           <div className="max-w-xl">
-            <h3 className="text-2xl font-semibold">{title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-neutral-300">
+            <Typography as="h3" variant="h2" weight="semibold" tone="inverse">{title}</Typography>
+            <Typography variant="body-sm" tone="inherit" className="mt-2 text-neutral-300">
               เพิ่มเทมเพลตนี้เข้าสู่พื้นที่ทำงานของคุณ
               และเริ่มสร้างเอกสารได้ภายในไม่กี่นาที
-            </p>
+            </Typography>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <button
-              type="button"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-neutral-900 transition hover:bg-neutral-100"
-            >
+            <button type="button" className={PILL_BUTTON_LIGHT_CLASS}>
               ใช้เทมเพลตนี้
               <ArrowRight className="h-4 w-4" />
             </button>
-            <Link
-              href="/templates"
-              className="inline-flex items-center justify-center rounded-full border border-neutral-700 bg-white/5 px-6 py-3 text-sm font-medium text-white transition hover:bg-white/10"
-            >
+            <Link href="/templates" className={PILL_BUTTON_OUTLINE_CLASS}>
               ดูเทมเพลตทั้งหมด
             </Link>
           </div>
@@ -371,12 +380,12 @@ function Section({
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-widest text-indigo-600">
+          <Typography variant="overline" weight="semibold" tone="inherit" className="text-indigo-600">
             {eyebrow}
-          </p>
-          <h2 className="mt-2 text-3xl font-semibold tracking-tight text-neutral-900 sm:text-4xl">
+          </Typography>
+          <Typography as="h2" variant="h2" weight="semibold" tone="inherit" className="mt-2 text-neutral-900">
             {title}
-          </h2>
+          </Typography>
         </div>
         {children}
       </div>
@@ -387,10 +396,12 @@ function Section({
 function Fact({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs uppercase tracking-wide text-neutral-500">
+      <Typography as="dt" variant="overline" tone="muted">
         {label}
-      </dt>
-      <dd className="mt-1 text-sm font-medium text-neutral-900">{value}</dd>
+      </Typography>
+      <Typography as="dd" variant="body-sm" weight="medium" tone="inherit" className="mt-1 text-neutral-900">
+        {value}
+      </Typography>
     </div>
   );
 }
