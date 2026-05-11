@@ -11,7 +11,26 @@
     "articles": "ข่าวสาร",
     "documents": "เอกสาร",
     "register": "ลงทะเบียน",
-    "login": "เข้าสู่ระบบ"
+    "login": "เข้าสู่ระบบ",
+    "topbar": {
+      "contactPhone": "02-XXX-XXXX",
+      "contactLabel": "ปรึกษาทีมขาย",
+      "loginLabel": "เข้าสู่ระบบ",
+      "menuOpen": "เปิดเมนู",
+      "menuClose": "ปิดเมนู"
+    },
+    "items": {
+      "products": "ผลิตภัณฑ์",
+      "features": "ฟีเจอร์",
+      "pricing": "ราคา",
+      "templates": "เทมเพลต",
+      "useCases": "กรณีศึกษา",
+      "contact": "ติดต่อเรา"
+    },
+    "ctas": {
+      "register": "สมัครใช้งานฟรี",
+      "demo": "นัดสาธิตการใช้งาน"
+    }
   },
   "hero": {
     "headingLine1": "แปลเอกสาร",
