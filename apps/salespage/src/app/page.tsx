@@ -23,7 +23,7 @@ export default function HomePage() {
       <PricingSection dict={dict.pricing} />
       <UsecasesHero dict={dict.usecasesPage.hero} />
       <FaqSection dict={dict.faq} locale="th" />
-      <TrialSection dict={dict.trial} />
+      {/*<TrialSection dict={dict.trial} />*/}
       <ContactSection dict={dict.contact} />
     </>
   );
