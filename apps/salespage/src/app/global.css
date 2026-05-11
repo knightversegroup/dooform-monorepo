@@ -26,3 +26,6 @@
   animation: float var(--float-duration, 4s) ease-in-out var(--float-delay, 0s)
     infinite alternate;
 }
+
+/* Modal enter/exit animations live in the shared salespage-preset.css
+ * (imported above) so they ship with the @dooform/ui Modal component. */

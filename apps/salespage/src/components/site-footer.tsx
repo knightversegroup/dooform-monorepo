@@ -33,7 +33,7 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
-              <Link href="/#pricing" className={FOOTER_LINK_CLASS}>
+              <Link href="/pricing" className={FOOTER_LINK_CLASS}>
                 <Typography as="span" variant="body-sm" tone="inherit">ราคา</Typography>
               </Link>
             </li>

@@ -20,7 +20,7 @@ export function SiteHeader() {
           <Link href="/#features" className={NAV_LINK_CLASS}>
             <Typography as="span" variant="body-sm" tone="inherit">ฟีเจอร์</Typography>
           </Link>
-          <Link href="/#pricing" className={NAV_LINK_CLASS}>
+          <Link href="/pricing" className={NAV_LINK_CLASS}>
             <Typography as="span" variant="body-sm" tone="inherit">ราคา</Typography>
           </Link>
           <Link href="/#contact" className={NAV_LINK_CLASS}>
@@ -30,7 +30,7 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-2">
           <Link
-            href="/templates"
+            href="https://console.dooform.com/auth/login"
             className="hidden items-center rounded-full px-4 py-2 text-neutral-700 transition-colors hover:bg-neutral-100 sm:inline-flex"
           >
             <Typography as="span" variant="body-sm" weight="medium" tone="inherit">
@@ -38,7 +38,7 @@ export function SiteHeader() {
             </Typography>
           </Link>
           <Link
-            href="/templates"
+            href="https://console.dooform.com/auth/register"
             className="inline-flex items-center rounded-full bg-neutral-900 px-4 py-2 text-white transition-colors hover:bg-neutral-800"
           >
             <Typography as="span" variant="body-sm" weight="medium" tone="inherit">

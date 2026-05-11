@@ -10,12 +10,14 @@
  */
 
 export type TypographyVariant =
+  | 'display-xl'
   | 'display'
   | 'h1'
   | 'h2'
   | 'h3'
   | 'h4'
   | 'h5'
+  | 'subhead'
   | 'lead'
   | 'body-lg' // alias of lead, kept for backwards compatibility
   | 'body'
@@ -59,12 +61,20 @@ export interface TypographyProps {
 /* Size + line-height + default weight per variant.
  * Mobile-first; `md:` step bumps for larger viewports where appropriate. */
 const variantSize: Record<TypographyVariant, string> = {
+  /* `display-xl` matches the salespage marketing-hero size in Figma:
+   * 64px / 69px line-height on lg, scaling down on smaller breakpoints. */
+  'display-xl':
+    'text-[40px] [line-height:1.1] md:text-[52px] lg:text-[64px] lg:[line-height:69px]',
   display:   'text-4xl leading-tight md:text-5xl lg:text-6xl',
   h1:        'text-3xl leading-tight md:text-4xl lg:text-5xl',
   h2:        'text-2xl leading-tight md:text-3xl lg:text-4xl',
   h3:        'text-xl leading-snug md:text-2xl',
   h4:        'text-lg leading-snug md:text-xl',
   h5:        'text-base leading-snug md:text-lg',
+  /* `subhead` is the marketing-hero secondary line — between `h3` and `lead`.
+   * 28px / 34px line-height on lg, matching the Figma hero subtitle. */
+  subhead:
+    'text-lg [line-height:1.4] md:text-xl lg:text-[28px] lg:[line-height:34px]',
   lead:      'text-base leading-relaxed md:text-lg',
   'body-lg': 'text-base leading-relaxed md:text-lg',
   body:      'text-base leading-relaxed',
@@ -79,12 +89,14 @@ const variantSize: Record<TypographyVariant, string> = {
 };
 
 const defaultWeight: Record<TypographyVariant, TypographyWeight> = {
+  'display-xl': 'semibold',
   display:   'bold',
   h1:        'bold',
   h2:        'bold',
   h3:        'semibold',
   h4:        'semibold',
   h5:        'semibold',
+  subhead:   'medium',
   lead:      'regular',
   'body-lg': 'regular',
   body:      'regular',
@@ -99,12 +111,14 @@ const defaultWeight: Record<TypographyVariant, TypographyWeight> = {
 };
 
 const defaultTone: Record<TypographyVariant, TypographyTone> = {
+  'display-xl': 'heading',
   display:   'heading',
   h1:        'heading',
   h2:        'heading',
   h3:        'heading',
   h4:        'heading',
   h5:        'heading',
+  subhead:   'heading',
   lead:      'muted',
   'body-lg': 'muted',
   body:      'body',
@@ -119,12 +133,14 @@ const defaultTone: Record<TypographyVariant, TypographyTone> = {
 };
 
 const defaultElement: Record<TypographyVariant, ElementType> = {
+  'display-xl': 'h1',
   display:   'h1',
   h1:        'h1',
   h2:        'h2',
   h3:        'h3',
   h4:        'h4',
   h5:        'h5',
+  subhead:   'p',
   lead:      'p',
   'body-lg': 'p',
   body:      'p',

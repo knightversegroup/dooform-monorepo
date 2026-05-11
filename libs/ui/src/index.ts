@@ -14,6 +14,9 @@ export type { CardProps, CardRounded, CardPadding } from './components/Card';
 export { Badge } from './components/Badge';
 export type { BadgeProps, BadgeVariant } from './components/Badge';
 
+export { Modal } from './components/Modal';
+export type { ModalProps, ModalSize } from './components/Modal';
+
 // Tokens
 export { salespage as salespageColors } from './tokens/colors';
 export type { SalespageColors } from './tokens/colors';
