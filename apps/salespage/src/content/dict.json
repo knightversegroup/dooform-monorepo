@@ -61,6 +61,73 @@
       }
     }
   },
+  "featureCarousel": {
+    "eyebrow": "ฟีเจอร์สำหรับธุรกิจของคุณ",
+    "headingLine1": "เครื่องมือเอกสารระดับมืออาชีพ",
+    "headingLine2": "ช่วยให้งานราชการง่ายขึ้น",
+    "subLink": "ดูรายละเอียดทุกฟีเจอร์",
+    "ctaLabel": "เรียนรู้เพิ่มเติม",
+    "prevLabel": "ก่อนหน้า",
+    "nextLabel": "ถัดไป",
+    "slides": [
+      {
+        "id": "templates",
+        "pillLabel": "เทมเพลตเอกสาร",
+        "eyebrow": "เทมเพลตเอกสาร",
+        "title": "เทมเพลตพร้อมใช้กว่า 100+ ฟอร์ม",
+        "description": "คลังเทมเพลตเอกสารราชการไทยที่ตรงตามรูปแบบล่าสุดกว่า 100+ ฟอร์ม ครอบคลุมทั้งใบรับรอง ใบทะเบียน หนังสือมอบอำนาจ และเอกสารสำคัญอื่นๆ พร้อมใช้งานได้ทันทีโดยไม่ต้องจัดฟอร์แมตเอง"
+      },
+      {
+        "id": "ai-translation",
+        "pillLabel": "AI แปลภาษา",
+        "eyebrow": "AI แปลภาษา",
+        "title": "แปลเอกสารด้วย AI ตรวจโดยผู้เชี่ยวชาญ",
+        "description": "ระบบ AI Translation ที่แปลเอกสารราชการไทยเป็นภาษาอังกฤษได้อย่างแม่นยำ พร้อม Human Review จากผู้เชี่ยวชาญ เพื่อให้เอกสารพร้อมใช้ยื่นวีซ่า สถานทูต และมหาวิทยาลัยทั่วโลก"
+      },
+      {
+        "id": "ocr",
+        "pillLabel": "OCR อ่านเอกสาร",
+        "eyebrow": "OCR อ่านเอกสาร",
+        "title": "อ่านและเติมข้อมูลอัตโนมัติ",
+        "description": "OCR ภาษาไทย-อังกฤษความแม่นยำสูง อ่านเอกสารและเติมฟอร์มอัตโนมัติ พร้อมตรวจสอบความถูกต้องของเลขบัตรประชาชนตามอัลกอริทึมราชการไทย ลดเวลาป้อนข้อมูลซ้ำซ้อน"
+      },
+      {
+        "id": "signature",
+        "pillLabel": "ลายเซ็น & แสตมป์",
+        "eyebrow": "ลายเซ็น & แสตมป์",
+        "title": "ลายเซ็นดิจิทัลและแสตมป์อิเล็กทรอนิกส์",
+        "description": "อัปโหลดโลโก้และแสตมป์ขององค์กร เพิ่มลายเซ็นดิจิทัลพร้อม timestamp และปรับแต่งลายน้ำกันคัดลอก ทำให้เอกสารทุกฉบับเป็นแบรนด์ของคุณ"
+      },
+      {
+        "id": "collaboration",
+        "pillLabel": "ทำงานร่วมกัน",
+        "eyebrow": "ทำงานร่วมกัน",
+        "title": "ทำงานร่วมกันเป็นทีมแบบเรียลไทม์",
+        "description": "เลิกส่งไฟล์ไปมาทาง LINE ทำงานร่วมกันบนเอกสารฉบับเดียวในแบบเรียลไทม์ พร้อมระบบสิทธิ์การเข้าถึงตามบทบาทระดับทีมและแผนก"
+      },
+      {
+        "id": "white-label",
+        "pillLabel": "White-label",
+        "eyebrow": "White-label",
+        "title": "โดเมนเฉพาะสำหรับองค์กรของคุณ",
+        "description": "นำเสนอความเป็นมืออาชีพในทุกจุดที่ลูกค้าสัมผัส ตั้งแต่โดเมน URL จนถึงทุกอีเมลที่ส่งออกจากระบบ ด้วย White-label เต็มรูปแบบ"
+      },
+      {
+        "id": "security",
+        "pillLabel": "PDPA & Security",
+        "eyebrow": "ความปลอดภัย",
+        "title": "ปลอดภัยตามมาตรฐาน PDPA",
+        "description": "ออกแบบมาเพื่อมาตรฐานความปลอดภัยขององค์กรไทย รองรับ PDPA ครบถ้วน SSO ผ่าน Google, Microsoft และ ThaID พร้อมการเข้ารหัสข้อมูลทั้ง in-transit และ at-rest"
+      },
+      {
+        "id": "api",
+        "pillLabel": "API Integration",
+        "eyebrow": "API Integration",
+        "title": "เชื่อมต่อ API กับระบบขององค์กร",
+        "description": "REST API และ Webhooks ครบครัน เชื่อมต่อ Dooform เข้ากับระบบ ERP, CRM, HRMS หรือระบบภายในขององค์กรได้อย่างยืดหยุ่น พร้อมเอกสารการพัฒนาที่ครบถ้วน"
+      }
+    ]
+  },
   "features": {
     "heading": "ดูฟอร์มทำอะไรได้บ้าง",
     "viewUseCases": "ดู Use Case",
@@ -224,17 +291,38 @@
     }
   },
   "pricing": {
-    "heading": "แพ็คเกจใช้งาน",
+    "eyebrow": "เลือกแพ็กเกจที่เหมาะกับธุรกิจของคุณ",
+    "heading": "แพ็กเกจ และ ราคา",
     "subtitle": "สามารถเลือกแพ็กเกจการใช้งานได้ตามความต้องการ",
-    "recommendLabel": "แนะนำ",
+    "billing": {
+      "monthly": "รายเดือน",
+      "annual": "รายปี",
+      "savings": "ประหยัดกว่า 17%"
+    },
+    "bestValueLabel": "BEST VALUE",
+    "recommendBadge": "แนะนำ!",
+    "training": {
+      "title": "ตั้งค่าและอบรมฟรี ออนไลน์",
+      "items": [
+        "สอนตั้งค่าการใช้งานแบบส่วนตัว 1 ชม.",
+        "คอร์สเริ่มต้นใช้ Dooform ใน 2 ชม."
+      ]
+    },
+    "brandLabel": "Dooform",
     "footnote": "แพ็กเกจทั้งหมดเรียกเก็บเงินเป็นรายเดือน ทุกราคา ฿THB",
     "allFeatures": "ฟีเจอร์ทั้งหมด",
     "plans": {
       "trial": {
+        "audience": "เหมาะสำหรับผู้เริ่มต้น",
         "name": "Trial",
-        "price": "฿0",
-        "period": "/ 1 ผู้ใช้งาน",
-        "button": "ทดลองใช้งาน",
+        "monthlyPrice": "฿0",
+        "monthlySuffix": "/ 1 ผู้ใช้งาน",
+        "annualPrice": "฿0",
+        "annualSuffix": "/ 1 ผู้ใช้งาน",
+        "monthlyAnnualNote": "",
+        "annualAnnualNote": "",
+        "ctaLabel": "ทดลองใช้งาน",
+        "previousPlanFeatures": "",
         "features": [
           "กรอกเอกสารพื้นฐานได้ 5 รายการ",
           "ไม่มีผู้ใช้งานในทีม",
@@ -242,10 +330,16 @@
         ]
       },
       "starter": {
+        "audience": "เหมาะสำหรับทีมขนาดเล็ก",
         "name": "Basic",
-        "price": "฿2,990",
-        "period": "/ 10 ผู้ใช้งานต่อเดือน",
-        "button": "ชำระเงิน",
+        "monthlyPrice": "฿2,990",
+        "monthlySuffix": "/ 10 ผู้ใช้งานต่อเดือน",
+        "annualPrice": "฿2,490",
+        "annualSuffix": "/ 10 ผู้ใช้งานต่อเดือน",
+        "monthlyAnnualNote": "",
+        "annualAnnualNote": "เหมาจ่าย 29,880 บาท/ปี",
+        "ctaLabel": "ชำระเงิน",
+        "previousPlanFeatures": "ทุกฟังก์ชั่นใน Trial",
         "features": [
           "กรอกเอกสารพื้นฐานได้ 500 รายการ/เดือน",
           "มีผู้ใช้งานในทีมได้มากสุด 10 คน",
@@ -253,10 +347,16 @@
         ]
       },
       "plus": {
+        "audience": "เหมาะสำหรับธุรกิจที่กำลังเติบโต",
         "name": "Pro",
-        "price": "฿4,990",
-        "period": "/ 10 ผู้ใช้งานต่อเดือน",
-        "button": "ชำระเงิน",
+        "monthlyPrice": "฿4,990",
+        "monthlySuffix": "/ 10 ผู้ใช้งานต่อเดือน",
+        "annualPrice": "฿4,150",
+        "annualSuffix": "/ 10 ผู้ใช้งานต่อเดือน",
+        "monthlyAnnualNote": "",
+        "annualAnnualNote": "เหมาจ่าย 49,800 บาท/ปี",
+        "ctaLabel": "ชำระเงิน",
+        "previousPlanFeatures": "ทุกฟังก์ชั่นใน Basic",
         "features": [
           "กรอกเอกสารพื้นฐานได้ไม่จำกัด",
           "มีผู้ใช้งานในทีมได้มากสุด 10 คน",
@@ -267,10 +367,16 @@
         ]
       },
       "enterprise": {
+        "audience": "เหมาะสำหรับองค์กรขนาดใหญ่",
         "name": "Enterprise",
-        "price": "Contact us",
-        "period": "ไม่จำกัดผู้ใช้งานต่อเดือน",
-        "button": "ติดต่อ",
+        "monthlyPrice": "Contact us",
+        "monthlySuffix": "ไม่จำกัดผู้ใช้งานต่อเดือน",
+        "annualPrice": "Contact us",
+        "annualSuffix": "ไม่จำกัดผู้ใช้งานต่อเดือน",
+        "monthlyAnnualNote": "",
+        "annualAnnualNote": "",
+        "ctaLabel": "ติดต่อ",
+        "previousPlanFeatures": "ทุกฟังก์ชั่นใน Pro",
         "features": [
           "กรอกเอกสารพื้นฐานได้ไม่จำกัด",
           "มีผู้ใช้งานในทีมได้ไม่จำกัด",
