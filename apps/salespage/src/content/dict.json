@@ -433,6 +433,28 @@
           "เพิ่มเอกสารใช้งานในองค์กรได้ 10 ชุด"
         ]
       },
+      "advance": {
+        "audience": "เหมาะสำหรับองค์กรที่ต้องการฟีเจอร์ขั้นสูง",
+        "name": "Advance",
+        "monthlyPrice": "฿9,990",
+        "monthlySuffix": "/ 25 ผู้ใช้งานต่อเดือน",
+        "annualPrice": "฿8,290",
+        "annualSuffix": "/ 25 ผู้ใช้งานต่อเดือน",
+        "monthlyAnnualNote": "",
+        "annualAnnualNote": "เหมาจ่าย 99,480 บาท/ปี",
+        "ctaLabel": "ชำระเงิน",
+        "previousPlanFeatures": "ทุกฟังก์ชั่นใน Pro",
+        "features": [
+          "กรอกเอกสารพื้นฐานได้ไม่จำกัด",
+          "มีผู้ใช้งานในทีมได้มากสุด 25 คน",
+          "เรียกดูข้อมูลที่เก็บไว้ได้มากสุด 3 ปี",
+          "AI ช่วยตรวจสอบข้อมูลขั้นสูง",
+          "ระบบจัดการสิทธิ์การเข้าถึงแบบละเอียด",
+          "เพิ่มเอกสารใช้งานในองค์กรได้ 50 ชุด",
+          "รองรับ API และ Webhooks",
+          "บริการช่วยเหลือลำดับความสำคัญสูง"
+        ]
+      },
       "enterprise": {
         "audience": "เหมาะสำหรับองค์กรขนาดใหญ่",
         "name": "Enterprise",
@@ -443,7 +465,7 @@
         "monthlyAnnualNote": "",
         "annualAnnualNote": "",
         "ctaLabel": "ติดต่อ",
-        "previousPlanFeatures": "ทุกฟังก์ชั่นใน Pro",
+        "previousPlanFeatures": "ทุกฟังก์ชั่นใน Advance",
         "features": [
           "กรอกเอกสารพื้นฐานได้ไม่จำกัด",
           "มีผู้ใช้งานในทีมได้ไม่จำกัด",
@@ -1209,6 +1231,69 @@
         }
       ]
     }
+  },
+  "testimonials": {
+    "headingLine1": "รีวิวโปรแกรมแปลเอกสารออนไลน์",
+    "headingLine2": "สำหรับ SME",
+    "prevLabel": "ก่อนหน้า",
+    "nextLabel": "ถัดไป",
+    "items": [
+      {
+        "id": "coffee-press",
+        "tag": "ธุรกิจขายเครื่องกาแฟ",
+        "image": "/images/presenter.jpg",
+        "youtubeUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "quote": "พอได้ลองเดโมแค่ 15 นาที ผมก็เข้าใจฟังก์ชั่นหลักๆ ได้เกือบหมดแล้ว... ทำเอกสารได้แบบไม่รู้สึกว่าทำบัญชีอยู่เลยครับ เป็นโปรแกรมที่คิดมาดีแล้ว",
+        "authorName": "คุณดี้ – ศารกูล วุฒิศักดิ์ศิลปี",
+        "authorTitle": "ผู้ก่อตั้งธุรกิจ Coffee Press",
+        "linkLabel": "รีวิวโปรแกรมแปลเอกสารออนไลน์",
+        "linkHref": "#contact"
+      },
+      {
+        "id": "tour-agency",
+        "tag": "ธุรกิจท่องเที่ยว",
+        "image": "/images/presenter.jpg",
+        "youtubeUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "quote": "ปกติเราต้องจ้างนักแปลภายนอกทุกครั้งที่มีลูกค้าต่างชาติ พอใช้ Dooform เราแปลโบรชัวร์และเอกสารทัวร์ได้ภายในวันเดียว ประหยัดเวลาและค่าใช้จ่ายไปได้มากครับ",
+        "authorName": "คุณนัท – ภาสกร เจริญสุข",
+        "authorTitle": "ผู้จัดการ Siam Discovery Tours",
+        "linkLabel": "รีวิวโปรแกรมแปลเอกสารออนไลน์",
+        "linkHref": "#contact"
+      },
+      {
+        "id": "logistics",
+        "tag": "ธุรกิจขนส่งระหว่างประเทศ",
+        "image": "/images/presenter.jpg",
+        "youtubeUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "quote": "งานเอกสารพิธีการศุลกากรของเรามีศัพท์เฉพาะเยอะมาก AI ของ Dooform เข้าใจคำเหล่านี้ดี ทำให้ร่างแรกแม่นยำกว่าระบบแปลทั่วไป ทีมแค่ขัดเกลาขั้นสุดท้ายก็ส่งลูกค้าได้แล้ว",
+        "authorName": "คุณเอก – ธนากร พงศ์สุวรรณ",
+        "authorTitle": "หัวหน้าฝ่ายเอกสาร TGL Logistics",
+        "linkLabel": "รีวิวโปรแกรมแปลเอกสารออนไลน์",
+        "linkHref": "#contact"
+      },
+      {
+        "id": "online-retail",
+        "tag": "ธุรกิจร้านค้าออนไลน์",
+        "image": "/images/presenter.jpg",
+        "youtubeUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "quote": "เราต้องอัปเดตคำอธิบายสินค้าหลายภาษาทุกสัปดาห์ Dooform ช่วยให้ทีมเล็กๆ ของเราดูแลคอนเทนต์ได้ครบทุกภาษา โดยไม่ต้องเพิ่มคนเพิ่มต้นทุนเลยค่ะ",
+        "authorName": "คุณแพร – ปวีณา ศิริวงศ์",
+        "authorTitle": "เจ้าของร้าน PraeStyle Shop",
+        "linkLabel": "รีวิวโปรแกรมแปลเอกสารออนไลน์",
+        "linkHref": "#contact"
+      },
+      {
+        "id": "law-firm",
+        "tag": "สำนักงานกฎหมาย",
+        "image": "/images/presenter.jpg",
+        "youtubeUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "quote": "ความลับของเอกสารลูกค้าเป็นเรื่องใหญ่ Dooform มีระบบจัดเก็บที่ปลอดภัยและตรวจสอบประวัติได้ ผมจึงกล้าให้ทีมใช้แปลสัญญาจริงๆ ไม่ใช่แค่งานทดสอบ",
+        "authorName": "คุณวิทย์ – วิทยา ชัยพัฒน์",
+        "authorTitle": "หุ้นส่วนอาวุโส Chai & Partners",
+        "linkLabel": "รีวิวโปรแกรมแปลเอกสารออนไลน์",
+        "linkHref": "#contact"
+      }
+    ]
   },
   "contact": {
     "heading": "ลูกค้าของคุณ กำลังรออยู่",

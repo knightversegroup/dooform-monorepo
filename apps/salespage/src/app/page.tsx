@@ -9,6 +9,7 @@ import WorkspaceSection from '../components/home/WorkspaceSection';
 import PricingSection from '../components/home/PricingSection';
 import FaqSection from '../components/home/FaqSection';
 import ContactSection from '../components/home/ContactSection';
+import TestimonialsSection from '../components/home/TestimonialsSection';
 import TrialSection from '../components/home/TrialSection';
 import UsecasesHero from '../components/usecases/UsecasesHero';
 
@@ -18,12 +19,13 @@ export default function HomePage() {
       <HeroSection dict={dict.hero} />
       <PartnersSection dict={dict.partners} />
       <UseCasesSection dict={dict.useCases} />
-      <FeaturesHighlightSection dict={dict.featuresHighlight} />
+      {/* <FeaturesHighlightSection dict={dict.featuresHighlight} /> */}
       <FeatureCarouselSection dict={dict.featureCarousel} />
       <FeatureCarouselSection dict={dict.featureCarousel2} />
-      <FeaturesSection dict={dict.features} locale="th" />
-      <WorkspaceSection dict={dict.workspace} />
+      {/* <FeaturesSection dict={dict.features} locale="th" /> */}
+      {/* <WorkspaceSection dict={dict.workspace} /> */}
       <PricingSection dict={dict.pricing} />
+      <TestimonialsSection dict={dict.testimonials} />
       <UsecasesHero dict={dict.usecasesPage.hero} />
       <FaqSection dict={dict.faq} locale="th" />
       {/*<TrialSection dict={dict.trial} />*/}

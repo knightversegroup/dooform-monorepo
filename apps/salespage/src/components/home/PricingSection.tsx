@@ -41,6 +41,7 @@ export type PricingDict = {
     trial: PlanDict;
     starter: PlanDict;
     plus: PlanDict;
+    advance: PlanDict;
     enterprise: PlanDict;
   };
 };
@@ -57,6 +58,7 @@ const PLAN_ORDER: PlanConfig[] = [
   { key: 'trial' },
   { key: 'starter' },
   { key: 'plus' },
+  { key: 'advance' },
   { key: 'enterprise', recommended: true },
 ];
 
@@ -88,7 +90,7 @@ export default function PricingSection({ dict }: { dict: PricingDict }) {
         </div>
 
         {/* ── Plan cards ──────────────────────────────────────────── */}
-        <div className="mt-12 grid grid-cols-1 gap-5 md:mt-14 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-12 grid grid-cols-1 gap-5 md:mt-14 md:grid-cols-2 lg:grid-cols-5">
           {PLAN_ORDER.map((config) => (
             <PlanCard
               key={config.key}
@@ -222,14 +224,11 @@ function PlanCard({
     billing === 'monthly' ? plan.monthlyAnnualNote : plan.annualAnnualNote;
 
   return (
-    <div
-      className={`relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-[0_4px_24px_rgba(0,0,0,0.06)] ${
-        recommended ? 'border-2 border-blue-500' : 'border border-neutral-200'
-      }`}
-    >
-      {/* BEST VALUE banner — only on the recommended plan. */}
+    <div className="relative flex h-full flex-col">
+      {/* BEST VALUE banner — floats ABOVE the card via absolute positioning so
+       * non-recommended cards reserve zero space and content rows stay aligned. */}
       {recommended && (
-        <div className="bg-blue-500 py-1.5 text-center">
+        <div className="pointer-events-none absolute inset-x-4 -top-4 z-10 rounded-md bg-blue-500 py-1.5 text-center shadow-sm">
           <Typography
             as="span"
             variant="caption"
@@ -242,6 +241,11 @@ function PlanCard({
         </div>
       )}
 
+      <div
+        className={`flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-[0_4px_24px_rgba(0,0,0,0.06)] ${
+          recommended ? 'border-2 border-blue-500' : 'border border-neutral-200'
+        }`}
+      >
       {/* ── Top section: audience, name, price, CTA, training ─────
        * Each row of content is given a fixed-height slot so CTAs align
        * vertically across cards regardless of whether a plan has an
@@ -354,6 +358,7 @@ function PlanCard({
             </li>
           ))}
         </ul>
+      </div>
       </div>
     </div>
   );
