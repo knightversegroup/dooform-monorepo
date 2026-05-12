@@ -242,9 +242,9 @@ export default function HeroSection({ dict }: { dict: HeroDict }) {
            * the source instead of cropping his face. */}
           <div className="relative mx-auto aspect-[5/6] w-full max-w-[600px]">
             <img
-              src="/images/presenter.png"
+              src="/images/presenter.jpg"
               alt={dict.imageAlt}
-              className="absolute inset-0 h-full w-full object-cover object-top"
+              className="absolute inset-0 h-full w-full object-cover object-top mix-blend-multiply brightness-110 contrast-125"
             />
 
             {/* Floating feature chips — desktop only, decorative. */}

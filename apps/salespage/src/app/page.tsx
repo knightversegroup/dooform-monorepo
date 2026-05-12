@@ -20,6 +20,7 @@ export default function HomePage() {
       <UseCasesSection dict={dict.useCases} />
       <FeaturesHighlightSection dict={dict.featuresHighlight} />
       <FeatureCarouselSection dict={dict.featureCarousel} />
+      <FeatureCarouselSection dict={dict.featureCarousel2} />
       <FeaturesSection dict={dict.features} locale="th" />
       <WorkspaceSection dict={dict.workspace} />
       <PricingSection dict={dict.pricing} />
