@@ -10,6 +10,7 @@ import {
   Phone,
   Youtube,
 } from 'lucide-react';
+import { DooformLogo } from '@dooform/shared/components/ui/DooformLogo';
 import { Typography } from '@dooform/ui';
 
 const LINK_CLASS = 'text-white/80 transition-colors hover:text-white';
@@ -87,6 +88,8 @@ const COLUMNS: FooterColumn[] = [
   {
     heading: 'เกี่ยวกับเรา',
     links: [
+      { label: 'เข้าสู่ระบบ', href: '/login' },
+      { label: 'สมัครสมาชิก', href: '/register' },
       { label: 'ร่วมเป็นพาร์ทเนอร์กับเรา', href: '/' },
       { label: 'เกี่ยวกับ Dooform', href: '/' },
       { label: 'ติดต่อเรา', href: '#contact' },
@@ -117,9 +120,22 @@ export function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-blue-600 text-white">
+    <footer className="bg-stone-800 text-white">
       {/* ── Top: link columns ─────────────────────────────────────── */}
       <div className="mx-auto w-full max-w-[1280px] px-6 pt-16 pb-10">
+        {/* Logo — SVG paths are hardcoded to #4D4D4D so we invert it
+         * to render white on the dark footer background. */}
+        <Link
+          href="/"
+          aria-label="Dooform home"
+          className="mb-10 inline-flex"
+        >
+          <DooformLogo
+            width={140}
+            height={28}
+            className="[filter:brightness(0)_invert(1)]"
+          />
+        </Link>
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           {COLUMNS.map((col) => (
             <div key={col.heading} className="flex flex-col gap-3">

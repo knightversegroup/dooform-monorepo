@@ -14,11 +14,13 @@ type TrialDict = {
 export default function TrialSection({ dict }: { dict: TrialDict }) {
   return (
     <Section id="trial" padding="none">
-      <Container className="py-9">
+      <Container className="py-9 bg-blue-700 mb-9 rounded-xl">
         {/* Header */}
         <div className="mb-9 text-center">
-          <Typography variant="h2">{dict.heading}</Typography>
-          <Typography variant="body" className="mt-0.5">
+          <Typography variant="h2" className="text-white">
+            {dict.heading}
+          </Typography>
+          <Typography variant="body" className="mt-0.5 text-white">
             {dict.subtitle}
           </Typography>
         </div>
@@ -44,7 +46,11 @@ export default function TrialSection({ dict }: { dict: TrialDict }) {
         </div>
 
         {/* Consent */}
-        <Typography variant="caption" align="center" className="mt-9">
+        <Typography
+          variant="caption"
+          align="center"
+          className="mt-9 text-white"
+        >
           {dict.consent}
         </Typography>
       </Container>
