@@ -20,8 +20,11 @@ export default function HomePage() {
       <PartnersSection dict={dict.partners} />
       <UseCasesSection dict={dict.useCases} />
       {/* <FeaturesHighlightSection dict={dict.featuresHighlight} /> */}
-      <FeatureCarouselSection dict={dict.featureCarousel} />
-      <FeatureCarouselSection dict={dict.featureCarousel2} />
+      <FeatureCarouselSection dict={dict.featureCarousel} className="bg-white" />
+      <FeatureCarouselSection
+        dict={dict.featureCarousel2}
+        className="bg-slate-50"
+      />
       {/* <FeaturesSection dict={dict.features} locale="th" /> */}
       {/* <WorkspaceSection dict={dict.workspace} /> */}
       <PricingSection dict={dict.pricing} />

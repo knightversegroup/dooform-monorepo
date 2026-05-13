@@ -45,8 +45,12 @@ const ARROW_BUTTON_CLASS =
 
 export default function FeatureCarouselSection({
   dict,
+  className,
 }: {
   dict: FeatureCarouselDict;
+  /* Optional Tailwind classes forwarded to the outer <Section>. Used by
+   * page.tsx to stripe alternating instances with different backgrounds. */
+  className?: string;
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const total = dict.slides.length;
@@ -56,7 +60,7 @@ export default function FeatureCarouselSection({
   const goNext = () => setActiveIndex((i) => (i + 1) % total);
 
   return (
-    <Section padding="lg">
+    <Section padding="lg" className={className}>
       <Container>
         {/* ── Header ───────────────────────────────────────────────── */}
         <div className="flex flex-col items-center text-center">
