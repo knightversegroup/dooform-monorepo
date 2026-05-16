@@ -6,7 +6,7 @@ import { listNotifications } from '../lib/api/notifications';
 import { queryKeys } from '../lib/queryClient';
 import { RightPanel } from '../components/right-panel/RightPanel';
 import { RightPanelProvider } from '../components/right-panel/RightPanelContext';
-import { Sidebar } from './shell/Sidebar';
+import { Navbar } from './shell/Navbar';
 import { AnnouncementBar } from './shell/AnnouncementBar';
 
 export default function AppShell() {
@@ -14,21 +14,21 @@ export default function AppShell() {
 
   return (
     <RightPanelProvider>
-      <div className="h-screen flex flex-col md:flex-row bg-bg text-ink overflow-hidden">
-        <Sidebar unreadCount={unreadCount} />
-
-        <main className="flex-1 min-w-0 h-full overflow-y-auto bg-bg">
+      <div className="min-h-screen bg-bg text-ink flex">
+        <main className="flex-1 min-w-0 flex flex-col">
+          <Navbar unreadCount={unreadCount} />
           <AnnouncementBar />
-          <Outlet />
+          <div className="max-w-7xl mx-auto w-full">
+            <Outlet />
+          </div>
         </main>
-
         <RightPanel />
       </div>
     </RightPanelProvider>
   );
 }
 
-// Polled every 30s for the sidebar Inbox badge. Disabled until the user is
+// Polled every 30s for the Navbar Inbox badge. Disabled until the user is
 // loaded and they actually hold the `notifications:read` permission.
 function useUnreadNotificationCount(): number {
   const { user } = useAuth();
