@@ -9,9 +9,9 @@ import {
   Settings as SettingsIcon,
   User as UserIcon,
 } from 'lucide-react';
-import { DooformLogo } from '@dooform/shared/components/ui/DooformLogo';
 import { useAuth } from '../../lib/auth/AuthContext';
 import { useCanFn } from '../../lib/auth/useCan';
+import { DooformLogo } from './DooformLogo';
 import {
   getVisibleSettingsSections,
   getVisibleTabs,
