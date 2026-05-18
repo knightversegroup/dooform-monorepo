@@ -84,6 +84,12 @@ export const PERMISSIONS: PermissionDefinition[] = [
   { key: 'users:assign-role', group: 'Organization', label: 'Assign user roles', description: 'Change a member\'s role within scope (org admins are still bounded to their own tenant).' },
   { key: 'users:assign-global-admin', group: 'Platform', label: 'Grant GLOBAL_ADMIN role', description: 'Promote a user to GLOBAL_ADMIN. Hard floor — only users with this permission may grant it.' },
   { key: 'users:override-permissions', group: 'Platform', label: 'Override user permissions', description: 'Grant or revoke individual permissions on a specific user, on top of their role.' },
+
+  // IAM: custom role management
+  { key: 'roles:read', group: 'Platform', label: 'View roles', description: 'List system and custom roles and the permissions they grant.' },
+  { key: 'roles:create', group: 'Platform', label: 'Create roles', description: 'Define new custom roles by bundling existing permissions.' },
+  { key: 'roles:update', group: 'Platform', label: 'Edit roles', description: 'Change a role\'s name, description, or permission set. System roles can have their permissions edited but not their code.' },
+  { key: 'roles:delete', group: 'Platform', label: 'Delete roles', description: 'Delete a custom role (system roles can\'t be deleted).' },
 ]
 
 const PERMISSION_KEYS = new Set(PERMISSIONS.map((p) => p.key))
@@ -144,6 +150,7 @@ export const DEFAULT_GRANTS: Record<UserRole, string[]> = {
     'users:read',
     'users:create',
     'users:assign-role',
+    'roles:read',
     'dictionary:read',
     'dictionary:create',
     'dictionary:update',

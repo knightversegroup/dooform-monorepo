@@ -1,14 +1,36 @@
-import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Patch, Put, UseGuards } from '@nestjs/common'
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
+  Patch,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import { IsArray, IsEnum, IsIn, IsOptional, IsString, ValidateNested } from 'class-validator'
+import {
+  IsArray,
+  IsEnum,
+  IsIn,
+  IsISO8601,
+  IsObject,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator'
 import { Type } from 'class-transformer'
 
 import { PermissionService } from '../../../application/services/permission.service'
 import { AuditLogService } from '../../../application/services/audit-log.service'
 import { UserRole } from '../../../../user/domain/enums/user.enum'
 import { UserModel } from '../../../../workflow/infrastructure/persistence/typeorm/models/user.model'
+import type { AssignmentCondition } from '../../../infrastructure/persistence/typeorm/models/role-assignment.model'
 
 import { CurrentUser } from '../decorators/current-user.decorator'
 import { RequirePermission } from '../decorators/require-permission.decorator'
@@ -44,6 +66,73 @@ class UpdateUserRoleDto {
   @IsOptional()
   @IsString()
   reason?: string
+}
+
+class CreateRoleDto {
+  @IsString()
+  code!: string
+
+  @IsString()
+  name!: string
+
+  @IsOptional()
+  @IsString()
+  description?: string
+
+  @IsArray()
+  @IsString({ each: true })
+  permissions!: string[]
+}
+
+class UpdateRoleDto {
+  @IsOptional()
+  @IsString()
+  name?: string
+
+  @IsOptional()
+  @IsString()
+  description?: string | null
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  permissions?: string[]
+}
+
+class AssignmentConditionDto {
+  @IsOptional() @IsString() title?: string
+  @IsOptional() @IsISO8601() validBefore?: string
+  @IsOptional() @IsISO8601() validAfter?: string
+  @IsOptional() @IsArray() @IsString({ each: true }) actionMatches?: string[]
+  @IsOptional() @IsArray() @IsString({ each: true }) ipAllow?: string[]
+  @IsOptional() @IsArray() @IsIn(['success', 'failure'], { each: true }) outcomeIn?: ('success' | 'failure')[]
+}
+
+class CreateAssignmentDto {
+  @IsString()
+  roleId!: string
+
+  @IsOptional()
+  @IsISO8601()
+  expiresAt?: string
+
+  @IsOptional()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => AssignmentConditionDto)
+  condition?: AssignmentConditionDto
+}
+
+class UpdateAssignmentDto {
+  @IsOptional()
+  @IsISO8601()
+  expiresAt?: string | null
+
+  @IsOptional()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => AssignmentConditionDto)
+  condition?: AssignmentConditionDto | null
 }
 
 @ApiTags('admin / permissions')
@@ -171,5 +260,135 @@ export class PermissionsController {
     })
 
     return { ok: true, role: target.role, previousRole, changed: true }
+  }
+
+  // ---- IAM: roles (system + custom) -----------------------------------------
+
+  @Get('roles')
+  @RequirePermission('roles:read')
+  async listRoles() {
+    return this.permissions.listRoles()
+  }
+
+  @Get('roles/:id')
+  @RequirePermission('roles:read')
+  async getRole(@Param('id') id: string) {
+    return this.permissions.getRole(id)
+  }
+
+  @Post('roles')
+  @RequirePermission('roles:create')
+  async createRole(@CurrentUser() actor: AuthenticatedUser, @Body() dto: CreateRoleDto) {
+    return this.permissions.createRole(
+      {
+        code: dto.code,
+        name: dto.name,
+        description: dto.description ?? null,
+        permissions: dto.permissions,
+      },
+      { userId: actor.userId, role: actor.role, email: actor.email, organizationId: actor.organizationId },
+    )
+  }
+
+  @Patch('roles/:id')
+  @RequirePermission('roles:update')
+  async updateRole(
+    @CurrentUser() actor: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() dto: UpdateRoleDto,
+  ) {
+    return this.permissions.updateRole(
+      id,
+      {
+        name: dto.name,
+        description: dto.description,
+        permissions: dto.permissions,
+      },
+      { userId: actor.userId, role: actor.role, email: actor.email, organizationId: actor.organizationId },
+    )
+  }
+
+  @Delete('roles/:id')
+  @RequirePermission('roles:delete')
+  async deleteRole(@CurrentUser() actor: AuthenticatedUser, @Param('id') id: string) {
+    await this.permissions.deleteRole(id, {
+      userId: actor.userId,
+      role: actor.role,
+      email: actor.email,
+      organizationId: actor.organizationId,
+    })
+    return { ok: true }
+  }
+
+  // ---- IAM: per-user assignments --------------------------------------------
+
+  @Get('users/:userId/assignments')
+  @RequirePermission('users:assign-role')
+  async listAssignments(@Param('userId') userId: string) {
+    const target = await this.users.findOne({ where: { id: userId } })
+    if (!target) throw new NotFoundException('User not found')
+    return this.permissions.listUserAssignments(userId)
+  }
+
+  @Post('users/:userId/assignments')
+  @RequirePermission('users:assign-role')
+  async createAssignment(
+    @CurrentUser() actor: AuthenticatedUser,
+    @Param('userId') userId: string,
+    @Body() dto: CreateAssignmentDto,
+  ) {
+    const target = await this.users.findOne({ where: { id: userId } })
+    if (!target) throw new NotFoundException('User not found')
+    return this.permissions.assignRole(
+      userId,
+      dto.roleId,
+      { userId: actor.userId, role: actor.role, email: actor.email, organizationId: actor.organizationId },
+      {
+        expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : null,
+        condition: (dto.condition as AssignmentCondition) ?? null,
+      },
+    )
+  }
+
+  @Delete('users/:userId/assignments/:assignmentId')
+  @RequirePermission('users:assign-role')
+  async revokeAssignment(
+    @CurrentUser() actor: AuthenticatedUser,
+    @Param('userId') userId: string,
+    @Param('assignmentId') assignmentId: string,
+  ) {
+    const target = await this.users.findOne({ where: { id: userId } })
+    if (!target) throw new NotFoundException('User not found')
+    const assignments = await this.permissions.listUserAssignments(userId)
+    const found = assignments.find((a) => a.id === assignmentId)
+    if (!found) throw new NotFoundException('Assignment not found for user')
+    await this.permissions.revokeRole(userId, found.roleId, {
+      userId: actor.userId,
+      role: actor.role,
+      email: actor.email,
+      organizationId: actor.organizationId,
+    })
+    return { ok: true }
+  }
+
+  @Patch('users/:userId/assignments/:assignmentId')
+  @RequirePermission('users:assign-role')
+  async patchAssignment(
+    @CurrentUser() actor: AuthenticatedUser,
+    @Param('userId') userId: string,
+    @Param('assignmentId') assignmentId: string,
+    @Body() dto: UpdateAssignmentDto,
+  ) {
+    const target = await this.users.findOne({ where: { id: userId } })
+    if (!target) throw new NotFoundException('User not found')
+    return this.permissions.updateAssignment(
+      assignmentId,
+      {
+        expiresAt:
+          dto.expiresAt === null ? null : dto.expiresAt ? new Date(dto.expiresAt) : undefined,
+        condition: dto.condition === null ? null : ((dto.condition as AssignmentCondition) ?? undefined),
+      },
+      { userId: actor.userId, role: actor.role, email: actor.email, organizationId: actor.organizationId },
+    )
   }
 }
