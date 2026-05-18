@@ -70,6 +70,20 @@ export const PERMISSIONS: PermissionDefinition[] = [
   { key: 'platform:tenants:manage', group: 'Platform', label: 'Manage tenants', description: 'View and set storage quotas for any organization. GLOBAL_ADMIN only.' },
   { key: 'platform:taxonomy:manage', group: 'Platform', label: 'Manage template taxonomy', description: 'Edit the template type/tier/category lists shown in upload + edit forms. GLOBAL_ADMIN only.' },
   { key: 'platform:tiers:manage', group: 'Platform', label: 'Manage subscription tiers', description: 'Configure per-tier feature flags (e.g. branding watermark). GLOBAL_ADMIN only.' },
+
+  // Fine-grained permissions that replace hardcoded `caller.role === 'GLOBAL_ADMIN'`
+  // checks scattered through use-cases, services, and policies. Default-granted only
+  // to GLOBAL_ADMIN so current behavior is preserved, but they can now be flipped on
+  // for a specific role (or a specific user via per-user overrides).
+  { key: 'templates:publish-global', group: 'Templates', label: 'Publish global templates', description: 'Create or change a template to GLOBAL visibility (visible to every tenant).' },
+  { key: 'templates:read-cross-org', group: 'Templates', label: 'View templates across orgs', description: 'See draft / archived templates in tenants other than your own.' },
+  { key: 'templates:edit-any', group: 'Templates', label: 'Edit any template', description: 'Modify or delete templates you did not create. Owners can always edit their own.' },
+  { key: 'compliance:rules:manage-global', group: 'Organization', label: 'Manage global compliance rules', description: 'Create, edit, and delete platform-wide (organizationId=NULL) compliance rules.' },
+  { key: 'audit-logs:read-cross-org', group: 'Organization', label: 'View audit logs across orgs', description: 'Read audit logs from tenants other than your own. Required for platform-wide compliance investigations.' },
+  { key: 'tenants:manage-any-org', group: 'Platform', label: 'Manage any tenant', description: 'Edit storage quotas, tier, and membership in any organization. GLOBAL_ADMIN only by default.' },
+  { key: 'users:assign-role', group: 'Organization', label: 'Assign user roles', description: 'Change a member\'s role within scope (org admins are still bounded to their own tenant).' },
+  { key: 'users:assign-global-admin', group: 'Platform', label: 'Grant GLOBAL_ADMIN role', description: 'Promote a user to GLOBAL_ADMIN. Hard floor — only users with this permission may grant it.' },
+  { key: 'users:override-permissions', group: 'Platform', label: 'Override user permissions', description: 'Grant or revoke individual permissions on a specific user, on top of their role.' },
 ]
 
 const PERMISSION_KEYS = new Set(PERMISSIONS.map((p) => p.key))
@@ -129,6 +143,7 @@ export const DEFAULT_GRANTS: Record<UserRole, string[]> = {
     'activities:read',
     'users:read',
     'users:create',
+    'users:assign-role',
     'dictionary:read',
     'dictionary:create',
     'dictionary:update',
