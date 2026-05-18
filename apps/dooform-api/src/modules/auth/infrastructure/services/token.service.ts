@@ -10,7 +10,15 @@ import type { UserTier } from '../../../document/domain/enums/document.enum'
 export interface AccessTokenPayload {
   sub: string
   email: string
+  /** Legacy primary role — derived from `roles` at token issuance. */
   role: UserRole
+  /**
+   * Full set of role codes the user holds at token issuance time. Includes
+   * system roles and any custom roles. Token lifetime is short (15min) so a
+   * role assignment change becomes visible on the next refresh; in-flight
+   * permission checks still query the cached role assignments live.
+   */
+  roles?: string[]
   userTier: UserTier
   organizationId: string | null
   emailVerified: boolean

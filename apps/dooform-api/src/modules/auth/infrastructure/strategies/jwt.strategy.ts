@@ -27,6 +27,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       userId: payload.sub,
       email: payload.email,
       role: payload.role,
+      // Legacy tokens issued before the multi-role rollout don't carry
+      // `roles`; synthesize from the single `role` claim so guards and the
+      // frontend continue to see at least one role for the principal.
+      roles: payload.roles && payload.roles.length > 0 ? payload.roles : [payload.role],
       userTier: payload.userTier,
       organizationId: payload.organizationId,
       emailVerified: payload.emailVerified,

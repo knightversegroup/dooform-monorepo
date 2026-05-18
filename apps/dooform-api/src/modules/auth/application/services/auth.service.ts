@@ -216,10 +216,17 @@ export class AuthService {
     user: UserModel,
     meta: { userAgent?: string; ip?: string },
   ): Promise<AuthTokens> {
+    // Populate `roles` from the IAM assignments table so the JWT and the
+    // frontend `AuthUser` reflect multi-role state. Fall back to the legacy
+    // single `role` column if the assignments cache is somehow empty (legacy
+    // users mid-migration).
+    const activeRoles = this.permissions.activeRoleCodes(user.id)
+    const roles = activeRoles.length > 0 ? activeRoles : [user.role]
     const accessToken = this.token.signAccessToken({
       sub: user.id,
       email: user.email,
       role: user.role,
+      roles,
       userTier: user.userTier,
       organizationId: user.organizationId,
       emailVerified: user.emailVerified,

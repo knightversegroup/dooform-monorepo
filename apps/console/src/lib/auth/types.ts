@@ -6,7 +6,13 @@ export interface AuthUser {
   email: string;
   name: string;
   avatarUrl: string | null;
+  /**
+   * Legacy primary role — for back-compat with components that read a single role.
+   * New code should check `roles` or use `useCan('<permission>')`.
+   */
   role: UserRole;
+  /** All role codes the user holds (system + custom). Optional on legacy server responses. */
+  roles?: string[];
   userTier: UserTier;
   organizationId: string | null;
   emailVerified: boolean;

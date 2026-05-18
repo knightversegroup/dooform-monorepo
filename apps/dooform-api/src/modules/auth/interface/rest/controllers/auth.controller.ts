@@ -241,13 +241,15 @@ export class AuthController {
     locale: string | null
     jobTitle: string | null
   }) {
-    const grants = this.permissions.grants()
+    const roles = this.permissions.activeRoleCodes(user.id)
+    const effective = this.permissions.effectivePermissions({ userId: user.id, role: user.role })
     return {
       id: user.id,
       email: user.email,
       name: user.displayName,
       avatarUrl: user.avatarUrl,
       role: user.role,
+      roles: roles.length > 0 ? roles : [user.role],
       userTier: user.userTier,
       organizationId: user.organizationId,
       emailVerified: user.emailVerified,
@@ -255,9 +257,9 @@ export class AuthController {
       timezone: user.timezone,
       locale: user.locale,
       jobTitle: user.jobTitle,
-      // Effective permissions for this role at the time of issue. The frontend uses these
-      // to hide buttons/links the user can't act on. Backend still re-checks on every request.
-      permissions: grants[user.role] ?? [],
+      // Effective permission set across all assigned roles + per-user overrides.
+      // Frontend uses these to hide UI controls; backend re-checks on every request.
+      permissions: effective,
     }
   }
 }
