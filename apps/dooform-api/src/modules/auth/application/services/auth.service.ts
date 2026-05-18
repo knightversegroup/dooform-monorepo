@@ -129,6 +129,15 @@ export class AuthService {
       await this.organizations.update({ id: organizationId }, { ownerUserId: saved.id })
     }
 
+    // Mirror the legacy role column into role_assignments so the IAM page,
+    // permission checks, and JWT roles[] all see the new user immediately.
+    await this.permissions.setPrimarySystemRole(saved.id, role, {
+      userId: saved.id,
+      role,
+      email: saved.email,
+      organizationId: saved.organizationId,
+    })
+
     if (input.inviteCode) {
       await this.inviteCodes.update(
         { code: input.inviteCode },
@@ -527,6 +536,13 @@ export class AuthService {
     const previousRole = target.role
     target.role = role
     const saved = await this.users.save(target)
+    // Sync the change into role_assignments so the IAM page and permission
+    // checks immediately reflect the legacy role write.
+    await this.permissions.setPrimarySystemRole(target.id, role, {
+      userId: caller.userId,
+      role: caller.role,
+      organizationId: caller.organizationId,
+    })
     this.audit.log({
       organizationId: orgId,
       actor: { userId: caller.userId, role: caller.role },

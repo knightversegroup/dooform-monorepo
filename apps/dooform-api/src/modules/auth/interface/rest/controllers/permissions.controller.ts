@@ -249,6 +249,14 @@ export class PermissionsController {
     }
     target.role = dto.role
     await this.users.save(target)
+    // Mirror the legacy role write into role_assignments so the IAM page and
+    // permission checks reflect this change immediately.
+    await this.permissions.setPrimarySystemRole(target.id, dto.role, {
+      userId: actor.userId,
+      role: actor.role,
+      email: actor.email,
+      organizationId: actor.organizationId,
+    })
 
     this.auditLog.log({
       organizationId: actor.organizationId,

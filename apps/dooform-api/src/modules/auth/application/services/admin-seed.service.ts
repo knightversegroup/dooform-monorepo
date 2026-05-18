@@ -11,6 +11,7 @@ import { UserRole } from '../../../user/domain/enums/user.enum'
 import { UserTier } from '../../../document/domain/enums/document.enum'
 
 import { PasswordService } from '../../infrastructure/services/password.service'
+import { PermissionService } from './permission.service'
 
 const FALLBACK_EMAIL = 'admin@dooform.local'
 const FALLBACK_PASSWORD = 'DooformAdmin!2026'
@@ -26,11 +27,23 @@ export class AdminSeedService implements OnApplicationBootstrap {
     @InjectRepository(OrganizationModel) private readonly organizations: Repository<OrganizationModel>,
     private readonly password: PasswordService,
     private readonly config: ConfigService,
+    private readonly permissions: PermissionService,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
+    // Run the universal user-assignment backfill first so any existing users
+    // (legacy DB, partially-migrated DB, etc.) land in role_assignments
+    // without requiring the SQL migration to be applied manually.
+    await this.permissions.backfillUserAssignments()
+
     const existing = await this.users.findOne({ where: { role: UserRole.GLOBAL_ADMIN } })
     if (existing) {
+      // Belt-and-suspenders: make sure the existing global admin has the
+      // matching role assignment in case they predate the IAM migration.
+      await this.permissions.setPrimarySystemRole(existing.id, UserRole.GLOBAL_ADMIN, {
+        userId: existing.id,
+        role: UserRole.GLOBAL_ADMIN,
+      })
       this.logger.log(`GLOBAL_ADMIN already exists: ${existing.email}`)
       return
     }
@@ -46,6 +59,10 @@ export class AdminSeedService implements OnApplicationBootstrap {
       byEmail.role = UserRole.GLOBAL_ADMIN
       byEmail.emailVerified = true
       await this.users.save(byEmail)
+      await this.permissions.setPrimarySystemRole(byEmail.id, UserRole.GLOBAL_ADMIN, {
+        userId: byEmail.id,
+        role: UserRole.GLOBAL_ADMIN,
+      })
       this.logger.warn(
         `Promoted existing user ${email} to GLOBAL_ADMIN. Password unchanged — use existing credentials.`,
       )
@@ -82,6 +99,13 @@ export class AdminSeedService implements OnApplicationBootstrap {
       }),
     )
     await this.organizations.update({ id: org.id }, { ownerUserId: user.id })
+
+    await this.permissions.setPrimarySystemRole(user.id, UserRole.GLOBAL_ADMIN, {
+      userId: user.id,
+      role: UserRole.GLOBAL_ADMIN,
+      email: user.email,
+      organizationId: user.organizationId,
+    })
 
     const usingDefaults =
       !this.config.get<string>('ADMIN_EMAIL') || !this.config.get<string>('ADMIN_PASSWORD')

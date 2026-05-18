@@ -85,11 +85,15 @@ import { DocumentServicesModule } from '../document/infrastructure/services/docu
     ComplianceController,
   ],
   providers: [
-    AuthService,
-    AdminSeedService,
+    // PermissionService must bootstrap before AdminSeedService so the system
+    // roles are seeded in the `roles` table before the admin-seed flow tries
+    // to mirror them into role_assignments. Nest runs onApplicationBootstrap
+    // hooks in this declaration order.
+    PermissionService,
     AuditLogService,
     ComplianceService,
-    PermissionService,
+    AuthService,
+    AdminSeedService,
     PermissionsGuard,
     PasswordService,
     TokenService,

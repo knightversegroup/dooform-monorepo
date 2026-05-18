@@ -14,6 +14,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { IsNull, Repository } from 'typeorm'
 
 import { UserRole } from '../../../user/domain/enums/user.enum'
+import { UserModel } from '../../../workflow/infrastructure/persistence/typeorm/models/user.model'
 
 import { DEFAULT_GRANTS, PERMISSIONS, isValidPermissionKey } from '../../domain/permissions.catalog'
 import { RolePermissionModel } from '../../infrastructure/persistence/typeorm/models/role-permission.model'
@@ -26,6 +27,14 @@ import {
   RoleAssignmentModel,
   type AssignmentCondition,
 } from '../../infrastructure/persistence/typeorm/models/role-assignment.model'
+
+// Priority order for picking the "primary" system role to mirror into
+// users.role when a user holds multiple system roles. Higher index wins.
+const PRIMARY_ROLE_PRIORITY: UserRole[] = [
+  UserRole.USER,
+  UserRole.ORG_ADMIN,
+  UserRole.GLOBAL_ADMIN,
+]
 
 import { AuditLogService } from './audit-log.service'
 import { evaluateCondition, type ConditionContext } from './condition-evaluator'
@@ -94,15 +103,121 @@ export class PermissionService implements OnApplicationBootstrap {
     private readonly roles: Repository<RoleModel>,
     @InjectRepository(RoleAssignmentModel)
     private readonly assignments: Repository<RoleAssignmentModel>,
+    @InjectRepository(UserModel)
+    private readonly users: Repository<UserModel>,
     @Inject(forwardRef(() => AuditLogService))
     private readonly auditLog: AuditLogService,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
+    await this.seedSystemRoles()
     await this.seedDefaults()
     await this.reload()
     await this.reloadUserOverrides()
     await this.reloadIam()
+    await this.backfillRolePermissionsRoleId()
+  }
+
+  /**
+   * Ensure the three seeded system roles exist in the `roles` table. Idempotent:
+   * upsert by `code`. Runs before everything else on bootstrap so the rest of
+   * IAM (assignments, role_permissions.role_id backfill) can rely on them.
+   *
+   * Deterministic UUIDs keep cross-environment references stable.
+   */
+  private async seedSystemRoles(): Promise<void> {
+    const seed: Array<{ id: string; code: UserRole; name: string; description: string }> = [
+      {
+        id: '00000000-0000-0000-0000-000000000010',
+        code: UserRole.USER,
+        name: 'Member',
+        description: 'Default member role. Read-only across the board plus their own documents.',
+      },
+      {
+        id: '00000000-0000-0000-0000-000000000011',
+        code: UserRole.ORG_ADMIN,
+        name: 'Org Admin',
+        description: 'Tenant administrator. Manages members, templates, and compliance within one org.',
+      },
+      {
+        id: '00000000-0000-0000-0000-000000000012',
+        code: UserRole.GLOBAL_ADMIN,
+        name: 'Global Admin',
+        description: 'Platform administrator. Cross-tenant access to every feature.',
+      },
+    ]
+    for (const s of seed) {
+      const existing = await this.roles.findOne({ where: { code: s.code } })
+      if (existing) {
+        if (!existing.isSystem) {
+          existing.isSystem = true
+          await this.roles.save(existing)
+        }
+        continue
+      }
+      await this.roles.save(
+        this.roles.create({
+          id: s.id,
+          code: s.code,
+          name: s.name,
+          description: s.description,
+          isSystem: true,
+        }),
+      )
+      this.logger.log(`Seeded system role ${s.code}`)
+    }
+  }
+
+  /**
+   * Fill `role_permissions.role_id` for any rows still keyed only by the legacy
+   * `role` enum. The bootstrap SQL migration does the same, but doing it on
+   * every boot keeps fresh dev DBs consistent without manual steps.
+   */
+  private async backfillRolePermissionsRoleId(): Promise<void> {
+    const pending = await this.rolePermissionsRepo.find({ where: { roleId: IsNull() } })
+    if (pending.length === 0) return
+    for (const row of pending) {
+      const role = this.rolesByCode.get(row.role as unknown as string)
+      if (!role) continue
+      row.roleId = role.id
+    }
+    await this.rolePermissionsRepo.save(pending)
+    await this.reloadIam()
+    this.logger.log(`Backfilled role_id on ${pending.length} role_permissions rows`)
+  }
+
+  /**
+   * For every user that has no role assignment, create one matching their
+   * legacy `users.role` column. Idempotent: skips users that already have
+   * any assignment. Called from AuthService on bootstrap so the IAM tables
+   * stay aligned with existing data even when the SQL migration hasn't been
+   * run (e.g. fresh dev environments).
+   */
+  async backfillUserAssignments(): Promise<{ created: number; scanned: number }> {
+    const users = await this.users.find({ select: ['id', 'role'] })
+    let created = 0
+    for (const u of users) {
+      const existing = await this.assignments.count({ where: { userId: u.id } })
+      if (existing > 0) continue
+      const role = this.rolesByCode.get(u.role)
+      if (!role) continue
+      await this.assignments.save(
+        this.assignments.create({
+          id: randomUUID(),
+          userId: u.id,
+          roleId: role.id,
+          grantedByUserId: null,
+          expiresAt: null,
+          condition: null,
+        }),
+      )
+      created += 1
+    }
+    if (created > 0) {
+      await this.reloadIam()
+      this.logger.log(`Backfilled role_assignments for ${created} user(s)`)
+    }
+    return { created, scanned: users.length }
   }
 
   // ---------------------------------------------------------------------------
@@ -714,6 +829,82 @@ export class PermissionService implements OnApplicationBootstrap {
   }
 
   // ---------------------------------------------------------------------------
+  // Legacy users.role <-> role_assignments sync
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Recompute the legacy `users.role` column from the user's active role
+   * assignments. Picks the highest-priority system role the user holds
+   * (GLOBAL_ADMIN > ORG_ADMIN > USER). Used after IAM grants/revokes so
+   * legacy callsites that still read `user.role` see a sensible value.
+   *
+   * Custom roles don't influence `users.role` — they layer permissions on top
+   * but the column stores a single system enum.
+   */
+  async syncPrimaryRole(userId: string): Promise<UserRole> {
+    const assignments = this.userAssignments.get(userId) ?? []
+    let primary = UserRole.USER
+    let primaryRank = -1
+    for (const a of assignments) {
+      const role = this.rolesById.get(a.roleId)
+      if (!role) continue
+      const rank = PRIMARY_ROLE_PRIORITY.indexOf(role.code as UserRole)
+      if (rank > primaryRank) {
+        primary = role.code as UserRole
+        primaryRank = rank
+      }
+    }
+    await this.users.update({ id: userId }, { role: primary })
+    return primary
+  }
+
+  /**
+   * Bootstrap a user's role assignments to match a target system role. Used
+   * by the legacy register / updateMemberRole / admin-seed flows so every
+   * write of `users.role` is mirrored into `role_assignments`.
+   *
+   * Replaces any existing SYSTEM role assignment with the new one and
+   * preserves any custom-role assignments untouched. Updates `users.role`
+   * to match.
+   */
+  async setPrimarySystemRole(
+    userId: string,
+    role: UserRole,
+    actor: PermissionPrincipal & { organizationId?: string | null },
+  ): Promise<void> {
+    const target = this.rolesByCode.get(role)
+    if (!target) throw new NotFoundException(`System role not seeded: ${role}`)
+
+    const systemRoleIds = new Set(
+      Array.from(this.rolesByCode.values())
+        .filter((r) => r.isSystem)
+        .map((r) => r.id),
+    )
+
+    const existing = await this.assignments.find({ where: { userId } })
+    for (const a of existing) {
+      if (!systemRoleIds.has(a.roleId)) continue
+      if (a.roleId === target.id) continue
+      await this.assignments.delete({ id: a.id })
+    }
+    const already = existing.find((a) => a.roleId === target.id)
+    if (!already) {
+      await this.assignments.save(
+        this.assignments.create({
+          id: randomUUID(),
+          userId,
+          roleId: target.id,
+          grantedByUserId: actor.userId ?? null,
+          expiresAt: null,
+          condition: null,
+        }),
+      )
+    }
+    await this.reloadIam()
+    await this.syncPrimaryRole(userId)
+  }
+
+  // ---------------------------------------------------------------------------
   // IAM: assignments
   // ---------------------------------------------------------------------------
 
@@ -774,6 +965,9 @@ export class PermissionService implements OnApplicationBootstrap {
       )
     }
     await this.reloadIam()
+    // Mirror the new top-tier system role into users.role so legacy callsites
+    // that read `user.role` still see the right value.
+    await this.syncPrimaryRole(userId)
 
     this.auditLog.log({
       organizationId: actor.organizationId ?? null,
@@ -818,6 +1012,7 @@ export class PermissionService implements OnApplicationBootstrap {
     }
     await this.assignments.delete({ id: existing.id })
     await this.reloadIam()
+    await this.syncPrimaryRole(userId)
 
     this.auditLog.log({
       organizationId: actor.organizationId ?? null,
