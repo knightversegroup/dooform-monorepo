@@ -32,10 +32,12 @@ import { AuthController } from './interface/rest/controllers/auth.controller'
 import { OrganizationController } from './interface/rest/controllers/organization.controller'
 import { PermissionsController } from './interface/rest/controllers/permissions.controller'
 import { TenantsAdminController } from './interface/rest/controllers/tenants.controller'
+import { PlatformUsersController } from './interface/rest/controllers/platform-users.controller'
 import { TiersAdminController, TiersPublicController } from './interface/rest/controllers/tiers.controller'
 import { AuditLogsController } from './interface/rest/controllers/audit-logs.controller'
 import { ComplianceController } from './interface/rest/controllers/compliance.controller'
 import { StorageQuotaService } from '../user/application/services/storage-quota.service'
+import { PlatformDirectoryService } from '../user/application/services/platform-directory.service'
 import { TierConfigService } from '../user/application/services/tier-config.service'
 import { TierConfigModel } from '../user/infrastructure/persistence/typeorm/models/tier-config.model'
 import { DocumentServicesModule } from '../document/infrastructure/services/document-services.module'
@@ -79,6 +81,7 @@ import { DocumentServicesModule } from '../document/infrastructure/services/docu
     OrganizationController,
     PermissionsController,
     TenantsAdminController,
+    PlatformUsersController,
     TiersAdminController,
     TiersPublicController,
     AuditLogsController,
@@ -100,6 +103,7 @@ import { DocumentServicesModule } from '../document/infrastructure/services/docu
     CookieService,
     JwtStrategy,
     StorageQuotaService,
+    PlatformDirectoryService,
     TierConfigService,
   ],
   exports: [

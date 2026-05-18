@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { IsInt, IsOptional, Min } from 'class-validator'
 
 import { StorageQuotaService } from '../../../../user/application/services/storage-quota.service'
+import { PlatformDirectoryService } from '../../../../user/application/services/platform-directory.service'
 
 import { RequirePermission } from '../decorators/require-permission.decorator'
 import { JwtAuthGuard } from '../guards/jwt-auth.guard'
@@ -20,7 +21,10 @@ class SetQuotaDto {
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class TenantsAdminController {
-  constructor(private readonly quota: StorageQuotaService) {}
+  constructor(
+    private readonly quota: StorageQuotaService,
+    private readonly directory: PlatformDirectoryService,
+  ) {}
 
   @Get()
   @RequirePermission('platform:tenants:manage')
@@ -46,5 +50,21 @@ export class TenantsAdminController {
   async recompute(@Param('id') id: string) {
     await this.quota.recompute(id)
     return this.quota.getUsage(id)
+  }
+
+  @Get(':id/members')
+  @RequirePermission('platform:tenants:manage')
+  async listMembers(
+    @Param('id') id: string,
+    @Query('search') search?: string,
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+  ) {
+    return this.directory.listUsers({
+      organizationId: id,
+      search,
+      page: page ? Number(page) : 0,
+      pageSize: pageSize ? Number(pageSize) : 50,
+    })
   }
 }

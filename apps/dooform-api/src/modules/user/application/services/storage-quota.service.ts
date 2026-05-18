@@ -54,6 +54,16 @@ export class StorageQuotaService {
 
   async listAllUsage() {
     const orgs = await this.organizations.find({ order: { name: 'ASC' } })
+    // Pull member counts in a single grouped query to avoid N+1.
+    const counts = await this.organizations.manager
+      .createQueryBuilder()
+      .select('user.organization_id', 'orgId')
+      .addSelect('COUNT(*)', 'count')
+      .from('users', 'user')
+      .where('user.organization_id IS NOT NULL')
+      .groupBy('user.organization_id')
+      .getRawMany<{ orgId: string; count: string }>()
+    const countByOrg = new Map(counts.map((row) => [row.orgId, Number(row.count)]))
     return orgs.map((org) => ({
       organizationId: org.id,
       name: org.name,
@@ -64,6 +74,8 @@ export class StorageQuotaService {
         org.storageQuotaBytes && org.storageQuotaBytes > 0
           ? Math.min(100, (org.storageUsedBytes / org.storageQuotaBytes) * 100)
           : null,
+      memberCount: countByOrg.get(org.id) ?? 0,
+      tier: org.tier,
       createdAt: org.createdAt,
     }))
   }
