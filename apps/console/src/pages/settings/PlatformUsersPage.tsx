@@ -1,10 +1,35 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Pencil,
+  KeyRound,
+  Ban,
+  CheckCircle2,
+  X,
+} from 'lucide-react';
 
 import { useAuth } from '../../lib/auth/AuthContext';
 import { authApi } from '../../lib/auth/api';
+import type { UserRole } from '../../lib/auth/types';
+
+interface PlatformUserRow {
+  id: string;
+  email: string;
+  displayName: string;
+  role: UserRole;
+  userTier: string;
+  organizationId: string | null;
+  organizationName: string | null;
+  organizationSlug: string | null;
+  emailVerified: boolean;
+  isActive: boolean;
+  createdAt: string;
+  onboardedAt: string | null;
+}
 
 const PAGE_SIZES = [25, 50, 100, 200];
 
@@ -16,6 +41,7 @@ const PAGE_SIZES = [25, 50, 100, 200];
  */
 export default function PlatformUsersPage() {
   const { user } = useAuth();
+  const qc = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchInput, setSearchInput] = useState(searchParams.get('search') ?? '');
   const [page, setPage] = useState(0);
@@ -53,6 +79,63 @@ export default function PlatformUsersPage() {
     enabled: !!user,
   });
 
+  const [editing, setEditing] = useState<PlatformUserRow | null>(null);
+  const [feedback, setFeedback] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
+
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['admin', 'platform-users'] });
+    qc.invalidateQueries({ queryKey: ['admin', 'tenants'] });
+  };
+
+  const updateMutation = useMutation({
+    mutationFn: ({
+      userId,
+      patch,
+    }: {
+      userId: string;
+      patch: Parameters<typeof authApi.adminUpdateUser>[1];
+    }) => authApi.adminUpdateUser(userId, patch),
+    onSuccess: () => {
+      invalidate();
+      setEditing(null);
+      setFeedback({ kind: 'ok', text: 'User updated.' });
+    },
+    onError: (err: Error) => setFeedback({ kind: 'err', text: err.message }),
+  });
+
+  const activeMutation = useMutation({
+    mutationFn: ({ userId, isActive }: { userId: string; isActive: boolean }) =>
+      authApi.adminSetUserActive(userId, isActive),
+    onSuccess: (_, vars) => {
+      invalidate();
+      setFeedback({
+        kind: 'ok',
+        text: vars.isActive ? 'User reactivated.' : 'User deactivated and signed out.',
+      });
+    },
+    onError: (err: Error) => setFeedback({ kind: 'err', text: err.message }),
+  });
+
+  const resetMutation = useMutation({
+    mutationFn: (userId: string) => authApi.adminResetUserPassword(userId),
+    onSuccess: (data) => {
+      setFeedback({
+        kind: 'ok',
+        text: data.tokenForDev
+          ? `Reset link sent to ${data.sentTo} (dev token: ${data.tokenForDev})`
+          : `Reset link sent to ${data.sentTo}.`,
+      });
+    },
+    onError: (err: Error) => setFeedback({ kind: 'err', text: err.message }),
+  });
+
+  // Auto-clear non-error feedback after a short delay so it doesn't linger.
+  useEffect(() => {
+    if (!feedback || feedback.kind !== 'ok') return;
+    const t = window.setTimeout(() => setFeedback(null), 4000);
+    return () => window.clearTimeout(t);
+  }, [feedback]);
+
   const tenants = tenantsQuery.data ?? [];
   const result = usersQuery.data;
   const orgName = useMemo(() => {
@@ -75,14 +158,33 @@ export default function PlatformUsersPage() {
       <header>
         <h1 className="text-[18px] font-semibold text-ink tracking-tightish">Platform users</h1>
         <p className="text-[12px] text-ink-muted">
-          Every user across every organization. Read-only — to change a role or override
-          permissions, open the user in{' '}
+          Every user across every organization. Edit profile fields, send password resets, or
+          deactivate accounts here. To change a role or override permissions, open the user in{' '}
           <Link to="/settings/iam" className="text-primary underline">
             IAM
           </Link>
           .
         </p>
       </header>
+
+      {feedback ? (
+        <div
+          className={`rounded border px-3 py-2 text-[12px] flex items-start justify-between gap-3 ${
+            feedback.kind === 'ok'
+              ? 'border-green-200 bg-green-50 text-green-800'
+              : 'border-red-200 bg-red-50 text-red-700'
+          }`}
+        >
+          <span>{feedback.text}</span>
+          <button
+            onClick={() => setFeedback(null)}
+            className="opacity-60 hover:opacity-100"
+            aria-label="Dismiss"
+          >
+            <X className="w-3 h-3" />
+          </button>
+        </div>
+      ) : null}
 
       {/* Filters */}
       <div className="bg-white border border-border-subtle rounded-lg p-3 flex flex-wrap items-end gap-3">
@@ -160,9 +262,9 @@ export default function PlatformUsersPage() {
                 <th className="px-3 py-2">Organization</th>
                 <th className="px-3 py-2">Role</th>
                 <th className="px-3 py-2">Tier</th>
-                <th className="px-3 py-2">Verified</th>
+                <th className="px-3 py-2">Status</th>
                 <th className="px-3 py-2">Created</th>
-                <th className="px-3 py-2 text-right">Action</th>
+                <th className="px-3 py-2 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border-subtle">
@@ -192,22 +294,94 @@ export default function PlatformUsersPage() {
                     {u.userTier}
                   </td>
                   <td className="px-3 py-2">
-                    {u.emailVerified ? (
-                      <span className="text-[11px] text-green-700">verified</span>
-                    ) : (
-                      <span className="text-[11px] text-amber-700">pending</span>
-                    )}
+                    <div className="flex flex-col gap-0.5">
+                      {u.isActive ? (
+                        <span className="text-[11px] text-green-700">active</span>
+                      ) : (
+                        <span className="text-[11px] text-red-600">inactive</span>
+                      )}
+                      {u.emailVerified ? (
+                        <span className="text-[10px] text-ink-muted">email verified</span>
+                      ) : (
+                        <span className="text-[10px] text-amber-700">email pending</span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-3 py-2 text-[11px] text-ink-muted">
                     {new Date(u.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-3 py-2 text-right">
-                    <Link
-                      to={`/settings/iam?user=${u.id}`}
-                      className="text-[11px] text-primary hover:underline"
-                    >
-                      Open in IAM
-                    </Link>
+                    <div className="inline-flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setEditing(u as PlatformUserRow)}
+                        title="Edit profile"
+                        className="p-1 text-ink-muted hover:text-primary"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (
+                            confirm(
+                              `Send a password reset link to ${u.email}? Their active sessions will be signed out.`,
+                            )
+                          ) {
+                            resetMutation.mutate(u.id);
+                          }
+                        }}
+                        disabled={resetMutation.isPending}
+                        title="Send password reset email"
+                        className="p-1 text-ink-muted hover:text-primary disabled:opacity-40"
+                      >
+                        <KeyRound className="w-3.5 h-3.5" />
+                      </button>
+                      {u.isActive ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (
+                              u.id === user?.id
+                            ) {
+                              setFeedback({
+                                kind: 'err',
+                                text: 'Cannot deactivate yourself.',
+                              });
+                              return;
+                            }
+                            if (
+                              confirm(
+                                `Deactivate ${u.email}? They will be signed out and unable to log in until reactivated.`,
+                              )
+                            ) {
+                              activeMutation.mutate({ userId: u.id, isActive: false });
+                            }
+                          }}
+                          disabled={activeMutation.isPending}
+                          title="Deactivate user"
+                          className="p-1 text-ink-muted hover:text-red-600 disabled:opacity-40"
+                        >
+                          <Ban className="w-3.5 h-3.5" />
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => activeMutation.mutate({ userId: u.id, isActive: true })}
+                          disabled={activeMutation.isPending}
+                          title="Reactivate user"
+                          className="p-1 text-ink-muted hover:text-green-700 disabled:opacity-40"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                      <Link
+                        to={`/settings/iam?user=${u.id}`}
+                        className="ml-1 text-[11px] text-primary hover:underline"
+                      >
+                        IAM
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -215,6 +389,17 @@ export default function PlatformUsersPage() {
           </table>
         )}
       </div>
+
+      {editing ? (
+        <EditUserDialog
+          user={editing}
+          tenants={tenants}
+          submitting={updateMutation.isPending}
+          error={updateMutation.error ? (updateMutation.error as Error).message : null}
+          onCancel={() => setEditing(null)}
+          onSubmit={(patch) => updateMutation.mutate({ userId: editing.id, patch })}
+        />
+      ) : null}
 
       {/* Pagination */}
       {result && result.total > result.pageSize ? (
@@ -240,6 +425,144 @@ export default function PlatformUsersPage() {
           </button>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+function EditUserDialog({
+  user,
+  tenants,
+  submitting,
+  error,
+  onCancel,
+  onSubmit,
+}: {
+  user: PlatformUserRow;
+  tenants: Array<{ organizationId: string; name: string }>;
+  submitting: boolean;
+  error: string | null;
+  onCancel: () => void;
+  onSubmit: (patch: {
+    displayName?: string;
+    email?: string;
+    jobTitle?: string | null;
+    organizationId?: string | null;
+    emailVerified?: boolean;
+  }) => void;
+}) {
+  const [displayName, setDisplayName] = useState(user.displayName);
+  const [email, setEmail] = useState(user.email);
+  const [jobTitle, setJobTitle] = useState(user.organizationId ?? '');
+  const [orgId, setOrgId] = useState<string>(user.organizationId ?? '');
+  const [emailVerified, setEmailVerified] = useState(user.emailVerified);
+
+  // Build the diff so we don't ship unchanged fields.
+  const submit = () => {
+    const patch: {
+      displayName?: string;
+      email?: string;
+      jobTitle?: string | null;
+      organizationId?: string | null;
+      emailVerified?: boolean;
+    } = {};
+    if (displayName.trim() && displayName.trim() !== user.displayName) {
+      patch.displayName = displayName.trim();
+    }
+    const normalizedEmail = email.trim().toLowerCase();
+    if (normalizedEmail && normalizedEmail !== user.email) patch.email = normalizedEmail;
+    const currentOrg = user.organizationId ?? '';
+    if (orgId !== currentOrg) patch.organizationId = orgId === '' ? null : orgId;
+    if (emailVerified !== user.emailVerified) patch.emailVerified = emailVerified;
+    if (Object.keys(patch).length === 0) {
+      onCancel();
+      return;
+    }
+    onSubmit(patch);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-lg w-[460px] p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-ink">Edit user</h3>
+          <button onClick={onCancel} className="p-1 text-ink-muted hover:text-ink">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <p className="text-[11px] text-ink-muted">Original: {user.email}</p>
+
+        <label className="flex flex-col gap-1">
+          <span className="text-[11px] text-ink-muted">Display name</span>
+          <input
+            type="text"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            className="px-2 py-1 rounded border border-border-default text-sm"
+          />
+        </label>
+
+        <label className="flex flex-col gap-1">
+          <span className="text-[11px] text-ink-muted">Email</span>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="px-2 py-1 rounded border border-border-default text-sm"
+          />
+          <span className="text-[10px] text-ink-faint">
+            Changing email resets verification unless you tick the box below.
+          </span>
+        </label>
+
+        <label className="flex items-center gap-2 text-[12px] text-ink">
+          <input
+            type="checkbox"
+            checked={emailVerified}
+            onChange={(e) => setEmailVerified(e.target.checked)}
+          />
+          Email verified
+        </label>
+
+        <label className="flex flex-col gap-1">
+          <span className="text-[11px] text-ink-muted">Organization</span>
+          <select
+            value={orgId}
+            onChange={(e) => setOrgId(e.target.value)}
+            className="px-2 py-1 rounded border border-border-default bg-white text-sm"
+          >
+            <option value="">— No organization —</option>
+            {tenants.map((t) => (
+              <option key={t.organizationId} value={t.organizationId}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        {/* The jobTitle field exists on the model but we treat it as future
+            work for now — the dialog covers the high-frequency edits. */}
+        {jobTitle && jobTitle !== '' ? null : null}
+
+        {error ? <div className="text-[11px] text-red-600">{error}</div> : null}
+
+        <div className="flex items-center justify-end gap-2 pt-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-3 py-1 text-xs rounded border border-border-default text-ink-muted"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={submit}
+            disabled={submitting}
+            className="px-3 py-1 text-xs rounded bg-primary text-white disabled:opacity-50"
+          >
+            {submitting ? 'Saving…' : 'Save'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

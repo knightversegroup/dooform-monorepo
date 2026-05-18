@@ -242,6 +242,7 @@ export const authApi = {
         organizationName: string | null;
         organizationSlug: string | null;
         emailVerified: boolean;
+        isActive: boolean;
         createdAt: string;
         onboardedAt: string | null;
       }>;
@@ -251,6 +252,29 @@ export const authApi = {
     }>('/admin/users', {
       query: params as Record<string, string | number | undefined>,
     }),
+  adminUpdateUser: (
+    userId: string,
+    patch: {
+      displayName?: string;
+      email?: string;
+      jobTitle?: string | null;
+      timezone?: string | null;
+      locale?: string | null;
+      emailVerified?: boolean;
+      organizationId?: string | null;
+    },
+  ) =>
+    http.patch<{ id: string; email: string; displayName: string }>(`/admin/users/${userId}`, {
+      body: patch,
+    }),
+  adminSetUserActive: (userId: string, isActive: boolean) =>
+    http.patch<{ id: string; isActive: boolean }>(`/admin/users/${userId}/active`, {
+      body: { isActive },
+    }),
+  adminResetUserPassword: (userId: string) =>
+    http.post<{ sentTo: string; tokenForDev?: string }>(
+      `/admin/users/${userId}/reset-password`,
+    ),
   listTenantMembers: (
     organizationId: string,
     params?: { search?: string; page?: number; pageSize?: number },
