@@ -35,15 +35,12 @@ jobs:
         uses: azure/container-apps-deploy-action@v2
         with:
           appSourcePath: ${{ github.workspace }}
-          _dockerfilePathKey_: _dockerfilePath_
-          _targetLabelKey_: _targetLabel_
+          dockerfilePath: apps/dooform-api/Dockerfile
           registryUrl: dooformacrprod.azurecr.io
           registryUsername: ${{ secrets.DOOFORMAPIDEV_REGISTRY_USERNAME }}
           registryPassword: ${{ secrets.DOOFORMAPIDEV_REGISTRY_PASSWORD }}
           containerAppName: dooform-api-dev
           resourceGroup: dooform-prod-rg
           imageToBuild: dooformacrprod.azurecr.io/dooform-api-dev:${{ github.sha }}
-          _buildArgumentsKey_: |
-            _buildArgumentsValues_
 
 
