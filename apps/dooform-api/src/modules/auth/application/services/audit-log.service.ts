@@ -26,9 +26,13 @@ export interface AuditEvent {
 }
 
 export interface ListAuditLogsOptions {
-  // Caller's effective scope. GLOBAL_ADMIN may pass `null` to list across every tenant.
+  // Caller's effective scope. Holders of `audit-logs:read-cross-org` may pass `null`
+  // to list across every tenant.
   scopeOrganizationId: string | null
   callerRole: UserRole | string
+  // Pre-computed permission boolean. When unset the service falls back to
+  // `callerRole === 'GLOBAL_ADMIN'` for back-compat with older callers.
+  canReadCrossOrg?: boolean
   // Optional filters
   actorUserId?: string
   action?: string
@@ -97,16 +101,19 @@ export class AuditLogService {
   async list(options: ListAuditLogsOptions): Promise<{ data: AuditLogModel[]; total: number }> {
     const qb = this.logs.createQueryBuilder('log').orderBy('log.created_at', 'DESC')
 
-    // Cross-tenant view is gated to GLOBAL_ADMIN. Any other caller is hard-scoped to
-    // their org id regardless of what they pass in.
-    const isGlobal = options.callerRole === UserRole.GLOBAL_ADMIN || options.callerRole === 'GLOBAL_ADMIN'
-    if (!isGlobal) {
+    // Cross-tenant view is gated on `audit-logs:read-cross-org`. Any other caller is
+    // hard-scoped to their org id regardless of what they pass in.
+    const canReadCrossOrg =
+      typeof options.canReadCrossOrg === 'boolean'
+        ? options.canReadCrossOrg
+        : options.callerRole === UserRole.GLOBAL_ADMIN || options.callerRole === 'GLOBAL_ADMIN'
+    if (!canReadCrossOrg) {
       if (!options.scopeOrganizationId) {
         return { data: [], total: 0 }
       }
       qb.andWhere('log.organization_id = :orgId', { orgId: options.scopeOrganizationId })
     } else if (options.scopeOrganizationId) {
-      // GLOBAL_ADMIN narrowed to a specific tenant
+      // Cross-org reader narrowed to a specific tenant
       qb.andWhere('log.organization_id = :orgId', { orgId: options.scopeOrganizationId })
     }
 

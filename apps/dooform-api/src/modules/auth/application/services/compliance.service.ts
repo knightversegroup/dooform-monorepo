@@ -15,6 +15,7 @@ import {
 import { ComplianceAlertModel } from '../../infrastructure/persistence/typeorm/models/compliance-alert.model'
 
 import type { AuditEvent } from './audit-log.service'
+import { PermissionService } from './permission.service'
 
 export interface CreateRuleInput {
   organizationId: string | null
@@ -30,6 +31,8 @@ export interface CreateRuleInput {
 export interface ListAlertsOptions {
   scopeOrganizationId: string | null
   callerRole: UserRole | string
+  // Pre-computed holder of `audit-logs:read-cross-org` — falls back to GLOBAL_ADMIN role string.
+  canReadCrossOrg?: boolean
   acknowledged?: boolean
   severity?: ComplianceSeverity
   page: number
@@ -56,7 +59,19 @@ export class ComplianceService {
     @InjectRepository(ComplianceAlertModel)
     private readonly alerts: Repository<ComplianceAlertModel>,
     private readonly mailer: MailerService,
+    private readonly permissions: PermissionService,
   ) {}
+
+  /**
+   * Internal helper — does the caller hold `compliance:rules:manage-global`?
+   * Falls back to role-string check when called without a userId (legacy paths).
+   */
+  private canManageGlobal(caller: { userId?: string; role: string }): boolean {
+    if (caller.userId) {
+      return this.permissions.userHas(caller, 'compliance:rules:manage-global')
+    }
+    return caller.role === UserRole.GLOBAL_ADMIN || caller.role === 'GLOBAL_ADMIN'
+  }
 
   // ---------------------------------------------------------------------------
   // Cache
@@ -77,8 +92,12 @@ export class ComplianceService {
   // ---------------------------------------------------------------------------
   // Rule CRUD
   // ---------------------------------------------------------------------------
-  async listRules(scope: { organizationId: string | null; callerRole: string }): Promise<ComplianceRuleModel[]> {
-    if (scope.callerRole === UserRole.GLOBAL_ADMIN) {
+  async listRules(scope: {
+    organizationId: string | null
+    callerRole: string
+    callerUserId?: string
+  }): Promise<ComplianceRuleModel[]> {
+    if (this.canManageGlobal({ userId: scope.callerUserId, role: scope.callerRole })) {
       return this.rules.find({ order: { createdAt: 'DESC' } })
     }
     // Tenant admins ONLY see rules they own. Global (NULL-org) rules still fire on
@@ -91,13 +110,19 @@ export class ComplianceService {
     })
   }
 
-  async createRule(input: CreateRuleInput, callerRole: string): Promise<ComplianceRuleModel> {
-    // A NULL organizationId is reserved for GLOBAL_ADMIN-authored "global" rules that
-    // fire on every tenant's events. Tenant admins must always pass their own org id.
-    // Without this guard, a tenant admin whose JWT happens to have organizationId=null
-    // (legacy account) would inadvertently create a global rule visible to all tenants.
-    if (input.organizationId === null && callerRole !== UserRole.GLOBAL_ADMIN) {
-      throw new ForbiddenException('Only GLOBAL_ADMIN can create global compliance rules')
+  async createRule(
+    input: CreateRuleInput,
+    caller: { userId?: string; role: string },
+  ): Promise<ComplianceRuleModel> {
+    // A NULL organizationId is reserved for "global" rules that fire on every
+    // tenant's events. Only callers with compliance:rules:manage-global may create
+    // them. Without this guard, a tenant admin whose JWT happens to have
+    // organizationId=null (legacy account) would inadvertently create a global rule
+    // visible to all tenants.
+    if (input.organizationId === null && !this.canManageGlobal(caller)) {
+      throw new ForbiddenException(
+        'Missing compliance:rules:manage-global permission to create global rules',
+      )
     }
     if (!input.conditions?.actionPattern) {
       throw new ForbiddenException('actionPattern is required')
@@ -121,7 +146,7 @@ export class ComplianceService {
   async updateRule(
     id: string,
     input: Partial<CreateRuleInput>,
-    caller: { organizationId: string | null; role: string },
+    caller: { userId?: string; organizationId: string | null; role: string },
   ): Promise<ComplianceRuleModel> {
     const existing = await this.rules.findOne({ where: { id } })
     if (!existing) throw new NotFoundException('Rule not found')
@@ -139,7 +164,10 @@ export class ComplianceService {
     return saved
   }
 
-  async deleteRule(id: string, caller: { organizationId: string | null; role: string }): Promise<void> {
+  async deleteRule(
+    id: string,
+    caller: { userId?: string; organizationId: string | null; role: string },
+  ): Promise<void> {
     const existing = await this.rules.findOne({ where: { id } })
     if (!existing) throw new NotFoundException('Rule not found')
     this.assertCanEditRule(existing, caller)
@@ -149,11 +177,13 @@ export class ComplianceService {
 
   private assertCanEditRule(
     rule: ComplianceRuleModel,
-    caller: { organizationId: string | null; role: string },
+    caller: { userId?: string; organizationId: string | null; role: string },
   ): void {
-    if (caller.role === UserRole.GLOBAL_ADMIN) return
+    if (this.canManageGlobal(caller)) return
     if (rule.organizationId === null) {
-      throw new ForbiddenException('Only GLOBAL_ADMIN can edit global rules')
+      throw new ForbiddenException(
+        'Missing compliance:rules:manage-global permission to edit global rules',
+      )
     }
     if (rule.organizationId !== caller.organizationId) {
       throw new ForbiddenException('Cannot edit a rule from another organization')
@@ -304,7 +334,10 @@ export class ComplianceService {
   // ---------------------------------------------------------------------------
   async listAlerts(options: ListAlertsOptions): Promise<{ data: ComplianceAlertModel[]; total: number }> {
     const qb = this.alerts.createQueryBuilder('a').orderBy('a.created_at', 'DESC')
-    const isGlobal = options.callerRole === UserRole.GLOBAL_ADMIN || options.callerRole === 'GLOBAL_ADMIN'
+    const isGlobal =
+      typeof options.canReadCrossOrg === 'boolean'
+        ? options.canReadCrossOrg
+        : options.callerRole === UserRole.GLOBAL_ADMIN || options.callerRole === 'GLOBAL_ADMIN'
     if (!isGlobal) {
       if (!options.scopeOrganizationId) return { data: [], total: 0 }
       qb.andWhere('a.organization_id = :orgId', { orgId: options.scopeOrganizationId })
@@ -326,10 +359,8 @@ export class ComplianceService {
   ): Promise<ComplianceAlertModel> {
     const alert = await this.alerts.findOne({ where: { id: alertId } })
     if (!alert) throw new NotFoundException('Alert not found')
-    if (
-      caller.role !== UserRole.GLOBAL_ADMIN &&
-      alert.organizationId !== caller.organizationId
-    ) {
+    const canAccessAny = this.permissions.userHas(caller, 'audit-logs:read-cross-org')
+    if (!canAccessAny && alert.organizationId !== caller.organizationId) {
       throw new ForbiddenException('Cannot acknowledge an alert from another organization')
     }
     alert.acknowledgedAt = new Date()
@@ -337,8 +368,17 @@ export class ComplianceService {
     return this.alerts.save(alert)
   }
 
-  async unreadCount(scope: { organizationId: string | null; callerRole: string }): Promise<number> {
-    const isGlobal = scope.callerRole === UserRole.GLOBAL_ADMIN
+  async unreadCount(scope: {
+    organizationId: string | null
+    callerRole: string
+    callerUserId?: string
+  }): Promise<number> {
+    const isGlobal = scope.callerUserId
+      ? this.permissions.userHas(
+          { userId: scope.callerUserId, role: scope.callerRole },
+          'audit-logs:read-cross-org',
+        )
+      : scope.callerRole === UserRole.GLOBAL_ADMIN
     const where: Record<string, unknown> = { acknowledgedAt: IsNull() }
     if (!isGlobal) {
       if (!scope.organizationId) return 0

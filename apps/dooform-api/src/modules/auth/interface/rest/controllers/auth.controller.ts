@@ -202,8 +202,8 @@ export class AuthController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() dto: CreateInviteCodeDto,
   ) {
-    if (dto.organizationId && user.role !== UserRole.GLOBAL_ADMIN) {
-      throw new ForbiddenException('Only GLOBAL_ADMIN may target other organizations')
+    if (dto.organizationId && !this.permissions.userHas(user, 'tenants:manage-any-org')) {
+      throw new ForbiddenException('Missing tenants:manage-any-org permission to target other organizations')
     }
     return this.auth.createInviteCode({
       creator: { userId: user.userId, role: user.role, organizationId: user.organizationId },

@@ -13,6 +13,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { IsArray, IsBoolean, IsEnum, IsIn, IsObject, IsOptional, IsString, MaxLength } from 'class-validator'
 
 import { ComplianceService } from '../../../application/services/compliance.service'
+import { PermissionService } from '../../../application/services/permission.service'
 import type {
   ComplianceRuleConditions,
   ComplianceSeverity,
@@ -91,7 +92,10 @@ class UpdateRuleDto {
 @ApiBearerAuth()
 @SkipAudit()
 export class ComplianceController {
-  constructor(private readonly compliance: ComplianceService) {}
+  constructor(
+    private readonly compliance: ComplianceService,
+    private readonly permissions: PermissionService,
+  ) {}
 
   // ---- Rules ----
 
@@ -101,14 +105,15 @@ export class ComplianceController {
     return this.compliance.listRules({
       organizationId: user.organizationId,
       callerRole: user.role,
+      callerUserId: user.userId,
     })
   }
 
   @Post('rules')
   @RequirePermission('organization:audit:manage')
   async createRule(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateRuleDto) {
-    const isGlobalAdmin = user.role === 'GLOBAL_ADMIN'
-    const orgId = isGlobalAdmin && dto.scope === 'global' ? null : user.organizationId
+    const canManageGlobal = this.permissions.userHas(user, 'compliance:rules:manage-global')
+    const orgId = canManageGlobal && dto.scope === 'global' ? null : user.organizationId
     return this.compliance.createRule(
       {
         organizationId: orgId,
@@ -120,7 +125,7 @@ export class ComplianceController {
         notifyEmails: dto.notifyEmails ?? null,
         createdByUserId: user.userId,
       },
-      user.role,
+      { userId: user.userId, role: user.role },
     )
   }
 
@@ -141,7 +146,7 @@ export class ComplianceController {
         enabled: dto.enabled,
         notifyEmails: dto.notifyEmails ?? null,
       },
-      { organizationId: user.organizationId, role: user.role },
+      { userId: user.userId, organizationId: user.organizationId, role: user.role },
     )
   }
 
@@ -149,6 +154,7 @@ export class ComplianceController {
   @RequirePermission('organization:audit:manage')
   async deleteRule(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
     await this.compliance.deleteRule(id, {
+      userId: user.userId,
       organizationId: user.organizationId,
       role: user.role,
     })
@@ -167,13 +173,14 @@ export class ComplianceController {
     @Query('page') page?: string,
     @Query('pageSize') pageSize?: string,
   ) {
-    const isGlobal = user.role === 'GLOBAL_ADMIN'
-    const scope = isGlobal ? organizationId ?? null : user.organizationId
+    const canReadCrossOrg = this.permissions.userHas(user, 'audit-logs:read-cross-org')
+    const scope = canReadCrossOrg ? organizationId ?? null : user.organizationId
     const ack =
       acknowledged === 'true' ? true : acknowledged === 'false' ? false : undefined
     return this.compliance.listAlerts({
       scopeOrganizationId: scope ?? null,
       callerRole: user.role,
+      canReadCrossOrg,
       acknowledged: ack,
       severity,
       page: page ? Math.max(0, Number(page)) : 0,
@@ -197,6 +204,7 @@ export class ComplianceController {
     const count = await this.compliance.unreadCount({
       organizationId: user.organizationId,
       callerRole: user.role,
+      callerUserId: user.userId,
     })
     return { count }
   }

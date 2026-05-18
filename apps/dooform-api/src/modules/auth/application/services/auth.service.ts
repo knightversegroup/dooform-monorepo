@@ -23,6 +23,7 @@ import { RefreshTokenModel } from '../../infrastructure/persistence/typeorm/mode
 import { PasswordResetTokenModel } from '../../infrastructure/persistence/typeorm/models/password-reset-token.model'
 import { InviteCodeModel } from '../../infrastructure/persistence/typeorm/models/invite-code.model'
 import { AuditLogService } from './audit-log.service'
+import { PermissionService } from './permission.service'
 import { PasswordService } from '../../infrastructure/services/password.service'
 import { TokenService } from '../../infrastructure/services/token.service'
 
@@ -47,7 +48,35 @@ export class AuthService {
     private readonly mailer: MailerService,
     private readonly config: ConfigService,
     private readonly audit: AuditLogService,
+    private readonly permissions: PermissionService,
   ) {}
+
+  /** Holder of `tenants:manage-any-org` — falls back to GLOBAL_ADMIN role string. */
+  private canManageAnyOrg(caller: { userId?: string; role: UserRole | string }): boolean {
+    if (caller.userId) {
+      return this.permissions.userHas({ userId: caller.userId, role: caller.role as string }, 'tenants:manage-any-org')
+    }
+    return caller.role === UserRole.GLOBAL_ADMIN
+  }
+
+  /** Holder of `users:assign-role`. */
+  private canAssignRole(caller: { userId?: string; role: UserRole | string }): boolean {
+    if (caller.userId) {
+      return this.permissions.userHas({ userId: caller.userId, role: caller.role as string }, 'users:assign-role')
+    }
+    return caller.role === UserRole.GLOBAL_ADMIN || caller.role === UserRole.ORG_ADMIN
+  }
+
+  /** Holder of `users:assign-global-admin` — required to promote anyone to GLOBAL_ADMIN. */
+  private canAssignGlobalAdmin(caller: { userId?: string; role: UserRole | string }): boolean {
+    if (caller.userId) {
+      return this.permissions.userHas(
+        { userId: caller.userId, role: caller.role as string },
+        'users:assign-global-admin',
+      )
+    }
+    return caller.role === UserRole.GLOBAL_ADMIN
+  }
 
   // -------- Registration --------
 
@@ -306,7 +335,7 @@ export class AuthService {
     organizationId?: string
   }): Promise<InviteCodeModel> {
     let orgId = input.organizationId ?? input.creator.organizationId
-    if (input.creator.role !== UserRole.GLOBAL_ADMIN) {
+    if (!this.canManageAnyOrg(input.creator)) {
       orgId = input.creator.organizationId
     }
     if (!orgId) throw new BadRequestException('No organization for invite code')
@@ -339,7 +368,7 @@ export class AuthService {
     role: UserRole
     organizationId: string | null
   }): Promise<InviteCodeModel[]> {
-    if (creator.role === UserRole.GLOBAL_ADMIN) {
+    if (this.canManageAnyOrg(creator)) {
       return this.inviteCodes.find({ order: { createdAt: 'DESC' } })
     }
     if (!creator.organizationId) return []
@@ -349,10 +378,13 @@ export class AuthService {
     })
   }
 
-  async deleteInviteCode(id: string, caller: { role: UserRole; organizationId: string | null }): Promise<void> {
+  async deleteInviteCode(
+    id: string,
+    caller: { userId?: string; role: UserRole; organizationId: string | null },
+  ): Promise<void> {
     const code = await this.inviteCodes.findOne({ where: { id } })
     if (!code) throw new NotFoundException('Invite code not found')
-    if (caller.role !== UserRole.GLOBAL_ADMIN && code.organizationId !== caller.organizationId) {
+    if (!this.canManageAnyOrg(caller) && code.organizationId !== caller.organizationId) {
       throw new UnauthorizedException('Cannot delete invite code from another organization')
     }
     await this.inviteCodes.softDelete({ id })
@@ -422,10 +454,10 @@ export class AuthService {
 
   async updateOrganization(
     orgId: string,
-    caller: { role: UserRole; organizationId: string | null },
+    caller: { userId?: string; role: UserRole; organizationId: string | null },
     input: { name?: string },
   ): Promise<OrganizationModel> {
-    if (caller.role !== UserRole.GLOBAL_ADMIN && caller.organizationId !== orgId) {
+    if (!this.canManageAnyOrg(caller) && caller.organizationId !== orgId) {
       throw new ForbiddenException('Cannot modify another organization')
     }
     const org = await this.getOrganization(orgId)
@@ -445,10 +477,10 @@ export class AuthService {
    */
   async updateOrganizationTier(
     orgId: string,
-    caller: { role: UserRole; organizationId: string | null },
+    caller: { userId?: string; role: UserRole; organizationId: string | null },
     tier: UserTier,
   ): Promise<OrganizationModel> {
-    if (caller.role !== UserRole.GLOBAL_ADMIN && caller.organizationId !== orgId) {
+    if (!this.canManageAnyOrg(caller) && caller.organizationId !== orgId) {
       throw new ForbiddenException('Cannot modify another organization')
     }
     const org = await this.getOrganization(orgId)
@@ -471,14 +503,14 @@ export class AuthService {
     caller: { userId: string; role: UserRole; organizationId: string | null },
     role: UserRole,
   ): Promise<UserModel> {
-    if (caller.role !== UserRole.GLOBAL_ADMIN && caller.organizationId !== orgId) {
+    if (!this.canManageAnyOrg(caller) && caller.organizationId !== orgId) {
       throw new ForbiddenException('Cannot modify members of another organization')
     }
-    if (caller.role !== UserRole.GLOBAL_ADMIN && caller.role !== UserRole.ORG_ADMIN) {
-      throw new ForbiddenException('Insufficient permissions')
+    if (!this.canAssignRole(caller)) {
+      throw new ForbiddenException('Missing users:assign-role permission')
     }
-    if (role === UserRole.GLOBAL_ADMIN && caller.role !== UserRole.GLOBAL_ADMIN) {
-      throw new ForbiddenException('Only GLOBAL_ADMIN may grant GLOBAL_ADMIN')
+    if (role === UserRole.GLOBAL_ADMIN && !this.canAssignGlobalAdmin(caller)) {
+      throw new ForbiddenException('Missing users:assign-global-admin permission')
     }
     const target = await this.users.findOne({ where: { id: targetUserId } })
     if (!target || target.organizationId !== orgId) throw new NotFoundException('Member not found')
@@ -504,7 +536,7 @@ export class AuthService {
     targetUserId: string,
     caller: { userId: string; role: UserRole; organizationId: string | null },
   ): Promise<void> {
-    if (caller.role !== UserRole.GLOBAL_ADMIN && caller.organizationId !== orgId) {
+    if (!this.canManageAnyOrg(caller) && caller.organizationId !== orgId) {
       throw new ForbiddenException('Cannot modify members of another organization')
     }
     if (targetUserId === caller.userId) {
