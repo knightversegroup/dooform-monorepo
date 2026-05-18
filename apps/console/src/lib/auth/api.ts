@@ -220,9 +220,61 @@ export const authApi = {
         quotaBytes: number | null;
         usedBytes: number;
         percentUsed: number | null;
+        memberCount: number;
+        tier: string;
         createdAt: string;
       }>
     >('/admin/tenants'),
+  listPlatformUsers: (params?: {
+    organizationId?: string | 'none';
+    search?: string;
+    page?: number;
+    pageSize?: number;
+  }) =>
+    http.get<{
+      data: Array<{
+        id: string;
+        email: string;
+        displayName: string;
+        role: UserRole;
+        userTier: string;
+        organizationId: string | null;
+        organizationName: string | null;
+        organizationSlug: string | null;
+        emailVerified: boolean;
+        createdAt: string;
+        onboardedAt: string | null;
+      }>;
+      total: number;
+      page: number;
+      pageSize: number;
+    }>('/admin/users', {
+      query: params as Record<string, string | number | undefined>,
+    }),
+  listTenantMembers: (
+    organizationId: string,
+    params?: { search?: string; page?: number; pageSize?: number },
+  ) =>
+    http.get<{
+      data: Array<{
+        id: string;
+        email: string;
+        displayName: string;
+        role: UserRole;
+        userTier: string;
+        organizationId: string | null;
+        organizationName: string | null;
+        organizationSlug: string | null;
+        emailVerified: boolean;
+        createdAt: string;
+        onboardedAt: string | null;
+      }>;
+      total: number;
+      page: number;
+      pageSize: number;
+    }>(`/admin/tenants/${organizationId}/members`, {
+      query: params as Record<string, string | number | undefined>,
+    }),
   setTenantQuota: (organizationId: string, quotaBytes: number | null) =>
     http.patch<{ organizationId: string; quotaBytes: number | null; usedBytes: number }>(
       `/admin/tenants/${organizationId}/quota`,

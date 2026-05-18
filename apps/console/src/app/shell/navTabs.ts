@@ -16,6 +16,7 @@ import {
   Stamp,
   UserCircle,
   UserCog,
+  Users,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -72,6 +73,7 @@ export const settingsSections: NavMenuSection[] = [
       { to: '/settings/roles',         label: 'Roles',              icon: ShieldCheck },
       { to: '/settings/permissions',   label: 'Role baselines',     icon: ShieldCheck },
       { to: '/settings/tenants',       label: 'Tenants',            icon: HardDrive },
+      { to: '/settings/platform-users', label: 'Platform users',    icon: Users },
       { to: '/settings/taxonomy',      label: 'Template taxonomy',  icon: Layers },
       { to: '/settings/tiers',         label: 'Subscription tiers', icon: CreditCard },
       { to: '/settings/field-types',   label: 'Field types',        icon: Settings },

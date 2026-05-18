@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { RefreshCw, Save } from 'lucide-react';
+import { RefreshCw, Save, Users } from 'lucide-react';
 import { authApi } from '../../lib/auth/api';
 import { ApiError } from '../../lib/api/client';
 
@@ -126,6 +127,7 @@ export default function TenantsAdminPage() {
           <thead className="bg-surface-alt text-left text-xs uppercase tracking-wide text-ink-muted">
             <tr>
               <th className="py-3 px-4">Organization</th>
+              <th className="py-3 px-4">Members</th>
               <th className="py-3 px-4">Used</th>
               <th className="py-3 px-4">Quota</th>
               <th className="py-3 px-4">Usage</th>
@@ -142,6 +144,15 @@ export default function TenantsAdminPage() {
                   <td className="py-3 px-4">
                     <div className="font-medium text-ink">{t.name}</div>
                     <div className="text-xs text-ink-muted">{t.slug}</div>
+                  </td>
+                  <td className="py-3 px-4">
+                    <Link
+                      to={`/settings/platform-users?organizationId=${t.organizationId}`}
+                      className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                    >
+                      <Users className="w-3.5 h-3.5" />
+                      {t.memberCount ?? 0}
+                    </Link>
                   </td>
                   <td className="py-3 px-4 text-ink-muted">
                     <div className="flex items-center gap-2">

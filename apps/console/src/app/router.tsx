@@ -20,6 +20,7 @@ import OrganizationSettingsPage from '../pages/settings/OrganizationSettingsPage
 import PermissionsSettingsPage from '../pages/settings/PermissionsSettingsPage';
 import IamPage from '../pages/settings/IamPage';
 import RolesPage from '../pages/settings/RolesPage';
+import PlatformUsersPage from '../pages/settings/PlatformUsersPage';
 import TenantsAdminPage from '../pages/settings/TenantsAdminPage';
 import AuditLogPage from '../pages/settings/AuditLogPage';
 import CompliancePage from '../pages/settings/CompliancePage';
@@ -120,6 +121,14 @@ export const router = createBrowserRouter([
         element: (
           <RequirePermission anyOf={['platform:tenants:manage']}>
             <TenantsAdminPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: '/settings/platform-users',
+        element: (
+          <RequirePermission anyOf={['platform:tenants:manage']}>
+            <PlatformUsersPage />
           </RequirePermission>
         ),
       },
