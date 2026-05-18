@@ -24,6 +24,25 @@ jobs:
       - name: Checkout to the branch
         uses: actions/checkout@v2
 
+      - name: Run database migrations
+        # Idempotent SQL migrations from apps/dooform-api/src/database/migrations/*.sql
+        # are applied chronologically. Failures abort before the container deploy
+        # so a half-migrated DB can never end up paired with a new container.
+        # Requires a DATABASE_URL secret pointing at the dev tenant's postgres.
+        # If the secret is unset, the step emits a warning and exits 0 so the
+        # workflow continues — handy for first-time setup before the secret is
+        # configured.
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [[ -z "${DATABASE_URL:-}" ]]; then
+            echo "::warning::DATABASE_URL secret is not set — skipping migrations. Configure it in repo settings to enable automatic migration during deploy."
+            exit 0
+          fi
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends postgresql-client
+          bash apps/dooform-api/src/database/migrate.sh
+
       - name: Azure Login
         uses: azure/login@v2
         with:
