@@ -68,8 +68,9 @@ export const settingsSections: NavMenuSection[] = [
   {
     label: 'Admin',
     items: [
-      { to: '/settings/permissions',   label: 'Permissions',        icon: ShieldCheck },
-      { to: '/settings/users',         label: 'User assignments',   icon: UserCog },
+      { to: '/settings/iam',           label: 'IAM',                icon: UserCog },
+      { to: '/settings/roles',         label: 'Roles',              icon: ShieldCheck },
+      { to: '/settings/permissions',   label: 'Role baselines',     icon: ShieldCheck },
       { to: '/settings/tenants',       label: 'Tenants',            icon: HardDrive },
       { to: '/settings/taxonomy',      label: 'Template taxonomy',  icon: Layers },
       { to: '/settings/tiers',         label: 'Subscription tiers', icon: CreditCard },

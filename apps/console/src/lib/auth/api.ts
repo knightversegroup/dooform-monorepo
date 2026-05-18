@@ -1,5 +1,6 @@
 import { http } from '../api/client';
 import type {
+  AssignmentCondition,
   AuthUser,
   ChangePasswordPayload,
   CompleteOnboardingPayload,
@@ -104,6 +105,110 @@ export const authApi = {
       `/admin/permissions/users/${userId}/role`,
       { body: { role, reason } },
     ),
+
+  // IAM-style multi-role assignments.
+  listRoles: () =>
+    http.get<
+      Array<{
+        id: string;
+        code: string;
+        name: string;
+        description: string | null;
+        isSystem: boolean;
+        permissions: string[];
+        assigneeCount: number;
+      }>
+    >('/admin/permissions/roles'),
+  getRole: (id: string) =>
+    http.get<{
+      id: string;
+      code: string;
+      name: string;
+      description: string | null;
+      isSystem: boolean;
+      permissions: string[];
+      assigneeCount: number;
+    }>(`/admin/permissions/roles/${id}`),
+  createRole: (input: {
+    code: string;
+    name: string;
+    description?: string;
+    permissions: string[];
+  }) =>
+    http.post<{
+      id: string;
+      code: string;
+      name: string;
+      description: string | null;
+      isSystem: boolean;
+      permissions: string[];
+      assigneeCount: number;
+    }>('/admin/permissions/roles', { body: input }),
+  updateRole: (
+    id: string,
+    input: { name?: string; description?: string | null; permissions?: string[] },
+  ) =>
+    http.patch<{
+      id: string;
+      code: string;
+      name: string;
+      description: string | null;
+      isSystem: boolean;
+      permissions: string[];
+      assigneeCount: number;
+    }>(`/admin/permissions/roles/${id}`, { body: input }),
+  deleteRole: (id: string) =>
+    http.delete<{ ok: boolean }>(`/admin/permissions/roles/${id}`),
+
+  listUserAssignments: (userId: string) =>
+    http.get<
+      Array<{
+        id: string;
+        userId: string;
+        roleId: string;
+        roleCode: string;
+        roleName: string;
+        grantedByUserId: string | null;
+        grantedAt: string;
+        expiresAt: string | null;
+        condition: AssignmentCondition | null;
+      }>
+    >(`/admin/permissions/users/${userId}/assignments`),
+  grantUserRole: (
+    userId: string,
+    input: { roleId: string; expiresAt?: string; condition?: AssignmentCondition },
+  ) =>
+    http.post<{
+      id: string;
+      userId: string;
+      roleId: string;
+      roleCode: string;
+      roleName: string;
+      grantedByUserId: string | null;
+      grantedAt: string;
+      expiresAt: string | null;
+      condition: AssignmentCondition | null;
+    }>(`/admin/permissions/users/${userId}/assignments`, { body: input }),
+  revokeUserAssignment: (userId: string, assignmentId: string) =>
+    http.delete<{ ok: boolean }>(
+      `/admin/permissions/users/${userId}/assignments/${assignmentId}`,
+    ),
+  updateUserAssignment: (
+    userId: string,
+    assignmentId: string,
+    input: { expiresAt?: string | null; condition?: AssignmentCondition | null },
+  ) =>
+    http.patch<{
+      id: string;
+      userId: string;
+      roleId: string;
+      roleCode: string;
+      roleName: string;
+      grantedByUserId: string | null;
+      grantedAt: string;
+      expiresAt: string | null;
+      condition: AssignmentCondition | null;
+    }>(`/admin/permissions/users/${userId}/assignments/${assignmentId}`, { body: input }),
 
   // Platform admin: tenants & storage quotas (requires platform:tenants:manage)
   listTenants: () =>

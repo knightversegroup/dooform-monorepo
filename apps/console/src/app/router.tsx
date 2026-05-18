@@ -18,7 +18,8 @@ import DictionaryAdminPage from '../pages/DictionaryAdminPage';
 import ProfileSettingsPage from '../pages/settings/ProfileSettingsPage';
 import OrganizationSettingsPage from '../pages/settings/OrganizationSettingsPage';
 import PermissionsSettingsPage from '../pages/settings/PermissionsSettingsPage';
-import UsersSettingsPage from '../pages/settings/UsersSettingsPage';
+import IamPage from '../pages/settings/IamPage';
+import RolesPage from '../pages/settings/RolesPage';
 import TenantsAdminPage from '../pages/settings/TenantsAdminPage';
 import AuditLogPage from '../pages/settings/AuditLogPage';
 import CompliancePage from '../pages/settings/CompliancePage';
@@ -97,13 +98,23 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: '/settings/users',
+        path: '/settings/iam',
         element: (
-          <RequirePermission anyOf={['users:override-permissions', 'users:assign-role']}>
-            <UsersSettingsPage />
+          <RequirePermission anyOf={['users:assign-role', 'users:override-permissions']}>
+            <IamPage />
           </RequirePermission>
         ),
       },
+      {
+        path: '/settings/roles',
+        element: (
+          <RequirePermission anyOf={['roles:read']}>
+            <RolesPage />
+          </RequirePermission>
+        ),
+      },
+      // Saved-link redirect: the previous user-assignment page lived here.
+      { path: '/settings/users', element: <Navigate to="/settings/iam" replace /> },
       {
         path: '/settings/tenants',
         element: (

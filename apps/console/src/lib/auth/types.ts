@@ -83,6 +83,15 @@ export interface PermissionDefinition {
 
 export type RoleGrants = Record<UserRole, string[]>;
 
+export interface AssignmentCondition {
+  title?: string;
+  validBefore?: string;
+  validAfter?: string;
+  actionMatches?: string[];
+  ipAllow?: string[];
+  outcomeIn?: ('success' | 'failure')[];
+}
+
 export interface InviteCode {
   id: string;
   code: string;
