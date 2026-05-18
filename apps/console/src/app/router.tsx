@@ -18,6 +18,7 @@ import DictionaryAdminPage from '../pages/DictionaryAdminPage';
 import ProfileSettingsPage from '../pages/settings/ProfileSettingsPage';
 import OrganizationSettingsPage from '../pages/settings/OrganizationSettingsPage';
 import PermissionsSettingsPage from '../pages/settings/PermissionsSettingsPage';
+import UsersSettingsPage from '../pages/settings/UsersSettingsPage';
 import TenantsAdminPage from '../pages/settings/TenantsAdminPage';
 import AuditLogPage from '../pages/settings/AuditLogPage';
 import CompliancePage from '../pages/settings/CompliancePage';
@@ -92,6 +93,14 @@ export const router = createBrowserRouter([
         element: (
           <RequirePermission anyOf={['platform:permissions:manage']}>
             <PermissionsSettingsPage />
+          </RequirePermission>
+        ),
+      },
+      {
+        path: '/settings/users',
+        element: (
+          <RequirePermission anyOf={['users:override-permissions', 'users:assign-role']}>
+            <UsersSettingsPage />
           </RequirePermission>
         ),
       },

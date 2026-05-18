@@ -69,6 +69,42 @@ export const authApi = {
       { body: { permissions } },
     ),
 
+  // Per-user permission assignment (requires users:override-permissions
+  // for overrides, users:assign-role for role changes).
+  getUserPermissions: (userId: string) =>
+    http.get<{
+      userId: string;
+      email: string;
+      displayName: string;
+      role: UserRole;
+      effectivePermissions: string[];
+      overrides: Array<{
+        permissionKey: string;
+        effect: 'ALLOW' | 'DENY';
+        grantedByUserId: string | null;
+        createdAt: string;
+      }>;
+    }>(`/admin/permissions/users/${userId}`),
+  replaceUserOverrides: (
+    userId: string,
+    overrides: Array<{ key: string; effect: 'ALLOW' | 'DENY' }>,
+  ) =>
+    http.put<{
+      ok: boolean;
+      overrides: Array<{
+        permissionKey: string;
+        effect: 'ALLOW' | 'DENY';
+        grantedByUserId: string | null;
+        createdAt: string;
+      }>;
+      effectivePermissions: string[];
+    }>(`/admin/permissions/users/${userId}/overrides`, { body: { overrides } }),
+  setUserRole: (userId: string, role: UserRole, reason?: string) =>
+    http.patch<{ ok: boolean; role: UserRole; previousRole?: UserRole; changed: boolean }>(
+      `/admin/permissions/users/${userId}/role`,
+      { body: { role, reason } },
+    ),
+
   // Platform admin: tenants & storage quotas (requires platform:tenants:manage)
   listTenants: () =>
     http.get<

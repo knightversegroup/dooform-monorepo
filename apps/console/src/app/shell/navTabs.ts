@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Stamp,
   UserCircle,
+  UserCog,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -68,6 +69,7 @@ export const settingsSections: NavMenuSection[] = [
     label: 'Admin',
     items: [
       { to: '/settings/permissions',   label: 'Permissions',        icon: ShieldCheck },
+      { to: '/settings/users',         label: 'User assignments',   icon: UserCog },
       { to: '/settings/tenants',       label: 'Tenants',            icon: HardDrive },
       { to: '/settings/taxonomy',      label: 'Template taxonomy',  icon: Layers },
       { to: '/settings/tiers',         label: 'Subscription tiers', icon: CreditCard },
