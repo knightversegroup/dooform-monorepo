@@ -6,8 +6,9 @@ import type { Result } from '@dooform-api-core/shared'
 import { UseResult, ValidateInput, UseClassLogger } from '@dooform-api-core/shared/decorators'
 
 import type { ITemplateRepository } from '../../../domain/repositories/template.repository'
-import { assertCanDeleteTemplate } from '../../policies/template-access.policy'
+import { assertCanDeleteTemplateByPrincipal } from '../../policies/template-access.policy'
 import { GetTemplateByIdDto } from '../../dtos/get-template-by-id.dto'
+import { PermissionService } from '../../../../auth/application/services/permission.service'
 
 @Injectable()
 @UseClassLogger('template')
@@ -15,6 +16,7 @@ export class DeleteTemplateUseCase implements UseCase<GetTemplateByIdDto, { succ
   constructor(
     @Inject('ITemplateRepository')
     private readonly templateRepository: ITemplateRepository,
+    private readonly permissions: PermissionService,
   ) {}
 
   @UseResult()
@@ -25,11 +27,7 @@ export class DeleteTemplateUseCase implements UseCase<GetTemplateByIdDto, { succ
       throw new EntityNotFoundException(`Template with id ${dto.id} not found`)
     }
 
-    assertCanDeleteTemplate(template, {
-      callerRole: dto.callerRole,
-      callerOrganizationId: dto.callerOrganizationId,
-      callerUserId: dto.callerUserId,
-    })
+    assertCanDeleteTemplateByPrincipal(template, dto, this.permissions)
 
     await this.templateRepository.deleteById(dto.id)
     return { success: true } as any

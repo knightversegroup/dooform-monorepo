@@ -8,6 +8,8 @@ import { UseResult, ValidateInput, UseClassLogger } from '@dooform-api-core/shar
 import type { ITemplateRepository } from '../../../domain/repositories/template.repository'
 import { assertCanEditTemplate } from '../../policies/template-access.policy'
 import { UpdateTemplateDto } from '../../dtos/update-template.dto'
+import { PermissionService } from '../../../../auth/application/services/permission.service'
+import { UserRole } from '../../../../user/domain/enums/user.enum'
 
 @Injectable()
 @UseClassLogger('template')
@@ -15,6 +17,7 @@ export class UpdateTemplateUseCase implements UseCase<UpdateTemplateDto, any> {
   constructor(
     @Inject('ITemplateRepository')
     private readonly templateRepository: ITemplateRepository,
+    private readonly permissions: PermissionService,
   ) {}
 
   @UseResult()
@@ -25,13 +28,16 @@ export class UpdateTemplateUseCase implements UseCase<UpdateTemplateDto, any> {
       throw new EntityNotFoundException(`Template with id ${dto.id} not found`)
     }
 
+    const principal = { userId: dto.callerUserId, role: dto.callerRole as UserRole }
+    const canEditAny = this.permissions.userHas(principal, 'templates:edit-any')
+    const canPublishGlobal = this.permissions.userHas(principal, 'templates:publish-global')
+
     assertCanEditTemplate(template, {
       callerRole: dto.callerRole,
       callerOrganizationId: dto.callerOrganizationId,
       callerUserId: dto.callerUserId,
+      canEditAny,
     })
-
-    const isGlobalAdmin = dto.callerRole === 'GLOBAL_ADMIN'
 
     if (dto.name !== undefined) template.updateName(dto.name)
     if (dto.displayName !== undefined) template.updateDisplayName(dto.displayName)
@@ -42,7 +48,7 @@ export class UpdateTemplateUseCase implements UseCase<UpdateTemplateDto, any> {
     // Casting through `unknown` keeps strict typescript happy without changing the
     // domain interface; the column accepts varchar so any string lands cleanly.
     if (dto.type !== undefined) template.updateType(dto.type as unknown as never)
-    if (dto.tier !== undefined && isGlobalAdmin) {
+    if (dto.tier !== undefined && canPublishGlobal) {
       template.updateTier(String(dto.tier).toLowerCase() as unknown as never)
     }
     // Visibility flips also rebind the organization. GLOBAL templates have
@@ -50,7 +56,7 @@ export class UpdateTemplateUseCase implements UseCase<UpdateTemplateDto, any> {
     // ORGANIZATION templates must have an organizationId or they're invisible to
     // every tenant. When an admin demotes GLOBAL → ORGANIZATION we attach the
     // template to the caller's org so it shows up immediately under that tenant.
-    if (dto.visibility !== undefined && isGlobalAdmin) {
+    if (dto.visibility !== undefined && canPublishGlobal) {
       template.updateVisibility(dto.visibility)
       if (dto.visibility === 'GLOBAL') {
         template.updateOrganizationId(null)

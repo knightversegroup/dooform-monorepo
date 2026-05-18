@@ -15,6 +15,8 @@ import type { ITemplatePreviewService } from '../../../domain/services/template-
 import { CreateTemplateDto } from '../../dtos/create-template.dto'
 import { OrgPath } from '../../../../../common/storage/org-path'
 import { StorageQuotaService } from '../../../../user/application/services/storage-quota.service'
+import { PermissionService } from '../../../../auth/application/services/permission.service'
+import { UserRole } from '../../../../user/domain/enums/user.enum'
 
 /**
  * Best-effort serialization of an unknown caught error so a log line carries
@@ -68,6 +70,7 @@ export class CreateTemplateUseCase implements UseCase<CreateTemplateDto, CreateT
     @Inject('ITemplatePreviewService')
     private readonly previewService: ITemplatePreviewService,
     private readonly quota: StorageQuotaService,
+    private readonly permissions: PermissionService,
   ) {}
 
   @UseResult()
@@ -77,14 +80,17 @@ export class CreateTemplateUseCase implements UseCase<CreateTemplateDto, CreateT
     templateFile?: { buffer: Buffer; originalname: string; mimetype: string; size: number },
     htmlPreviewFile?: { buffer: Buffer; originalname: string; mimetype: string; size: number },
   ): Promise<Result<CreateTemplateResult>> {
-    // Visibility / tier guarding: only GLOBAL_ADMIN may publish a template across orgs.
+    // Visibility guarding: anyone with `templates:publish-global` may publish across orgs.
     // For everyone else, force ORGANIZATION visibility regardless of what the body asked.
-    const isGlobalAdmin = dto.callerRole === 'GLOBAL_ADMIN'
-    const visibility = isGlobalAdmin
+    const canPublishGlobal = this.permissions.userHas(
+      { userId: dto.ownerUserId, role: dto.callerRole as UserRole },
+      'templates:publish-global',
+    )
+    const visibility = canPublishGlobal
       ? dto.visibility ?? TemplateVisibility.ORGANIZATION
       : TemplateVisibility.ORGANIZATION
 
-    if (!isGlobalAdmin && !dto.organizationId) {
+    if (!canPublishGlobal && !dto.organizationId) {
       throw new Error('organizationId is required to upload a template')
     }
     // Org-scoped uploads bind to the caller's org. GLOBAL templates may have organizationId=null.

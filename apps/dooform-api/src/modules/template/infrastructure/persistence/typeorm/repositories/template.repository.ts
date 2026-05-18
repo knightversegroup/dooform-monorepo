@@ -40,7 +40,10 @@ export class TypeOrmTemplateRepository
   ): Promise<{ data: Template[]; total: number }> {
     const qb = this.getRepository().createQueryBuilder('t')
 
-    const isGlobalAdmin = options.callerRole === 'GLOBAL_ADMIN'
+    const canReadCrossOrg =
+      typeof options.canReadCrossOrg === 'boolean'
+        ? options.canReadCrossOrg
+        : options.callerRole === 'GLOBAL_ADMIN'
     const isOrgAdmin = options.callerRole === 'ORG_ADMIN'
 
     // Public marketing site: only true GLOBAL + PUBLISHED rows. No legacy fallback —
@@ -51,9 +54,9 @@ export class TypeOrmTemplateRepository
         global: TemplateVisibility.GLOBAL,
         pub: 'PUBLISHED',
       })
-    } else if (isGlobalAdmin) {
+    } else if (canReadCrossOrg) {
       // Visibility / status rules:
-      //  - GLOBAL_ADMIN: sees everything (org filter still applies if org code requested it).
+      //  - `templates:read-cross-org`: sees everything (org filter still applies if org code requested it).
       //  - ORG_ADMIN of org X: sees own-org rows (any status) + (GLOBAL or legacy) rows that are PUBLISHED.
       //  - USER: sees PUBLISHED rows in own-org or (GLOBAL or legacy).
       if (options.organizationId) {

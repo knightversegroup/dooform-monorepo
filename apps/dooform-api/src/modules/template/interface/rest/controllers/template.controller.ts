@@ -143,6 +143,7 @@ export class TemplateController extends LazyBaseController {
         grouped: grouped === 'true',
         organizationId: user?.organizationId ?? null,
         callerRole: user?.role,
+        callerUserId: user?.userId,
       },
       user?.userTier,
     )

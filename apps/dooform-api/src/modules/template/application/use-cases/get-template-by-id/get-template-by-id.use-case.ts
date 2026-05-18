@@ -11,6 +11,8 @@ import type { ITemplateRepository } from '../../../domain/repositories/template.
 import { UserModel } from '../../../../workflow/infrastructure/persistence/typeorm/models/user.model'
 import { assertCanReadTemplate } from '../../policies/template-access.policy'
 import { GetTemplateByIdDto } from '../../dtos/get-template-by-id.dto'
+import { PermissionService } from '../../../../auth/application/services/permission.service'
+import { UserRole } from '../../../../user/domain/enums/user.enum'
 
 interface GetTemplateByIdResult {
   id: string
@@ -33,6 +35,7 @@ export class GetTemplateByIdUseCase implements UseCase<GetTemplateByIdDto, GetTe
     private readonly templateRepository: ITemplateRepository,
     @InjectRepository(UserModel)
     private readonly users: Repository<UserModel>,
+    private readonly permissions: PermissionService,
   ) {}
 
   @UseResult()
@@ -44,10 +47,15 @@ export class GetTemplateByIdUseCase implements UseCase<GetTemplateByIdDto, GetTe
       throw new EntityNotFoundException(`Template with id ${dto.id} not found`)
     }
 
+    const canReadCrossOrg = this.permissions.userHas(
+      { userId: dto.callerUserId, role: dto.callerRole as UserRole },
+      'templates:read-cross-org',
+    )
     assertCanReadTemplate(template, {
       callerRole: dto.callerRole,
       callerOrganizationId: dto.callerOrganizationId,
       callerUserId: dto.callerUserId,
+      canReadCrossOrg,
     })
 
     const props = template.getProps()

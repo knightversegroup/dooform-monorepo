@@ -6,8 +6,9 @@ import type { Result } from '@dooform-api-core/shared'
 import { UseResult, ValidateInput, UseClassLogger } from '@dooform-api-core/shared/decorators'
 
 import type { ITemplateRepository } from '../../../domain/repositories/template.repository'
-import { assertCanEditTemplate } from '../../policies/template-access.policy'
+import { assertCanEditTemplateByPrincipal } from '../../policies/template-access.policy'
 import { GetTemplateByIdDto } from '../../dtos/get-template-by-id.dto'
+import { PermissionService } from '../../../../auth/application/services/permission.service'
 
 /**
  * Reverts a PUBLISHED (or ARCHIVED) template back to DRAFT so admins can edit it
@@ -21,6 +22,7 @@ export class UnpublishTemplateUseCase
   constructor(
     @Inject('ITemplateRepository')
     private readonly templateRepository: ITemplateRepository,
+    private readonly permissions: PermissionService,
   ) {}
 
   @UseResult()
@@ -30,11 +32,7 @@ export class UnpublishTemplateUseCase
     if (!template) {
       throw new EntityNotFoundException(`Template with id ${dto.id} not found`)
     }
-    assertCanEditTemplate(template, {
-      callerRole: dto.callerRole,
-      callerOrganizationId: dto.callerOrganizationId,
-      callerUserId: dto.callerUserId,
-    })
+    assertCanEditTemplateByPrincipal(template, dto, this.permissions)
     template.unpublish()
     const saved = await this.templateRepository.save(template)
     return { id: saved.id, status: saved.status } as any

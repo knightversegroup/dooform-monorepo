@@ -16,6 +16,11 @@ export interface ListTemplatesForOrgOptions {
   // Caller role drives status visibility: non-admins only see PUBLISHED templates
   // outside their own org, plus PUBLISHED GLOBAL templates.
   callerRole?: string
+  // Pre-computed permission boolean: holder of `templates:read-cross-org`. Computed
+  // by the calling use case (which has PermissionService DI) and passed down so the
+  // repository doesn't need its own auth dependency. When undefined the repo falls
+  // back to `callerRole === 'GLOBAL_ADMIN'` for backward compatibility.
+  canReadCrossOrg?: boolean
   // Public marketing-site path: strictly require visibility=GLOBAL + status=PUBLISHED.
   // No legacy `organizationId IS NULL` fallback — org-scoped rows must never leak out.
   publicOnly?: boolean

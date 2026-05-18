@@ -6,8 +6,9 @@ import type { Result } from '@dooform-api-core/shared'
 import { UseResult, ValidateInput, UseClassLogger } from '@dooform-api-core/shared/decorators'
 
 import type { ITemplateRepository } from '../../../domain/repositories/template.repository'
-import { assertCanEditTemplate } from '../../policies/template-access.policy'
+import { assertCanEditTemplateByPrincipal } from '../../policies/template-access.policy'
 import { GetTemplateByIdDto } from '../../dtos/get-template-by-id.dto'
+import { PermissionService } from '../../../../auth/application/services/permission.service'
 
 @Injectable()
 @UseClassLogger('template')
@@ -15,6 +16,7 @@ export class ArchiveTemplateUseCase implements UseCase<GetTemplateByIdDto, { id:
   constructor(
     @Inject('ITemplateRepository')
     private readonly templateRepository: ITemplateRepository,
+    private readonly permissions: PermissionService,
   ) {}
 
   @UseResult()
@@ -25,11 +27,7 @@ export class ArchiveTemplateUseCase implements UseCase<GetTemplateByIdDto, { id:
       throw new EntityNotFoundException(`Template with id ${dto.id} not found`)
     }
 
-    assertCanEditTemplate(template, {
-      callerRole: dto.callerRole,
-      callerOrganizationId: dto.callerOrganizationId,
-      callerUserId: dto.callerUserId,
-    })
+    assertCanEditTemplateByPrincipal(template, dto, this.permissions)
 
     template.archive()
     const saved = await this.templateRepository.save(template)

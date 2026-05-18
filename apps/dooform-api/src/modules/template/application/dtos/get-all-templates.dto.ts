@@ -64,6 +64,10 @@ export class GetAllTemplatesDto {
   @Allow()
   callerRole?: string
 
+  // Injected from request context — needed to look up per-user permission overrides.
+  @Allow()
+  callerUserId?: string
+
   // Set by the public marketing-site controller. Forces strict visibility=GLOBAL,
   // no legacy null-org fallback, regardless of any other filter.
   @Allow()

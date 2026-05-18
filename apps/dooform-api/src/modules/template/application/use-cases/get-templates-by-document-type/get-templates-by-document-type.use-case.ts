@@ -6,6 +6,8 @@ import { UseResult, ValidateInput, UseClassLogger } from '@dooform-api-core/shar
 
 import type { ITemplateRepository } from '../../../domain/repositories/template.repository'
 import { GetTemplateByIdDto } from '../../dtos/get-template-by-id.dto'
+import { PermissionService } from '../../../../auth/application/services/permission.service'
+import { UserRole } from '../../../../user/domain/enums/user.enum'
 
 interface TemplateListItem {
   id: string
@@ -25,6 +27,7 @@ export class GetTemplatesByDocumentTypeUseCase implements UseCase<GetTemplateByI
   constructor(
     @Inject('ITemplateRepository')
     private readonly templateRepository: ITemplateRepository,
+    private readonly permissions: PermissionService,
   ) {}
 
   @UseResult()
@@ -33,13 +36,17 @@ export class GetTemplatesByDocumentTypeUseCase implements UseCase<GetTemplateByI
     const all = await this.templateRepository.findByDocumentTypeId(dto.id)
 
     // Apply the same per-row visibility / status rules used by the flat list:
-    //  - GLOBAL_ADMIN: sees everything.
+    //  - `templates:read-cross-org`: sees everything.
     //  - ORG_ADMIN of org X: own-org rows (any status) + (GLOBAL or legacy) PUBLISHED.
     //  - USER: PUBLISHED rows in own-org or (GLOBAL or legacy).
     const callerRole = dto.callerRole
     const orgId = dto.callerOrganizationId ?? null
+    const canReadCrossOrg = this.permissions.userHas(
+      { userId: dto.callerUserId, role: callerRole as UserRole },
+      'templates:read-cross-org',
+    )
     const templates =
-      callerRole === 'GLOBAL_ADMIN'
+      canReadCrossOrg
         ? all
         : all.filter((t) => {
             const p = t.getProps()

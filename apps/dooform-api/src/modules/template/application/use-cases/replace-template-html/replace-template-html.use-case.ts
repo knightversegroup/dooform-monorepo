@@ -11,8 +11,9 @@ import type { IStorageService } from '../../../../document/domain/services/stora
 import { TemplateVisibility } from '../../../domain/enums/template.enum'
 import { OrgPath } from '../../../../../common/storage/org-path'
 import { StorageQuotaService } from '../../../../user/application/services/storage-quota.service'
-import { assertCanEditTemplate } from '../../policies/template-access.policy'
+import { assertCanEditTemplateByPrincipal } from '../../policies/template-access.policy'
 import { GetTemplateByIdDto } from '../../dtos/get-template-by-id.dto'
+import { PermissionService } from '../../../../auth/application/services/permission.service'
 
 @Injectable()
 @UseClassLogger('template')
@@ -23,6 +24,7 @@ export class ReplaceTemplateHtmlUseCase implements UseCase<GetTemplateByIdDto, a
     @Inject('IStorageService')
     private readonly storageService: IStorageService,
     private readonly quota: StorageQuotaService,
+    private readonly permissions: PermissionService,
   ) {}
 
   @UseResult()
@@ -36,11 +38,7 @@ export class ReplaceTemplateHtmlUseCase implements UseCase<GetTemplateByIdDto, a
       throw new EntityNotFoundException(`Template with id ${dto.id} not found`)
     }
 
-    assertCanEditTemplate(template, {
-      callerRole: dto.callerRole,
-      callerOrganizationId: dto.callerOrganizationId,
-      callerUserId: dto.callerUserId,
-    })
+    assertCanEditTemplateByPrincipal(template, dto, this.permissions)
 
     // Reuse the existing HTML path if one was set at create time; otherwise
     // compute it the same way CreateTemplateUseCase does so we land in the

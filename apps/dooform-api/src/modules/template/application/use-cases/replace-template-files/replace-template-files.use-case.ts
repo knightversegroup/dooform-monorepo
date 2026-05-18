@@ -10,8 +10,9 @@ import type { ITemplateRepository } from '../../../domain/repositories/template.
 import type { IStorageService } from '../../../../document/domain/services/storage.service'
 import type { IPlaceholderExtractorService } from '../../../domain/services/placeholder-extractor.service'
 import type { IFieldDefinitionGeneratorService } from '../../../domain/services/field-definition-generator.service'
-import { assertCanEditTemplate } from '../../policies/template-access.policy'
+import { assertCanEditTemplateByPrincipal } from '../../policies/template-access.policy'
 import { GetTemplateByIdDto } from '../../dtos/get-template-by-id.dto'
+import { PermissionService } from '../../../../auth/application/services/permission.service'
 
 @Injectable()
 @UseClassLogger('template')
@@ -25,6 +26,7 @@ export class ReplaceTemplateFilesUseCase implements UseCase<GetTemplateByIdDto, 
     private readonly placeholderExtractor: IPlaceholderExtractorService,
     @Inject('IFieldDefinitionGeneratorService')
     private readonly fieldDefinitionGenerator: IFieldDefinitionGeneratorService,
+    private readonly permissions: PermissionService,
   ) {}
 
   @UseResult()
@@ -38,11 +40,7 @@ export class ReplaceTemplateFilesUseCase implements UseCase<GetTemplateByIdDto, 
       throw new EntityNotFoundException(`Template with id ${dto.id} not found`)
     }
 
-    assertCanEditTemplate(template, {
-      callerRole: dto.callerRole,
-      callerOrganizationId: dto.callerOrganizationId,
-      callerUserId: dto.callerUserId,
-    })
+    assertCanEditTemplateByPrincipal(template, dto, this.permissions)
 
     if (templateFile) {
       // Delete old file if exists
