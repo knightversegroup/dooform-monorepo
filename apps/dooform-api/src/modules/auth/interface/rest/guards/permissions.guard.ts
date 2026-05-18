@@ -23,7 +23,9 @@ export class PermissionsGuard implements CanActivate {
     const user = request.user as AuthenticatedUser | undefined
     if (!user) throw new ForbiddenException('Authentication required')
 
-    const missing = required.filter((key) => !this.permissions.has(user.role, key))
+    const missing = required.filter(
+      (key) => !this.permissions.userHas({ userId: user.userId, role: user.role }, key),
+    )
     if (missing.length) {
       throw new ForbiddenException(
         `Missing permission${missing.length > 1 ? 's' : ''}: ${missing.join(', ')}`,
