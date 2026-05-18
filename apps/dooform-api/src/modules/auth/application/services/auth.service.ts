@@ -208,6 +208,21 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials')
     }
 
+    if (user.isActive === false) {
+      this.audit.log({
+        organizationId: user.organizationId,
+        actor: { userId: user.id, email: user.email, role: user.role },
+        action: 'auth.login',
+        outcome: 'failure',
+        metadata: { reason: 'inactive_account' },
+        ip: meta.ip,
+        userAgent: meta.userAgent,
+      })
+      // Generic "invalid credentials" rather than "deactivated" to avoid
+      // confirming the existence of a deactivated account to an attacker.
+      throw new UnauthorizedException('Invalid credentials')
+    }
+
     const tokens = await this.issueTokens(user, meta)
     this.audit.log({
       organizationId: user.organizationId,
@@ -278,6 +293,7 @@ export class AuthService {
 
     const user = await this.users.findOne({ where: { id: stored.userId } })
     if (!user) throw new UnauthorizedException('User not found')
+    if (user.isActive === false) throw new UnauthorizedException('Account deactivated')
 
     // Rotate
     const tokens = await this.issueTokens(user, meta)

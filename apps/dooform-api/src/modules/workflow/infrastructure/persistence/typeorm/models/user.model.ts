@@ -48,4 +48,12 @@ export class UserModel extends BaseTypeOrmModel {
 
   @Column({ name: 'job_title', type: 'varchar', length: 255, nullable: true })
   jobTitle!: string | null
+
+  /**
+   * Soft-disable flag. Inactive users can't log in and their refresh tokens
+   * are revoked when the flag flips false. The row itself is preserved so
+   * audit logs, document ownership, and historical references remain intact.
+   */
+  @Column({ name: 'is_active', type: 'boolean', default: true })
+  isActive!: boolean
 }
