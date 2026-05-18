@@ -12,7 +12,7 @@
 
 BEGIN;
 
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
+-- gen_random_uuid() is built into Postgres 13+ — no pgcrypto extension required.
 
 -- 1. roles table — system + custom IAM roles.
 CREATE TABLE IF NOT EXISTS roles (
@@ -73,12 +73,13 @@ WHERE rp.role_id IS NULL
   AND r.code = rp.role::text;
 
 -- 6. Backfill role_assignments from users.role — one per user.
-INSERT INTO role_assignments (id, user_id, role_id, granted_at, created_at, updated_at)
+--    The "when was this granted" timestamp is the row's own created_at,
+--    populated by RoleAssignmentModel via BaseTypeOrmModel's CreateDateColumn.
+INSERT INTO role_assignments (id, user_id, role_id, created_at, updated_at)
 SELECT
   gen_random_uuid(),
   u.id,
   r.id,
-  NOW(),
   NOW(),
   NOW()
 FROM users u

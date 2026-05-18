@@ -8,8 +8,10 @@
 
 BEGIN;
 
--- 1. Ensure pgcrypto for gen_random_uuid (Postgres 13+ has it built-in but enable just in case).
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
+-- 1. gen_random_uuid() is built into Postgres 13+, so no pgcrypto extension
+--    is required. (Azure Flexible Server allowlists extensions at the server
+--    level and pgcrypto isn't allowed by default — depending on it would
+--    block the deploy.)
 
 -- 2. Create the legacy organization + user that owns historical (pre-auth) data.
 INSERT INTO organizations (id, name, slug, owner_user_id, created_at, updated_at)
