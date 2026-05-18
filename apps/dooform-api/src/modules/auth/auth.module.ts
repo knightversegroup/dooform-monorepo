@@ -18,6 +18,8 @@ import { PasswordResetTokenModel } from './infrastructure/persistence/typeorm/mo
 import { RefreshTokenModel } from './infrastructure/persistence/typeorm/models/refresh-token.model'
 import { RolePermissionModel } from './infrastructure/persistence/typeorm/models/role-permission.model'
 import { UserPermissionModel } from './infrastructure/persistence/typeorm/models/user-permission.model'
+import { RoleModel } from './infrastructure/persistence/typeorm/models/role.model'
+import { RoleAssignmentModel } from './infrastructure/persistence/typeorm/models/role-assignment.model'
 import { AuditLogModel } from './infrastructure/persistence/typeorm/models/audit-log.model'
 import { ComplianceRuleModel } from './infrastructure/persistence/typeorm/models/compliance-rule.model'
 import { ComplianceAlertModel } from './infrastructure/persistence/typeorm/models/compliance-alert.model'
@@ -64,6 +66,8 @@ import { DocumentServicesModule } from '../document/infrastructure/services/docu
       InviteCodeModel,
       RolePermissionModel,
       UserPermissionModel,
+      RoleModel,
+      RoleAssignmentModel,
       AuditLogModel,
       ComplianceRuleModel,
       ComplianceAlertModel,
