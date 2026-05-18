@@ -20,6 +20,7 @@ import { RefreshTokenModel } from '../modules/auth/infrastructure/persistence/ty
 import { PasswordResetTokenModel } from '../modules/auth/infrastructure/persistence/typeorm/models/password-reset-token.model'
 import { InviteCodeModel } from '../modules/auth/infrastructure/persistence/typeorm/models/invite-code.model'
 import { RolePermissionModel } from '../modules/auth/infrastructure/persistence/typeorm/models/role-permission.model'
+import { UserPermissionModel } from '../modules/auth/infrastructure/persistence/typeorm/models/user-permission.model'
 import { AuditLogModel } from '../modules/auth/infrastructure/persistence/typeorm/models/audit-log.model'
 import { ComplianceRuleModel } from '../modules/auth/infrastructure/persistence/typeorm/models/compliance-rule.model'
 import { ComplianceAlertModel } from '../modules/auth/infrastructure/persistence/typeorm/models/compliance-alert.model'
@@ -48,6 +49,7 @@ const entities = [
   PasswordResetTokenModel,
   InviteCodeModel,
   RolePermissionModel,
+  UserPermissionModel,
   AuditLogModel,
   ComplianceRuleModel,
   ComplianceAlertModel,
