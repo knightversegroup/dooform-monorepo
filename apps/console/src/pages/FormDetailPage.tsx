@@ -1,7 +1,7 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Archive, ChevronLeft, FileEdit, Globe, Pencil, Save, Settings } from 'lucide-react';
+import { Archive, ChevronLeft, FileEdit, Globe, Pencil, Save, Settings, Upload } from 'lucide-react';
 import {
   archiveTemplate,
   getFieldDefinitions,
@@ -10,6 +10,7 @@ import {
   getTemplate,
   getThumbnailUrl,
   publishTemplate,
+  replaceTemplateHtml,
   unpublishTemplate,
   updateTemplate,
 } from '../lib/api/templates';
@@ -53,6 +54,16 @@ export default function FormDetailPage() {
 
   const tpl = templateQuery.data;
   const [previewMode, setPreviewMode] = useState<'image' | 'pdf' | 'html'>('image');
+  const [htmlBust, setHtmlBust] = useState(0);
+  const htmlInputRef = useRef<HTMLInputElement>(null);
+
+  const replaceHtmlMutation = useMutation({
+    mutationFn: (file: File) => replaceTemplateHtml(templateId, file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.templates.detail(templateId) });
+      setHtmlBust((n) => n + 1);
+    },
+  });
 
   const publishMutation = useMutation({
     mutationFn: () => publishTemplate(templateId),
@@ -242,7 +253,36 @@ export default function FormDetailPage() {
             >
               HTML
             </button>
+            {previewMode === 'html' && canConfigure ? (
+              <div className="ml-auto flex items-center gap-2">
+                <input
+                  ref={htmlInputRef}
+                  type="file"
+                  accept=".html,.htm,text/html"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) replaceHtmlMutation.mutate(f);
+                    if (htmlInputRef.current) htmlInputRef.current.value = '';
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => htmlInputRef.current?.click()}
+                  disabled={replaceHtmlMutation.isPending}
+                  className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded border border-border-default text-ink-muted hover:text-primary hover:border-primary disabled:opacity-50"
+                >
+                  <Upload className="w-3 h-3" />
+                  {replaceHtmlMutation.isPending ? 'Uploading…' : 'Replace HTML'}
+                </button>
+              </div>
+            ) : null}
           </div>
+          {replaceHtmlMutation.error ? (
+            <div className="px-3 py-2 bg-white border-b border-border-subtle">
+              <ErrorMessage error={replaceHtmlMutation.error} />
+            </div>
+          ) : null}
           {tpl ? (
             previewMode === 'image' ? (
               <div className="flex-1 min-h-[60vh] overflow-auto p-6 flex items-start justify-center bg-surface-alt">
@@ -254,7 +294,11 @@ export default function FormDetailPage() {
               </div>
             ) : (
               <iframe
-                src={previewMode === 'pdf' ? getPreviewPdfUrl(tpl.id) : getPreviewHtmlUrl(tpl.id)}
+                src={
+                  previewMode === 'pdf'
+                    ? getPreviewPdfUrl(tpl.id)
+                    : `${getPreviewHtmlUrl(tpl.id)}${htmlBust ? `?v=${htmlBust}` : ''}`
+                }
                 title="Template preview"
                 className="w-full flex-1 min-h-[60vh] bg-white"
               />

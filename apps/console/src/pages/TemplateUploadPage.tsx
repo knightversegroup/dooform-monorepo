@@ -41,6 +41,7 @@ export default function TemplateUploadPage() {
   const categories = categoriesQuery.data ?? [];
 
   const [file, setFile] = useState<File | null>(null);
+  const [htmlFile, setHtmlFile] = useState<File | null>(null);
   const [name, setName] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [description, setDescription] = useState('');
@@ -79,6 +80,7 @@ export default function TemplateUploadPage() {
         category,
         pageOrientation,
         visibility: isGlobalAdmin ? visibility : undefined,
+        htmlFile: htmlFile ?? undefined,
       });
     },
     onSuccess: (tpl) => {
@@ -121,6 +123,37 @@ export default function TemplateUploadPage() {
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             />
           </label>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-ink-subtle">
+            Custom HTML preview <span className="text-ink-muted font-normal">(optional)</span>
+          </label>
+          <label className="inline-flex items-center justify-center gap-2 px-4 py-4 border-2 border-dashed border-border-default rounded-md cursor-pointer hover:border-primary hover:bg-surface-alt text-sm">
+            <Upload className="w-5 h-5 text-ink-muted" />
+            <span>
+              {htmlFile ? htmlFile.name : 'Click to choose a .html file to replace LibreOffice output'}
+            </span>
+            <input
+              type="file"
+              accept=".html,.htm,text/html"
+              className="hidden"
+              onChange={(e) => setHtmlFile(e.target.files?.[0] ?? null)}
+            />
+          </label>
+          {htmlFile ? (
+            <button
+              type="button"
+              onClick={() => setHtmlFile(null)}
+              className="self-start text-xs text-ink-muted hover:text-primary"
+            >
+              Remove HTML file
+            </button>
+          ) : (
+            <span className="text-[11px] text-ink-muted">
+              When provided, this HTML is saved as the preview byte-for-byte. PDF and thumbnails are still generated from the DOCX.
+            </span>
+          )}
         </div>
 
         <Input label="Name *" value={name} onChange={(e) => setName(e.target.value)} required />

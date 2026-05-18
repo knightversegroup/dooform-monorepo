@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, Req, Res, UseFilters, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common'
+import { Controller, Get, Post, Put, Delete, Param, Body, Query, Req, Res, UseFilters, UseInterceptors, UploadedFile, UploadedFiles, BadRequestException } from '@nestjs/common'
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody, ApiQuery } from '@nestjs/swagger'
 import { LazyModuleLoader } from '@nestjs/core'
-import { FileInterceptor } from '@nestjs/platform-express'
+import { FileInterceptor, FileFieldsInterceptor } from '@nestjs/platform-express'
 import type { Response } from 'express'
 import 'multer'
 
@@ -31,6 +31,7 @@ export class TemplateController extends LazyBaseController {
       required: ['template', 'name'],
       properties: {
         template: { type: 'string', format: 'binary', description: 'DOCX template file' },
+        htmlPreview: { type: 'string', format: 'binary', description: 'Optional custom HTML preview — replaces LibreOffice-generated HTML' },
         name: { type: 'string', example: 'Customer Feedback Form' },
         displayName: { type: 'string', example: 'Customer Feedback' },
         description: { type: 'string', example: 'A form to collect customer feedback' },
@@ -43,14 +44,30 @@ export class TemplateController extends LazyBaseController {
       },
     },
   })
-  @UseInterceptors(FileInterceptor('template'))
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'template', maxCount: 1 },
+      { name: 'htmlPreview', maxCount: 1 },
+    ]),
+  )
   async createTemplate(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: { template?: Express.Multer.File[]; htmlPreview?: Express.Multer.File[] },
     @Body() body: Record<string, string>,
     @CurrentUser() user: UserContext & { role?: string },
     @Req() req: { user?: { role?: string } },
   ) {
+    const file = files?.template?.[0]
+    const htmlPreview = files?.htmlPreview?.[0]
     if (!file) throw new BadRequestException('Template DOCX file is required')
+
+    if (htmlPreview) {
+      const name = htmlPreview.originalname?.toLowerCase() ?? ''
+      const isHtmlExt = name.endsWith('.html') || name.endsWith('.htm')
+      const isHtmlMime = htmlPreview.mimetype === 'text/html'
+      if (!isHtmlExt && !isHtmlMime) {
+        throw new BadRequestException('htmlPreview must be an .html or .htm file')
+      }
+    }
 
     const uc = await this.loadUseCase<any>(
       () => import('../../../application/use-cases/create-template/create-template.use-case.module'),
@@ -73,6 +90,14 @@ export class TemplateController extends LazyBaseController {
         callerRole,
       },
       { buffer: file.buffer, originalname: file.originalname, mimetype: file.mimetype, size: file.size },
+      htmlPreview
+        ? {
+            buffer: htmlPreview.buffer,
+            originalname: htmlPreview.originalname,
+            mimetype: htmlPreview.mimetype,
+            size: htmlPreview.size,
+          }
+        : undefined,
     )
     return getResultValue(result)
   }
@@ -234,6 +259,55 @@ export class TemplateController extends LazyBaseController {
         callerOrganizationId: user?.organizationId,
         callerUserId: user?.userId,
       }),
+    )
+  }
+
+  @Post(':id/preview-html')
+  @RequirePermission('templates:update')
+  @ApiOperation({ summary: 'Replace the custom HTML preview for a template' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['htmlPreview'],
+      properties: {
+        htmlPreview: {
+          type: 'string',
+          format: 'binary',
+          description: 'New custom HTML preview — replaces preview.html byte-for-byte',
+        },
+      },
+    },
+  })
+  @UseInterceptors(FileInterceptor('htmlPreview'))
+  async replaceTemplateHtml(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() user?: UserContext,
+  ) {
+    if (!file) throw new BadRequestException('HTML preview file is required')
+
+    const name = file.originalname?.toLowerCase() ?? ''
+    const isHtmlExt = name.endsWith('.html') || name.endsWith('.htm')
+    const isHtmlMime = file.mimetype === 'text/html'
+    if (!isHtmlExt && !isHtmlMime) {
+      throw new BadRequestException('htmlPreview must be an .html or .htm file')
+    }
+
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/replace-template-html/replace-template-html.use-case.module'),
+      () => import('../../../application/use-cases/replace-template-html/replace-template-html.use-case'),
+    )
+    return getResultValue(
+      await uc.execute(
+        {
+          id,
+          callerRole: user?.role,
+          callerOrganizationId: user?.organizationId,
+          callerUserId: user?.userId,
+        },
+        { buffer: file.buffer, originalname: file.originalname, mimetype: file.mimetype, size: file.size },
+      ),
     )
   }
 

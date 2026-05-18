@@ -75,6 +75,7 @@ export class CreateTemplateUseCase implements UseCase<CreateTemplateDto, CreateT
   async execute(
     dto: CreateTemplateDto,
     templateFile?: { buffer: Buffer; originalname: string; mimetype: string; size: number },
+    htmlPreviewFile?: { buffer: Buffer; originalname: string; mimetype: string; size: number },
   ): Promise<Result<CreateTemplateResult>> {
     // Visibility / tier guarding: only GLOBAL_ADMIN may publish a template across orgs.
     // For everyone else, force ORGANIZATION visibility regardless of what the body asked.
@@ -175,13 +176,24 @@ export class CreateTemplateUseCase implements UseCase<CreateTemplateDto, CreateT
       }
 
       try {
-        const htmlBuffer = await this.previewService.generateHtmlPreview(templateFile.buffer)
         const htmlPath = storagePrefix(['templates', template.id, 'preview.html'])
-        await this.storageService.save(htmlPath, htmlBuffer)
+        if (htmlPreviewFile) {
+          // User supplied a custom HTML — save byte-for-byte and skip LibreOffice.
+          if (orgId) {
+            await this.quota.assertCanWrite(orgId, htmlPreviewFile.size)
+          }
+          await this.storageService.save(htmlPath, htmlPreviewFile.buffer)
+          if (orgId) {
+            await this.quota.recordWrite(orgId, htmlPreviewFile.size)
+          }
+        } else {
+          const htmlBuffer = await this.previewService.generateHtmlPreview(templateFile.buffer)
+          await this.storageService.save(htmlPath, htmlBuffer)
+        }
         template.setFilePathHTML(htmlPath)
       } catch (err) {
         new Logger('CreateTemplateUseCase').warn(
-          `Failed to generate HTML preview, continuing without: ${describeError(err)}`,
+          `Failed to ${htmlPreviewFile ? 'save custom' : 'generate'} HTML preview, continuing without: ${describeError(err)}`,
         )
       }
     }

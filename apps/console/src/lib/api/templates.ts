@@ -18,6 +18,7 @@ export interface CreateTemplateInput {
   category?: string;
   pageOrientation?: 'PORTRAIT' | 'LANDSCAPE';
   visibility?: 'ORGANIZATION' | 'GLOBAL';
+  htmlFile?: File;
 }
 
 export function createTemplate(input: CreateTemplateInput) {
@@ -33,6 +34,7 @@ export function createTemplate(input: CreateTemplateInput) {
   if (input.pageOrientation)
     formData.append('pageOrientation', input.pageOrientation);
   if (input.visibility) formData.append('visibility', input.visibility);
+  if (input.htmlFile) formData.append('htmlPreview', input.htmlFile);
   return http.post<Template>('/templates', { formData });
 }
 
@@ -72,6 +74,15 @@ export function replaceTemplateFile(id: string, file: File) {
   const formData = new FormData();
   formData.append('template', file);
   return http.post<Template>(`/templates/${id}/files`, { formData });
+}
+
+export function replaceTemplateHtml(id: string, htmlFile: File) {
+  const formData = new FormData();
+  formData.append('htmlPreview', htmlFile);
+  return http.post<{ id: string; filePathHTML: string | null; updatedAt: string }>(
+    `/templates/${id}/preview-html`,
+    { formData }
+  );
 }
 
 export interface ListTemplatesParams {
