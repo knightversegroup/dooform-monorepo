@@ -10,7 +10,7 @@ COPY libs ./libs
 
 RUN pnpm install --frozen-lockfile
 
-RUN NX_VERBOSE_LOGGING=true pnpm nx build dooform-api --verbose
+RUN pnpm nx build dooform-api
 
 # ---- Runtime stage ------------------------------------------------------
 FROM node:24-bookworm-slim AS runtime

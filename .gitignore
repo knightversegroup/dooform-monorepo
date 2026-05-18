@@ -53,6 +53,6 @@ next-env.d.ts
 vitest.config.*.timestamp*
 .astro
 
-storage
-docs
+/storage
+/docs
 vite.config.*.timestamp*
