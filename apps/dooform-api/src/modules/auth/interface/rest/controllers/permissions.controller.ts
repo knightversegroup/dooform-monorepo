@@ -379,6 +379,22 @@ export class PermissionsController {
     return { ok: true }
   }
 
+  @Post('users/:userId/reset')
+  @RequirePermission('users:override-permissions')
+  async resetUserIam(
+    @CurrentUser() actor: AuthenticatedUser,
+    @Param('userId') userId: string,
+  ) {
+    const target = await this.users.findOne({ where: { id: userId } })
+    if (!target) throw new NotFoundException('User not found')
+    return this.permissions.resetUserIam(userId, {
+      userId: actor.userId,
+      role: actor.role,
+      email: actor.email,
+      organizationId: actor.organizationId,
+    })
+  }
+
   @Patch('users/:userId/assignments/:assignmentId')
   @RequirePermission('users:assign-role')
   async patchAssignment(

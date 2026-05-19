@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Trash2, Plus, X } from 'lucide-react';
+import { Trash2, Plus, X, RotateCcw } from 'lucide-react';
 
 import { useAuth } from '../../lib/auth/AuthContext';
 import { authApi } from '../../lib/auth/api';
@@ -76,6 +76,15 @@ export default function IamPage() {
   const revokeMutation = useMutation({
     mutationFn: (assignmentId: string) =>
       authApi.revokeUserAssignment(selectedUserId as string, assignmentId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'users', selectedUserId, 'assignments'] });
+      qc.invalidateQueries({ queryKey: ['admin', 'users', selectedUserId, 'permissions'] });
+      qc.invalidateQueries({ queryKey: ['admin', 'roles'] });
+    },
+  });
+
+  const resetMutation = useMutation({
+    mutationFn: () => authApi.resetUserIam(selectedUserId as string),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin', 'users', selectedUserId, 'assignments'] });
       qc.invalidateQueries({ queryKey: ['admin', 'users', selectedUserId, 'permissions'] });
@@ -202,15 +211,37 @@ export default function IamPage() {
                   <h2 className="text-base font-semibold text-ink">{selectedMember.name || selectedMember.email}</h2>
                   <p className="text-[12px] text-ink-muted">{selectedMember.email}</p>
                 </div>
-                {canAssignRole ? (
-                  <button
-                    type="button"
-                    onClick={() => setShowGrantDialog(true)}
-                    className="inline-flex items-center gap-1 px-3 py-1 text-xs rounded bg-primary text-white"
-                  >
-                    <Plus className="w-3 h-3" /> Grant role
-                  </button>
-                ) : null}
+                <div className="flex items-center gap-2">
+                  {canOverride ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (
+                          confirm(
+                            `Reset IAM for ${selectedMember.email}? This drops every role assignment beyond their primary role and clears all permission overrides.`,
+                          )
+                        ) {
+                          resetMutation.mutate();
+                        }
+                      }}
+                      disabled={resetMutation.isPending}
+                      title="Reset to default for primary role"
+                      className="inline-flex items-center gap-1 px-3 py-1 text-xs rounded border border-border-default text-ink-muted hover:text-red-600 disabled:opacity-50"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      {resetMutation.isPending ? 'Resetting…' : 'Reset IAM'}
+                    </button>
+                  ) : null}
+                  {canAssignRole ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowGrantDialog(true)}
+                      className="inline-flex items-center gap-1 px-3 py-1 text-xs rounded bg-primary text-white"
+                    >
+                      <Plus className="w-3 h-3" /> Grant role
+                    </button>
+                  ) : null}
+                </div>
               </div>
 
               {/* Assigned roles */}

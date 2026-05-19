@@ -193,6 +193,10 @@ export const authApi = {
     http.delete<{ ok: boolean }>(
       `/admin/permissions/users/${userId}/assignments/${assignmentId}`,
     ),
+  resetUserIam: (userId: string) =>
+    http.post<{ role: UserRole; assignments: number; overrides: number }>(
+      `/admin/permissions/users/${userId}/reset`,
+    ),
   updateUserAssignment: (
     userId: string,
     assignmentId: string,

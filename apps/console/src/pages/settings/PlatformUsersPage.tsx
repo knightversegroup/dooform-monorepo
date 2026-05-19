@@ -9,6 +9,7 @@ import {
   KeyRound,
   Ban,
   CheckCircle2,
+  RotateCcw,
   X,
 } from 'lucide-react';
 
@@ -124,6 +125,18 @@ export default function PlatformUsersPage() {
         text: data.tokenForDev
           ? `Reset link sent to ${data.sentTo} (dev token: ${data.tokenForDev})`
           : `Reset link sent to ${data.sentTo}.`,
+      });
+    },
+    onError: (err: Error) => setFeedback({ kind: 'err', text: err.message }),
+  });
+
+  const resetIamMutation = useMutation({
+    mutationFn: (userId: string) => authApi.resetUserIam(userId),
+    onSuccess: (data) => {
+      invalidate();
+      setFeedback({
+        kind: 'ok',
+        text: `IAM reset to ${data.role}. Removed ${data.assignments} role assignment(s) and ${data.overrides} permission override(s).`,
       });
     },
     onError: (err: Error) => setFeedback({ kind: 'err', text: err.message }),
@@ -375,6 +388,23 @@ export default function PlatformUsersPage() {
                           <CheckCircle2 className="w-3.5 h-3.5" />
                         </button>
                       )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (
+                            confirm(
+                              `Reset IAM for ${u.email}? This drops every role assignment beyond their primary role and clears all permission overrides.`,
+                            )
+                          ) {
+                            resetIamMutation.mutate(u.id);
+                          }
+                        }}
+                        disabled={resetIamMutation.isPending}
+                        title="Reset IAM to primary role default"
+                        className="p-1 text-ink-muted hover:text-red-600 disabled:opacity-40"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                      </button>
                       <Link
                         to={`/settings/iam?user=${u.id}`}
                         className="ml-1 text-[11px] text-primary hover:underline"

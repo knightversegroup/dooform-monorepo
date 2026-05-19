@@ -1024,6 +1024,63 @@ export class PermissionService implements OnApplicationBootstrap {
     })
   }
 
+  /**
+   * Restore a user's IAM to baseline. Drops every role assignment and every
+   * per-user permission override, then re-assigns just the system role
+   * matching the legacy `users.role` value (USER / ORG_ADMIN / GLOBAL_ADMIN)
+   * so the user lands back at the default permission set for whichever role
+   * they're at — no extra grants, no DENY overrides, no expiry conditions.
+   *
+   * Used by the admin "Reset IAM" action when a user's permission state has
+   * gotten messy and you just want to start over without demoting them.
+   */
+  async resetUserIam(
+    targetUserId: string,
+    actor: PermissionPrincipal & { organizationId?: string | null },
+  ): Promise<{ role: UserRole; assignments: number; overrides: number }> {
+    const user = await this.users.findOne({ where: { id: targetUserId } })
+    if (!user) throw new NotFoundException(`User not found: ${targetUserId}`)
+
+    const before = {
+      assignments: await this.assignments.find({ where: { userId: targetUserId } }),
+      overrides: await this.userPermissions.find({ where: { userId: targetUserId } }),
+    }
+
+    // Wipe every assignment and every override. setPrimarySystemRole below
+    // re-adds the one assignment for the primary role.
+    await this.assignments.delete({ userId: targetUserId })
+    await this.userPermissions.delete({ userId: targetUserId })
+
+    await this.setPrimarySystemRole(targetUserId, user.role, actor)
+    await this.reloadUserOverrides()
+
+    this.auditLog.log({
+      organizationId: actor.organizationId ?? null,
+      actor: { userId: actor.userId, email: actor.email ?? null, role: actor.role ?? null },
+      action: 'user.iam.reset',
+      resourceType: 'user',
+      resourceId: targetUserId,
+      metadata: {
+        primaryRole: user.role,
+        removedAssignments: before.assignments.map((a) => ({
+          roleId: a.roleId,
+          expiresAt: a.expiresAt,
+          condition: a.condition,
+        })),
+        removedOverrides: before.overrides.map((o) => ({
+          permissionKey: o.permissionKey,
+          effect: o.effect,
+        })),
+      },
+    })
+
+    return {
+      role: user.role,
+      assignments: before.assignments.length,
+      overrides: before.overrides.length,
+    }
+  }
+
   async updateAssignment(
     assignmentId: string,
     patch: { expiresAt?: Date | null; condition?: AssignmentCondition | null },
