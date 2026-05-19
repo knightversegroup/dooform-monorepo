@@ -176,14 +176,18 @@ export class PermissionService implements OnApplicationBootstrap {
   private async backfillRolePermissionsRoleId(): Promise<void> {
     const pending = await this.rolePermissionsRepo.find({ where: { roleId: IsNull() } })
     if (pending.length === 0) return
+    const filled: typeof pending = []
     for (const row of pending) {
-      const role = this.rolesByCode.get(row.role as unknown as string)
+      if (!row.role) continue // custom-role row pre-fix; will be reconciled by other paths
+      const role = this.rolesByCode.get(row.role)
       if (!role) continue
       row.roleId = role.id
+      filled.push(row)
     }
-    await this.rolePermissionsRepo.save(pending)
+    if (filled.length === 0) return
+    await this.rolePermissionsRepo.save(filled)
     await this.reloadIam()
-    this.logger.log(`Backfilled role_id on ${pending.length} role_permissions rows`)
+    this.logger.log(`Backfilled role_id on ${filled.length} role_permissions rows`)
   }
 
   /**
@@ -259,7 +263,11 @@ export class PermissionService implements OnApplicationBootstrap {
       [UserRole.ORG_ADMIN]: new Set(),
       [UserRole.GLOBAL_ADMIN]: new Set(),
     }
-    for (const r of rows) next[r.role].add(r.permissionKey)
+    for (const r of rows) {
+      // Custom-role rows have role=NULL — skip; they're handled by the
+      // roleId-keyed cache in reloadIam.
+      if (r.role) next[r.role].add(r.permissionKey)
+    }
     this.cache = next
   }
 
@@ -689,9 +697,11 @@ export class PermissionService implements OnApplicationBootstrap {
         input.permissions.map((key) =>
           this.rolePermissionsRepo.create({
             id: randomUUID(),
-            // legacy enum is required; pick USER as a harmless placeholder for
-            // custom roles — readers prefer role_id when populated.
-            role: UserRole.USER,
+            // role enum is NULL for custom roles — they're identified by role_id.
+            // Keeping it null protects custom roles from being wiped when an
+            // admin edits a system role's baseline (setGrantsBulk deletes
+            // WHERE role = X, which only matches system rows).
+            role: null,
             roleId: role.id,
             permissionKey: key,
           }),
@@ -766,7 +776,7 @@ export class PermissionService implements OnApplicationBootstrap {
             patch.permissions.map((key) =>
               this.rolePermissionsRepo.create({
                 id: randomUUID(),
-                role: UserRole.USER,
+                role: null,
                 roleId: role.id,
                 permissionKey: key,
               }),

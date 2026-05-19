@@ -13,14 +13,23 @@ import { UserRole } from '../../../../../user/domain/enums/user.enum'
  * drops the legacy `role` column once every reader has migrated.
  */
 @Entity('role_permissions')
-@Index('idx_role_permissions_role_key', ['role', 'permissionKey'], { unique: true })
+@Index('idx_role_permissions_role_key', ['role', 'permissionKey'], {
+  unique: true,
+  where: 'role IS NOT NULL',
+})
 @Index('idx_role_permissions_role_id_key', ['roleId', 'permissionKey'], {
   unique: true,
   where: 'role_id IS NOT NULL',
 })
 export class RolePermissionModel extends BaseTypeOrmModel {
-  @Column({ type: 'enum', enum: UserRole })
-  role!: UserRole
+  /**
+   * Legacy enum column for system-role rows (USER / ORG_ADMIN / GLOBAL_ADMIN).
+   * NULL for custom roles — those are identified by `roleId` only. Keeping
+   * this split lets system-role baseline edits (which delete WHERE role = X)
+   * stay scoped to system rows and not stomp custom-role permissions.
+   */
+  @Column({ type: 'enum', enum: UserRole, nullable: true })
+  role!: UserRole | null
 
   @Column({ name: 'role_id', type: 'uuid', nullable: true })
   roleId!: string | null

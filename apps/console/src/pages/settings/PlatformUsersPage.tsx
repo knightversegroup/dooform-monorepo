@@ -89,13 +89,26 @@ export default function PlatformUsersPage() {
   };
 
   const updateMutation = useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       userId,
       patch,
+      newRole,
     }: {
       userId: string;
       patch: Parameters<typeof authApi.adminUpdateUser>[1];
-    }) => authApi.adminUpdateUser(userId, patch),
+      newRole?: UserRole;
+    }) => {
+      // Role is a separate endpoint because it has its own permission gate
+      // (users:assign-role / users:assign-global-admin) and synchronizes the
+      // legacy users.role column with role_assignments via the backend.
+      const hasOtherFields = Object.keys(patch).length > 0;
+      if (hasOtherFields) {
+        await authApi.adminUpdateUser(userId, patch);
+      }
+      if (newRole) {
+        await authApi.setUserRole(userId, newRole);
+      }
+    },
     onSuccess: () => {
       invalidate();
       setEditing(null);
@@ -426,8 +439,11 @@ export default function PlatformUsersPage() {
           tenants={tenants}
           submitting={updateMutation.isPending}
           error={updateMutation.error ? (updateMutation.error as Error).message : null}
+          selfUserId={user?.id ?? null}
           onCancel={() => setEditing(null)}
-          onSubmit={(patch) => updateMutation.mutate({ userId: editing.id, patch })}
+          onSubmit={(patch, newRole) =>
+            updateMutation.mutate({ userId: editing.id, patch, newRole })
+          }
         />
       ) : null}
 
@@ -459,11 +475,19 @@ export default function PlatformUsersPage() {
   );
 }
 
+const ROLE_OPTIONS: UserRole[] = ['USER', 'ORG_ADMIN', 'GLOBAL_ADMIN'];
+const ROLE_LABEL: Record<UserRole, string> = {
+  USER: 'Member',
+  ORG_ADMIN: 'Org Admin',
+  GLOBAL_ADMIN: 'Global Admin',
+};
+
 function EditUserDialog({
   user,
   tenants,
   submitting,
   error,
+  selfUserId,
   onCancel,
   onSubmit,
 }: {
@@ -471,21 +495,28 @@ function EditUserDialog({
   tenants: Array<{ organizationId: string; name: string }>;
   submitting: boolean;
   error: string | null;
+  selfUserId: string | null;
   onCancel: () => void;
-  onSubmit: (patch: {
-    displayName?: string;
-    email?: string;
-    jobTitle?: string | null;
-    organizationId?: string | null;
-    emailVerified?: boolean;
-    userTier?: string;
-  }) => void;
+  onSubmit: (
+    patch: {
+      displayName?: string;
+      email?: string;
+      jobTitle?: string | null;
+      organizationId?: string | null;
+      emailVerified?: boolean;
+      userTier?: string;
+    },
+    newRole?: UserRole,
+  ) => void;
 }) {
   const [displayName, setDisplayName] = useState(user.displayName);
   const [email, setEmail] = useState(user.email);
   const [orgId, setOrgId] = useState<string>(user.organizationId ?? '');
   const [emailVerified, setEmailVerified] = useState(user.emailVerified);
   const [userTier, setUserTier] = useState<string>(user.userTier);
+  const [role, setRole] = useState<UserRole>(user.role);
+
+  const isSelf = selfUserId === user.id;
 
   // Build the diff so we don't ship unchanged fields.
   const submit = () => {
@@ -506,11 +537,12 @@ function EditUserDialog({
     if (orgId !== currentOrg) patch.organizationId = orgId === '' ? null : orgId;
     if (emailVerified !== user.emailVerified) patch.emailVerified = emailVerified;
     if (userTier !== user.userTier) patch.userTier = userTier;
-    if (Object.keys(patch).length === 0) {
+    const newRole = role !== user.role ? role : undefined;
+    if (Object.keys(patch).length === 0 && !newRole) {
       onCancel();
       return;
     }
-    onSubmit(patch);
+    onSubmit(patch, newRole);
   };
 
   return (
@@ -570,6 +602,30 @@ function EditUserDialog({
               </option>
             ))}
           </select>
+        </label>
+
+        <label className="flex flex-col gap-1">
+          <span className="text-[11px] text-ink-muted">Primary role</span>
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value as UserRole)}
+            disabled={isSelf}
+            className="px-2 py-1 rounded border border-border-default bg-white text-sm disabled:bg-surface-alt disabled:text-ink-muted"
+          >
+            {ROLE_OPTIONS.map((r) => (
+              <option key={r} value={r}>
+                {ROLE_LABEL[r]}
+              </option>
+            ))}
+          </select>
+          {isSelf ? (
+            <span className="text-[10px] text-ink-faint">You can&apos;t change your own role.</span>
+          ) : (
+            <span className="text-[10px] text-ink-faint">
+              Sets the user&apos;s primary system role and syncs role_assignments.
+              Promoting to Global Admin requires the users:assign-global-admin permission.
+            </span>
+          )}
         </label>
 
         <label className="flex flex-col gap-1">
