@@ -218,9 +218,12 @@ export class AuthService {
         ip: meta.ip,
         userAgent: meta.userAgent,
       })
-      // Generic "invalid credentials" rather than "deactivated" to avoid
-      // confirming the existence of a deactivated account to an attacker.
-      throw new UnauthorizedException('Invalid credentials')
+      // Specific message is safe here because we only reach this branch AFTER
+      // the password check succeeds — so we're not leaking account existence
+      // to a credential-stuffer who lacks the right password. ForbiddenException
+      // (403) tells the frontend "we know you but you can't enter" so it can
+      // render a different prompt than the generic 401.
+      throw new ForbiddenException('Account is deactivated. Contact your administrator.')
     }
 
     const tokens = await this.issueTokens(user, meta)
