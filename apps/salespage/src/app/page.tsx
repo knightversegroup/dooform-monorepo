@@ -3,6 +3,7 @@ import HeroSection from '../components/home/HeroSection';
 import PartnersSection from '../components/home/PartnersSection';
 import UseCasesSection from '../components/home/UseCasesSection';
 import AudienceSection from '../components/home/AudienceSection';
+import HowItWorksSection from '../components/home/HowItWorksSection';
 import FeaturesHighlightSection from '../components/home/FeaturesHighlightSection';
 import FeatureCarouselSection from '../components/home/FeatureCarouselSection';
 import FeaturesSection from '../components/home/FeaturesSection';
@@ -22,6 +23,7 @@ export default function HomePage() {
       <PartnersSection dict={dict.partners} />
       <UseCasesSection dict={dict.useCases} />
       <AudienceSection dict={dict.audience} />
+      <HowItWorksSection dict={dict.howItWorks} />
       {/* <FeaturesHighlightSection dict={dict.featuresHighlight} /> */}
       <FeatureCarouselSection
         dict={dict.featureCarousel}
