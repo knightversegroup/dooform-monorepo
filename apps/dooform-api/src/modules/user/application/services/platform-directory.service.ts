@@ -20,6 +20,7 @@ import { AuditLogService } from '../../../auth/application/services/audit-log.se
 import { TokenService } from '../../../auth/infrastructure/services/token.service'
 import { MailerService } from '../../../../common/mailer/mailer.service'
 import { UserRole } from '../../domain/enums/user.enum'
+import { UserTier } from '../../../document/domain/enums/document.enum'
 
 export interface PlatformUserRow {
   id: string
@@ -59,6 +60,13 @@ export interface AdminPatchUserInput {
   locale?: string | null
   emailVerified?: boolean
   organizationId?: string | null
+  /**
+   * Per-user feature tier (free / pro / max). Heads up: this is overwritten
+   * for every user in an org whenever the org's tier is changed via
+   * `/organization/tier`. Use sparingly — typically only for one-off
+   * promotion of a specific user.
+   */
+  userTier?: string
 }
 
 export interface AdminActor {
@@ -183,6 +191,7 @@ export class PlatformDirectoryService {
       jobTitle: target.jobTitle,
       timezone: target.timezone,
       locale: target.locale,
+      userTier: target.userTier,
     }
 
     if (patch.email !== undefined) {
@@ -213,6 +222,15 @@ export class PlatformDirectoryService {
         target.organizationId = org.id
       }
     }
+    if (patch.userTier !== undefined) {
+      const allowed = Object.values(UserTier)
+      if (!allowed.includes(patch.userTier as UserTier)) {
+        throw new BadRequestException(
+          `Invalid tier "${patch.userTier}" — expected one of ${allowed.join(', ')}`,
+        )
+      }
+      target.userTier = patch.userTier as UserTier
+    }
 
     const saved = await this.users.save(target)
 
@@ -232,6 +250,7 @@ export class PlatformDirectoryService {
           jobTitle: saved.jobTitle,
           timezone: saved.timezone,
           locale: saved.locale,
+          userTier: saved.userTier,
         },
       },
     })

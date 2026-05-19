@@ -262,6 +262,7 @@ export const authApi = {
       locale?: string | null;
       emailVerified?: boolean;
       organizationId?: string | null;
+      userTier?: string;
     },
   ) =>
     http.patch<{ id: string; email: string; displayName: string }>(`/admin/users/${userId}`, {

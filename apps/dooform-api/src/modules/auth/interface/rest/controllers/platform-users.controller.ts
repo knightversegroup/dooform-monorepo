@@ -26,6 +26,7 @@ class AdminPatchUserDto {
   @IsOptional() @IsString() locale?: string | null
   @IsOptional() @IsBoolean() emailVerified?: boolean
   @IsOptional() @IsUUID() organizationId?: string | null
+  @IsOptional() @IsString() userTier?: string
 }
 
 class SetUserActiveDto {

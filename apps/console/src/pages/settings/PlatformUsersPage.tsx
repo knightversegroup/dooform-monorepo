@@ -448,13 +448,14 @@ function EditUserDialog({
     jobTitle?: string | null;
     organizationId?: string | null;
     emailVerified?: boolean;
+    userTier?: string;
   }) => void;
 }) {
   const [displayName, setDisplayName] = useState(user.displayName);
   const [email, setEmail] = useState(user.email);
-  const [jobTitle, setJobTitle] = useState(user.organizationId ?? '');
   const [orgId, setOrgId] = useState<string>(user.organizationId ?? '');
   const [emailVerified, setEmailVerified] = useState(user.emailVerified);
+  const [userTier, setUserTier] = useState<string>(user.userTier);
 
   // Build the diff so we don't ship unchanged fields.
   const submit = () => {
@@ -464,6 +465,7 @@ function EditUserDialog({
       jobTitle?: string | null;
       organizationId?: string | null;
       emailVerified?: boolean;
+      userTier?: string;
     } = {};
     if (displayName.trim() && displayName.trim() !== user.displayName) {
       patch.displayName = displayName.trim();
@@ -473,6 +475,7 @@ function EditUserDialog({
     const currentOrg = user.organizationId ?? '';
     if (orgId !== currentOrg) patch.organizationId = orgId === '' ? null : orgId;
     if (emailVerified !== user.emailVerified) patch.emailVerified = emailVerified;
+    if (userTier !== user.userTier) patch.userTier = userTier;
     if (Object.keys(patch).length === 0) {
       onCancel();
       return;
@@ -539,9 +542,22 @@ function EditUserDialog({
           </select>
         </label>
 
-        {/* The jobTitle field exists on the model but we treat it as future
-            work for now — the dialog covers the high-frequency edits. */}
-        {jobTitle && jobTitle !== '' ? null : null}
+        <label className="flex flex-col gap-1">
+          <span className="text-[11px] text-ink-muted">Tier</span>
+          <select
+            value={userTier}
+            onChange={(e) => setUserTier(e.target.value)}
+            className="px-2 py-1 rounded border border-border-default bg-white text-sm"
+          >
+            <option value="free">Free</option>
+            <option value="pro">Pro</option>
+            <option value="max">Max</option>
+          </select>
+          <span className="text-[10px] text-ink-faint">
+            Per-user override. Changing the org tier later will overwrite this for every
+            member of that org.
+          </span>
+        </label>
 
         {error ? <div className="text-[11px] text-red-600">{error}</div> : null}
 
