@@ -168,7 +168,7 @@ export default function FormFillPage() {
   const setActiveField = (name: string | null) => setHoverField(name);
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col h-[calc(100vh-4rem)]"> // add fixed height to make it scrollable
       <PageHeader
         title={`Fill: ${tpl?.displayName ?? tpl?.name ?? 'Template'}`}
         description="Complete the fields below and generate the document."
@@ -244,7 +244,7 @@ export default function FormFillPage() {
               <ErrorMessage error={submitMutation.error} />
             ) : null}
 
-            <div className="flex items-center justify-end gap-2 pt-2 sticky bottom-0 bg-white border-t border-border-default -mx-6 px-6 py-3">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-border-default -mx-6 px-6 py-3">
               <Button
                 type="button"
                 variant="outline"
