@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ChevronDown,
   ChevronRight,
+  ClipboardPaste,
   Plus,
   RotateCcw,
   Save,
@@ -465,6 +466,20 @@ export default function SettingsDataTypesPage() {
   );
 }
 
+function parseBulkOptions(text: string): DataTypeOption[] {
+  return text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .map((line) => {
+      const match = line.match(/^([^\t,|]+?)\s*[\t,|]\s*(.+)$/);
+      if (match) {
+        return { value: match[1].trim(), label: match[2].trim() };
+      }
+      return { value: line, label: line };
+    });
+}
+
 function OptionsEditor({
   options,
   onChange,
@@ -472,10 +487,25 @@ function OptionsEditor({
   options: DataTypeOption[];
   onChange: (next: DataTypeOption[]) => void;
 }) {
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkText, setBulkText] = useState('');
+  const [bulkMode, setBulkMode] = useState<'append' | 'replace'>('append');
+
   const update = (idx: number, updates: Partial<DataTypeOption>) =>
     onChange(options.map((o, i) => (i === idx ? { ...o, ...updates } : o)));
   const remove = (idx: number) => onChange(options.filter((_, i) => i !== idx));
   const add = () => onChange([...options, { value: '', label: '' }]);
+
+  const parsedPreview = useMemo(() => parseBulkOptions(bulkText), [bulkText]);
+
+  const applyBulk = () => {
+    if (parsedPreview.length === 0) return;
+    onChange(
+      bulkMode === 'replace' ? parsedPreview : [...options, ...parsedPreview],
+    );
+    setBulkText('');
+    setBulkOpen(false);
+  };
 
   return (
     <div className="space-y-2">
@@ -535,9 +565,84 @@ function OptionsEditor({
           </div>
         ))
       )}
-      <Button variant="outline" size="sm" onClick={add}>
-        <Plus className="w-3.5 h-3.5" /> เพิ่มตัวเลือก
-      </Button>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button variant="outline" size="sm" onClick={add}>
+          <Plus className="w-3.5 h-3.5" /> เพิ่มตัวเลือก
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setBulkOpen((v) => !v)}
+        >
+          <ClipboardPaste className="w-3.5 h-3.5" />
+          {bulkOpen ? 'ปิดการนำเข้าจำนวนมาก' : 'นำเข้าจำนวนมาก'}
+        </Button>
+      </div>
+
+      {bulkOpen ? (
+        <div className="rounded border border-border-default bg-white p-3 space-y-2">
+          <p className="text-[11px] text-ink-muted leading-relaxed">
+            วางรายการตัวเลือก <strong>บรรทัดละหนึ่งรายการ</strong>
+            <br />
+            • <strong>หนึ่งคอลัมน์</strong> เช่น <code>กรุงเทพมหานคร</code> →
+            ค่าที่ถูกเขียนและป้ายชื่อจะเหมือนกัน
+            <br />
+            • <strong>สองคอลัมน์</strong> คั่นด้วย <code>,</code>{' '}
+            <code>|</code> หรือแท็บ — เช่น
+            <code> BKK, กรุงเทพมหานคร</code> → ค่าที่ถูกเขียน{' '}
+            <code>BKK</code>, ป้ายชื่อ <code>กรุงเทพมหานคร</code>
+          </p>
+          <textarea
+            value={bulkText}
+            onChange={(e) => setBulkText(e.target.value)}
+            rows={8}
+            placeholder={'กรุงเทพมหานคร\nเชียงใหม่\nภูเก็ต\n…\n\nหรือ\nBKK, กรุงเทพมหานคร\nCNX, เชียงใหม่'}
+            className="w-full px-2 py-1.5 text-sm rounded border border-border-default font-mono focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          <div className="flex flex-wrap items-center gap-3 text-xs">
+            <span className="text-ink-muted">
+              ตรวจพบ <strong>{parsedPreview.length}</strong> รายการ
+            </span>
+            <label className="inline-flex items-center gap-1.5">
+              <input
+                type="radio"
+                name="bulk-mode"
+                checked={bulkMode === 'append'}
+                onChange={() => setBulkMode('append')}
+              />
+              เพิ่มต่อท้าย
+            </label>
+            <label className="inline-flex items-center gap-1.5">
+              <input
+                type="radio"
+                name="bulk-mode"
+                checked={bulkMode === 'replace'}
+                onChange={() => setBulkMode('replace')}
+              />
+              แทนที่ทั้งหมด
+            </label>
+            <div className="ml-auto flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setBulkText('');
+                  setBulkOpen(false);
+                }}
+              >
+                ยกเลิก
+              </Button>
+              <Button
+                size="sm"
+                onClick={applyBulk}
+                disabled={parsedPreview.length === 0}
+              >
+                นำเข้า {parsedPreview.length > 0 ? `(${parsedPreview.length})` : ''}
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
