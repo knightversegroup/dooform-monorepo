@@ -3,8 +3,9 @@
 // Role types
 export type RoleName = 'admin' | 'user';
 
-// Tier types
-export type UserTierName = 'free' | 'pro' | 'max';
+// Tier types — hierarchical via sortOrder enforced server-side in tier_configs.
+// Lowest to highest: free < basic < pro < advance < enterprise.
+export type UserTierName = 'free' | 'basic' | 'pro' | 'advance' | 'enterprise';
 
 export interface TierCapabilities {
   allowed_formats: ('pdf' | 'docx')[];

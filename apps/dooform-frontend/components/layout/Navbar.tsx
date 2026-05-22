@@ -10,6 +10,8 @@ import {
   Crown,
   Sparkles,
   Zap,
+  Star,
+  Gem,
 } from "lucide-react";
 import { Navbar as SharedNavbar } from "@dooform/shared";
 import { useTier } from "@dooform/shared/auth/hooks";
@@ -30,15 +32,25 @@ const TIER_CONFIG: Record<UserTierName, { label: string; icon: React.ReactNode; 
     icon: <Zap className="w-3 h-3" />,
     className: "bg-neutral-100 text-neutral-600 border-neutral-200",
   },
+  basic: {
+    label: "Basic",
+    icon: <Star className="w-3 h-3" />,
+    className: "bg-sky-50 text-sky-700 border-sky-200",
+  },
   pro: {
     label: "Pro",
     icon: <Crown className="w-3 h-3" />,
     className: "bg-blue-50 text-blue-700 border-blue-200",
   },
-  max: {
-    label: "Max",
-    icon: <Sparkles className="w-3 h-3" />,
+  advance: {
+    label: "Advance",
+    icon: <Gem className="w-3 h-3" />,
     className: "bg-violet-50 text-violet-700 border-violet-200",
+  },
+  enterprise: {
+    label: "Enterprise",
+    icon: <Sparkles className="w-3 h-3" />,
+    className: "bg-amber-50 text-amber-700 border-amber-200",
   },
 };
 

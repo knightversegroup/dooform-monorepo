@@ -28,7 +28,9 @@ export class UserModel extends BaseTypeOrmModel {
   @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
   role!: UserRole
 
-  @Column({ name: 'user_tier', type: 'enum', enum: UserTier, default: UserTier.FREE })
+  // Stored as varchar (not pg enum) so we can add tier codes via the tier_configs
+  // table without an enum-alter migration. The TS-side enum is just for callers.
+  @Column({ name: 'user_tier', type: 'varchar', length: 32, default: UserTier.FREE })
   userTier!: UserTier
 
   @Column({ name: 'organization_id', type: 'uuid', nullable: true })

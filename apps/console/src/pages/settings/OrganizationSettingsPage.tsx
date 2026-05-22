@@ -24,14 +24,24 @@ const TIERS: Array<{ code: UserTier; label: string; description: string }> = [
     description: 'ฟีเจอร์พื้นฐาน มีลายน้ำแบรนด์บน PDF',
   },
   {
-    code: 'pro',
-    label: 'Pro',
-    description: 'ลบลายน้ำแบรนด์ ปลดล็อกเทมเพลตระดับ Pro',
+    code: 'basic',
+    label: 'Basic',
+    description: 'ลบลายน้ำแบรนด์ โควต้าฟอร์ม/เทมเพลตที่สูงขึ้น',
   },
   {
-    code: 'max',
-    label: 'Max',
-    description: 'ทุกอย่างของ Pro รวมถึงเทมเพลตระดับ Enterprise',
+    code: 'pro',
+    label: 'Pro',
+    description: 'ปลดล็อก PDF Editor และการปรับแบรนด์ของคุณเอง',
+  },
+  {
+    code: 'advance',
+    label: 'Advance',
+    description: 'เปิดใช้งาน API, Workflow Automation และโควต้าระดับสูง',
+  },
+  {
+    code: 'enterprise',
+    label: 'Enterprise',
+    description: 'ทุกอย่างไม่จำกัด พร้อม SSO และการสนับสนุนเฉพาะ',
   },
 ];
 

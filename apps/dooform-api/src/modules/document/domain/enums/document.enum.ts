@@ -11,8 +11,10 @@ export enum DocumentFormat {
 
 export enum UserTier {
   FREE = 'free',
+  BASIC = 'basic',
   PRO = 'pro',
-  MAX = 'max',
+  ADVANCE = 'advance',
+  ENTERPRISE = 'enterprise',
 }
 
 export enum DocumentLifecycleStatus {

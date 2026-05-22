@@ -8,6 +8,8 @@ import {
   Crown,
   Zap,
   Sparkles,
+  Star,
+  Gem,
   Loader2,
   AlertCircle,
 } from "lucide-react";
@@ -15,6 +17,14 @@ import { useAuth } from "@dooform/shared/auth/hooks";
 import { useTier } from "@dooform/shared/auth/hooks";
 import { apiClient } from "@dooform/shared/api/client";
 import type { UserTierName } from "@dooform/shared/auth/types";
+
+const TIER_LABEL: Record<UserTierName, string> = {
+  free: "Free",
+  basic: "Basic",
+  pro: "Pro",
+  advance: "Advance",
+  enterprise: "Enterprise",
+};
 
 interface TierCardProps {
   name: string;
@@ -47,7 +57,7 @@ function TierCard({
   isLoading,
   onSelect,
 }: TierCardProps) {
-  const tierOrder: Record<UserTierName, number> = { free: 0, pro: 1, max: 2 };
+  const tierOrder: Record<UserTierName, number> = { free: 0, basic: 1, pro: 2, advance: 3, enterprise: 4 };
   const isUpgrade = tierOrder[tierKey] > tierOrder[currentTier];
   const isDowngrade = tierOrder[tierKey] < tierOrder[currentTier];
 
@@ -140,7 +150,7 @@ export default function PricingPage() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [pendingTier, setPendingTier] = useState<UserTierName | null>(null);
 
-  const tierOrder: Record<UserTierName, number> = { free: 0, pro: 1, max: 2 };
+  const tierOrder: Record<UserTierName, number> = { free: 0, basic: 1, pro: 2, advance: 3, enterprise: 4 };
 
   const handleSelectTier = useCallback(
     (tier: UserTierName) => {
@@ -210,6 +220,24 @@ export default function PricingPage() {
       ],
     },
     {
+      name: "Basic",
+      tierKey: "basic",
+      price: "เร็วๆ นี้",
+      priceNote: undefined,
+      icon: <Star className="w-5 h-5" />,
+      accentColor: "bg-sky-600",
+      bgColor: "bg-sky-50/30",
+      borderColor: "border-sky-600",
+      features: [
+        { label: "ส่งออกเป็น PDF + DOCX", included: true },
+        { label: "เทมเพลต Basic", included: true },
+        { label: "200 เอกสาร/เดือน", included: true },
+        { label: "ไม่มีลายน้ำ", included: true },
+        { label: "ตัวแก้ไข PDF", included: false },
+        { label: "API access", included: false },
+      ],
+    },
+    {
       name: "Pro",
       tierKey: "pro",
       price: "เร็วๆ นี้",
@@ -228,21 +256,39 @@ export default function PricingPage() {
       ],
     },
     {
-      name: "Max",
-      tierKey: "max",
+      name: "Advance",
+      tierKey: "advance",
       price: "เร็วๆ นี้",
       priceNote: undefined,
-      icon: <Sparkles className="w-5 h-5" />,
+      icon: <Gem className="w-5 h-5" />,
       accentColor: "bg-violet-600",
       bgColor: "bg-violet-50/30",
       borderColor: "border-violet-600",
       features: [
         { label: "ส่งออกเป็น PDF + DOCX", included: true },
         { label: "เทมเพลตทั้งหมด", included: true },
+        { label: "2,000 เอกสาร/เดือน", included: true },
+        { label: "ไม่มีลายน้ำ", included: true },
+        { label: "ตัวแก้ไข PDF", included: true },
+        { label: "API + Workflow Automation", included: true },
+      ],
+    },
+    {
+      name: "Enterprise",
+      tierKey: "enterprise",
+      price: "ติดต่อทีมขาย",
+      priceNote: undefined,
+      icon: <Sparkles className="w-5 h-5" />,
+      accentColor: "bg-amber-600",
+      bgColor: "bg-amber-50/30",
+      borderColor: "border-amber-600",
+      features: [
+        { label: "ส่งออกเป็น PDF + DOCX", included: true },
+        { label: "เทมเพลตทั้งหมด", included: true },
         { label: "สร้างเอกสารไม่จำกัด", included: true },
         { label: "ไม่มีลายน้ำ", included: true },
         { label: "ตัวแก้ไข PDF", included: true },
-        { label: "สิทธิ์สูงสุดทุกฟีเจอร์", included: true },
+        { label: "API, SSO, การสนับสนุนเฉพาะ", included: true },
       ],
     },
   ];
@@ -325,13 +371,8 @@ export default function PricingPage() {
             </h3>
             <p className="text-sm text-neutral-600 mb-6">
               คุณต้องการดาวน์เกรดจาก{" "}
-              <span className="font-semibold">
-                {tierName === "max" ? "Max" : "Pro"}
-              </span>{" "}
-              เป็น{" "}
-              <span className="font-semibold">
-                {pendingTier === "free" ? "Free" : "Pro"}
-              </span>{" "}
+              <span className="font-semibold">{TIER_LABEL[tierName]}</span> เป็น{" "}
+              <span className="font-semibold">{TIER_LABEL[pendingTier]}</span>{" "}
               หรือไม่? คุณอาจสูญเสียสิทธิ์การใช้งานบางฟีเจอร์
             </p>
             <div className="flex gap-3">

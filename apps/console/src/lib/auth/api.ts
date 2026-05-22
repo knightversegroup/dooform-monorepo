@@ -13,6 +13,7 @@ import type {
   RoleGrants,
   UpdateProfilePayload,
   UserRole,
+  UserTier,
 } from './types';
 
 export const authApi = {
@@ -47,7 +48,7 @@ export const authApi = {
     }>('/organization/storage'),
   updateOrganization: (payload: { name?: string }) =>
     http.patch<Organization>('/organization', { body: payload }),
-  updateOrganizationTier: (tier: 'free' | 'pro' | 'max') =>
+  updateOrganizationTier: (tier: UserTier) =>
     http.patch<Organization>('/organization/tier', { body: { tier } }),
   listMembers: () => http.get<OrganizationMember[]>('/organization/members'),
   updateMemberRole: (userId: string, role: UserRole) =>

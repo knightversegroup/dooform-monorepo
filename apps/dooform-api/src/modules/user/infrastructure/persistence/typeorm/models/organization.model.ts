@@ -47,6 +47,9 @@ export class OrganizationModel extends BaseTypeOrmModel {
 
   // Subscription tier for the entire tenant. New members inherit this. Tier-gated
   // features (e.g. branding watermark removal, premium templates) read this value.
-  @Column({ type: 'enum', enum: UserTier, default: UserTier.FREE })
+  // Stored as varchar (not pg enum) so adding tier codes via tier_configs requires
+  // no enum-alter migration. See TierConfigService for the boot-time migration that
+  // converted the legacy pg-enum column on existing deployments.
+  @Column({ type: 'varchar', length: 32, default: UserTier.FREE })
   tier!: UserTier
 }

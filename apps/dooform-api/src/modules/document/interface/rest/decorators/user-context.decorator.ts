@@ -19,7 +19,9 @@ export const CurrentUser = createParamDecorator(
       return {
         userId: authUser.userId,
         userTier: authUser.userTier ?? UserTier.FREE,
-        watermarkDisabled: authUser.userTier !== UserTier.FREE,
+        watermarkDisabled:
+          authUser.userTier !== UserTier.FREE &&
+          authUser.userTier !== UserTier.BASIC,
         organizationId: authUser.organizationId,
         role: authUser.role,
       }

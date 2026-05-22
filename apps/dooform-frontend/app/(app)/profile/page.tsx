@@ -14,6 +14,8 @@ import {
     Crown,
     Sparkles,
     Zap,
+    Star,
+    Gem,
     ArrowUpRight,
 } from "lucide-react";
 import { useAuth } from "@dooform/shared/auth/hooks";
@@ -30,17 +32,29 @@ const TIER_DISPLAY: Record<UserTierName, { label: string; icon: React.ReactNode;
         className: "bg-neutral-50 border-neutral-200",
         badgeClass: "bg-neutral-600 text-white",
     },
+    basic: {
+        label: "Basic",
+        icon: <Star className="w-4 h-4" />,
+        className: "bg-sky-50 border-sky-200",
+        badgeClass: "bg-sky-600 text-white",
+    },
     pro: {
         label: "Pro",
         icon: <Crown className="w-4 h-4" />,
         className: "bg-blue-50 border-blue-200",
         badgeClass: "bg-blue-600 text-white",
     },
-    max: {
-        label: "Max",
-        icon: <Sparkles className="w-4 h-4" />,
+    advance: {
+        label: "Advance",
+        icon: <Gem className="w-4 h-4" />,
         className: "bg-violet-50 border-violet-200",
         badgeClass: "bg-violet-600 text-white",
+    },
+    enterprise: {
+        label: "Enterprise",
+        icon: <Sparkles className="w-4 h-4" />,
+        className: "bg-amber-50 border-amber-200",
+        badgeClass: "bg-amber-600 text-white",
     },
 };
 

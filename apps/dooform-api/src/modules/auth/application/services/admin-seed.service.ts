@@ -89,7 +89,7 @@ export class AdminSeedService implements OnApplicationBootstrap {
         passwordHash,
         emailVerified: true,
         role: UserRole.GLOBAL_ADMIN,
-        userTier: UserTier.MAX,
+        userTier: UserTier.ENTERPRISE,
         organizationId: org.id,
         googleId: null,
         onboardedAt: new Date(),

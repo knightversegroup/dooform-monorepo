@@ -31,18 +31,32 @@ const SEED: TierSeed[] = [
     sortOrder: 10,
   },
   {
-    code: UserTier.PRO,
-    label: 'Pro',
-    description: 'Removes the platform branding watermark; unlocks Pro templates.',
+    code: UserTier.BASIC,
+    label: 'Basic',
+    description: 'Removes the platform branding watermark; higher quotas than Free.',
     applyBrandingWatermark: false,
     sortOrder: 20,
   },
   {
-    code: UserTier.MAX,
-    label: 'Max',
-    description: 'Everything in Pro plus access to Enterprise templates.',
+    code: UserTier.PRO,
+    label: 'Pro',
+    description: 'Adds the PDF editor and custom branding; unlocks Pro templates.',
     applyBrandingWatermark: false,
     sortOrder: 30,
+  },
+  {
+    code: UserTier.ADVANCE,
+    label: 'Advance',
+    description: 'API access, workflow automation, and high quotas.',
+    applyBrandingWatermark: false,
+    sortOrder: 40,
+  },
+  {
+    code: UserTier.ENTERPRISE,
+    label: 'Enterprise',
+    description: 'Unlimited usage, SSO, and dedicated support.',
+    applyBrandingWatermark: false,
+    sortOrder: 50,
   },
 ]
 
@@ -59,6 +73,7 @@ export class TierConfigService implements OnApplicationBootstrap {
 
   async onApplicationBootstrap(): Promise<void> {
     await this.migrateTemplateTierColumn()
+    await this.migrateOrganizationAndUserTierColumns()
     await this.seedDefaults()
     await this.reload()
   }
@@ -99,6 +114,61 @@ export class TierConfigService implements OnApplicationBootstrap {
       this.logger.warn(
         `templates.tier migration skipped: ${(err as Error)?.message ?? err}`,
       )
+    }
+  }
+
+  /**
+   * Mirror of `migrateTemplateTierColumn` for `organizations.tier` and
+   * `users.user_tier`. The original UserTier Postgres enum was `free|pro|max`;
+   * we now want five tiers (`free|basic|pro|advance|enterprise`) and don't want
+   * to maintain a Postgres enum at all. Converts to varchar(32) on first boot
+   * and remaps the legacy `'max'` value to `'enterprise'`.
+   *
+   * Idempotent: rerun is a no-op once the column is varchar.
+   */
+  private async migrateOrganizationAndUserTierColumns(): Promise<void> {
+    const targets: Array<{ table: string; column: string }> = [
+      { table: 'organizations', column: 'tier' },
+      { table: 'users', column: 'user_tier' },
+    ]
+    for (const t of targets) {
+      try {
+        const ds = this.repo.manager.connection
+        const rows: Array<{ data_type: string; udt_name: string }> = await ds.query(
+          `SELECT data_type, udt_name
+           FROM information_schema.columns
+           WHERE table_name = $1 AND column_name = $2`,
+          [t.table, t.column],
+        )
+        const isEnum = rows[0]?.data_type === 'USER-DEFINED'
+        const enumTypeName = rows[0]?.udt_name
+        if (isEnum) {
+          await ds.query(`ALTER TABLE ${t.table} ALTER COLUMN ${t.column} DROP DEFAULT`)
+          await ds.query(
+            `ALTER TABLE ${t.table}
+               ALTER COLUMN ${t.column} TYPE varchar(32) USING ${t.column}::text`,
+          )
+          await ds.query(
+            `ALTER TABLE ${t.table} ALTER COLUMN ${t.column} SET DEFAULT 'free'`,
+          )
+          if (enumTypeName) {
+            await ds.query(`DROP TYPE IF EXISTS ${enumTypeName} CASCADE`)
+          }
+          this.logger.log(`Migrated ${t.table}.${t.column} from enum to varchar`)
+        }
+        // Legacy 'max' → 'enterprise' remap. Idempotent: no rows means no-op.
+        await ds.query(
+          `UPDATE ${t.table} SET ${t.column} = 'enterprise' WHERE ${t.column} = 'max'`,
+        )
+        // Lowercase normalization to match tier_configs.code.
+        await ds.query(
+          `UPDATE ${t.table} SET ${t.column} = LOWER(${t.column}) WHERE ${t.column} <> LOWER(${t.column})`,
+        )
+      } catch (err) {
+        this.logger.warn(
+          `${t.table}.${t.column} migration skipped: ${(err as Error)?.message ?? err}`,
+        )
+      }
     }
   }
 

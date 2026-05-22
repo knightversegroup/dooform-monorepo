@@ -1,5 +1,15 @@
 export type UserRole = 'USER' | 'ORG_ADMIN' | 'GLOBAL_ADMIN';
-export type UserTier = 'free' | 'pro' | 'max';
+export type UserTier = 'free' | 'basic' | 'pro' | 'advance' | 'enterprise';
+
+export interface ResolvedTier {
+  code: UserTier;
+  label: string;
+  sortOrder: number;
+  /** Capability keys (e.g. 'feature:pdf_editor') resolved from tier + per-tier overrides. */
+  capabilities: string[];
+  /** Numeric caps (e.g. 'limit:max_forms' → 50). null = unlimited. */
+  limits: Record<string, number | null>;
+}
 
 export interface AuthUser {
   id: string;
@@ -14,6 +24,8 @@ export interface AuthUser {
   /** All role codes the user holds (system + custom). Optional on legacy server responses. */
   roles?: string[];
   userTier: UserTier;
+  /** Resolved tier capabilities + limits for the user's org. Server-computed. */
+  tier?: ResolvedTier;
   organizationId: string | null;
   emailVerified: boolean;
   onboarded: boolean;
