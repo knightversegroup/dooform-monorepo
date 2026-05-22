@@ -45,14 +45,14 @@ export default function TenantsAdminPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   if (tenantsQuery.isLoading) {
-    return <div className="p-6 text-[12px] text-ink-muted">Loading tenants…</div>;
+    return <div className="p-6 text-[12px] text-ink-muted">กำลังโหลดผู้เช่า…</div>;
   }
   if (tenantsQuery.isError) {
     return (
       <div className="p-6 text-sm text-red-600">
         {tenantsQuery.error instanceof ApiError
           ? tenantsQuery.error.message
-          : 'Failed to load tenants.'}
+          : 'โหลดผู้เช่าไม่สำเร็จ'}
       </div>
     );
   }
@@ -70,7 +70,7 @@ export default function TenantsAdminPage() {
     if (raw === undefined) return;
     const parsed = parseQuotaInputGB(raw);
     if (Number.isNaN(parsed as unknown as number)) {
-      setErrors((e) => ({ ...e, [id]: 'Enter a non-negative number of GB, or "unlimited".' }));
+      setErrors((e) => ({ ...e, [id]: 'กรุณากรอกจำนวน GB ที่ไม่เป็นค่าลบ หรือ "unlimited"' }));
       return;
     }
     setErrors((e) => ({ ...e, [id]: '' }));
@@ -91,24 +91,24 @@ export default function TenantsAdminPage() {
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
       <header>
-        <h1 className="text-[18px] font-semibold text-ink tracking-tightish">Tenants & storage</h1>
+        <h1 className="text-[18px] font-semibold text-ink tracking-tightish">ผู้เช่า & พื้นที่จัดเก็บ</h1>
         <p className="text-[12px] text-ink-muted">
-          Every organization gets its own storage namespace. Set per-tenant quotas to cap usage.
-          Leave the field blank or type "unlimited" to remove the cap.
+          แต่ละองค์กรมีพื้นที่จัดเก็บเป็นของตนเอง กำหนดโควต้าต่อผู้เช่าเพื่อจำกัดการใช้งาน
+          เว้นช่องว่างหรือพิมพ์ "unlimited" เพื่อยกเลิกการจำกัด
         </p>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white border border-border-subtle rounded-lg p-4">
-          <div className="text-xs uppercase tracking-wide text-ink-muted">Tenants</div>
+          <div className="text-xs uppercase tracking-wide text-ink-muted">ผู้เช่า</div>
           <div className="text-2xl font-semibold text-ink mt-1">{tenants.length}</div>
         </div>
         <div className="bg-white border border-border-subtle rounded-lg p-4">
-          <div className="text-xs uppercase tracking-wide text-ink-muted">Total used</div>
+          <div className="text-xs uppercase tracking-wide text-ink-muted">ใช้ไปทั้งหมด</div>
           <div className="text-2xl font-semibold text-ink mt-1">{formatBytes(totalUsed)}</div>
         </div>
         <div className="bg-white border border-border-subtle rounded-lg p-4">
-          <div className="text-xs uppercase tracking-wide text-ink-muted">Total quota</div>
+          <div className="text-xs uppercase tracking-wide text-ink-muted">โควต้าทั้งหมด</div>
           <div className="text-2xl font-semibold text-ink mt-1">
             {totalQuota > 0 ? formatBytes(totalQuota) : '—'}
           </div>
@@ -117,8 +117,8 @@ export default function TenantsAdminPage() {
 
       {tenants.length === 0 ? (
         <div className="bg-white border border-border-subtle rounded-lg p-6 text-[12px] text-ink-muted">
-          No tenants yet. Tenants are created when a user signs up and starts a new
-          organization. Once they exist, set per-tenant storage quotas here.
+          ยังไม่มีผู้เช่า ผู้เช่าจะถูกสร้างเมื่อผู้ใช้สมัครและสร้างองค์กรใหม่
+          เมื่อมีผู้เช่าแล้ว สามารถตั้งโควต้าพื้นที่จัดเก็บต่อผู้เช่าได้ที่นี่
         </div>
       ) : null}
 
@@ -126,12 +126,12 @@ export default function TenantsAdminPage() {
         <table className="w-full text-sm">
           <thead className="bg-surface-alt text-left text-xs uppercase tracking-wide text-ink-muted">
             <tr>
-              <th className="py-3 px-4">Organization</th>
-              <th className="py-3 px-4">Members</th>
-              <th className="py-3 px-4">Used</th>
-              <th className="py-3 px-4">Quota</th>
-              <th className="py-3 px-4">Usage</th>
-              <th className="py-3 px-4 text-right">Set quota (GB)</th>
+              <th className="py-3 px-4">องค์กร</th>
+              <th className="py-3 px-4">สมาชิก</th>
+              <th className="py-3 px-4">ใช้ไป</th>
+              <th className="py-3 px-4">โควต้า</th>
+              <th className="py-3 px-4">การใช้งาน</th>
+              <th className="py-3 px-4 text-right">ตั้งโควต้า (GB)</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border-default">
@@ -160,7 +160,7 @@ export default function TenantsAdminPage() {
                       <button
                         onClick={() => recomputeMutation.mutate(t.organizationId)}
                         disabled={recomputeMutation.isPending}
-                        title="Recompute from storage backend"
+                        title="คำนวณใหม่จาก storage backend"
                         className="text-ink-muted hover:text-primary disabled:opacity-50"
                       >
                         <RefreshCw
@@ -175,7 +175,7 @@ export default function TenantsAdminPage() {
                     </div>
                   </td>
                   <td className="py-3 px-4 text-ink-muted">
-                    {t.quotaBytes == null ? 'Unlimited' : formatBytes(t.quotaBytes)}
+                    {t.quotaBytes == null ? 'ไม่จำกัด' : formatBytes(t.quotaBytes)}
                   </td>
                   <td className="py-3 px-4 w-48">
                     {t.quotaBytes == null ? (
@@ -215,7 +215,7 @@ export default function TenantsAdminPage() {
                         disabled={setQuotaMutation.isPending || draft === undefined}
                         className="px-3 py-1.5 rounded bg-primary text-white text-xs hover:bg-primary-hover disabled:opacity-50 inline-flex items-center gap-1"
                       >
-                        <Save className="w-3.5 h-3.5" /> Save
+                        <Save className="w-3.5 h-3.5" /> บันทึก
                       </button>
                     </div>
                     {errors[t.organizationId] ? (

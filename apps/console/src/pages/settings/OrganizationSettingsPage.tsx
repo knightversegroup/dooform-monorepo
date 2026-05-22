@@ -12,26 +12,26 @@ const inputCls =
 const labelCls = 'block text-sm font-medium text-ink mb-1';
 
 const ROLE_LABELS: Record<UserRole, string> = {
-  USER: 'Member',
-  ORG_ADMIN: 'Admin',
-  GLOBAL_ADMIN: 'Global admin',
+  USER: 'สมาชิก',
+  ORG_ADMIN: 'ผู้ดูแล',
+  GLOBAL_ADMIN: 'ผู้ดูแลทั้งระบบ',
 };
 
 const TIERS: Array<{ code: UserTier; label: string; description: string }> = [
   {
     code: 'free',
     label: 'Free',
-    description: 'Basic features, branding watermark on PDFs.',
+    description: 'ฟีเจอร์พื้นฐาน มีลายน้ำแบรนด์บน PDF',
   },
   {
     code: 'pro',
     label: 'Pro',
-    description: 'Removes the branding watermark, unlocks Pro templates.',
+    description: 'ลบลายน้ำแบรนด์ ปลดล็อกเทมเพลตระดับ Pro',
   },
   {
     code: 'max',
     label: 'Max',
-    description: 'Everything in Pro, plus access to Enterprise templates.',
+    description: 'ทุกอย่างของ Pro รวมถึงเทมเพลตระดับ Enterprise',
   },
 ];
 
@@ -79,9 +79,9 @@ export default function OrganizationSettingsPage() {
     try {
       const updated = await authApi.updateOrganization({ name });
       qc.setQueryData(['organization'], updated);
-      setOrgMsg({ kind: 'ok', text: 'Organization saved.' });
+      setOrgMsg({ kind: 'ok', text: 'บันทึกองค์กรแล้ว' });
     } catch (err) {
-      setOrgMsg({ kind: 'err', text: err instanceof ApiError ? err.message : 'Save failed' });
+      setOrgMsg({ kind: 'err', text: err instanceof ApiError ? err.message : 'บันทึกไม่สำเร็จ' });
     } finally {
       setSavingOrg(false);
     }
@@ -121,7 +121,7 @@ export default function OrganizationSettingsPage() {
   if (!user?.organizationId) {
     return (
       <div className="max-w-3xl mx-auto p-6">
-        <p className="text-[12px] text-ink-muted">You are not a member of an organization.</p>
+        <p className="text-[12px] text-ink-muted">คุณไม่ได้เป็นสมาชิกขององค์กรใด</p>
       </div>
     );
   }
@@ -129,15 +129,15 @@ export default function OrganizationSettingsPage() {
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
       <header>
-        <h1 className="text-[18px] font-semibold text-ink tracking-tightish">Organization</h1>
-        <p className="text-[12px] text-ink-muted">Manage your workspace, members, and invites.</p>
+        <h1 className="text-[18px] font-semibold text-ink tracking-tightish">องค์กร</h1>
+        <p className="text-[12px] text-ink-muted">จัดการเวิร์กสเปซ สมาชิก และการเชิญของคุณ</p>
       </header>
 
       <section className="bg-white border border-border-subtle rounded-lg p-6">
-        <h2 className="text-[14px] font-semibold text-ink tracking-tightish mb-4">Details</h2>
+        <h2 className="text-[14px] font-semibold text-ink tracking-tightish mb-4">รายละเอียด</h2>
         <form onSubmit={onSaveOrg} className="space-y-4">
           <div>
-            <label className={labelCls}>Organization name</label>
+            <label className={labelCls}>ชื่อองค์กร</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -159,7 +159,7 @@ export default function OrganizationSettingsPage() {
                 disabled={savingOrg}
                 className="px-4 py-2 rounded-md bg-primary text-white text-sm font-medium hover:bg-primary-hover disabled:opacity-50"
               >
-                {savingOrg ? 'Saving…' : 'Save organization'}
+                {savingOrg ? 'กำลังบันทึก…' : 'บันทึกองค์กร'}
               </button>
             </div>
           ) : null}
@@ -167,12 +167,12 @@ export default function OrganizationSettingsPage() {
       </section>
 
       <section className="bg-white border border-border-subtle rounded-lg p-6">
-        <h2 className="text-[14px] font-semibold text-ink tracking-tightish mb-1">Storage</h2>
+        <h2 className="text-[14px] font-semibold text-ink tracking-tightish mb-1">พื้นที่จัดเก็บ</h2>
         <p className="text-sm text-ink-muted mb-4">
-          Quota is set by the platform admin. Contact them if you need more space.
+          โควต้าถูกกำหนดโดยผู้ดูแลแพลตฟอร์ม ติดต่อพวกเขาหากต้องการพื้นที่เพิ่ม
         </p>
         {storageQuery.isLoading ? (
-          <div className="text-[12px] text-ink-muted">Loading…</div>
+          <div className="text-[12px] text-ink-muted">กำลังโหลด…</div>
         ) : storageQuery.data ? (
           (() => {
             const s = storageQuery.data;
@@ -190,15 +190,15 @@ export default function OrganizationSettingsPage() {
                 <div className="flex items-baseline justify-between">
                   <div className="text-sm text-ink">
                     <span className="font-medium text-ink">{fmt(s.usedBytes)}</span>{' '}
-                    <span className="text-ink-muted">used</span>
+                    <span className="text-ink-muted">ใช้ไป</span>
                   </div>
                   <div className="text-[12px] text-ink-muted">
-                    {s.quotaBytes == null ? 'Unlimited' : `of ${fmt(s.quotaBytes)}`}
+                    {s.quotaBytes == null ? 'ไม่จำกัด' : `จาก ${fmt(s.quotaBytes)}`}
                   </div>
                 </div>
                 {s.quotaBytes == null ? (
                   <div className="text-xs text-ink-muted">
-                    No quota configured — usage is unrestricted.
+                    ยังไม่ได้ตั้งโควต้า — ใช้งานได้ไม่จำกัด
                   </div>
                 ) : (
                   <>
@@ -215,7 +215,7 @@ export default function OrganizationSettingsPage() {
                       />
                     </div>
                     <div className="text-xs text-ink-muted text-right">
-                      {pct.toFixed(1)}% used
+                      ใช้ไป {pct.toFixed(1)}%
                     </div>
                   </>
                 )}
@@ -223,7 +223,7 @@ export default function OrganizationSettingsPage() {
             );
           })()
         ) : (
-          <div className="text-sm text-red-600">Failed to load storage info.</div>
+          <div className="text-sm text-red-600">โหลดข้อมูลพื้นที่จัดเก็บไม่สำเร็จ</div>
         )}
       </section>
 
@@ -231,14 +231,14 @@ export default function OrganizationSettingsPage() {
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-[14px] font-semibold text-ink tracking-tightish flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-primary" />
-            Subscription
+            การสมัครสมาชิก
           </h2>
           <span className="text-[11px] uppercase tracking-wider text-ink-faint">
-            Current: {(orgQuery.data?.tier ?? 'free').toString().toUpperCase()}
+            ปัจจุบัน: {(orgQuery.data?.tier ?? 'free').toString().toUpperCase()}
           </span>
         </div>
         <p className="text-[12px] text-ink-muted mb-4">
-          Tier applies to every member of your organization. Upgrades are immediate.
+          ระดับนี้ใช้กับสมาชิกทุกคนในองค์กร การอัปเกรดมีผลทันที
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {TIERS.map((t) => {
@@ -256,7 +256,7 @@ export default function OrganizationSettingsPage() {
                   </div>
                   {isCurrent ? (
                     <span className="text-[10px] uppercase tracking-wider text-primary font-medium">
-                      Active
+                      ใช้งานอยู่
                     </span>
                   ) : null}
                 </div>
@@ -266,7 +266,7 @@ export default function OrganizationSettingsPage() {
                     onClick={() => {
                       if (
                         confirm(
-                          `Change tier to ${t.label}? All members will gain ${t.label} features immediately.`,
+                          `เปลี่ยนระดับเป็น ${t.label} หรือไม่? สมาชิกทุกคนจะได้รับฟีเจอร์ ${t.label} ทันที`,
                         )
                       ) {
                         setTierMutation.mutate(t.code);
@@ -276,8 +276,8 @@ export default function OrganizationSettingsPage() {
                     className="px-3 py-1.5 rounded-md bg-primary text-white text-[12px] font-medium hover:bg-primary-hover disabled:opacity-50"
                   >
                     {setTierMutation.isPending && setTierMutation.variables === t.code
-                      ? 'Switching…'
-                      : `Switch to ${t.label}`}
+                      ? 'กำลังเปลี่ยน…'
+                      : `เปลี่ยนเป็น ${t.label}`}
                   </button>
                 ) : null}
               </div>
@@ -286,32 +286,32 @@ export default function OrganizationSettingsPage() {
         </div>
         {!canManageTier ? (
           <p className="text-[11px] text-ink-faint mt-3">
-            Only admins with the "Change subscription tier" permission can switch tiers.
+            เฉพาะผู้ดูแลที่มีสิทธิ์ "เปลี่ยนระดับการสมัครสมาชิก" เท่านั้นที่เปลี่ยนระดับได้
           </p>
         ) : null}
         {setTierMutation.error ? (
           <p className="text-[12px] text-red-600 mt-3">
             {setTierMutation.error instanceof ApiError
               ? setTierMutation.error.message
-              : 'Tier change failed.'}
+              : 'เปลี่ยนระดับไม่สำเร็จ'}
           </p>
         ) : null}
       </section>
 
       <section className="bg-white border border-border-subtle rounded-lg p-6">
-        <h2 className="text-[14px] font-semibold text-ink tracking-tightish mb-4">Members</h2>
+        <h2 className="text-[14px] font-semibold text-ink tracking-tightish mb-4">สมาชิก</h2>
         {membersQuery.isLoading ? (
-          <div className="text-[12px] text-ink-muted">Loading…</div>
+          <div className="text-[12px] text-ink-muted">กำลังโหลด…</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="text-left text-xs text-ink-muted uppercase">
                 <tr>
-                  <th className="py-2 pr-3">Name</th>
-                  <th className="py-2 pr-3">Email</th>
-                  <th className="py-2 pr-3">Role</th>
-                  <th className="py-2 pr-3">Tier</th>
-                  {isAdmin ? <th className="py-2 pr-3 text-right">Actions</th> : null}
+                  <th className="py-2 pr-3">ชื่อ</th>
+                  <th className="py-2 pr-3">อีเมล</th>
+                  <th className="py-2 pr-3">บทบาท</th>
+                  <th className="py-2 pr-3">ระดับ</th>
+                  {isAdmin ? <th className="py-2 pr-3 text-right">การดำเนินการ</th> : null}
                 </tr>
               </thead>
               <tbody className="divide-y divide-border-default">
@@ -344,13 +344,13 @@ export default function OrganizationSettingsPage() {
                         {m.id !== user.id ? (
                           <button
                             onClick={() => {
-                              if (confirm(`Remove ${m.name} from the organization?`)) {
+                              if (confirm(`ลบ ${m.name} ออกจากองค์กรหรือไม่?`)) {
                                 removeMutation.mutate(m.id);
                               }
                             }}
                             className="text-red-600 hover:text-red-700 text-xs inline-flex items-center gap-1"
                           >
-                            <Trash2 className="w-3.5 h-3.5" /> Remove
+                            <Trash2 className="w-3.5 h-3.5" /> ลบ
                           </button>
                         ) : null}
                       </td>
@@ -367,49 +367,49 @@ export default function OrganizationSettingsPage() {
         <section className="bg-white border border-border-subtle rounded-lg p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-[14px] font-semibold text-ink tracking-tightish">Invite codes</h2>
-              <p className="text-[12px] text-ink-muted">Share these codes for new members to join your organization.</p>
+              <h2 className="text-[14px] font-semibold text-ink tracking-tightish">รหัสเชิญ</h2>
+              <p className="text-[12px] text-ink-muted">แชร์รหัสเหล่านี้เพื่อให้สมาชิกใหม่เข้าร่วมองค์กร</p>
             </div>
             <button
               onClick={() => createInviteMutation.mutate()}
               disabled={createInviteMutation.isPending}
               className="px-4 py-2 rounded-md bg-primary text-white text-sm font-medium hover:bg-primary-hover disabled:opacity-50"
             >
-              {createInviteMutation.isPending ? 'Creating…' : 'New invite code'}
+              {createInviteMutation.isPending ? 'กำลังสร้าง…' : 'รหัสเชิญใหม่'}
             </button>
           </div>
           {invitesQuery.isLoading ? (
-            <div className="text-[12px] text-ink-muted">Loading…</div>
+            <div className="text-[12px] text-ink-muted">กำลังโหลด…</div>
           ) : (invitesQuery.data ?? []).length === 0 ? (
-            <div className="text-[12px] text-ink-muted">No invite codes yet.</div>
+            <div className="text-[12px] text-ink-muted">ยังไม่มีรหัสเชิญ</div>
           ) : (
             <table className="w-full text-sm">
               <thead className="text-left text-xs text-ink-muted uppercase">
                 <tr>
-                  <th className="py-2 pr-3">Code</th>
-                  <th className="py-2 pr-3">Status</th>
-                  <th className="py-2 pr-3">Expires</th>
-                  <th className="py-2 pr-3 text-right">Actions</th>
+                  <th className="py-2 pr-3">รหัส</th>
+                  <th className="py-2 pr-3">สถานะ</th>
+                  <th className="py-2 pr-3">หมดอายุ</th>
+                  <th className="py-2 pr-3 text-right">การดำเนินการ</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border-default">
                 {(invitesQuery.data ?? []).map((c) => {
                   const expired = c.expiresAt ? new Date(c.expiresAt).getTime() < Date.now() : false;
-                  const status = c.usedAt ? 'Used' : expired ? 'Expired' : 'Active';
+                  const status = c.usedAt ? 'ใช้แล้ว' : expired ? 'หมดอายุ' : 'ใช้งานอยู่';
                   return (
                     <tr key={c.id}>
                       <td className="py-2 pr-3 font-mono text-ink">{c.code}</td>
                       <td className="py-2 pr-3 text-xs">
                         <span
                           className={`px-2 py-0.5 rounded ${
-                            status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-surface-alt text-ink-muted'
+                            status === 'ใช้งานอยู่' ? 'bg-green-100 text-green-700' : 'bg-surface-alt text-ink-muted'
                           }`}
                         >
                           {status}
                         </span>
                       </td>
                       <td className="py-2 pr-3 text-xs text-ink-muted">
-                        {c.expiresAt ? new Date(c.expiresAt).toLocaleString() : '—'}
+                        {c.expiresAt ? new Date(c.expiresAt).toLocaleString('th-TH') : '—'}
                       </td>
                       <td className="py-2 pr-3 text-right">
                         {!c.usedAt ? (
@@ -417,7 +417,7 @@ export default function OrganizationSettingsPage() {
                             onClick={() => deleteInviteMutation.mutate(c.id)}
                             className="text-red-600 hover:text-red-700 text-xs inline-flex items-center gap-1"
                           >
-                            <Trash2 className="w-3.5 h-3.5" /> Revoke
+                            <Trash2 className="w-3.5 h-3.5" /> เพิกถอน
                           </button>
                         ) : null}
                       </td>

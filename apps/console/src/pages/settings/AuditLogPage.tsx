@@ -22,30 +22,30 @@ const PAGE_SIZE = 50;
 // Human-readable labels for the most common action keys. Anything not in this map
 // falls back to a prettified version of the auto-derived key.
 const ACTION_LABELS: Record<string, { label: string; category: string }> = {
-  'auth.register': { label: 'Registered account', category: 'Auth' },
-  'auth.login': { label: 'Logged in', category: 'Auth' },
-  'auth.logout': { label: 'Logged out', category: 'Auth' },
-  'auth.password.change': { label: 'Changed password', category: 'Auth' },
-  'organization.member.role_change': { label: 'Changed member role', category: 'Organization' },
-  'organization.member.remove': { label: 'Removed member', category: 'Organization' },
-  'organization.invite.create': { label: 'Created invite code', category: 'Organization' },
-  'templates.create': { label: 'Created template', category: 'Templates' },
-  'templates.update': { label: 'Updated template', category: 'Templates' },
-  'templates.delete': { label: 'Deleted template', category: 'Templates' },
-  'documents.create': { label: 'Created document', category: 'Documents' },
-  'documents.update': { label: 'Updated document', category: 'Documents' },
-  'documents.delete': { label: 'Deleted document', category: 'Documents' },
+  'auth.register': { label: 'สมัครบัญชี', category: 'การยืนยันตัวตน' },
+  'auth.login': { label: 'เข้าสู่ระบบ', category: 'การยืนยันตัวตน' },
+  'auth.logout': { label: 'ออกจากระบบ', category: 'การยืนยันตัวตน' },
+  'auth.password.change': { label: 'เปลี่ยนรหัสผ่าน', category: 'การยืนยันตัวตน' },
+  'organization.member.role_change': { label: 'เปลี่ยนบทบาทสมาชิก', category: 'องค์กร' },
+  'organization.member.remove': { label: 'ลบสมาชิก', category: 'องค์กร' },
+  'organization.invite.create': { label: 'สร้างรหัสเชิญ', category: 'องค์กร' },
+  'templates.create': { label: 'สร้างเทมเพลต', category: 'เทมเพลต' },
+  'templates.update': { label: 'อัปเดตเทมเพลต', category: 'เทมเพลต' },
+  'templates.delete': { label: 'ลบเทมเพลต', category: 'เทมเพลต' },
+  'documents.create': { label: 'สร้างเอกสาร', category: 'เอกสาร' },
+  'documents.update': { label: 'อัปเดตเอกสาร', category: 'เอกสาร' },
+  'documents.delete': { label: 'ลบเอกสาร', category: 'เอกสาร' },
 };
 
 function categorize(action: string): string {
   if (ACTION_LABELS[action]) return ACTION_LABELS[action].category;
-  if (action.startsWith('auth.')) return 'Auth';
-  if (action.startsWith('organization.')) return 'Organization';
-  if (action.startsWith('templates.')) return 'Templates';
-  if (action.startsWith('documents.')) return 'Documents';
-  if (action.startsWith('admin.')) return 'Platform';
-  if (action.includes('watermark')) return 'Watermarks';
-  return 'Other';
+  if (action.startsWith('auth.')) return 'การยืนยันตัวตน';
+  if (action.startsWith('organization.')) return 'องค์กร';
+  if (action.startsWith('templates.')) return 'เทมเพลต';
+  if (action.startsWith('documents.')) return 'เอกสาร';
+  if (action.startsWith('admin.')) return 'แพลตฟอร์ม';
+  if (action.includes('watermark')) return 'ลายน้ำ';
+  return 'อื่น ๆ';
 }
 
 function prettyAction(action: string): string {
@@ -59,14 +59,14 @@ function prettyAction(action: string): string {
 function relativeTime(iso: string): string {
   const ms = Date.now() - new Date(iso).getTime();
   const sec = Math.floor(ms / 1000);
-  if (sec < 60) return `${sec}s ago`;
+  if (sec < 60) return `${sec} วินาทีที่แล้ว`;
   const min = Math.floor(sec / 60);
-  if (min < 60) return `${min}m ago`;
+  if (min < 60) return `${min} นาทีที่แล้ว`;
   const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr}h ago`;
+  if (hr < 24) return `${hr} ชั่วโมงที่แล้ว`;
   const day = Math.floor(hr / 24);
-  if (day < 30) return `${day}d ago`;
-  return new Date(iso).toLocaleDateString();
+  if (day < 30) return `${day} วันที่แล้ว`;
+  return new Date(iso).toLocaleDateString('th-TH');
 }
 
 function escapeCsv(value: unknown): string {
@@ -192,11 +192,11 @@ export default function AuditLogPage() {
     <div className="max-w-7xl mx-auto p-6 space-y-5">
       <header className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-[18px] font-semibold text-ink tracking-tightish">Audit log</h1>
+          <h1 className="text-[18px] font-semibold text-ink tracking-tightish">บันทึกการตรวจสอบ</h1>
           <p className="text-[12px] text-ink-muted">
             {isGlobalAdmin
-              ? 'Compliance trail across every tenant. Click any row to expand the full details.'
-              : 'Compliance trail for your organization. Click any row to expand the full details.'}
+              ? 'ร่องรอยการกำกับดูแลทุกผู้เช่า คลิกที่แถวเพื่อขยายดูรายละเอียดเต็ม'
+              : 'ร่องรอยการกำกับดูแลขององค์กรคุณ คลิกที่แถวเพื่อขยายดูรายละเอียดเต็ม'}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -205,14 +205,14 @@ export default function AuditLogPage() {
             className="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded border border-border-subtle hover:border-primary"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${logsQuery.isFetching ? 'animate-spin' : ''}`} />
-            Refresh
+            รีเฟรช
           </button>
           <button
             onClick={downloadCsv}
             disabled={filteredRows.length === 0}
             className="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded bg-primary text-white hover:bg-primary-hover disabled:opacity-50"
           >
-            <Download className="w-3.5 h-3.5" /> Export CSV
+            <Download className="w-3.5 h-3.5" /> ส่งออก CSV
           </button>
         </div>
       </header>
@@ -221,40 +221,40 @@ export default function AuditLogPage() {
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <StatCard
           icon={Clock}
-          label="Total events"
+          label="เหตุการณ์ทั้งหมด"
           value={total.toLocaleString()}
-          hint={`${filteredRows.length} on this page`}
+          hint={`${filteredRows.length} รายการในหน้านี้`}
         />
         <StatCard
           icon={CircleCheck}
-          label="Successful"
+          label="สำเร็จ"
           value={stats.successes.toLocaleString()}
           tone="ok"
         />
         <StatCard
           icon={CircleX}
-          label="Failures"
+          label="ล้มเหลว"
           value={stats.failures.toLocaleString()}
           tone={stats.failures > 0 ? 'warn' : undefined}
         />
         <StatCard
           icon={Users}
-          label="Unique actors"
+          label="ผู้กระทำที่ไม่ซ้ำ"
           value={stats.uniqueActors.toLocaleString()}
-          hint="on this page"
+          hint="ในหน้านี้"
         />
         <StatCard
           icon={AlertTriangle}
-          label="Last 24h"
+          label="24 ชม. ล่าสุด"
           value={stats.last24h.toLocaleString()}
-          hint="on this page"
+          hint="ในหน้านี้"
         />
       </div>
 
       {/* Category breakdown */}
       {Object.keys(stats.byCategory).length > 0 ? (
         <div className="bg-white border border-border-subtle rounded-lg p-3 flex flex-wrap gap-2 text-xs">
-          <span className="text-ink-muted self-center">Categories on this page:</span>
+          <span className="text-ink-muted self-center">หมวดหมู่ในหน้านี้:</span>
           {Object.entries(stats.byCategory)
             .sort(([, a], [, b]) => b - a)
             .map(([cat, n]) => (
@@ -268,11 +268,11 @@ export default function AuditLogPage() {
       {/* Filters */}
       <div className="bg-white border border-border-subtle rounded-lg p-4">
         <div className="flex items-center gap-2 mb-3 text-xs font-medium text-ink-muted uppercase tracking-wide">
-          <Filter className="w-3.5 h-3.5" /> Filters
+          <Filter className="w-3.5 h-3.5" /> ตัวกรอง
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3 text-sm">
           <div>
-            <label className="block text-xs text-ink-muted mb-1">Action key</label>
+            <label className="block text-xs text-ink-muted mb-1">คีย์แอ็กชัน</label>
             <input
               value={actionFilter}
               onChange={(e) => {
@@ -284,7 +284,7 @@ export default function AuditLogPage() {
             />
           </div>
           <div>
-            <label className="block text-xs text-ink-muted mb-1">Actor (email/uid)</label>
+            <label className="block text-xs text-ink-muted mb-1">ผู้กระทำ (อีเมล/uid)</label>
             <div className="relative">
               <Search className="w-3.5 h-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-ink-muted" />
               <input
@@ -296,7 +296,7 @@ export default function AuditLogPage() {
             </div>
           </div>
           <div>
-            <label className="block text-xs text-ink-muted mb-1">Outcome</label>
+            <label className="block text-xs text-ink-muted mb-1">ผลลัพธ์</label>
             <select
               value={outcomeFilter}
               onChange={(e) => {
@@ -305,13 +305,13 @@ export default function AuditLogPage() {
               }}
               className="w-full px-2 py-1.5 border border-border-subtle rounded text-sm bg-white"
             >
-              <option value="">Any</option>
-              <option value="success">Success</option>
-              <option value="failure">Failure</option>
+              <option value="">ทั้งหมด</option>
+              <option value="success">สำเร็จ</option>
+              <option value="failure">ล้มเหลว</option>
             </select>
           </div>
           <div>
-            <label className="block text-xs text-ink-muted mb-1">From</label>
+            <label className="block text-xs text-ink-muted mb-1">จาก</label>
             <input
               type="datetime-local"
               value={from}
@@ -323,7 +323,7 @@ export default function AuditLogPage() {
             />
           </div>
           <div>
-            <label className="block text-xs text-ink-muted mb-1">To</label>
+            <label className="block text-xs text-ink-muted mb-1">ถึง</label>
             <input
               type="datetime-local"
               value={to}
@@ -336,14 +336,14 @@ export default function AuditLogPage() {
           </div>
           {isGlobalAdmin ? (
             <div>
-              <label className="block text-xs text-ink-muted mb-1">Tenant id</label>
+              <label className="block text-xs text-ink-muted mb-1">รหัสผู้เช่า</label>
               <input
                 value={orgFilter}
                 onChange={(e) => {
                   setOrgFilter(e.target.value);
                   setPage(0);
                 }}
-                placeholder="all tenants"
+                placeholder="ผู้เช่าทั้งหมด"
                 className="w-full px-2 py-1.5 border border-border-subtle rounded text-sm"
               />
             </div>
@@ -355,7 +355,7 @@ export default function AuditLogPage() {
         <div className="text-sm text-red-600">
           {logsQuery.error instanceof ApiError
             ? logsQuery.error.message
-            : 'Failed to load audit log.'}
+            : 'โหลดบันทึกการตรวจสอบไม่สำเร็จ'}
         </div>
       ) : null}
 
@@ -365,20 +365,20 @@ export default function AuditLogPage() {
           <thead className="bg-surface-alt text-left text-xs uppercase tracking-wide text-ink-muted">
             <tr>
               <th className="py-2 px-3 w-6"></th>
-              <th className="py-2 px-3">When</th>
-              <th className="py-2 px-3">Who</th>
-              <th className="py-2 px-3">Action</th>
-              <th className="py-2 px-3">Resource</th>
-              <th className="py-2 px-3">Outcome</th>
-              {isGlobalAdmin ? <th className="py-2 px-3">Tenant</th> : null}
-              <th className="py-2 px-3">Origin</th>
+              <th className="py-2 px-3">เมื่อ</th>
+              <th className="py-2 px-3">ใคร</th>
+              <th className="py-2 px-3">แอ็กชัน</th>
+              <th className="py-2 px-3">รีซอร์ส</th>
+              <th className="py-2 px-3">ผลลัพธ์</th>
+              {isGlobalAdmin ? <th className="py-2 px-3">ผู้เช่า</th> : null}
+              <th className="py-2 px-3">ต้นทาง</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border-default">
             {logsQuery.isLoading ? (
               <tr>
                 <td className="py-3 px-4 text-ink-muted text-sm" colSpan={isGlobalAdmin ? 8 : 7}>
-                  Loading…
+                  กำลังโหลด…
                 </td>
               </tr>
             ) : filteredRows.length === 0 ? (
@@ -387,7 +387,7 @@ export default function AuditLogPage() {
                   className="py-6 px-4 text-center text-ink-muted text-sm"
                   colSpan={isGlobalAdmin ? 8 : 7}
                 >
-                  No events match the filters.
+                  ไม่มีเหตุการณ์ที่ตรงกับตัวกรอง
                 </td>
               </tr>
             ) : (
@@ -412,7 +412,7 @@ export default function AuditLogPage() {
                     <td className="py-2 px-3 text-xs text-ink-muted whitespace-nowrap">
                       <div>{relativeTime(log.createdAt)}</div>
                       <div className="text-[10px] opacity-60">
-                        {new Date(log.createdAt).toLocaleString()}
+                        {new Date(log.createdAt).toLocaleString('th-TH')}
                       </div>
                     </td>
                     <td className="py-2 px-3">
@@ -475,34 +475,34 @@ export default function AuditLogPage() {
                     <tr key={`${log.id}-detail`} className="bg-surface-alt/20">
                       <td colSpan={isGlobalAdmin ? 8 : 7} className="py-3 px-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <DetailBlock title="Event">
-                            <DetailRow label="Event id" value={log.id} mono />
+                          <DetailBlock title="เหตุการณ์">
+                            <DetailRow label="รหัสเหตุการณ์" value={log.id} mono />
                             <DetailRow
-                              label="Timestamp"
-                              value={`${new Date(log.createdAt).toLocaleString()} (${relativeTime(log.createdAt)})`}
+                              label="เวลา"
+                              value={`${new Date(log.createdAt).toLocaleString('th-TH')} (${relativeTime(log.createdAt)})`}
                             />
-                            <DetailRow label="Action" value={log.action} mono />
-                            <DetailRow label="Category" value={cat} />
-                            <DetailRow label="Outcome" value={log.outcome} />
+                            <DetailRow label="แอ็กชัน" value={log.action} mono />
+                            <DetailRow label="หมวดหมู่" value={cat} />
+                            <DetailRow label="ผลลัพธ์" value={log.outcome} />
                           </DetailBlock>
-                          <DetailBlock title="Actor">
-                            <DetailRow label="Email" value={log.actorEmail ?? '—'} />
-                            <DetailRow label="User id" value={log.actorUserId ?? '—'} mono />
-                            <DetailRow label="Role" value={log.actorRole ?? '—'} />
-                            <DetailRow label="Tenant id" value={log.organizationId ?? '—'} mono />
+                          <DetailBlock title="ผู้กระทำ">
+                            <DetailRow label="อีเมล" value={log.actorEmail ?? '—'} />
+                            <DetailRow label="รหัสผู้ใช้" value={log.actorUserId ?? '—'} mono />
+                            <DetailRow label="บทบาท" value={log.actorRole ?? '—'} />
+                            <DetailRow label="รหัสผู้เช่า" value={log.organizationId ?? '—'} mono />
                           </DetailBlock>
-                          <DetailBlock title="Resource">
-                            <DetailRow label="Type" value={log.resourceType ?? '—'} />
-                            <DetailRow label="Id" value={log.resourceId ?? '—'} mono />
+                          <DetailBlock title="รีซอร์ส">
+                            <DetailRow label="ประเภท" value={log.resourceType ?? '—'} />
+                            <DetailRow label="รหัส" value={log.resourceId ?? '—'} mono />
                           </DetailBlock>
-                          <DetailBlock title="Origin">
+                          <DetailBlock title="ต้นทาง">
                             <DetailRow label="IP" value={log.ip ?? '—'} mono />
                             <DetailRow label="User agent" value={log.userAgent ?? '—'} wrap />
                           </DetailBlock>
                           {log.metadata ? (
                             <div className="md:col-span-2">
                               <div className="text-xs uppercase tracking-wide text-ink-muted mb-1">
-                                Request details
+                                รายละเอียดคำขอ
                               </div>
                               <pre className="text-[11px] whitespace-pre-wrap break-all bg-white border border-border-subtle p-3 rounded font-mono">
                                 {JSON.stringify(log.metadata, null, 2)}
@@ -523,8 +523,8 @@ export default function AuditLogPage() {
 
       <div className="flex items-center justify-between text-xs text-ink-muted">
         <div>
-          Page {page + 1} of {totalPages} • {total.toLocaleString()} total events
-          {actorFilter ? ` • ${filteredRows.length} match actor filter` : ''}
+          หน้า {page + 1} จาก {totalPages} • ทั้งหมด {total.toLocaleString()} เหตุการณ์
+          {actorFilter ? ` • ${filteredRows.length} ตรงกับตัวกรองผู้กระทำ` : ''}
         </div>
         <div className="flex gap-2">
           <button
@@ -532,14 +532,14 @@ export default function AuditLogPage() {
             disabled={page === 0}
             className="px-3 py-1 border border-border-subtle rounded disabled:opacity-50"
           >
-            Previous
+            ก่อนหน้า
           </button>
           <button
             onClick={() => setPage((p) => p + 1)}
             disabled={page + 1 >= totalPages}
             className="px-3 py-1 border border-border-subtle rounded disabled:opacity-50"
           >
-            Next
+            ถัดไป
           </button>
         </div>
       </div>

@@ -7,9 +7,9 @@ import type { PermissionDefinition, RoleGrants, UserRole } from '../../lib/auth/
 
 const ROLES: UserRole[] = ['USER', 'ORG_ADMIN', 'GLOBAL_ADMIN'];
 const ROLE_LABELS: Record<UserRole, string> = {
-  USER: 'Member',
-  ORG_ADMIN: 'Org Admin',
-  GLOBAL_ADMIN: 'Global Admin',
+  USER: 'สมาชิก',
+  ORG_ADMIN: 'ผู้ดูแลองค์กร',
+  GLOBAL_ADMIN: 'ผู้ดูแลทั้งระบบ',
 };
 
 export default function PermissionsSettingsPage() {
@@ -71,10 +71,10 @@ export default function PermissionsSettingsPage() {
   }
 
   if (catalogQuery.isLoading || grantsQuery.isLoading || !draft) {
-    return <div className="p-6 text-[12px] text-ink-muted">Loading…</div>;
+    return <div className="p-6 text-[12px] text-ink-muted">กำลังโหลด…</div>;
   }
   if (catalogQuery.isError || grantsQuery.isError) {
-    return <div className="p-6 text-sm text-red-600">Failed to load permissions.</div>;
+    return <div className="p-6 text-sm text-red-600">โหลดสิทธิ์ไม่สำเร็จ</div>;
   }
 
   const toggle = (role: UserRole, key: string) => {
@@ -110,10 +110,10 @@ export default function PermissionsSettingsPage() {
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
       <header>
-        <h1 className="text-[18px] font-semibold text-ink tracking-tightish">Role permissions</h1>
+        <h1 className="text-[18px] font-semibold text-ink tracking-tightish">สิทธิ์ของบทบาท</h1>
         <p className="text-[12px] text-ink-muted">
-          Configure what each role can do. Changes apply immediately to all sessions for that role.
-          Global Admin always has every permission and is shown for reference only.
+          กำหนดสิ่งที่แต่ละบทบาททำได้ การเปลี่ยนแปลงจะมีผลทันทีกับทุกเซสชันของบทบาทนั้น
+          ผู้ดูแลทั้งระบบมีสิทธิ์ครบทุกอย่างเสมอและแสดงไว้เพื่ออ้างอิงเท่านั้น
         </p>
       </header>
 
@@ -121,7 +121,7 @@ export default function PermissionsSettingsPage() {
         <table className="w-full text-sm">
           <thead className="bg-surface-alt text-left text-xs uppercase tracking-wide text-ink-muted">
             <tr>
-              <th className="py-3 px-4 sticky left-0 bg-surface-alt">Permission</th>
+              <th className="py-3 px-4 sticky left-0 bg-surface-alt">สิทธิ์</th>
               {ROLES.map((r) => (
                 <th key={r} className="py-3 px-4 text-center">
                   {ROLE_LABELS[r]}
@@ -178,13 +178,13 @@ export default function PermissionsSettingsPage() {
               <div>
                 <div className="font-medium text-ink">{ROLE_LABELS[r]}</div>
                 {r === 'GLOBAL_ADMIN' ? (
-                  <div className="text-xs text-ink-muted">All permissions (cannot be edited)</div>
+                  <div className="text-xs text-ink-muted">สิทธิ์ครบทุกอย่าง (แก้ไขไม่ได้)</div>
                 ) : savedFor === r ? (
-                  <div className="text-xs text-green-600">Saved.</div>
+                  <div className="text-xs text-green-600">บันทึกแล้ว</div>
                 ) : dirty ? (
-                  <div className="text-xs text-amber-600">Unsaved changes</div>
+                  <div className="text-xs text-amber-600">มีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก</div>
                 ) : (
-                  <div className="text-xs text-ink-muted">Up to date</div>
+                  <div className="text-xs text-ink-muted">เป็นปัจจุบัน</div>
                 )}
               </div>
               {r !== 'GLOBAL_ADMIN' ? (
@@ -194,14 +194,14 @@ export default function PermissionsSettingsPage() {
                     disabled={!dirty}
                     className="px-3 py-1.5 rounded text-xs border border-border-subtle hover:border-primary disabled:opacity-50"
                   >
-                    Reset
+                    รีเซ็ต
                   </button>
                   <button
                     onClick={() => saveRole(r)}
                     disabled={!dirty || saveMutation.isPending}
                     className="px-3 py-1.5 rounded text-xs bg-primary text-white hover:bg-primary-hover disabled:opacity-50"
                   >
-                    {saveMutation.isPending ? 'Saving…' : 'Save'}
+                    {saveMutation.isPending ? 'กำลังบันทึก…' : 'บันทึก'}
                   </button>
                 </div>
               ) : null}

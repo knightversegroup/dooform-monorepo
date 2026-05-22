@@ -17,7 +17,7 @@ const inputCls =
 const labelCls = 'block text-[11px] uppercase tracking-wide font-medium text-ink-muted mb-1';
 
 const fmt = (iso?: string | null) =>
-  iso ? new Date(iso).toLocaleString() : '—';
+  iso ? new Date(iso).toLocaleString('th-TH') : '—';
 
 export default function AnnouncementsAdminPage() {
   const qc = useQueryClient();
@@ -34,7 +34,7 @@ export default function AnnouncementsAdminPage() {
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: queryKeys.announcements.all }),
     onError: (err) =>
-      alert(err instanceof ApiError ? err.message : 'Delete failed'),
+      alert(err instanceof ApiError ? err.message : 'ลบไม่สำเร็จ'),
   });
 
   return (
@@ -42,13 +42,12 @@ export default function AnnouncementsAdminPage() {
       <header className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-[18px] font-semibold text-ink tracking-tightish">
-            Announcements
+            ประกาศ
           </h1>
           <p className="text-[12px] text-ink-muted">
-            Banners shown above the console for every signed-in user. Use them to
-            communicate maintenance windows, new features, or urgent guidance.
-            Active announcements (within the start/end window and toggled on)
-            appear at the top of the app.
+            แบนเนอร์ที่แสดงด้านบนของคอนโซลสำหรับผู้ใช้ที่ลงชื่อเข้าใช้ทุกคน
+            ใช้เพื่อสื่อสารช่วงเวลาบำรุงรักษา ฟีเจอร์ใหม่ หรือคำแนะนำเร่งด่วน
+            ประกาศที่ใช้งานอยู่ (อยู่ในช่วงเริ่ม/สิ้นสุด และเปิดสวิตช์) จะปรากฏที่ด้านบนของแอป
           </p>
         </div>
         <button
@@ -56,7 +55,7 @@ export default function AnnouncementsAdminPage() {
           onClick={() => setShowNew((v) => !v)}
           className="inline-flex items-center gap-1 px-3 py-1.5 text-sm rounded bg-primary text-white hover:bg-primary-hover shrink-0"
         >
-          <Plus className="w-4 h-4" /> {showNew ? 'Close' : 'New announcement'}
+          <Plus className="w-4 h-4" /> {showNew ? 'ปิด' : 'ประกาศใหม่'}
         </button>
       </header>
 
@@ -81,27 +80,26 @@ export default function AnnouncementsAdminPage() {
 
       <section className="bg-white border border-border-subtle rounded-lg overflow-hidden">
         {query.isLoading ? (
-          <div className="px-5 py-4 text-[12px] text-ink-muted">Loading…</div>
+          <div className="px-5 py-4 text-[12px] text-ink-muted">กำลังโหลด…</div>
         ) : query.error ? (
           <div className="px-5 py-4 text-[12px] text-red-600">
             {query.error instanceof Error
               ? query.error.message
-              : 'Failed to load announcements.'}
+              : 'โหลดประกาศไม่สำเร็จ'}
           </div>
         ) : (query.data ?? []).length === 0 ? (
           <div className="px-5 py-8 text-center text-[12px] text-ink-muted">
-            No announcements yet. Click <strong>New announcement</strong> to add
-            one.
+            ยังไม่มีประกาศ คลิก <strong>ประกาศใหม่</strong> เพื่อเพิ่ม
           </div>
         ) : (
           <table className="w-full text-sm">
             <thead className="bg-surface-alt text-left text-xs uppercase tracking-wide text-ink-muted">
               <tr>
-                <th className="py-2 px-4">Message</th>
-                <th className="py-2 px-4 w-28">Status</th>
-                <th className="py-2 px-4 w-44">Window</th>
-                <th className="py-2 px-4 w-40">Updated</th>
-                <th className="py-2 px-4 w-32 text-right">Actions</th>
+                <th className="py-2 px-4">ข้อความ</th>
+                <th className="py-2 px-4 w-28">สถานะ</th>
+                <th className="py-2 px-4 w-44">ช่วงเวลา</th>
+                <th className="py-2 px-4 w-40">อัปเดต</th>
+                <th className="py-2 px-4 w-32 text-right">การดำเนินการ</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border-default">
@@ -130,7 +128,7 @@ export default function AnnouncementsAdminPage() {
                           : 'bg-bg-subtle text-ink-muted border-border-subtle'
                       }`}
                     >
-                      {row.isActive ? 'Active' : 'Inactive'}
+                      {row.isActive ? 'ใช้งานอยู่' : 'ไม่ใช้งาน'}
                     </span>
                   </td>
                   <td className="py-2 px-4 align-top text-[12px] text-ink-muted whitespace-nowrap">
@@ -140,7 +138,7 @@ export default function AnnouncementsAdminPage() {
                         <div className="text-ink-faint">→ {fmt(row.endsAt)}</div>
                       </>
                     ) : (
-                      <span className="text-ink-faint">Always</span>
+                      <span className="text-ink-faint">ตลอดเวลา</span>
                     )}
                   </td>
                   <td className="py-2 px-4 align-top text-[12px] text-ink-muted whitespace-nowrap">
@@ -156,7 +154,7 @@ export default function AnnouncementsAdminPage() {
                         }}
                         className="px-2 py-1 text-[12px] rounded text-ink-subtle hover:bg-bg-subtle hover:text-ink"
                       >
-                        Edit
+                        แก้ไข
                       </button>
                       <button
                         type="button"
@@ -164,7 +162,7 @@ export default function AnnouncementsAdminPage() {
                           e.stopPropagation();
                           if (
                             confirm(
-                              'Delete this announcement? Users will stop seeing it immediately.',
+                              'ลบประกาศนี้หรือไม่? ผู้ใช้จะไม่เห็นทันที',
                             )
                           ) {
                             deleteMutation.mutate(row.id);
@@ -172,7 +170,7 @@ export default function AnnouncementsAdminPage() {
                         }}
                         disabled={deleteMutation.isPending}
                         className="p-1 rounded text-red-500 hover:bg-red-50 disabled:opacity-40"
-                        title="Delete"
+                        title="ลบ"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -237,13 +235,13 @@ function AnnouncementForm({
     >
       <div className="flex items-center justify-between">
         <h2 className="text-[14px] font-semibold text-ink">
-          {initial ? 'Edit announcement' : 'New announcement'}
+          {initial ? 'แก้ไขประกาศ' : 'ประกาศใหม่'}
         </h2>
         <button
           type="button"
           onClick={onClose}
           className="p-1 rounded text-ink-faint hover:bg-bg-subtle hover:text-ink"
-          aria-label="Close"
+          aria-label="ปิด"
         >
           <X className="w-3.5 h-3.5" />
         </button>
@@ -251,7 +249,7 @@ function AnnouncementForm({
 
       <div>
         <label className={labelCls} htmlFor="ann-message">
-          Message
+          ข้อความ
         </label>
         <textarea
           id="ann-message"
@@ -260,26 +258,26 @@ function AnnouncementForm({
           required
           rows={2}
           className={`${inputCls} resize-y`}
-          placeholder="Maintenance window Friday 22:00–24:00 ICT…"
+          placeholder="ช่วงบำรุงรักษา วันศุกร์ 22:00–24:00 น. …"
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-3">
         <div>
           <label className={labelCls} htmlFor="ann-link-text">
-            Link text (optional)
+            ข้อความลิงก์ (ไม่บังคับ)
           </label>
           <input
             id="ann-link-text"
             value={linkText}
             onChange={(e) => setLinkText(e.target.value)}
             className={inputCls}
-            placeholder="Read more"
+            placeholder="อ่านต่อ"
           />
         </div>
         <div>
           <label className={labelCls} htmlFor="ann-link-url">
-            Link URL (optional)
+            URL ลิงก์ (ไม่บังคับ)
           </label>
           <input
             id="ann-link-url"
@@ -295,7 +293,7 @@ function AnnouncementForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
           <label className={labelCls} htmlFor="ann-starts">
-            Starts at (optional)
+            เริ่มเมื่อ (ไม่บังคับ)
           </label>
           <input
             id="ann-starts"
@@ -307,7 +305,7 @@ function AnnouncementForm({
         </div>
         <div>
           <label className={labelCls} htmlFor="ann-ends">
-            Ends at (optional)
+            สิ้นสุดเมื่อ (ไม่บังคับ)
           </label>
           <input
             id="ann-ends"
@@ -325,14 +323,14 @@ function AnnouncementForm({
           checked={isActive}
           onChange={(e) => setIsActive(e.target.checked)}
         />
-        Active (uncheck to hide without deleting)
+        เปิดใช้งาน (ยกเลิกการเลือกเพื่อซ่อนโดยไม่ต้องลบ)
       </label>
 
       {mutation.error ? (
         <div className="text-[12px] text-red-600">
           {mutation.error instanceof Error
             ? mutation.error.message
-            : 'Save failed.'}
+            : 'บันทึกไม่สำเร็จ'}
         </div>
       ) : null}
 
@@ -342,7 +340,7 @@ function AnnouncementForm({
           onClick={onClose}
           className="px-3 py-1.5 text-sm rounded text-ink-subtle hover:bg-bg-subtle hover:text-ink"
         >
-          Cancel
+          ยกเลิก
         </button>
         <button
           type="submit"
@@ -350,7 +348,7 @@ function AnnouncementForm({
           className="inline-flex items-center gap-1 px-3 py-1.5 text-sm rounded bg-primary text-white hover:bg-primary-hover disabled:opacity-50"
         >
           <Save className="w-4 h-4" />
-          {mutation.isPending ? 'Saving…' : 'Save'}
+          {mutation.isPending ? 'กำลังบันทึก…' : 'บันทึก'}
         </button>
       </div>
     </form>

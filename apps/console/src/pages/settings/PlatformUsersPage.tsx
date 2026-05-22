@@ -112,7 +112,7 @@ export default function PlatformUsersPage() {
     onSuccess: () => {
       invalidate();
       setEditing(null);
-      setFeedback({ kind: 'ok', text: 'User updated.' });
+      setFeedback({ kind: 'ok', text: 'อัปเดตผู้ใช้แล้ว' });
     },
     onError: (err: Error) => setFeedback({ kind: 'err', text: err.message }),
   });
@@ -124,7 +124,7 @@ export default function PlatformUsersPage() {
       invalidate();
       setFeedback({
         kind: 'ok',
-        text: vars.isActive ? 'User reactivated.' : 'User deactivated and signed out.',
+        text: vars.isActive ? 'เปิดใช้งานผู้ใช้แล้ว' : 'ปิดใช้งานผู้ใช้และออกจากระบบแล้ว',
       });
     },
     onError: (err: Error) => setFeedback({ kind: 'err', text: err.message }),
@@ -136,8 +136,8 @@ export default function PlatformUsersPage() {
       setFeedback({
         kind: 'ok',
         text: data.tokenForDev
-          ? `Reset link sent to ${data.sentTo} (dev token: ${data.tokenForDev})`
-          : `Reset link sent to ${data.sentTo}.`,
+          ? `ส่งลิงก์รีเซ็ตไปยัง ${data.sentTo} แล้ว (dev token: ${data.tokenForDev})`
+          : `ส่งลิงก์รีเซ็ตไปยัง ${data.sentTo} แล้ว`,
       });
     },
     onError: (err: Error) => setFeedback({ kind: 'err', text: err.message }),
@@ -149,7 +149,7 @@ export default function PlatformUsersPage() {
       invalidate();
       setFeedback({
         kind: 'ok',
-        text: `IAM reset to ${data.role}. Removed ${data.assignments} role assignment(s) and ${data.overrides} permission override(s).`,
+        text: `รีเซ็ต IAM เป็น ${data.role} แล้ว ลบการมอบบทบาท ${data.assignments} รายการ และ override สิทธิ์ ${data.overrides} รายการ`,
       });
     },
     onError: (err: Error) => setFeedback({ kind: 'err', text: err.message }),
@@ -166,7 +166,7 @@ export default function PlatformUsersPage() {
   const result = usersQuery.data;
   const orgName = useMemo(() => {
     if (!orgFilter) return null;
-    if (orgFilter === 'none') return 'No organization';
+    if (orgFilter === 'none') return 'ไม่มีองค์กร';
     return tenants.find((t) => t.organizationId === orgFilter)?.name ?? null;
   }, [orgFilter, tenants]);
 
@@ -182,14 +182,13 @@ export default function PlatformUsersPage() {
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-4">
       <header>
-        <h1 className="text-[18px] font-semibold text-ink tracking-tightish">Platform users</h1>
+        <h1 className="text-[18px] font-semibold text-ink tracking-tightish">ผู้ใช้แพลตฟอร์ม</h1>
         <p className="text-[12px] text-ink-muted">
-          Every user across every organization. Edit profile fields, send password resets, or
-          deactivate accounts here. To change a role or override permissions, open the user in{' '}
+          ผู้ใช้ทุกคนในทุกองค์กร แก้ไขข้อมูลโปรไฟล์ ส่งลิงก์รีเซ็ตรหัสผ่าน หรือปิดใช้งานบัญชีที่นี่
+          หากต้องการเปลี่ยนบทบาทหรือ override สิทธิ์ ให้เปิดผู้ใช้ใน{' '}
           <Link to="/settings/iam" className="text-primary underline">
             IAM
           </Link>
-          .
         </p>
       </header>
 
@@ -205,7 +204,7 @@ export default function PlatformUsersPage() {
           <button
             onClick={() => setFeedback(null)}
             className="opacity-60 hover:opacity-100"
-            aria-label="Dismiss"
+            aria-label="ปิด"
           >
             <X className="w-3 h-3" />
           </button>
@@ -215,28 +214,28 @@ export default function PlatformUsersPage() {
       {/* Filters */}
       <div className="bg-white border border-border-subtle rounded-lg p-3 flex flex-wrap items-end gap-3">
         <div className="flex flex-col gap-1 flex-1 min-w-[200px]">
-          <label className="text-[11px] text-ink-muted">Search</label>
+          <label className="text-[11px] text-ink-muted">ค้นหา</label>
           <div className="relative">
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-ink-muted" />
             <input
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Email, name, or org…"
+              placeholder="อีเมล ชื่อ หรือองค์กร…"
               className="w-full pl-7 pr-2 py-1 text-sm rounded border border-border-default"
             />
           </div>
         </div>
 
         <div className="flex flex-col gap-1 min-w-[200px]">
-          <label className="text-[11px] text-ink-muted">Organization</label>
+          <label className="text-[11px] text-ink-muted">องค์กร</label>
           <select
             value={orgFilter}
             onChange={(e) => updateOrgFilter(e.target.value)}
             className="px-2 py-1 text-sm rounded border border-border-default bg-white"
           >
-            <option value="">All organizations</option>
-            <option value="none">— No organization —</option>
+            <option value="">ทุกองค์กร</option>
+            <option value="none">— ไม่มีองค์กร —</option>
             {tenants.map((t) => (
               <option key={t.organizationId} value={t.organizationId}>
                 {t.name}
@@ -246,7 +245,7 @@ export default function PlatformUsersPage() {
         </div>
 
         <div className="flex flex-col gap-1 min-w-[120px]">
-          <label className="text-[11px] text-ink-muted">Page size</label>
+          <label className="text-[11px] text-ink-muted">จำนวนต่อหน้า</label>
           <select
             value={pageSize}
             onChange={(e) => setPageSize(Number(e.target.value))}
@@ -263,8 +262,8 @@ export default function PlatformUsersPage() {
         <div className="ml-auto text-[12px] text-ink-muted">
           {result ? (
             <>
-              {result.total.toLocaleString()} user{result.total === 1 ? '' : 's'}
-              {orgName ? ` in ${orgName}` : ''}
+              ผู้ใช้ {result.total.toLocaleString()} คน
+              {orgName ? ` ใน ${orgName}` : ''}
             </>
           ) : null}
         </div>
@@ -273,24 +272,24 @@ export default function PlatformUsersPage() {
       {/* Table */}
       <div className="bg-white border border-border-subtle rounded-lg overflow-hidden">
         {usersQuery.isLoading ? (
-          <div className="p-4 text-[12px] text-ink-muted">Loading…</div>
+          <div className="p-4 text-[12px] text-ink-muted">กำลังโหลด…</div>
         ) : usersQuery.isError ? (
           <div className="p-4 text-sm text-red-600">
-            {(usersQuery.error as Error)?.message ?? 'Failed to load users.'}
+            {(usersQuery.error as Error)?.message ?? 'โหลดผู้ใช้ไม่สำเร็จ'}
           </div>
         ) : !result || result.data.length === 0 ? (
-          <div className="p-4 text-[12px] text-ink-muted">No users match.</div>
+          <div className="p-4 text-[12px] text-ink-muted">ไม่มีผู้ใช้ที่ตรงกัน</div>
         ) : (
           <table className="w-full text-sm">
             <thead className="bg-surface-alt text-left text-[11px] uppercase tracking-wide text-ink-muted">
               <tr>
-                <th className="px-3 py-2">User</th>
-                <th className="px-3 py-2">Organization</th>
-                <th className="px-3 py-2">Role</th>
-                <th className="px-3 py-2">Tier</th>
-                <th className="px-3 py-2">Status</th>
-                <th className="px-3 py-2">Created</th>
-                <th className="px-3 py-2 text-right">Actions</th>
+                <th className="px-3 py-2">ผู้ใช้</th>
+                <th className="px-3 py-2">องค์กร</th>
+                <th className="px-3 py-2">บทบาท</th>
+                <th className="px-3 py-2">ระดับ</th>
+                <th className="px-3 py-2">สถานะ</th>
+                <th className="px-3 py-2">สร้างเมื่อ</th>
+                <th className="px-3 py-2 text-right">การดำเนินการ</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border-subtle">
@@ -322,26 +321,26 @@ export default function PlatformUsersPage() {
                   <td className="px-3 py-2">
                     <div className="flex flex-col gap-0.5">
                       {u.isActive ? (
-                        <span className="text-[11px] text-green-700">active</span>
+                        <span className="text-[11px] text-green-700">ใช้งาน</span>
                       ) : (
-                        <span className="text-[11px] text-red-600">inactive</span>
+                        <span className="text-[11px] text-red-600">ไม่ใช้งาน</span>
                       )}
                       {u.emailVerified ? (
-                        <span className="text-[10px] text-ink-muted">email verified</span>
+                        <span className="text-[10px] text-ink-muted">ยืนยันอีเมลแล้ว</span>
                       ) : (
-                        <span className="text-[10px] text-amber-700">email pending</span>
+                        <span className="text-[10px] text-amber-700">รอยืนยันอีเมล</span>
                       )}
                     </div>
                   </td>
                   <td className="px-3 py-2 text-[11px] text-ink-muted">
-                    {new Date(u.createdAt).toLocaleDateString()}
+                    {new Date(u.createdAt).toLocaleDateString('th-TH')}
                   </td>
                   <td className="px-3 py-2 text-right">
                     <div className="inline-flex items-center gap-1">
                       <button
                         type="button"
                         onClick={() => setEditing(u as PlatformUserRow)}
-                        title="Edit profile"
+                        title="แก้ไขโปรไฟล์"
                         className="p-1 text-ink-muted hover:text-primary"
                       >
                         <Pencil className="w-3.5 h-3.5" />
@@ -351,14 +350,14 @@ export default function PlatformUsersPage() {
                         onClick={() => {
                           if (
                             confirm(
-                              `Send a password reset link to ${u.email}? Their active sessions will be signed out.`,
+                              `ส่งลิงก์รีเซ็ตรหัสผ่านไปยัง ${u.email} หรือไม่? เซสชันที่ใช้งานอยู่ของพวกเขาจะถูกออกจากระบบ`,
                             )
                           ) {
                             resetMutation.mutate(u.id);
                           }
                         }}
                         disabled={resetMutation.isPending}
-                        title="Send password reset email"
+                        title="ส่งอีเมลรีเซ็ตรหัสผ่าน"
                         className="p-1 text-ink-muted hover:text-primary disabled:opacity-40"
                       >
                         <KeyRound className="w-3.5 h-3.5" />
@@ -372,20 +371,20 @@ export default function PlatformUsersPage() {
                             ) {
                               setFeedback({
                                 kind: 'err',
-                                text: 'Cannot deactivate yourself.',
+                                text: 'ไม่สามารถปิดใช้งานบัญชีตัวเองได้',
                               });
                               return;
                             }
                             if (
                               confirm(
-                                `Deactivate ${u.email}? They will be signed out and unable to log in until reactivated.`,
+                                `ปิดใช้งาน ${u.email} หรือไม่? พวกเขาจะถูกออกจากระบบและเข้าสู่ระบบไม่ได้จนกว่าจะเปิดใช้งานอีกครั้ง`,
                               )
                             ) {
                               activeMutation.mutate({ userId: u.id, isActive: false });
                             }
                           }}
                           disabled={activeMutation.isPending}
-                          title="Deactivate user"
+                          title="ปิดใช้งานผู้ใช้"
                           className="p-1 text-ink-muted hover:text-red-600 disabled:opacity-40"
                         >
                           <Ban className="w-3.5 h-3.5" />
@@ -395,7 +394,7 @@ export default function PlatformUsersPage() {
                           type="button"
                           onClick={() => activeMutation.mutate({ userId: u.id, isActive: true })}
                           disabled={activeMutation.isPending}
-                          title="Reactivate user"
+                          title="เปิดใช้งานผู้ใช้อีกครั้ง"
                           className="p-1 text-ink-muted hover:text-green-700 disabled:opacity-40"
                         >
                           <CheckCircle2 className="w-3.5 h-3.5" />
@@ -406,14 +405,14 @@ export default function PlatformUsersPage() {
                         onClick={() => {
                           if (
                             confirm(
-                              `Reset IAM for ${u.email}? This drops every role assignment beyond their primary role and clears all permission overrides.`,
+                              `รีเซ็ต IAM ของ ${u.email} หรือไม่? การกระทำนี้จะลบการมอบบทบาททั้งหมดยกเว้นบทบาทหลัก และล้าง override สิทธิ์ทั้งหมด`,
                             )
                           ) {
                             resetIamMutation.mutate(u.id);
                           }
                         }}
                         disabled={resetIamMutation.isPending}
-                        title="Reset IAM to primary role default"
+                        title="รีเซ็ต IAM เป็นค่าเริ่มต้นของบทบาทหลัก"
                         className="p-1 text-ink-muted hover:text-red-600 disabled:opacity-40"
                       >
                         <RotateCcw className="w-3.5 h-3.5" />
@@ -456,10 +455,10 @@ export default function PlatformUsersPage() {
             disabled={page === 0}
             className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded border border-border-default disabled:opacity-30"
           >
-            <ChevronLeft className="w-3 h-3" /> Prev
+            <ChevronLeft className="w-3 h-3" /> ก่อนหน้า
           </button>
           <span className="text-[11px] text-ink-muted">
-            Page {page + 1} of {totalPages}
+            หน้า {page + 1} จาก {totalPages}
           </span>
           <button
             type="button"
@@ -467,7 +466,7 @@ export default function PlatformUsersPage() {
             disabled={page >= totalPages - 1}
             className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded border border-border-default disabled:opacity-30"
           >
-            Next <ChevronRight className="w-3 h-3" />
+            ถัดไป <ChevronRight className="w-3 h-3" />
           </button>
         </div>
       ) : null}
@@ -477,9 +476,9 @@ export default function PlatformUsersPage() {
 
 const ROLE_OPTIONS: UserRole[] = ['USER', 'ORG_ADMIN', 'GLOBAL_ADMIN'];
 const ROLE_LABEL: Record<UserRole, string> = {
-  USER: 'Member',
-  ORG_ADMIN: 'Org Admin',
-  GLOBAL_ADMIN: 'Global Admin',
+  USER: 'สมาชิก',
+  ORG_ADMIN: 'ผู้ดูแลองค์กร',
+  GLOBAL_ADMIN: 'ผู้ดูแลทั้งระบบ',
 };
 
 function EditUserDialog({
@@ -549,15 +548,15 @@ function EditUserDialog({
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg w-[460px] p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-ink">Edit user</h3>
+          <h3 className="text-sm font-semibold text-ink">แก้ไขผู้ใช้</h3>
           <button onClick={onCancel} className="p-1 text-ink-muted hover:text-ink">
             <X className="w-4 h-4" />
           </button>
         </div>
-        <p className="text-[11px] text-ink-muted">Original: {user.email}</p>
+        <p className="text-[11px] text-ink-muted">เดิม: {user.email}</p>
 
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] text-ink-muted">Display name</span>
+          <span className="text-[11px] text-ink-muted">ชื่อที่แสดง</span>
           <input
             type="text"
             value={displayName}
@@ -567,7 +566,7 @@ function EditUserDialog({
         </label>
 
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] text-ink-muted">Email</span>
+          <span className="text-[11px] text-ink-muted">อีเมล</span>
           <input
             type="email"
             value={email}
@@ -575,7 +574,7 @@ function EditUserDialog({
             className="px-2 py-1 rounded border border-border-default text-sm"
           />
           <span className="text-[10px] text-ink-faint">
-            Changing email resets verification unless you tick the box below.
+            การเปลี่ยนอีเมลจะรีเซ็ตการยืนยัน หากไม่ติ๊กกล่องด้านล่าง
           </span>
         </label>
 
@@ -585,17 +584,17 @@ function EditUserDialog({
             checked={emailVerified}
             onChange={(e) => setEmailVerified(e.target.checked)}
           />
-          Email verified
+          ยืนยันอีเมลแล้ว
         </label>
 
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] text-ink-muted">Organization</span>
+          <span className="text-[11px] text-ink-muted">องค์กร</span>
           <select
             value={orgId}
             onChange={(e) => setOrgId(e.target.value)}
             className="px-2 py-1 rounded border border-border-default bg-white text-sm"
           >
-            <option value="">— No organization —</option>
+            <option value="">— ไม่มีองค์กร —</option>
             {tenants.map((t) => (
               <option key={t.organizationId} value={t.organizationId}>
                 {t.name}
@@ -605,7 +604,7 @@ function EditUserDialog({
         </label>
 
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] text-ink-muted">Primary role</span>
+          <span className="text-[11px] text-ink-muted">บทบาทหลัก</span>
           <select
             value={role}
             onChange={(e) => setRole(e.target.value as UserRole)}
@@ -619,17 +618,17 @@ function EditUserDialog({
             ))}
           </select>
           {isSelf ? (
-            <span className="text-[10px] text-ink-faint">You can&apos;t change your own role.</span>
+            <span className="text-[10px] text-ink-faint">ไม่สามารถเปลี่ยนบทบาทของตัวเองได้</span>
           ) : (
             <span className="text-[10px] text-ink-faint">
-              Sets the user&apos;s primary system role and syncs role_assignments.
-              Promoting to Global Admin requires the users:assign-global-admin permission.
+              ตั้งบทบาทหลักของผู้ใช้และซิงค์กับ role_assignments
+              การโปรโมตเป็น Global Admin ต้องมีสิทธิ์ users:assign-global-admin
             </span>
           )}
         </label>
 
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] text-ink-muted">Tier</span>
+          <span className="text-[11px] text-ink-muted">ระดับ</span>
           <select
             value={userTier}
             onChange={(e) => setUserTier(e.target.value)}
@@ -640,8 +639,7 @@ function EditUserDialog({
             <option value="max">Max</option>
           </select>
           <span className="text-[10px] text-ink-faint">
-            Per-user override. Changing the org tier later will overwrite this for every
-            member of that org.
+            override ระดับเฉพาะผู้ใช้ การเปลี่ยนระดับองค์กรในภายหลังจะเขียนทับค่านี้ของสมาชิกทุกคน
           </span>
         </label>
 
@@ -653,7 +651,7 @@ function EditUserDialog({
             onClick={onCancel}
             className="px-3 py-1 text-xs rounded border border-border-default text-ink-muted"
           >
-            Cancel
+            ยกเลิก
           </button>
           <button
             type="button"
@@ -661,7 +659,7 @@ function EditUserDialog({
             disabled={submitting}
             className="px-3 py-1 text-xs rounded bg-primary text-white disabled:opacity-50"
           >
-            {submitting ? 'Saving…' : 'Save'}
+            {submitting ? 'กำลังบันทึก…' : 'บันทึก'}
           </button>
         </div>
       </div>

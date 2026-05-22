@@ -5,28 +5,27 @@ import { taxonomyApi, type TaxonomyEntry, type TaxonomyKind } from '../../lib/ap
 import { ApiError } from '../../lib/api/client';
 
 const KIND_TITLES: Record<TaxonomyKind, string> = {
-  TYPE: 'Template types',
-  TIER: 'Template tiers',
-  CATEGORY: 'Template categories',
+  TYPE: 'ประเภทเทมเพลต',
+  TIER: 'ระดับเทมเพลต',
+  CATEGORY: 'หมวดหมู่เทมเพลต',
 };
 
 const KIND_HINTS: Record<TaxonomyKind, string> = {
-  TYPE: 'Form, Survey, Quiz, etc. — used to categorize each template by purpose.',
+  TYPE: 'Form, Survey, Quiz ฯลฯ — ใช้จัดประเภทเทมเพลตตามวัตถุประสงค์',
   TIER:
-    'Free / Pro / Enterprise tier the template is gated to. Users below the tier won\'t see it.',
-  CATEGORY: 'Domain category used for browsing and search.',
+    'ระดับ Free / Pro / Enterprise ที่จำกัดการใช้เทมเพลต ผู้ใช้ระดับต่ำกว่าจะไม่เห็น',
+  CATEGORY: 'หมวดหมู่โดเมนสำหรับการเรียกดูและค้นหา',
 };
 
 export default function TaxonomyAdminPage() {
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
       <header>
-        <h1 className="text-[18px] font-semibold text-ink tracking-tightish">Template taxonomy</h1>
+        <h1 className="text-[18px] font-semibold text-ink tracking-tightish">หมวดหมู่เทมเพลต</h1>
         <p className="text-[12px] text-ink-muted">
-          Configure the option lists shown in template upload + edit forms. Built-in
-          codes (the values shipped with the platform) cannot be deleted but can be
-          relabeled, reordered, or hidden. Brand-new codes you add here are immediately
-          selectable in upload forms.
+          กำหนดรายการตัวเลือกที่แสดงในฟอร์มอัปโหลด + แก้ไขเทมเพลต รหัสที่มากับระบบ
+          (ค่าที่มาพร้อมแพลตฟอร์ม) ลบไม่ได้ แต่สามารถเปลี่ยนป้ายชื่อ จัดเรียงใหม่ หรือซ่อนได้
+          รหัสใหม่ที่คุณเพิ่มที่นี่จะใช้งานในฟอร์มอัปโหลดได้ทันที
         </p>
       </header>
 
@@ -36,11 +35,11 @@ export default function TaxonomyAdminPage() {
         gating and template access).
       */}
       <p className="text-[11px] text-ink-faint -mt-2">
-        Looking for tier configuration? It lives at{' '}
+        มองหาการตั้งค่าระดับ? ตอนนี้อยู่ที่{' '}
         <a href="/settings/tiers" className="text-primary hover:underline">
-          Subscription tiers
+          ระดับการสมัครสมาชิก
         </a>{' '}
-        now — one list powers both subscription gating and template access.
+        — รายการเดียวควบคุมทั้งการจำกัดการสมัครและการเข้าถึงเทมเพลต
       </p>
 
       {(['TYPE', 'CATEGORY'] as TaxonomyKind[]).map((kind) => (
@@ -65,7 +64,7 @@ function KindSection({ kind }: { kind: TaxonomyKind }) {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => taxonomyApi.delete(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['template-taxonomy', kind] }),
-    onError: (err) => alert(err instanceof ApiError ? err.message : 'Delete failed'),
+    onError: (err) => alert(err instanceof ApiError ? err.message : 'ลบไม่สำเร็จ'),
   });
 
   const [showNew, setShowNew] = useState(false);
@@ -81,23 +80,23 @@ function KindSection({ kind }: { kind: TaxonomyKind }) {
           onClick={() => setShowNew((v) => !v)}
           className="inline-flex items-center gap-1 px-3 py-1.5 text-sm rounded bg-primary text-white hover:bg-primary-hover"
         >
-          <Plus className="w-4 h-4" /> {showNew ? 'Close' : 'Add value'}
+          <Plus className="w-4 h-4" /> {showNew ? 'ปิด' : 'เพิ่มค่า'}
         </button>
       </div>
 
       {showNew ? <NewEntryForm kind={kind} onCreated={() => setShowNew(false)} /> : null}
 
       {query.isLoading ? (
-        <div className="px-5 py-4 text-[12px] text-ink-muted">Loading…</div>
+        <div className="px-5 py-4 text-[12px] text-ink-muted">กำลังโหลด…</div>
       ) : (
         <table className="w-full text-sm">
           <thead className="bg-surface-alt text-left text-xs uppercase tracking-wide text-ink-muted">
             <tr>
-              <th className="py-2 px-4">Code</th>
-              <th className="py-2 px-4">Label</th>
-              <th className="py-2 px-4 w-20">Sort</th>
-              <th className="py-2 px-4 w-24">Enabled</th>
-              <th className="py-2 px-4 w-32 text-right">Actions</th>
+              <th className="py-2 px-4">รหัส</th>
+              <th className="py-2 px-4">ป้ายชื่อ</th>
+              <th className="py-2 px-4 w-20">ลำดับ</th>
+              <th className="py-2 px-4 w-24">เปิดใช้งาน</th>
+              <th className="py-2 px-4 w-32 text-right">การดำเนินการ</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border-default">
@@ -111,7 +110,7 @@ function KindSection({ kind }: { kind: TaxonomyKind }) {
                 onDelete={() => {
                   if (
                     confirm(
-                      `Delete ${kind} "${row.code}"? Built-in codes cannot be deleted; disable instead.`,
+                      `ลบ ${kind} "${row.code}" หรือไม่? รหัสที่มากับระบบลบไม่ได้ ให้ปิดใช้งานแทน`,
                     )
                   ) {
                     deleteMutation.mutate(row.id);
@@ -122,7 +121,7 @@ function KindSection({ kind }: { kind: TaxonomyKind }) {
             {(query.data ?? []).length === 0 ? (
               <tr>
                 <td colSpan={5} className="py-6 px-4 text-center text-ink-muted text-sm">
-                  No entries yet.
+                  ยังไม่มีรายการ
                 </td>
               </tr>
             ) : null}
@@ -173,7 +172,7 @@ function Row({
             checked={enabled}
             onChange={(e) => setEnabled(e.target.checked)}
           />
-          {enabled ? 'On' : 'Off'}
+          {enabled ? 'เปิด' : 'ปิด'}
         </label>
       </td>
       <td className="py-2 px-4 text-right">
@@ -183,12 +182,12 @@ function Row({
             disabled={!dirty}
             className="inline-flex items-center gap-1 px-2 py-1 rounded bg-primary text-white text-xs hover:bg-primary-hover disabled:opacity-50"
           >
-            <Save className="w-3 h-3" /> Save
+            <Save className="w-3 h-3" /> บันทึก
           </button>
           <button
             onClick={onDelete}
             className="p-1.5 rounded hover:bg-red-50 text-red-500"
-            title="Delete"
+            title="ลบ"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
@@ -216,13 +215,13 @@ function NewEntryForm({ kind, onCreated }: { kind: TaxonomyKind; onCreated: () =
       qc.invalidateQueries({ queryKey: ['template-taxonomy', kind] });
       onCreated();
     },
-    onError: (err) => setError(err instanceof ApiError ? err.message : 'Create failed'),
+    onError: (err) => setError(err instanceof ApiError ? err.message : 'สร้างไม่สำเร็จ'),
   });
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!code.trim() || !label.trim()) {
-      setError('Code and label are required.');
+      setError('ต้องระบุรหัสและป้ายชื่อ');
       return;
     }
     createMutation.mutate();
@@ -232,7 +231,7 @@ function NewEntryForm({ kind, onCreated }: { kind: TaxonomyKind; onCreated: () =
     <form onSubmit={onSubmit} className="px-5 py-4 border-b border-border-subtle bg-surface-alt/40">
       <div className="grid grid-cols-1 md:grid-cols-[200px_1fr_120px_auto] gap-3 items-end">
         <div>
-          <label className="block text-xs text-ink-muted mb-1">Code</label>
+          <label className="block text-xs text-ink-muted mb-1">รหัส</label>
           <input
             value={code}
             onChange={(e) => setCode(e.target.value)}
@@ -241,16 +240,16 @@ function NewEntryForm({ kind, onCreated }: { kind: TaxonomyKind; onCreated: () =
           />
         </div>
         <div>
-          <label className="block text-xs text-ink-muted mb-1">Label</label>
+          <label className="block text-xs text-ink-muted mb-1">ป้ายชื่อ</label>
           <input
             value={label}
             onChange={(e) => setLabel(e.target.value)}
-            placeholder="Marketing"
+            placeholder="การตลาด"
             className="w-full px-2 py-1.5 border border-border-subtle rounded text-sm"
           />
         </div>
         <div>
-          <label className="block text-xs text-ink-muted mb-1">Sort</label>
+          <label className="block text-xs text-ink-muted mb-1">ลำดับ</label>
           <input
             type="number"
             value={sortOrder}
@@ -263,13 +262,13 @@ function NewEntryForm({ kind, onCreated }: { kind: TaxonomyKind; onCreated: () =
           disabled={createMutation.isPending}
           className="px-3 py-1.5 rounded bg-primary text-white text-sm hover:bg-primary-hover disabled:opacity-50"
         >
-          Add
+          เพิ่ม
         </button>
       </div>
       {error ? <div className="text-xs text-red-600 mt-2">{error}</div> : null}
       <p className="text-[11px] text-ink-muted mt-2">
-        Code is the stable machine identifier persisted on every template — pick something
-        you don't plan to rename. Use uppercase letters, digits and underscores.
+        รหัสคือ identifier ถาวรที่บันทึกในเทมเพลตทุกตัว — เลือกค่าที่ไม่คิดจะเปลี่ยนชื่อ
+        ใช้ตัวอักษรพิมพ์ใหญ่ ตัวเลข และขีดล่าง
       </p>
     </form>
   );
