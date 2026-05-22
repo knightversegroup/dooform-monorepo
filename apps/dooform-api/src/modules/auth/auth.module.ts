@@ -28,6 +28,7 @@ import { AuditLogService } from './application/services/audit-log.service'
 import { ComplianceService } from './application/services/compliance.service'
 import { PermissionService } from './application/services/permission.service'
 import { PermissionsGuard } from './interface/rest/guards/permissions.guard'
+import { CapabilityGuard } from './interface/rest/guards/capability.guard'
 import { AuthController } from './interface/rest/controllers/auth.controller'
 import { OrganizationController } from './interface/rest/controllers/organization.controller'
 import { PermissionsController } from './interface/rest/controllers/permissions.controller'
@@ -39,6 +40,7 @@ import { ComplianceController } from './interface/rest/controllers/compliance.co
 import { StorageQuotaService } from '../user/application/services/storage-quota.service'
 import { PlatformDirectoryService } from '../user/application/services/platform-directory.service'
 import { TierConfigService } from '../user/application/services/tier-config.service'
+import { TierService } from '../user/application/services/tier.service'
 import { TierConfigModel } from '../user/infrastructure/persistence/typeorm/models/tier-config.model'
 import { DocumentServicesModule } from '../document/infrastructure/services/document-services.module'
 
@@ -98,6 +100,7 @@ import { DocumentServicesModule } from '../document/infrastructure/services/docu
     AuthService,
     AdminSeedService,
     PermissionsGuard,
+    CapabilityGuard,
     PasswordService,
     TokenService,
     CookieService,
@@ -105,6 +108,7 @@ import { DocumentServicesModule } from '../document/infrastructure/services/docu
     StorageQuotaService,
     PlatformDirectoryService,
     TierConfigService,
+    TierService,
   ],
   exports: [
     AuthService,
@@ -112,8 +116,10 @@ import { DocumentServicesModule } from '../document/infrastructure/services/docu
     CookieService,
     PermissionService,
     PermissionsGuard,
+    CapabilityGuard,
     StorageQuotaService,
     TierConfigService,
+    TierService,
     AuditLogService,
     ComplianceService,
   ],

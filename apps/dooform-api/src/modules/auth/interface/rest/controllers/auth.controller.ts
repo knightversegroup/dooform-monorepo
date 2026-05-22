@@ -30,6 +30,7 @@ import {
 } from '../../../application/dtos/auth.dto'
 import { AuthService } from '../../../application/services/auth.service'
 import { PermissionService } from '../../../application/services/permission.service'
+import { TierService } from '../../../../user/application/services/tier.service'
 import { CookieService } from '../../../infrastructure/services/cookie.service'
 
 import { Public } from '../decorators/public.decorator'
@@ -57,6 +58,7 @@ export class AuthController {
     private readonly auth: AuthService,
     private readonly cookies: CookieService,
     private readonly permissions: PermissionService,
+    private readonly tierService: TierService,
   ) {}
 
   @Public()
@@ -227,7 +229,7 @@ export class AuthController {
     })
   }
 
-  private toMe(user: {
+  private async toMe(user: {
     id: string
     email: string
     displayName: string
@@ -243,6 +245,10 @@ export class AuthController {
   }) {
     const roles = this.permissions.activeRoleCodes(user.id)
     const effective = this.permissions.effectivePermissions({ userId: user.id, role: user.role })
+    // Resolve the org's effective tier (capabilities + numeric limits). Frontend
+    // uses this to render upgrade prompts without round-trips. Server still
+    // re-checks every gated request via CapabilityGuard.
+    const tier = await this.tierService.listEffectiveForOrg(user.organizationId)
     return {
       id: user.id,
       email: user.email,
@@ -251,6 +257,7 @@ export class AuthController {
       role: user.role,
       roles: roles.length > 0 ? roles : [user.role],
       userTier: user.userTier,
+      tier,
       organizationId: user.organizationId,
       emailVerified: user.emailVerified,
       onboarded: user.onboardedAt !== null,

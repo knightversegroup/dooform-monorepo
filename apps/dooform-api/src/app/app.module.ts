@@ -13,6 +13,7 @@ import { AnnouncementModule } from '../modules/announcement/announcement.module'
 import { MailerModule } from '../common/mailer/mailer.module';
 import { JwtAuthGuard } from '../modules/auth/interface/rest/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../modules/auth/interface/rest/guards/permissions.guard';
+import { CapabilityGuard } from '../modules/auth/interface/rest/guards/capability.guard';
 import { AuditInterceptor } from '../modules/auth/interface/rest/interceptors/audit.interceptor';
 
 @Module({
@@ -37,6 +38,10 @@ import { AuditInterceptor } from '../modules/auth/interface/rest/interceptors/au
     {
       provide: APP_GUARD,
       useClass: PermissionsGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: CapabilityGuard,
     },
     {
       provide: APP_INTERCEPTOR,

@@ -205,6 +205,22 @@ export class TierConfigService implements OnApplicationBootstrap {
     }
   }
 
+  /**
+   * Cache-reading accessors for downstream services (TierService, TierLimitService).
+   * Same in-memory cache as the rest of this class — 30-second TTL.
+   */
+  async getCachedConfigs(): Promise<TierConfigModel[]> {
+    await this.ensureCache()
+    return this.cache
+  }
+
+  async findByCode(code: string | null | undefined): Promise<TierConfigModel | undefined> {
+    if (!code) return undefined
+    await this.ensureCache()
+    const lower = code.toLowerCase()
+    return this.cache.find((c) => c.code === lower) ?? this.cache.find((c) => c.code === code)
+  }
+
   /** Hot-path call from the document pipeline. Falls back to "watermark on" for unknown tiers. */
   async shouldApplyWatermark(tier: string | null | undefined): Promise<boolean> {
     if (!tier) return true
@@ -275,6 +291,7 @@ export class TierConfigService implements OnApplicationBootstrap {
       applyBrandingWatermark: boolean
       sortOrder: number
       enabled: boolean
+      features: Record<string, unknown> | null
     }>,
   ): Promise<TierConfigModel> {
     const row = await this.repo.findOne({ where: { id } })
@@ -285,6 +302,7 @@ export class TierConfigService implements OnApplicationBootstrap {
       row.applyBrandingWatermark = input.applyBrandingWatermark
     if (input.sortOrder !== undefined) row.sortOrder = input.sortOrder
     if (input.enabled !== undefined) row.enabled = input.enabled
+    if (input.features !== undefined) row.features = input.features
     const saved = await this.repo.save(row)
     await this.reload()
     return saved

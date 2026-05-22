@@ -4,6 +4,7 @@ import { Repository } from 'typeorm'
 
 import type { IStorageService } from '../../../document/domain/services/storage.service'
 import { OrganizationModel } from '../../infrastructure/persistence/typeorm/models/organization.model'
+import { TierService } from './tier.service'
 
 /**
  * Tracks per-tenant storage usage and enforces quotas.
@@ -27,7 +28,18 @@ export class StorageQuotaService {
     private readonly organizations: Repository<OrganizationModel>,
     @Inject('IStorageService')
     private readonly storage: IStorageService,
+    private readonly tierService: TierService,
   ) {}
+
+  /**
+   * The org's effective storage cap. Per-org override (organizations.storage_quota_bytes)
+   * wins if set; otherwise we fall back to the tier limit. `null` from either side means
+   * unlimited.
+   */
+  private async resolveQuotaBytes(org: OrganizationModel): Promise<number | null> {
+    if (org.storageQuotaBytes !== null) return org.storageQuotaBytes
+    return this.tierService.getLimitFor(org.id, 'limit:max_storage_bytes')
+  }
 
   async getUsage(orgId: string): Promise<{
     organizationId: string
@@ -39,15 +51,16 @@ export class StorageQuotaService {
   }> {
     const org = await this.organizations.findOne({ where: { id: orgId } })
     if (!org) throw new NotFoundException('Organization not found')
+    const quota = await this.resolveQuotaBytes(org)
     return {
       organizationId: org.id,
       name: org.name,
       slug: org.slug,
-      quotaBytes: org.storageQuotaBytes,
+      quotaBytes: quota,
       usedBytes: org.storageUsedBytes,
       percentUsed:
-        org.storageQuotaBytes && org.storageQuotaBytes > 0
-          ? Math.min(100, (org.storageUsedBytes / org.storageQuotaBytes) * 100)
+        quota && quota > 0
+          ? Math.min(100, (org.storageUsedBytes / quota) * 100)
           : null,
     }
   }
@@ -64,20 +77,26 @@ export class StorageQuotaService {
       .groupBy('user.organization_id')
       .getRawMany<{ orgId: string; count: string }>()
     const countByOrg = new Map(counts.map((row) => [row.orgId, Number(row.count)]))
-    return orgs.map((org) => ({
-      organizationId: org.id,
-      name: org.name,
-      slug: org.slug,
-      quotaBytes: org.storageQuotaBytes,
-      usedBytes: org.storageUsedBytes,
-      percentUsed:
-        org.storageQuotaBytes && org.storageQuotaBytes > 0
-          ? Math.min(100, (org.storageUsedBytes / org.storageQuotaBytes) * 100)
-          : null,
-      memberCount: countByOrg.get(org.id) ?? 0,
-      tier: org.tier,
-      createdAt: org.createdAt,
-    }))
+    const resolved = await Promise.all(
+      orgs.map(async (org) => {
+        const quota = await this.resolveQuotaBytes(org)
+        return {
+          organizationId: org.id,
+          name: org.name,
+          slug: org.slug,
+          quotaBytes: quota,
+          usedBytes: org.storageUsedBytes,
+          percentUsed:
+            quota && quota > 0
+              ? Math.min(100, (org.storageUsedBytes / quota) * 100)
+              : null,
+          memberCount: countByOrg.get(org.id) ?? 0,
+          tier: org.tier,
+          createdAt: org.createdAt,
+        }
+      }),
+    )
+    return resolved
   }
 
   async setQuota(orgId: string, quotaBytes: number | null): Promise<void> {
@@ -92,12 +111,16 @@ export class StorageQuotaService {
     if (!orgId || sizeBytes <= 0) return
     const org = await this.organizations.findOne({ where: { id: orgId } })
     if (!org) return
-    if (org.storageQuotaBytes === null) return // unlimited
-    if (org.storageUsedBytes + sizeBytes > org.storageQuotaBytes) {
-      throw new ForbiddenException(
-        `Storage quota exceeded. Used ${org.storageUsedBytes} / ${org.storageQuotaBytes} bytes; ` +
+    const quota = await this.resolveQuotaBytes(org)
+    if (quota === null) return // unlimited (per-org null falls through to unlimited tier)
+    if (org.storageUsedBytes + sizeBytes > quota) {
+      throw new ForbiddenException({
+        message: `Storage quota exceeded. Used ${org.storageUsedBytes} / ${quota} bytes; ` +
           `this upload (${sizeBytes} bytes) would exceed the limit.`,
-      )
+        limit: 'limit:max_storage_bytes',
+        cap: quota,
+        current: org.storageUsedBytes,
+      })
     }
   }
 
