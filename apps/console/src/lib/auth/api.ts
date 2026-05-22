@@ -326,9 +326,30 @@ export const authApi = {
         applyBrandingWatermark: boolean;
         sortOrder: number;
         enabled: boolean;
+        features: { capabilities?: string[]; limits?: Record<string, number | null> } | null;
         createdAt: string;
       }>
     >('/admin/tiers'),
+  // Capability + limit catalog (defined in code on the server). Used by the tier
+  // admin editor to render checkboxes/inputs for what overrides each tier supports.
+  getTierCatalog: () =>
+    http.get<{
+      capabilities: Array<{
+        key: string;
+        group: string;
+        label: string;
+        description: string;
+        defaultMinTier: string;
+      }>;
+      limits: Array<{
+        key: string;
+        group: string;
+        label: string;
+        description: string;
+        unit: 'count' | 'bytes' | 'count_per_month';
+        defaults: Record<string, number | null>;
+      }>;
+    }>('/admin/tiers/catalog'),
   // Public tier list — open to any authenticated user. Used by template upload + edit
   // forms so the tier dropdown matches the platform's subscription tiers exactly
   // (same source of truth as /settings/tiers admin console).
@@ -360,6 +381,15 @@ export const authApi = {
       applyBrandingWatermark?: boolean;
       sortOrder?: number;
       enabled?: boolean;
+      /**
+       * Per-tier capability + limit overrides.
+       *   capabilities: bare key = grant; "-key" prefix = explicit revoke; absent = catalog default.
+       *   limits: numeric cap; null = unlimited; absent = catalog default for the tier's code.
+       */
+      features?: {
+        capabilities?: string[];
+        limits?: Record<string, number | null>;
+      } | null;
     },
   ) => http.patch<unknown>(`/admin/tiers/${id}`, { body: input }),
   deleteTier: (id: string) => http.delete<{ ok: boolean }>(`/admin/tiers/${id}`),
