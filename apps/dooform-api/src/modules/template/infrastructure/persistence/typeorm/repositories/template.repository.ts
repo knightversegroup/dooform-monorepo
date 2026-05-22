@@ -35,6 +35,10 @@ export class TypeOrmTemplateRepository
     return models.map((m) => this.toEntity(m))
   }
 
+  async countForOrg(organizationId: string): Promise<number> {
+    return this.getRepository().count({ where: { organizationId } })
+  }
+
   async findVisibleToOrg(
     options: ListTemplatesForOrgOptions,
   ): Promise<{ data: Template[]; total: number }> {

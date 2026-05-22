@@ -24,6 +24,7 @@ import { PasswordResetTokenModel } from '../../infrastructure/persistence/typeor
 import { InviteCodeModel } from '../../infrastructure/persistence/typeorm/models/invite-code.model'
 import { AuditLogService } from './audit-log.service'
 import { PermissionService } from './permission.service'
+import { TierService } from '../../../user/application/services/tier.service'
 import { PasswordService } from '../../infrastructure/services/password.service'
 import { TokenService } from '../../infrastructure/services/token.service'
 
@@ -49,6 +50,7 @@ export class AuthService {
     private readonly config: ConfigService,
     private readonly audit: AuditLogService,
     private readonly permissions: PermissionService,
+    private readonly tierService: TierService,
   ) {}
 
   /** Holder of `tenants:manage-any-org` — falls back to GLOBAL_ADMIN role string. */
@@ -97,6 +99,19 @@ export class AuthService {
     if (input.inviteCode) {
       const invite = await this.findValidInvite(input.inviteCode)
       organizationId = invite.organizationId ?? (await this.createOrganization(input.name)).id
+      // Enforce the org's max_members tier limit at the point a new user actually
+      // joins — issuing the invite is preflight-checked too, but a concurrent
+      // signup could still race past that. This is the authoritative gate.
+      if (invite.organizationId) {
+        const memberCount = await this.users.count({
+          where: { organizationId: invite.organizationId },
+        })
+        await this.tierService.assertWithinLimit(
+          invite.organizationId,
+          'limit:max_members',
+          memberCount,
+        )
+      }
     } else if (input.organizationName) {
       const org = await this.createOrganization(input.organizationName)
       organizationId = org.id
@@ -374,6 +389,17 @@ export class AuthService {
       orgId = input.creator.organizationId
     }
     if (!orgId) throw new BadRequestException('No organization for invite code')
+
+    // Preflight: reject if the org is already at its member cap. Authoritative
+    // check happens again at register-time; this just surfaces the limit
+    // earlier so the UI can show an upgrade prompt instead of a successful
+    // invite that later fails to redeem.
+    const memberCount = await this.users.count({ where: { organizationId: orgId } })
+    await this.tierService.assertWithinLimit(
+      orgId,
+      'limit:max_members',
+      memberCount,
+    )
 
     const days = input.expiresInDays ?? 7
     const code = randomBytes(8).toString('hex').toUpperCase().slice(0, 12)

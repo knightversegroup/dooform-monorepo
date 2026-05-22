@@ -25,4 +25,7 @@ export class DownloadDocumentDto {
 
   @Allow()
   userTier!: string
+
+  @Allow()
+  organizationId!: string | null
 }

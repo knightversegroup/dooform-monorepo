@@ -6,12 +6,13 @@ import type { Result } from '@dooform-api-core/shared'
 import { Logger } from '@dooform-api-core/shared'
 import { UseResult, ValidateInput, UseClassLogger } from '@dooform-api-core/shared/decorators'
 
-import { DocumentFormat, UserTier } from '../../../domain/enums/document.enum'
+import { DocumentFormat } from '../../../domain/enums/document.enum'
 import type { IDocumentRepository } from '../../../domain/repositories/document.repository'
 import type { IWatermarkPresetRepository } from '../../../domain/repositories/watermark-preset.repository'
 import type { IStorageService } from '../../../domain/services/storage.service'
 import type { IPdfConverterService } from '../../../domain/services/pdf-converter.service'
 import { PdfLibManipulatorService } from '../../../infrastructure/services/pdf-lib-manipulator.service'
+import { TierService } from '../../../../user/application/services/tier.service'
 import { DownloadDocumentDto } from '../../dtos/download-document.dto'
 
 interface DownloadDocumentResult {
@@ -33,6 +34,7 @@ export class DownloadDocumentUseCase implements UseCase<DownloadDocumentDto, Dow
     @Inject('IPdfConverterService')
     private readonly pdfConverter: IPdfConverterService,
     private readonly pdfManipulator: PdfLibManipulatorService,
+    private readonly tierService: TierService,
   ) {}
 
   @UseResult()
@@ -50,9 +52,19 @@ export class DownloadDocumentUseCase implements UseCase<DownloadDocumentDto, Dow
 
     const format = dto.format ?? DocumentFormat.PDF
 
-    // Free tier can only download PDF
-    if (format === DocumentFormat.DOCX && dto.userTier === UserTier.FREE) {
-      throw new InvalidOperationException('DOCX download is not available for free tier')
+    // DOCX export is gated by the docx_export capability (BASIC+ by default).
+    // Server-authoritative — relies on the org's tier resolution, not the
+    // (potentially-stale) userTier sent in the dto.
+    if (format === DocumentFormat.DOCX) {
+      const canExportDocx = await this.tierService.hasCapability(
+        dto.organizationId,
+        'feature:docx_export',
+      )
+      if (!canExportDocx) {
+        throw new InvalidOperationException(
+          'DOCX export is not included in your subscription tier',
+        )
+      }
     }
 
     if (format === DocumentFormat.DOCX) {

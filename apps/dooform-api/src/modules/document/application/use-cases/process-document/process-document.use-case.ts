@@ -18,6 +18,7 @@ import { ProcessDocumentDto } from '../../dtos/process-document.dto'
 import { OrgPath } from '../../../../../common/storage/org-path'
 import { StorageQuotaService } from '../../../../user/application/services/storage-quota.service'
 import { TierConfigService } from '../../../../user/application/services/tier-config.service'
+import { TierService } from '../../../../user/application/services/tier.service'
 
 const BRANDING_WATERMARK_KEY = 'branding_watermark'
 
@@ -49,6 +50,7 @@ export class ProcessDocumentUseCase implements UseCase<ProcessDocumentDto, Proce
     private readonly pdfManipulator: PdfLibManipulatorService,
     private readonly quota: StorageQuotaService,
     private readonly tierConfig: TierConfigService,
+    private readonly tierService: TierService,
   ) {}
 
   @UseResult()
@@ -57,7 +59,7 @@ export class ProcessDocumentUseCase implements UseCase<ProcessDocumentDto, Proce
     dto: ProcessDocumentDto,
     templateFile?: { buffer: Buffer; originalname: string; mimetype: string; size: number },
   ): Promise<Result<ProcessDocumentResult>> {
-    const { templateId, data, userId, userTier, organizationId } = dto
+    const { templateId, data, userId, organizationId } = dto
     const customFilename = dto.filename?.trim()
     if (!organizationId) {
       throw new Error('organizationId is required to process documents')
@@ -111,11 +113,15 @@ export class ProcessDocumentUseCase implements UseCase<ProcessDocumentDto, Proce
       if (isAvailable) {
         let pdfBuffer = await this.pdfConverter.convertDocxToPdf(processedDocx)
 
-        // 6. Apply branding watermark for free-tier users
-        // Watermark applied based on the tier's `applyBrandingWatermark` config
-        // (managed at /settings/tiers by GLOBAL_ADMIN). Falls back to "on" for
-        // unknown tiers so we never miss-stamp.
-        if (await this.tierConfig.shouldApplyWatermark(userTier)) {
+        // 6. Apply branding watermark unless the org's tier includes the
+        // remove_watermark capability. Resolved server-side from the org's
+        // tier_configs row + any per-tier overrides. Falls back to "stamp on"
+        // when the org has no recognised tier.
+        const canRemoveWatermark = await this.tierService.hasCapability(
+          organizationId,
+          'feature:remove_watermark',
+        )
+        if (!canRemoveWatermark) {
           pdfBuffer = await this.applyBrandingWatermark(pdfBuffer)
         }
 

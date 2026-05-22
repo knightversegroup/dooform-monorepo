@@ -35,4 +35,6 @@ export interface ITemplateRepository extends IRepository<Template> {
   findVisibleToOrg(
     options: ListTemplatesForOrgOptions,
   ): Promise<{ data: Template[]; total: number }>
+  /** Total count of org-scoped templates (excludes archived). For tier limit enforcement. */
+  countForOrg(organizationId: string): Promise<number>
 }

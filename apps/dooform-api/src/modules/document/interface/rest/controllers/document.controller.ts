@@ -215,6 +215,7 @@ export class DocumentController extends LazyBaseController {
       watermarkPresetId,
       userId: user.userId,
       userTier: user.userTier,
+      organizationId: user.organizationId,
     })
 
     const value = getResultValue(result) as { buffer: Buffer; filename: string; mimeType: string }

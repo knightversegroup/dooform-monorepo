@@ -15,6 +15,7 @@ import type { ITemplatePreviewService } from '../../../domain/services/template-
 import { CreateTemplateDto } from '../../dtos/create-template.dto'
 import { OrgPath } from '../../../../../common/storage/org-path'
 import { StorageQuotaService } from '../../../../user/application/services/storage-quota.service'
+import { TierService } from '../../../../user/application/services/tier.service'
 import { PermissionService } from '../../../../auth/application/services/permission.service'
 import { UserRole } from '../../../../user/domain/enums/user.enum'
 
@@ -71,6 +72,7 @@ export class CreateTemplateUseCase implements UseCase<CreateTemplateDto, CreateT
     private readonly previewService: ITemplatePreviewService,
     private readonly quota: StorageQuotaService,
     private readonly permissions: PermissionService,
+    private readonly tierService: TierService,
   ) {}
 
   @UseResult()
@@ -95,6 +97,18 @@ export class CreateTemplateUseCase implements UseCase<CreateTemplateDto, CreateT
     }
     // Org-scoped uploads bind to the caller's org. GLOBAL templates may have organizationId=null.
     const orgId = visibility === TemplateVisibility.GLOBAL ? null : dto.organizationId
+
+    // Tier-limit check: org-scoped uploads count against the tier's max_templates
+    // cap. Global publishing is exempt (platform-wide content, not billed to one
+    // tenant). Count is server-authoritative — uses the repository row count.
+    if (orgId) {
+      const currentCount = await this.templateRepository.countForOrg(orgId)
+      await this.tierService.assertWithinLimit(
+        orgId,
+        'limit:max_templates',
+        currentCount,
+      )
+    }
     // Storage prefix: org-scoped for tenant uploads, a `global/` namespace for platform-wide ones.
     const storagePrefix = (segments: string[]) =>
       orgId ? OrgPath.for(orgId, ...segments) : `global/${segments.join('/')}`
