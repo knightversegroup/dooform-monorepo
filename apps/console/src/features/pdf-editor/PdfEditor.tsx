@@ -260,7 +260,7 @@ export function PdfEditor({ documentId, onFinalized }: PdfEditorProps) {
       await finalizeDocument(documentId);
       onFinalized();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Finalization failed');
+      setError(err instanceof Error ? err.message : 'การยืนยันฉบับสุดท้ายไม่สำเร็จ');
     } finally {
       setFinalizing(false);
     }
@@ -270,7 +270,7 @@ export function PdfEditor({ documentId, onFinalized }: PdfEditorProps) {
     return (
       <div className="flex items-center justify-center h-[70vh]">
         <Loader2 className="w-8 h-8 text-primary animate-spin" />
-        <span className="ml-3 text-sm text-ink-muted">Loading PDF…</span>
+        <span className="ml-3 text-sm text-ink-muted">กำลังโหลด PDF…</span>
       </div>
     );
   }
@@ -278,7 +278,7 @@ export function PdfEditor({ documentId, onFinalized }: PdfEditorProps) {
   if (error || !pdfData) {
     return (
       <div className="flex items-center justify-center h-[70vh] text-sm text-red-500">
-        {error || 'Could not load PDF.'}
+        {error || 'โหลด PDF ไม่สำเร็จ'}
         <span className="ml-3 text-xs text-ink-muted">({apiBaseUrl})</span>
       </div>
     );
@@ -288,16 +288,16 @@ export function PdfEditor({ documentId, onFinalized }: PdfEditorProps) {
     <div className="w-full">
       <div className="bg-white border border-border-default rounded-md p-3 mb-3 flex items-center gap-3 flex-wrap">
         <div className="flex items-center gap-1 border-r border-border-default pr-3">
-          <ToolButton active={activeTool === 'select'} onClick={() => setActiveTool('select')} title="Select">
+          <ToolButton active={activeTool === 'select'} onClick={() => setActiveTool('select')} title="เลือก">
             <MousePointer2 className="w-4 h-4" />
           </ToolButton>
-          <ToolButton active={activeTool === 'text'} onClick={() => setActiveTool('text')} title="Text">
+          <ToolButton active={activeTool === 'text'} onClick={() => setActiveTool('text')} title="ข้อความ">
             <Type className="w-4 h-4" />
           </ToolButton>
           <ToolButton
             active={activeTool === 'strikethrough'}
             onClick={() => setActiveTool('strikethrough')}
-            title="Strikethrough"
+            title="ขีดฆ่า"
           >
             <Strikethrough className="w-4 h-4" />
           </ToolButton>
@@ -307,7 +307,7 @@ export function PdfEditor({ documentId, onFinalized }: PdfEditorProps) {
             onClick={handleUndo}
             disabled={!canUndo}
             className="p-2 rounded-md hover:bg-surface-alt disabled:opacity-30 disabled:cursor-not-allowed"
-            title="Undo (Ctrl+Z)"
+            title="เลิกทำ (Ctrl+Z)"
           >
             <Undo2 className="w-4 h-4" />
           </button>
@@ -315,7 +315,7 @@ export function PdfEditor({ documentId, onFinalized }: PdfEditorProps) {
             onClick={handleRedo}
             disabled={!canRedo}
             className="p-2 rounded-md hover:bg-surface-alt disabled:opacity-30 disabled:cursor-not-allowed"
-            title="Redo (Ctrl+Shift+Z)"
+            title="ทำซ้ำ (Ctrl+Shift+Z)"
           >
             <Redo2 className="w-4 h-4" />
           </button>
@@ -334,7 +334,7 @@ export function PdfEditor({ documentId, onFinalized }: PdfEditorProps) {
           ))}
         </div>
         <div className="flex items-center gap-1 border-r border-border-default pr-3">
-          <span className="text-xs text-ink-muted">Size:</span>
+          <span className="text-xs text-ink-muted">ขนาด:</span>
           <select
             value={activeFontSize}
             onChange={(e) => setActiveFontSize(Number(e.target.value))}
@@ -366,23 +366,23 @@ export function PdfEditor({ documentId, onFinalized }: PdfEditorProps) {
           <button
             onClick={() => deleteAnnotation(selectedId)}
             className="p-2 rounded-md hover:bg-red-50 text-red-500"
-            title="Delete"
+            title="ลบ"
           >
             <Trash2 className="w-4 h-4" />
           </button>
         )}
         <div className="flex-1" />
         <span className="text-xs text-ink-muted">
-          {saveStatus === 'saved' && 'Saved'}
-          {saveStatus === 'saving' && 'Saving…'}
-          {saveStatus === 'unsaved' && 'Unsaved changes'}
+          {saveStatus === 'saved' && 'บันทึกแล้ว'}
+          {saveStatus === 'saving' && 'กำลังบันทึก…'}
+          {saveStatus === 'unsaved' && 'มีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก'}
         </span>
         <button
           onClick={handleSave}
           disabled={saveStatus === 'saving'}
           className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-border-default rounded-md hover:bg-surface-alt disabled:opacity-50"
         >
-          <Save className="w-3.5 h-3.5" /> Save
+          <Save className="w-3.5 h-3.5" /> บันทึก
         </button>
         <button
           onClick={handleFinalize}
@@ -390,14 +390,14 @@ export function PdfEditor({ documentId, onFinalized }: PdfEditorProps) {
           className="flex items-center gap-1.5 px-4 py-1.5 text-sm bg-primary text-white rounded-md hover:bg-primary-hover disabled:opacity-50"
         >
           {finalizing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
-          {finalizing ? 'Finalizing…' : 'Finalize'}
+          {finalizing ? 'กำลังยืนยัน…' : 'ยืนยันฉบับสุดท้าย'}
         </button>
       </div>
 
       {activeTool !== 'select' && (
         <div className="bg-blue-50 border border-blue-200 rounded-md px-3 py-2 mb-3 text-xs text-blue-700">
-          {activeTool === 'text' && 'Click on the document to add text.'}
-          {activeTool === 'strikethrough' && 'Drag on the document to strike out text.'}
+          {activeTool === 'text' && 'คลิกบนเอกสารเพื่อเพิ่มข้อความ'}
+          {activeTool === 'strikethrough' && 'ลากบนเอกสารเพื่อขีดฆ่าข้อความ'}
         </div>
       )}
 

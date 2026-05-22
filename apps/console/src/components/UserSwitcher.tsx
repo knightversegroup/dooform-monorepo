@@ -65,12 +65,12 @@ export function UserSwitcher() {
       {open ? (
         <div className="absolute right-0 mt-2 w-72 bg-white border border-border-default rounded-md shadow-lg z-50">
           <div className="px-3 py-2 text-xs font-medium text-ink-muted uppercase tracking-wide border-b border-border-default">
-            Switch user
+            สลับผู้ใช้
           </div>
           <div className="max-h-64 overflow-y-auto">
             {users.length === 0 ? (
               <div className="px-3 py-2 text-sm text-ink-muted">
-                No users yet — create one below.
+                ยังไม่มีผู้ใช้ — สร้างใหม่ด้านล่าง
               </div>
             ) : (
               users.map((u) => (
@@ -87,7 +87,7 @@ export function UserSwitcher() {
                   </div>
                   {u.id === activeId ? (
                     <span className="text-[10px] text-primary uppercase font-medium">
-                      Active
+                      ใช้งานอยู่
                     </span>
                   ) : null}
                 </button>
@@ -108,7 +108,7 @@ export function UserSwitcher() {
                 onClick={() => setCreating(true)}
                 className="w-full inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-md text-sm text-primary hover:bg-surface-alt"
               >
-                <Plus className="w-4 h-4" /> Create new user
+                <Plus className="w-4 h-4" /> สร้างผู้ใช้ใหม่
               </button>
             )}
           </div>
@@ -155,7 +155,7 @@ function CreateUserForm({
         required
       />
       <input
-        placeholder="Display name"
+        placeholder="ชื่อที่แสดง"
         value={displayName}
         onChange={(e) => setDisplayName(e.target.value)}
         className="px-2 py-1.5 text-sm rounded border border-border-default focus:outline-none focus:ring-2 focus:ring-primary"
@@ -165,7 +165,7 @@ function CreateUserForm({
         <div className="text-xs text-red-600">
           {mutation.error instanceof Error
             ? mutation.error.message
-            : 'Failed to create user'}
+            : 'สร้างผู้ใช้ไม่สำเร็จ'}
         </div>
       ) : null}
       <div className="flex justify-end gap-2">
@@ -174,14 +174,14 @@ function CreateUserForm({
           onClick={onCancel}
           className="text-xs text-ink-muted hover:text-ink"
         >
-          Cancel
+          ยกเลิก
         </button>
         <button
           type="submit"
           disabled={mutation.isPending}
           className="text-xs bg-primary text-white px-3 py-1 rounded hover:bg-primary-hover disabled:opacity-50"
         >
-          {mutation.isPending ? 'Creating…' : 'Create'}
+          {mutation.isPending ? 'กำลังสร้าง…' : 'สร้าง'}
         </button>
       </div>
     </form>

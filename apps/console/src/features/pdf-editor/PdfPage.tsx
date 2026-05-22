@@ -263,7 +263,7 @@ export function PdfPage({
                   className="absolute -left-5 top-0 w-4 h-full flex items-center justify-center cursor-grab active:cursor-grabbing opacity-0 hover:opacity-100"
                   style={{ opacity: isSelected || isMoving ? 0.7 : undefined }}
                   onMouseDown={(e) => handleAnnotationMouseDown(e, ann.id)}
-                  title="Drag to move"
+                  title="ลากเพื่อย้าย"
                 >
                   <svg width="8" height="14" viewBox="0 0 8 14" className="text-gray-400">
                     <circle cx="2" cy="2" r="1.5" fill="currentColor" />
@@ -283,7 +283,7 @@ export function PdfPage({
                   type="text"
                   value={ann.content || ''}
                   onChange={(e) => onUpdateAnnotation(ann.id, { content: e.target.value })}
-                  placeholder="Type…"
+                  placeholder="พิมพ์…"
                   className="bg-transparent border-none outline-none p-0 m-0 relative z-10"
                   style={{
                     fontSize: (ann.fontSize || 14) * scale,

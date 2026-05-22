@@ -22,7 +22,7 @@ interface TabDef {
  * is locked in for the next phase without restructuring.
  */
 const TABS: TabDef[] = [
-  { id: 'dictionary', label: 'Dictionary', icon: Book, render: () => <DictionaryPanel /> },
+  { id: 'dictionary', label: 'พจนานุกรม', icon: Book, render: () => <DictionaryPanel /> },
   {
     id: 'ai',
     label: 'AI',
@@ -30,7 +30,7 @@ const TABS: TabDef[] = [
     disabled: true,
     render: () => (
       <div className="p-4 text-[12px] text-ink-faint">
-        AI assistant arrives in the next phase.
+        ผู้ช่วย AI จะมาในเฟสถัดไป
       </div>
     ),
   },
@@ -48,7 +48,7 @@ export function RightPanel() {
           type="button"
           onClick={() => setOpen(true)}
           className="p-1.5 rounded-md text-ink-faint hover:bg-white hover:text-ink"
-          title="Open dictionary panel"
+          title="เปิดแผงพจนานุกรม"
         >
           <ChevronsRight className="w-3.5 h-3.5 rotate-180" />
         </button>
@@ -137,7 +137,7 @@ function PanelHeader({
           onClick={onClose}
           type="button"
           className="p-1 rounded-md text-ink-faint hover:bg-bg-subtle hover:text-ink"
-          title="Close panel"
+          title="ปิดแผง"
         >
           <X className="w-3.5 h-3.5" />
         </button>
@@ -183,7 +183,7 @@ function Resizer({ width, setWidth }: { width: number; setWidth: (px: number) =>
         document.body.style.userSelect = 'none';
         e.preventDefault();
       }}
-      title={`Resize (${RIGHT_PANEL_LIMITS.MIN_WIDTH}–${RIGHT_PANEL_LIMITS.MAX_WIDTH}px) — current ${width}px`}
+      title={`ปรับขนาด (${RIGHT_PANEL_LIMITS.MIN_WIDTH}–${RIGHT_PANEL_LIMITS.MAX_WIDTH}px) — ปัจจุบัน ${width}px`}
       className="absolute left-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/30 transition-colors z-10"
     />
   );

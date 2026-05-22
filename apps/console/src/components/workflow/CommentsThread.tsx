@@ -63,7 +63,7 @@ export function CommentsThread({
       ) : commentsQuery.error ? (
         <ErrorMessage error={commentsQuery.error} />
       ) : comments.length === 0 ? (
-        <p className="text-sm text-ink-muted">No comments yet.</p>
+        <p className="text-sm text-ink-muted">ยังไม่มีความคิดเห็น</p>
       ) : (
         <ul className="space-y-3">
           {comments.map((c) => (
@@ -77,14 +77,14 @@ export function CommentsThread({
                     {userMap.get(c.userId) ?? c.userId}
                   </div>
                   <div className="text-[11px] text-ink-muted">
-                    {c.createdAt ? new Date(c.createdAt).toLocaleString() : ''}
+                    {c.createdAt ? new Date(c.createdAt).toLocaleString('th-TH') : ''}
                   </div>
                 </div>
                 {c.userId === currentUserId ? (
                   <button
                     onClick={() => deleteMutation.mutate(c.id)}
                     className="p-1 text-red-500 hover:bg-red-50 rounded"
-                    title="Delete"
+                    title="ลบ"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -110,7 +110,7 @@ export function CommentsThread({
             value={body}
             onChange={(e) => setBody(e.target.value)}
             rows={3}
-            placeholder="Leave a comment…"
+            placeholder="เขียนความคิดเห็น…"
             className="w-full px-3 py-2 text-sm border border-border-default rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
           {createMutation.error ? (
@@ -123,7 +123,7 @@ export function CommentsThread({
               disabled={!body.trim() || createMutation.isPending}
             >
               {createMutation.isPending ? <Spinner className="text-white" /> : <Send className="w-4 h-4" />}
-              Post comment
+              ส่งความคิดเห็น
             </Button>
           </div>
         </form>

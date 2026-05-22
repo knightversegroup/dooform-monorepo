@@ -111,7 +111,7 @@ function CollectionsView({
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search collections…"
+            placeholder="ค้นหาคอลเลกชัน…"
             className="w-full pl-8 pr-2 py-1.5 rounded-md border border-border-subtle bg-white text-[13px] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
           />
         </div>
@@ -144,7 +144,7 @@ function CollectionsView({
           </div>
         ) : (query.data?.data ?? []).length === 0 ? (
           <div className="p-6 text-center text-[12px] text-ink-faint">
-            No collections yet.
+            ยังไม่มีคอลเลกชัน
           </div>
         ) : (
           <ul className="divide-y divide-border-subtle">
@@ -166,7 +166,7 @@ function CollectionsView({
                   </div>
                   {c.scope === 'GLOBAL' && c.status === 'DRAFT' ? (
                     <span className="text-[9px] uppercase tracking-wider text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
-                      Draft
+                      ฉบับร่าง
                     </span>
                   ) : null}
                   <ChevronRight className="w-3 h-3 text-ink-faint mt-0.5" />
@@ -228,7 +228,7 @@ function EntriesView({
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search words…"
+            placeholder="ค้นหาคำ…"
             className="w-full pl-8 pr-2 py-1.5 rounded-md border border-border-subtle bg-white text-[13px] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
           />
         </div>
@@ -245,7 +245,7 @@ function EntriesView({
           </div>
         ) : (query.data?.data ?? []).length === 0 ? (
           <div className="p-6 text-center text-[12px] text-ink-faint">
-            No words yet. Ask the collection owner to add some.
+            ยังไม่มีคำ ขอให้เจ้าของคอลเลกชันเพิ่มคำเข้าไป
           </div>
         ) : (
           <ul className="divide-y divide-border-subtle">
@@ -310,7 +310,7 @@ function EntryDetail({
 
         <div>
           <div className="text-[10px] uppercase tracking-wider text-ink-faint mb-1">
-            Definition
+            คำนิยาม
           </div>
           <div className="text-[13px] text-ink whitespace-pre-wrap">{entry.definition}</div>
         </div>
@@ -325,7 +325,7 @@ function EntryDetail({
         ) : null}
 
         <div className="text-[10px] text-ink-faint pt-2 border-t border-border-subtle">
-          Need an edit? Ask the owner of this collection.
+          ต้องการแก้ไข? ติดต่อเจ้าของคอลเลกชันนี้
         </div>
       </div>
     </div>

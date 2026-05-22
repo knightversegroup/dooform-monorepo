@@ -125,10 +125,10 @@ export function SignaturePad({
     <div className="space-y-4">
       <div>
         <h3 className="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-2">
-          Existing signatures ({sigs.length})
+          ลายเซ็นที่มีอยู่ ({sigs.length})
         </h3>
         {sigs.length === 0 ? (
-          <p className="text-sm text-ink-muted">No signatures yet.</p>
+          <p className="text-sm text-ink-muted">ยังไม่มีลายเซ็น</p>
         ) : (
           <ul className="space-y-2">
             {sigs.map((s) => (
@@ -138,13 +138,13 @@ export function SignaturePad({
               >
                 <img
                   src={s.imagePath}
-                  alt="signature"
+                  alt="ลายเซ็น"
                   className="h-10 bg-surface-alt rounded border border-border-default"
                 />
                 <div className="text-xs">
                   <div className="font-medium text-ink">{s.userId}</div>
                   <div className="text-ink-muted">
-                    Page {s.pageIndex + 1} · {new Date(s.signedAt).toLocaleString()}
+                    หน้า {s.pageIndex + 1} · {new Date(s.signedAt).toLocaleString('th-TH')}
                   </div>
                 </div>
                 {s.userId === currentUserId ? (
@@ -164,7 +164,7 @@ export function SignaturePad({
       {canSign ? (
         <div>
           <h3 className="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-2">
-            Add your signature
+            เพิ่มลายเซ็นของคุณ
           </h3>
           <div className="border-2 border-dashed border-border-default rounded-md bg-white">
             <canvas
@@ -183,7 +183,7 @@ export function SignaturePad({
           ) : null}
           <div className="flex items-center justify-end gap-2 mt-2">
             <Button variant="outline" size="sm" onClick={clear} disabled={!hasInk}>
-              <Eraser className="w-4 h-4" /> Clear
+              <Eraser className="w-4 h-4" /> ล้าง
             </Button>
             <Button
               size="sm"
@@ -195,13 +195,13 @@ export function SignaturePad({
               ) : (
                 <PenLine className="w-4 h-4" />
               )}
-              Sign
+              ลงนาม
             </Button>
           </div>
         </div>
       ) : (
         <p className="text-xs text-ink-muted">
-          Document must be APPROVED and you must have editor access or higher to sign.
+          เอกสารต้องมีสถานะ APPROVED และคุณต้องมีสิทธิ์ editor ขึ้นไปจึงจะลงนามได้
         </p>
       )}
     </div>

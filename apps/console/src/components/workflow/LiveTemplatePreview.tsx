@@ -48,13 +48,13 @@ export function LiveTemplatePreview({
       },
     })
       .then(async (res) => {
-        if (!res.ok) throw new Error(`HTML preview failed (HTTP ${res.status})`);
+        if (!res.ok) throw new Error(`โหลดตัวอย่าง HTML ไม่สำเร็จ (HTTP ${res.status})`);
         const text = await res.text();
         if (!cancelled) setRawHtml(text);
       })
       .catch((err) => {
         if (!cancelled)
-          setHtmlError(err instanceof Error ? err.message : 'Preview failed');
+          setHtmlError(err instanceof Error ? err.message : 'แสดงตัวอย่างไม่สำเร็จ');
       });
     return () => {
       cancelled = true;
@@ -105,7 +105,7 @@ export function LiveTemplatePreview({
                 : 'text-ink-muted hover:bg-surface-alt'
             }`}
           >
-            Live HTML
+            HTML สด
           </button>
           <button
             type="button"
@@ -116,10 +116,10 @@ export function LiveTemplatePreview({
                 : 'text-ink-muted hover:bg-surface-alt'
             }`}
           >
-            PDF (template)
+            PDF (เทมเพลต)
           </button>
           <span className="text-[11px] text-ink-muted ml-2">
-            HTML updates as you type · PDF shows the unfilled template.
+            HTML อัปเดตขณะพิมพ์ · PDF แสดงเทมเพลตที่ยังไม่ได้กรอก
           </span>
         </div>
       ) : null}
@@ -133,11 +133,11 @@ export function LiveTemplatePreview({
             ref={previewRef}
             srcDoc={previewHtml}
             sandbox="allow-same-origin"
-            title="Template preview"
+            title="ตัวอย่างเทมเพลต"
             className="w-full flex-1 min-h-[60vh] bg-white"
           />
         ) : (
-          <div className="p-4 text-sm text-ink-muted">Loading HTML preview…</div>
+          <div className="p-4 text-sm text-ink-muted">กำลังโหลดตัวอย่าง HTML…</div>
         )
       ) : (
         <iframe

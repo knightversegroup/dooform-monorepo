@@ -15,7 +15,7 @@ export function RightPanelSettings() {
       <button
         onClick={() => setOpen((v) => !v)}
         className="p-1.5 rounded-md text-ink-faint hover:bg-bg-subtle hover:text-ink transition-colors"
-        title="Panel settings"
+        title="ตั้งค่าแผง"
         type="button"
       >
         <SettingsIcon className="w-3.5 h-3.5" />
@@ -23,7 +23,7 @@ export function RightPanelSettings() {
       {open ? (
         <div className="absolute right-0 top-full mt-1 z-30 w-64 rounded-md border border-border-subtle bg-white shadow-lg p-3 text-[12px] space-y-3">
           <div className="flex items-center justify-between">
-            <span className="font-medium text-ink">Settings</span>
+            <span className="font-medium text-ink">การตั้งค่า</span>
             <button
               onClick={() => setOpen(false)}
               className="text-ink-faint hover:text-ink"
@@ -34,7 +34,7 @@ export function RightPanelSettings() {
           </div>
 
           <div>
-            <div className="text-ink-muted mb-1">Default dictionary scope</div>
+            <div className="text-ink-muted mb-1">ขอบเขตเริ่มต้นของพจนานุกรม</div>
             <div className="grid grid-cols-2 gap-1">
               {(['ALL', 'PERSONAL', 'ORGANIZATION', 'GLOBAL'] as const).map((s) => (
                 <button
@@ -55,7 +55,7 @@ export function RightPanelSettings() {
 
           <div>
             <div className="text-ink-muted mb-1 flex items-center justify-between">
-              <span>Panel width</span>
+              <span>ความกว้างของแผง</span>
               <span className="text-ink-faint">{width}px</span>
             </div>
             <input

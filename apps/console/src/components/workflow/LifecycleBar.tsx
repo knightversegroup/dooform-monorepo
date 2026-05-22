@@ -5,11 +5,11 @@ import {
 } from '../../lib/api/lifecycle';
 
 const LABELS: Record<LifecycleStatus, string> = {
-  DRAFT: 'Draft',
-  IN_REVIEW: 'In Review',
-  APPROVED: 'Approved',
-  SIGNED: 'Signed',
-  ARCHIVED: 'Archived',
+  DRAFT: 'ฉบับร่าง',
+  IN_REVIEW: 'อยู่ระหว่างรีวิว',
+  APPROVED: 'อนุมัติแล้ว',
+  SIGNED: 'ลงนามแล้ว',
+  ARCHIVED: 'เก็บถาวร',
 };
 
 interface LifecycleBarProps {

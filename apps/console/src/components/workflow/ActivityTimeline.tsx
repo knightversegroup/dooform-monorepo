@@ -31,16 +31,16 @@ const ICONS: Record<ActivityType, React.ComponentType<{ className?: string }>> =
 };
 
 const VERBS: Record<ActivityType, string> = {
-  CREATED: 'created the document',
-  SHARED: 'shared the document',
-  UNSHARED: 'revoked a share',
-  ROLE_CHANGED: 'changed a role',
-  EDITED: 'edited the document',
-  COMMENTED: 'left a comment',
-  STATE_CHANGED: 'changed lifecycle state',
-  SIGNED: 'signed the document',
-  FINALIZED: 'finalized the document',
-  ARCHIVED: 'archived the document',
+  CREATED: 'สร้างเอกสาร',
+  SHARED: 'แชร์เอกสาร',
+  UNSHARED: 'เพิกถอนการแชร์',
+  ROLE_CHANGED: 'เปลี่ยนบทบาท',
+  EDITED: 'แก้ไขเอกสาร',
+  COMMENTED: 'เพิ่มความคิดเห็น',
+  STATE_CHANGED: 'เปลี่ยนสถานะวงจร',
+  SIGNED: 'ลงนามเอกสาร',
+  FINALIZED: 'ยืนยันเอกสารฉบับสุดท้าย',
+  ARCHIVED: 'เก็บเอกสารเข้าคลัง',
 };
 
 export function ActivityTimeline({ documentId }: { documentId: string }) {
@@ -62,7 +62,7 @@ export function ActivityTimeline({ documentId }: { documentId: string }) {
 
   const items = activitiesQuery.data?.data ?? [];
   if (items.length === 0)
-    return <p className="text-sm text-ink-muted">No activity yet.</p>;
+    return <p className="text-sm text-ink-muted">ยังไม่มีกิจกรรม</p>;
 
   return (
     <ol className="space-y-3 relative">
@@ -89,7 +89,7 @@ export function ActivityTimeline({ documentId }: { documentId: string }) {
                 </pre>
               ) : null}
               <div className="text-[11px] text-ink-muted mt-1">
-                {a.createdAt ? new Date(a.createdAt).toLocaleString() : ''}
+                {a.createdAt ? new Date(a.createdAt).toLocaleString('th-TH') : ''}
               </div>
             </div>
           </li>

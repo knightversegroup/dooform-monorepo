@@ -88,7 +88,7 @@ export function ShareModal({ documentId, ownerUserId, onClose }: ShareModalProps
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border-default px-5 py-4">
-          <h2 className="text-lg font-semibold">Share document</h2>
+          <h2 className="text-lg font-semibold">แชร์เอกสาร</h2>
           <button onClick={onClose} className="text-ink-muted hover:text-ink">
             <X className="w-5 h-5" />
           </button>
@@ -97,7 +97,7 @@ export function ShareModal({ documentId, ownerUserId, onClose }: ShareModalProps
         <div className="px-5 py-4 space-y-4">
           <div>
             <h3 className="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-2">
-              People with access
+              ผู้มีสิทธิ์เข้าถึง
             </h3>
             <div className="border border-border-default rounded divide-y divide-border-default">
               <div className="flex items-center justify-between px-3 py-2 text-sm">
@@ -110,7 +110,7 @@ export function ShareModal({ documentId, ownerUserId, onClose }: ShareModalProps
                   </div>
                 </div>
                 <span className="text-[10px] text-primary uppercase font-medium">
-                  Owner
+                  เจ้าของ
                 </span>
               </div>
               {(sharesQuery.data?.data ?? []).map((share) => (
@@ -146,7 +146,7 @@ export function ShareModal({ documentId, ownerUserId, onClose }: ShareModalProps
                     <button
                       onClick={() => deleteMutation.mutate(share.id)}
                       className="p-1 text-red-500 hover:bg-red-50 rounded"
-                      title="Revoke"
+                      title="เพิกถอน"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -155,7 +155,7 @@ export function ShareModal({ documentId, ownerUserId, onClose }: ShareModalProps
               ))}
               {sharesQuery.data?.data?.length === 0 ? (
                 <div className="px-3 py-2 text-sm text-ink-muted">
-                  No additional collaborators yet.
+                  ยังไม่มีผู้ร่วมงานเพิ่มเติม
                 </div>
               ) : null}
             </div>
@@ -163,7 +163,7 @@ export function ShareModal({ documentId, ownerUserId, onClose }: ShareModalProps
 
           <div>
             <h3 className="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-2">
-              Add a person
+              เพิ่มผู้ใช้
             </h3>
             <div className="flex gap-2">
               <select
@@ -171,7 +171,7 @@ export function ShareModal({ documentId, ownerUserId, onClose }: ShareModalProps
                 onChange={(e) => setPendingUserId(e.target.value)}
                 className="flex-1 px-2 py-1.5 text-sm border border-border-default rounded"
               >
-                <option value="">Select a user…</option>
+                <option value="">เลือกผู้ใช้…</option>
                 {candidateUsers.map((u) => (
                   <option key={u.id} value={u.id}>
                     {u.displayName} ({u.email})
@@ -195,7 +195,7 @@ export function ShareModal({ documentId, ownerUserId, onClose }: ShareModalProps
                 onClick={() => createMutation.mutate()}
               >
                 {createMutation.isPending ? <Spinner className="text-white" /> : null}
-                Share
+                แชร์
               </Button>
             </div>
             {createMutation.error ? (

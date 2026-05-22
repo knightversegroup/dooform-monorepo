@@ -138,7 +138,7 @@ export function RadioGroupModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border-default px-5 py-4">
-          <h2 className="text-lg font-semibold">Edit radio group</h2>
+          <h2 className="text-lg font-semibold">แก้ไขกลุ่มเรดิโอ</h2>
           <button onClick={onClose} className="text-ink-muted hover:text-ink">
             <X className="w-5 h-5" />
           </button>
@@ -146,25 +146,25 @@ export function RadioGroupModal({
 
         <div className="px-5 py-4 space-y-4">
           <div>
-            <label className="block text-xs text-ink-muted mb-1">Group label</label>
+            <label className="block text-xs text-ink-muted mb-1">ป้ายชื่อกลุ่ม</label>
             <input
               value={groupLabel}
               onChange={(e) => setGroupLabel(e.target.value)}
-              placeholder="e.g. Sex, Marital status"
+              placeholder="เช่น เพศ สถานภาพสมรส"
               className="w-full px-3 py-2 rounded-md border border-border-default text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <p className="text-[11px] text-ink-muted mt-1">
-              When the user picks an option, the chosen placeholder is filled with the
-              tick character (default <code className="font-mono">{DEFAULT_TICK}</code>);
-              every other option's placeholder is filled with an empty string. Brackets
-              like <code className="font-mono">[{'{{S_1_1}}'}]</code> in the DOCX render
-              as <code className="font-mono">[{DEFAULT_TICK}]</code> when ticked.
+              เมื่อผู้ใช้เลือกตัวเลือก placeholder ที่เลือกจะถูกเติมด้วยเครื่องหมายติ๊ก
+              (ค่าเริ่มต้น <code className="font-mono">{DEFAULT_TICK}</code>) ส่วน placeholder
+              ของตัวเลือกอื่นจะถูกเติมด้วยสตริงว่าง วงเล็บเช่น{' '}
+              <code className="font-mono">[{'{{S_1_1}}'}]</code> ใน DOCX จะแสดงเป็น{' '}
+              <code className="font-mono">[{DEFAULT_TICK}]</code> เมื่อถูกเลือก
             </p>
           </div>
 
           <div>
             <h3 className="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-2">
-              Options ({options.length})
+              ตัวเลือก ({options.length})
             </h3>
             <div className="space-y-2">
               {options.map((opt, idx) => (
@@ -178,21 +178,21 @@ export function RadioGroupModal({
                   <input
                     value={opt.label}
                     onChange={(e) => updateOption(idx, { label: e.target.value })}
-                    placeholder="Label (e.g. Male, Female)"
+                    placeholder="ป้ายชื่อ (เช่น ชาย หญิง)"
                     className="px-2 py-1.5 text-sm rounded border border-border-default focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                   <input
                     value={opt.value}
                     onChange={(e) => updateOption(idx, { value: e.target.value })}
                     placeholder="/"
-                    title="Tick character written when this option is selected"
+                    title="อักขระติ๊กที่เขียนเมื่อเลือกตัวเลือกนี้"
                     className="px-2 py-1.5 text-sm rounded border border-border-default text-center focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                   <button
                     onClick={() => removeOption(idx)}
                     disabled={options.length <= 1}
                     className="p-1.5 text-red-500 hover:bg-red-50 rounded disabled:opacity-30 disabled:cursor-not-allowed"
-                    title="Remove from group"
+                    title="ลบออกจากกลุ่ม"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -204,7 +204,7 @@ export function RadioGroupModal({
           {pool.length > 0 ? (
             <div>
               <h3 className="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-2">
-                Add another placeholder
+                เพิ่ม placeholder อีก
               </h3>
               <div className="flex gap-2">
                 <select
@@ -219,37 +219,35 @@ export function RadioGroupModal({
                   ))}
                 </select>
                 <Button size="sm" onClick={addOption} disabled={!picking}>
-                  <Plus className="w-4 h-4" /> Add option
+                  <Plus className="w-4 h-4" /> เพิ่มตัวเลือก
                 </Button>
               </div>
               {usedByOtherGroups.size > 0 ? (
                 <p className="text-[11px] text-ink-muted mt-2">
-                  {usedByOtherGroups.size} placeholder
-                  {usedByOtherGroups.size === 1 ? ' is' : 's are'} already in another
-                  radio group and not shown here.
+                  มี placeholder {usedByOtherGroups.size} ตัวอยู่ในกลุ่มเรดิโออื่นแล้ว
+                  จึงไม่แสดงที่นี่
                 </p>
               ) : null}
             </div>
           ) : (
             <p className="text-xs text-ink-muted">
-              No more available placeholders. Detach options first if you need to move
-              them between groups.
+              ไม่มี placeholder ให้เลือกแล้ว หากต้องการย้ายระหว่างกลุ่ม ให้ถอดตัวเลือกจากกลุ่มอื่นก่อน
             </p>
           )}
 
           {options.length < 2 ? (
             <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2">
-              A radio group needs at least 2 options.
+              กลุ่มเรดิโอต้องมีอย่างน้อย 2 ตัวเลือก
             </p>
           ) : null}
         </div>
 
         <div className="border-t border-border-default px-5 py-3 flex items-center justify-end gap-2">
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            ยกเลิก
           </Button>
           <Button onClick={handleSave} disabled={!canSave}>
-            Save group
+            บันทึกกลุ่ม
           </Button>
         </div>
       </div>
