@@ -91,15 +91,15 @@ export default function DictionaryAdminPage() {
   return (
     <div className="flex flex-col">
       <PageHeader
-        title="Dictionary"
-        description="Create and manage your dictionary collections. Each collection holds words that other users can browse from the right panel."
+        title="พจนานุกรม"
+        description="สร้างและจัดการคอลเลกชันพจนานุกรมของคุณ แต่ละคอลเลกชันเก็บคำศัพท์ที่ผู้ใช้คนอื่นสามารถเรียกดูจากแผงด้านขวาได้"
         actions={
           <Button
             variant="primary"
             size="sm"
             onClick={() => setShowNewCollection(true)}
           >
-            <Plus className="w-3.5 h-3.5" /> New collection
+            <Plus className="w-3.5 h-3.5" /> คอลเลกชันใหม่
           </Button>
         }
       />
@@ -108,7 +108,7 @@ export default function DictionaryAdminPage() {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search collections…"
+          placeholder="ค้นหาคอลเลกชัน…"
           className="flex-1 px-2.5 py-1.5 rounded-md border border-border-subtle bg-white text-[13px] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
         />
         <div className="flex items-center gap-1">
@@ -139,16 +139,16 @@ export default function DictionaryAdminPage() {
               <thead className="bg-bg-subtle text-ink-muted">
                 <tr className="border-b border-border-subtle">
                   <th className="px-3 py-2 text-left text-[11px] uppercase tracking-wider font-medium">
-                    Name
+                    ชื่อ
                   </th>
                   <th className="px-3 py-2 text-left text-[11px] uppercase tracking-wider font-medium">
-                    Scope
+                    ขอบเขต
                   </th>
                   <th className="px-3 py-2 text-left text-[11px] uppercase tracking-wider font-medium">
-                    Status
+                    สถานะ
                   </th>
                   <th className="px-3 py-2 text-left text-[11px] uppercase tracking-wider font-medium">
-                    Updated
+                    อัปเดต
                   </th>
                   <th className="px-3 py-2" />
                 </tr>
@@ -179,7 +179,7 @@ export default function DictionaryAdminPage() {
                       </Badge>
                     </td>
                     <td className="px-3 py-2 text-[12px] text-ink-muted whitespace-nowrap">
-                      {c.updatedAt ? new Date(c.updatedAt).toLocaleDateString() : '—'}
+                      {c.updatedAt ? new Date(c.updatedAt).toLocaleDateString('th-TH') : '—'}
                     </td>
                     <td className="px-3 py-2 text-right whitespace-nowrap">
                       <div className="inline-flex items-center gap-1">
@@ -188,7 +188,7 @@ export default function DictionaryAdminPage() {
                             type="button"
                             onClick={() => setEditCollection(c)}
                             className="p-1 rounded text-ink-faint hover:bg-bg-subtle hover:text-ink"
-                            title="Edit"
+                            title="แก้ไข"
                           >
                             <Pencil className="w-3.5 h-3.5" />
                           </button>
@@ -202,7 +202,7 @@ export default function DictionaryAdminPage() {
                               }
                               disabled={publishMutation.isPending}
                               className="p-1 rounded text-ink-faint hover:bg-bg-subtle hover:text-ink disabled:opacity-50"
-                              title="Unpublish"
+                              title="ยกเลิกการเผยแพร่"
                             >
                               <EyeOff className="w-3.5 h-3.5" />
                             </button>
@@ -214,7 +214,7 @@ export default function DictionaryAdminPage() {
                               }
                               disabled={publishMutation.isPending}
                               className="p-1 rounded text-primary hover:bg-primary/10 disabled:opacity-50"
-                              title="Publish"
+                              title="เผยแพร่"
                             >
                               <Eye className="w-3.5 h-3.5" />
                             </button>
@@ -224,13 +224,13 @@ export default function DictionaryAdminPage() {
                           <button
                             type="button"
                             onClick={() => {
-                              if (confirm(`Delete collection "${c.name}" and all its words?`)) {
+                              if (confirm(`ลบคอลเลกชัน "${c.name}" และคำทั้งหมดในนั้นหรือไม่?`)) {
                                 deleteCollectionMutation.mutate(c.id);
                               }
                             }}
                             disabled={deleteCollectionMutation.isPending}
                             className="p-1 rounded text-red-600 hover:bg-red-50 disabled:opacity-50"
-                            title="Delete"
+                            title="ลบ"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -244,7 +244,7 @@ export default function DictionaryAdminPage() {
           </div>
         ) : !collectionsQuery.isLoading ? (
           <p className="text-[13px] text-ink-muted">
-            No collections yet. Click <strong>New collection</strong> to start one.
+            ยังไม่มีคอลเลกชัน คลิก <strong>คอลเลกชันใหม่</strong> เพื่อสร้าง
           </p>
         ) : null}
       </section>
@@ -306,9 +306,9 @@ function CollectionFormModal({
   };
 
   return (
-    <ModalShell title={initial ? 'Edit collection' : 'New collection'} onClose={onClose}>
+    <ModalShell title={initial ? 'แก้ไขคอลเลกชัน' : 'คอลเลกชันใหม่'} onClose={onClose}>
       <form onSubmit={onSubmit} className="flex flex-col gap-3">
-        <Field label="Name">
+        <Field label="ชื่อ">
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -316,7 +316,7 @@ function CollectionFormModal({
             className="w-full px-2.5 py-1.5 rounded-md border border-border-subtle bg-white text-[13px] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
           />
         </Field>
-        <Field label="Description (optional)">
+        <Field label="คำอธิบาย (ไม่บังคับ)">
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -324,7 +324,7 @@ function CollectionFormModal({
             className="w-full px-2.5 py-1.5 rounded-md border border-border-subtle bg-white text-[13px] resize-y focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
           />
         </Field>
-        <Field label="Scope">
+        <Field label="ขอบเขต">
           <div className="flex flex-wrap gap-1">
             {visibleScopes.map((s) => (
               <button
@@ -343,10 +343,10 @@ function CollectionFormModal({
           </div>
           <p className="text-[10px] text-ink-faint mt-1">
             {scope === 'PERSONAL'
-              ? 'Visible only to you. You manage the words inside it.'
+              ? 'มองเห็นเฉพาะคุณเท่านั้น คุณเป็นผู้จัดการคำศัพท์ในคอลเลกชันนี้'
               : scope === 'ORGANIZATION'
-              ? 'Visible to everyone in your organization. Org admins and you can manage.'
-              : 'Marketplace listing — visible to all tenants once published. Global admins only.'}
+              ? 'มองเห็นได้ทุกคนในองค์กรของคุณ ผู้ดูแลองค์กรและคุณสามารถจัดการได้'
+              : 'รายการในตลาด — มองเห็นได้ทุก tenant เมื่อเผยแพร่แล้ว เฉพาะผู้ดูแลทั้งระบบเท่านั้น'}
           </p>
         </Field>
         {mutation.error ? <ErrorMessage error={mutation.error} /> : null}
@@ -356,11 +356,11 @@ function CollectionFormModal({
             onClick={onClose}
             className="px-2.5 py-1.5 rounded-md text-[12px] text-ink-subtle hover:bg-bg-subtle"
           >
-            Cancel
+            ยกเลิก
           </button>
           <Button type="submit" size="sm" disabled={mutation.isPending || !name.trim()}>
             {mutation.isPending ? <Spinner className="text-white" /> : <Save className="w-3.5 h-3.5" />}
-            Save
+            บันทึก
           </Button>
         </div>
       </form>
@@ -410,11 +410,11 @@ function CollectionEntriesView({
           <div className="flex items-center gap-2">
             {ownsCollection ? (
               <Button variant="primary" size="sm" onClick={() => setShowNew(true)}>
-                <Plus className="w-3.5 h-3.5" /> Add word
+                <Plus className="w-3.5 h-3.5" /> เพิ่มคำ
               </Button>
             ) : null}
             <Button variant="outline" size="sm" onClick={onBack}>
-              <ChevronLeft className="w-3.5 h-3.5" /> Back
+              <ChevronLeft className="w-3.5 h-3.5" /> ย้อนกลับ
             </Button>
           </div>
         }
@@ -428,7 +428,7 @@ function CollectionEntriesView({
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search words…"
+          placeholder="ค้นหาคำ…"
           className="ml-auto px-2.5 py-1.5 rounded-md border border-border-subtle bg-white text-[13px] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
         />
       </div>
@@ -443,13 +443,13 @@ function CollectionEntriesView({
               <thead className="bg-bg-subtle text-ink-muted">
                 <tr className="border-b border-border-subtle">
                   <th className="px-3 py-2 text-left text-[11px] uppercase tracking-wider font-medium">
-                    Term
+                    คำ (อังกฤษ)
                   </th>
                   <th className="px-3 py-2 text-left text-[11px] uppercase tracking-wider font-medium">
                     ศัพท์
                   </th>
                   <th className="px-3 py-2 text-left text-[11px] uppercase tracking-wider font-medium">
-                    Definition
+                    คำนิยาม
                   </th>
                   <th className="px-3 py-2" />
                 </tr>
@@ -469,18 +469,18 @@ function CollectionEntriesView({
                             type="button"
                             onClick={() => setEditing(e)}
                             className="p-1 rounded text-ink-faint hover:bg-bg-subtle hover:text-ink"
-                            title="Edit"
+                            title="แก้ไข"
                           >
                             <Pencil className="w-3.5 h-3.5" />
                           </button>
                           <button
                             type="button"
                             onClick={() => {
-                              if (confirm(`Delete "${e.term}"?`)) deleteMutation.mutate(e.id);
+                              if (confirm(`ลบ "${e.term}" หรือไม่?`)) deleteMutation.mutate(e.id);
                             }}
                             disabled={deleteMutation.isPending}
                             className="p-1 rounded text-red-600 hover:bg-red-50 disabled:opacity-50"
-                            title="Delete"
+                            title="ลบ"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -495,8 +495,8 @@ function CollectionEntriesView({
         ) : !entriesQuery.isLoading ? (
           <p className="text-[13px] text-ink-muted">
             {ownsCollection
-              ? 'No words yet. Click "Add word" to start filling this collection.'
-              : 'This collection has no words yet.'}
+              ? 'ยังไม่มีคำ คลิก "เพิ่มคำ" เพื่อเริ่มเพิ่มคำในคอลเลกชันนี้'
+              : 'คอลเลกชันนี้ยังไม่มีคำ'}
           </p>
         ) : null}
       </section>
@@ -557,9 +557,9 @@ function EntryFormModal({
   };
 
   return (
-    <ModalShell title={initial ? 'Edit word' : 'Add word'} onClose={onClose}>
+    <ModalShell title={initial ? 'แก้ไขคำ' : 'เพิ่มคำ'} onClose={onClose}>
       <form onSubmit={onSubmit} className="flex flex-col gap-3">
-        <Field label="Term (English)">
+        <Field label="คำ (ภาษาอังกฤษ)">
           <input
             value={term}
             onChange={(e) => setTerm(e.target.value)}
@@ -574,7 +574,7 @@ function EntryFormModal({
             className="w-full px-2.5 py-1.5 rounded-md border border-border-subtle bg-white text-[13px] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
           />
         </Field>
-        <Field label="Definition (English)">
+        <Field label="คำนิยาม (ภาษาอังกฤษ)">
           <textarea
             value={definition}
             onChange={(e) => setDefinition(e.target.value)}
@@ -598,7 +598,7 @@ function EntryFormModal({
             onClick={onClose}
             className="px-2.5 py-1.5 rounded-md text-[12px] text-ink-subtle hover:bg-bg-subtle"
           >
-            Cancel
+            ยกเลิก
           </button>
           <Button
             type="submit"
@@ -606,7 +606,7 @@ function EntryFormModal({
             disabled={mutation.isPending || !term.trim() || !definition.trim()}
           >
             {mutation.isPending ? <Spinner className="text-white" /> : <Save className="w-3.5 h-3.5" />}
-            Save
+            บันทึก
           </Button>
         </div>
       </form>

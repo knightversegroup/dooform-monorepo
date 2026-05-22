@@ -44,12 +44,12 @@ export interface NavMenuSection {
 }
 
 export const navTabs: NavTab[] = [
-  { to: '/templates',  label: 'Templates',  icon: FileText,     position: 'left',  requiresAny: ['templates:read'] },
-  { to: '/documents',  label: 'Documents',  icon: History,      position: 'left',  requiresAny: ['documents:read'] },
-  { to: '/inbox',      label: 'Inbox',      icon: Bell,         position: 'left',  requiresAny: ['notifications:read'], showBadge: true },
-  { to: '/watermarks', label: 'Watermarks', icon: Stamp,        position: 'left',  requiresAny: ['watermarks:read'] },
-  { to: '/dictionary', label: 'Dictionary', icon: Book,         position: 'left',  requiresAny: ['dictionary:read'] },
-  { to: '/docs',       label: 'Docs',       icon: BookOpenText, position: 'right' },
+  { to: '/templates',  label: 'เทมเพลต',     icon: FileText,     position: 'left',  requiresAny: ['templates:read'] },
+  { to: '/documents',  label: 'เอกสาร',      icon: History,      position: 'left',  requiresAny: ['documents:read'] },
+  { to: '/inbox',      label: 'กล่องข้อความ', icon: Bell,         position: 'left',  requiresAny: ['notifications:read'], showBadge: true },
+  { to: '/watermarks', label: 'ลายน้ำ',      icon: Stamp,        position: 'left',  requiresAny: ['watermarks:read'] },
+  { to: '/dictionary', label: 'พจนานุกรม',   icon: Book,         position: 'left',  requiresAny: ['dictionary:read'] },
+  { to: '/docs',       label: 'คู่มือ',       icon: BookOpenText, position: 'right' },
 ];
 
 // Right-side "Settings" dropdown — grouped like the old Sidebar's Account / Admin
@@ -58,26 +58,26 @@ export const navTabs: NavTab[] = [
 // admin pages effectively undiscoverable when a user is a hair short on perms.
 export const settingsSections: NavMenuSection[] = [
   {
-    label: 'Account',
+    label: 'บัญชี',
     items: [
-      { to: '/settings/profile',      label: 'Profile',      icon: UserCircle },
-      { to: '/settings/organization', label: 'Organization', icon: Building2 },
-      { to: '/settings/audit-log',    label: 'Audit log',    icon: ScrollText },
-      { to: '/settings/compliance',   label: 'Compliance',   icon: Scale },
+      { to: '/settings/profile',      label: 'โปรไฟล์',           icon: UserCircle },
+      { to: '/settings/organization', label: 'องค์กร',             icon: Building2 },
+      { to: '/settings/audit-log',    label: 'บันทึกการตรวจสอบ',  icon: ScrollText },
+      { to: '/settings/compliance',   label: 'การกำกับดูแล',      icon: Scale },
     ],
   },
   {
-    label: 'Admin',
+    label: 'ผู้ดูแลระบบ',
     items: [
-      { to: '/settings/iam',           label: 'IAM',                icon: UserCog },
-      { to: '/settings/roles',         label: 'Roles',              icon: ShieldCheck },
-      { to: '/settings/permissions',   label: 'Role baselines',     icon: ShieldCheck },
-      { to: '/settings/tenants',       label: 'Tenants',            icon: HardDrive },
-      { to: '/settings/platform-users', label: 'Platform users',    icon: Users },
-      { to: '/settings/taxonomy',      label: 'Template taxonomy',  icon: Layers },
-      { to: '/settings/tiers',         label: 'Subscription tiers', icon: CreditCard },
-      { to: '/settings/field-types',   label: 'Field types',        icon: Settings },
-      { to: '/settings/announcements', label: 'Announcements',      icon: Megaphone },
+      { to: '/settings/iam',            label: 'IAM',                       icon: UserCog },
+      { to: '/settings/roles',          label: 'บทบาท',                     icon: ShieldCheck },
+      { to: '/settings/permissions',    label: 'สิทธิ์พื้นฐานของบทบาท',     icon: ShieldCheck },
+      { to: '/settings/tenants',        label: 'ผู้เช่า',                    icon: HardDrive },
+      { to: '/settings/platform-users', label: 'ผู้ใช้แพลตฟอร์ม',           icon: Users },
+      { to: '/settings/taxonomy',       label: 'หมวดหมู่เทมเพลต',           icon: Layers },
+      { to: '/settings/tiers',          label: 'ระดับการสมัครสมาชิก',       icon: CreditCard },
+      { to: '/settings/field-types',    label: 'ประเภทฟิลด์',                icon: Settings },
+      { to: '/settings/announcements',  label: 'ประกาศ',                     icon: Megaphone },
     ],
   },
 ];

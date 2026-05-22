@@ -110,12 +110,12 @@ export default function FormFillPage() {
       },
     })
       .then(async (res) => {
-        if (!res.ok) throw new Error(`HTML preview failed (HTTP ${res.status})`);
+        if (!res.ok) throw new Error(`โหลดตัวอย่าง HTML ไม่สำเร็จ (HTTP ${res.status})`);
         const text = await res.text();
         if (!cancelled) setRawHtml(text);
       })
       .catch((err) => {
-        if (!cancelled) setHtmlError(err instanceof Error ? err.message : 'Preview failed');
+        if (!cancelled) setHtmlError(err instanceof Error ? err.message : 'แสดงตัวอย่างไม่สำเร็จ');
       });
     return () => {
       cancelled = true;
@@ -170,14 +170,14 @@ export default function FormFillPage() {
   return (
     <div className="flex flex-col">
       <PageHeader
-        title={`Fill: ${tpl?.displayName ?? tpl?.name ?? 'Template'}`}
-        description="Complete the fields below and generate the document."
+        title={`กรอก: ${tpl?.displayName ?? tpl?.name ?? 'เทมเพลต'}`}
+        description="กรอกฟิลด์ด้านล่างและสร้างเอกสาร"
         breadcrumbs={
           <Link
             to={`/templates/${templateId}`}
             className="inline-flex items-center gap-1 text-sm text-ink-muted hover:text-primary"
           >
-            <ChevronLeft className="w-4 h-4" /> Back to Template
+            <ChevronLeft className="w-4 h-4" /> กลับไปยังเทมเพลต
           </Link>
         }
       />
@@ -190,7 +190,7 @@ export default function FormFillPage() {
 
           {!isLoading && fields.length === 0 ? (
             <p className="text-sm text-ink-muted">
-              This template has no fields detected.
+              เทมเพลตนี้ไม่พบฟิลด์
             </p>
           ) : null}
 
@@ -203,7 +203,7 @@ export default function FormFillPage() {
           >
             <div className="flex flex-col gap-1 pb-3 border-b border-border-default">
               <label htmlFor="document-filename" className="text-sm font-medium text-ink-subtle">
-                Document name
+                ชื่อเอกสาร
               </label>
               <input
                 id="document-filename"
@@ -213,11 +213,11 @@ export default function FormFillPage() {
                   setFilename(e.target.value);
                   setFilenameTouched(true);
                 }}
-                placeholder="e.g. Customer Feedback - John Doe"
+                placeholder="เช่น แบบประเมิน - สมชาย ใจดี"
                 className="w-full px-3 py-2 rounded-md border border-border-default bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
               />
               <span className="text-xs text-ink-muted">
-                Saved as <code className="font-mono">{(filename.trim() || 'document').replace(/\.docx$/i, '')}.docx</code>
+                บันทึกเป็น <code className="font-mono">{(filename.trim() || 'document').replace(/\.docx$/i, '')}.docx</code>
               </span>
             </div>
 
@@ -250,16 +250,16 @@ export default function FormFillPage() {
                 variant="outline"
                 onClick={() => navigate(`/templates/${templateId}`)}
               >
-                Cancel
+                ยกเลิก
               </Button>
               <Button type="submit" disabled={submitMutation.isPending || !fields.length}>
                 {submitMutation.isPending ? (
                   <>
                     <Spinner className="text-white" />
-                    Generating…
+                    กำลังสร้าง…
                   </>
                 ) : (
-                  'Generate document'
+                  'สร้างเอกสาร'
                 )}
               </Button>
             </div>
@@ -277,7 +277,7 @@ export default function FormFillPage() {
                   : 'text-ink-muted hover:bg-surface-alt'
               }`}
             >
-              Live HTML
+              HTML สด
             </button>
             <button
               type="button"
@@ -288,10 +288,10 @@ export default function FormFillPage() {
                   : 'text-ink-muted hover:bg-surface-alt'
               }`}
             >
-              PDF (template)
+              PDF (เทมเพลต)
             </button>
             <span className="text-[11px] text-ink-muted ml-2">
-              HTML updates as you type · PDF shows the unfilled template.
+              HTML อัปเดตขณะพิมพ์ · PDF แสดงเทมเพลตที่ยังไม่ได้กรอก
             </span>
           </div>
           {tpl ? (
@@ -305,11 +305,11 @@ export default function FormFillPage() {
                   ref={previewRef}
                   srcDoc={previewHtml}
                   sandbox="allow-same-origin"
-                  title="Template preview"
+                  title="ตัวอย่างเทมเพลต"
                   className="w-full flex-1 min-h-[60vh] bg-white"
                 />
               ) : (
-                <div className="p-4 text-sm text-ink-muted">Loading HTML preview…</div>
+                <div className="p-4 text-sm text-ink-muted">กำลังโหลดตัวอย่าง HTML…</div>
               )
             ) : (
               <iframe
@@ -411,7 +411,7 @@ function FieldRow({
           onChange={(e) => onChange(e.target.value)}
           className={baseInput}
         >
-          <option value="">— Select —</option>
+          <option value="">— เลือก —</option>
           {choices.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
@@ -457,7 +457,7 @@ function FieldRow({
             checked={checked}
             onChange={(e) => onChange(e.target.checked ? onValue : offValue)}
           />
-          <span>{choices[0]?.label ?? 'Yes'}</span>
+          <span>{choices[0]?.label ?? 'ใช่'}</span>
         </label>
       );
     }

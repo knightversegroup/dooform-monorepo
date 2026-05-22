@@ -82,21 +82,21 @@ export function UserMenu() {
             onClick={() => setOpen(false)}
             className="w-full text-left px-3 py-2 text-[12px] hover:bg-bg-subtle flex items-center gap-2 text-ink-subtle hover:text-ink"
           >
-            <UserIcon className="w-3.5 h-3.5" /> Profile settings
+            <UserIcon className="w-3.5 h-3.5" /> ตั้งค่าโปรไฟล์
           </Link>
           <Link
             to="/settings/organization"
             onClick={() => setOpen(false)}
             className="w-full text-left px-3 py-2 text-[12px] hover:bg-bg-subtle flex items-center gap-2 text-ink-subtle hover:text-ink"
           >
-            <Building2 className="w-3.5 h-3.5" /> Organization
+            <Building2 className="w-3.5 h-3.5" /> องค์กร
           </Link>
           <div className="border-t border-border-subtle" />
           <button
             onClick={handleLogout}
             className="w-full text-left px-3 py-2 text-[12px] hover:bg-red-50 flex items-center gap-2 text-red-600"
           >
-            <LogOut className="w-3.5 h-3.5" /> Log out
+            <LogOut className="w-3.5 h-3.5" /> ออกจากระบบ
           </button>
         </div>
       ) : null}

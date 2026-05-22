@@ -18,11 +18,11 @@ export default function ResetPasswordPage() {
   if (!token) {
     return (
       <AuthCard
-        title="Invalid link"
-        subtitle="This password reset link is missing a token."
+        title="ลิงก์ไม่ถูกต้อง"
+        subtitle="ลิงก์รีเซ็ตรหัสผ่านนี้ไม่มีโทเค็น"
         footer={
           <Link to="/auth/forgot-password" className="text-primary hover:underline">
-            Request a new link
+            ขอลิงก์ใหม่
           </Link>
         }
       >
@@ -35,7 +35,7 @@ export default function ResetPasswordPage() {
     e.preventDefault();
     setError(null);
     if (password !== confirm) {
-      setError('Passwords do not match');
+      setError('รหัสผ่านไม่ตรงกัน');
       return;
     }
     setSubmitting(true);
@@ -43,7 +43,7 @@ export default function ResetPasswordPage() {
       await authApi.resetPassword(token, password);
       setDone(true);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Reset failed');
+      setError(err instanceof ApiError ? err.message : 'รีเซ็ตรหัสผ่านไม่สำเร็จ');
     } finally {
       setSubmitting(false);
     }
@@ -52,30 +52,30 @@ export default function ResetPasswordPage() {
   if (done) {
     return (
       <AuthCard
-        title="Password updated"
-        subtitle="You can now log in with your new password."
+        title="อัปเดตรหัสผ่านแล้ว"
+        subtitle="คุณสามารถเข้าสู่ระบบด้วยรหัสผ่านใหม่ได้แล้ว"
       >
         <button className={primaryBtn} onClick={() => navigate('/auth/login', { replace: true })}>
-          Back to log in
+          กลับไปหน้าเข้าสู่ระบบ
         </button>
       </AuthCard>
     );
   }
 
   return (
-    <AuthCard title="Set a new password">
+    <AuthCard title="ตั้งรหัสผ่านใหม่">
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <div>
-          <label className={labelClass} htmlFor="password">New password</label>
+          <label className={labelClass} htmlFor="password">รหัสผ่านใหม่</label>
           <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className={inputClass} required minLength={8} />
         </div>
         <div>
-          <label className={labelClass} htmlFor="confirm">Confirm password</label>
+          <label className={labelClass} htmlFor="confirm">ยืนยันรหัสผ่าน</label>
           <input id="confirm" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} className={inputClass} required minLength={8} />
         </div>
         {error ? <div className="text-sm text-red-600">{error}</div> : null}
         <button type="submit" disabled={submitting} className={primaryBtn}>
-          {submitting ? 'Updating…' : 'Update password'}
+          {submitting ? 'กำลังอัปเดต…' : 'อัปเดตรหัสผ่าน'}
         </button>
       </form>
     </AuthCard>

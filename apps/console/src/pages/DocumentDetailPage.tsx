@@ -227,13 +227,13 @@ export default function DocumentDetailPage() {
   return (
     <div>
       <PageHeader
-        title={stripDocxExtension(doc?.filename ?? '') || doc?.templateId || 'Document'}
+        title={stripDocxExtension(doc?.filename ?? '') || doc?.templateId || 'เอกสาร'}
         breadcrumbs={
           <Link
             to="/documents"
             className="inline-flex items-center gap-1 text-sm text-ink-muted hover:text-primary"
           >
-            <ChevronLeft className="w-4 h-4" /> Back to Documents
+            <ChevronLeft className="w-4 h-4" /> กลับไปยังเอกสาร
           </Link>
         }
         actions={
@@ -241,7 +241,7 @@ export default function DocumentDetailPage() {
             <div className="flex items-center gap-2 flex-wrap">
               {perms.canShare ? (
                 <Button variant="outline" onClick={() => setShareOpen(true)}>
-                  <Share2 className="w-4 h-4" /> Share
+                  <Share2 className="w-4 h-4" /> แชร์
                 </Button>
               ) : null}
               {primaryAction && perms.canTransition ? (
@@ -262,7 +262,7 @@ export default function DocumentDetailPage() {
                   to={`/documents/${documentId}/edit`}
                   className="inline-flex items-center gap-2 rounded-md border border-border-default bg-white px-4 py-2 text-sm font-medium hover:bg-surface-alt"
                 >
-                  <Pencil className="w-4 h-4" /> PDF Editor
+                  <Pencil className="w-4 h-4" /> ตัวแก้ไข PDF
                 </Link>
               ) : null}
               {perms.canEdit ? (
@@ -272,7 +272,7 @@ export default function DocumentDetailPage() {
                   disabled={regenerateMutation.isPending}
                 >
                   {regenerateMutation.isPending ? <Spinner /> : <RefreshCw className="w-4 h-4" />}
-                  Regenerate
+                  สร้างใหม่
                 </Button>
               ) : null}
               {perms.canArchive ? (
@@ -281,20 +281,20 @@ export default function DocumentDetailPage() {
                   onClick={() => transitionMutation.mutate('ARCHIVED')}
                   disabled={transitionMutation.isPending}
                 >
-                  <Archive className="w-4 h-4" /> Archive
+                  <Archive className="w-4 h-4" /> เก็บเข้าคลัง
                 </Button>
               ) : null}
               {perms.isOwner ? (
                 <Button
                   variant="danger"
                   onClick={() => {
-                    if (confirm('Delete this document? This cannot be undone.')) {
+                    if (confirm('ลบเอกสารนี้หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้')) {
                       deleteMutation.mutate();
                     }
                   }}
                   disabled={deleteMutation.isPending}
                 >
-                  <Trash2 className="w-4 h-4" /> Delete
+                  <Trash2 className="w-4 h-4" /> ลบ
                 </Button>
               ) : null}
             </div>
@@ -332,18 +332,18 @@ export default function DocumentDetailPage() {
                   <iframe
                     key={doc.updatedAt ?? doc.id}
                     src={`${getDocumentPreviewPdfUrl(documentId)}#view=FitH&toolbar=1`}
-                    title={doc.filename ?? 'Document preview'}
+                    title={doc.filename ?? 'ตัวอย่างเอกสาร'}
                     className="w-full h-[78vh] block"
                   />
                 </div>
                 <div className="rounded-md border border-border-default p-4 bg-white">
                   <h3 className="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-3">
-                    Download
+                    ดาวน์โหลด
                   </h3>
                   <div className="flex flex-col gap-3 max-w-2xl">
                     <div className="flex flex-col md:flex-row gap-3">
                       <label className="flex-1">
-                        <span className="text-xs text-ink-muted">Format</span>
+                        <span className="text-xs text-ink-muted">รูปแบบ</span>
                         <select
                           value={format}
                           onChange={(e) => setFormat(e.target.value as DocumentFormat)}
@@ -354,13 +354,13 @@ export default function DocumentDetailPage() {
                         </select>
                       </label>
                       <label className="flex-1">
-                        <span className="text-xs text-ink-muted">Watermark preset</span>
+                        <span className="text-xs text-ink-muted">พรีเซ็ตลายน้ำ</span>
                         <select
                           value={presetId}
                           onChange={(e) => setPresetId(e.target.value)}
                           className="mt-1 w-full px-3 py-2 rounded-md border border-border-default bg-white text-sm"
                         >
-                          <option value="">No watermark</option>
+                          <option value="">ไม่มีลายน้ำ</option>
                           {presetsQuery.data?.map((p) => (
                             <option key={p.id} value={p.id}>
                               {p.name}
@@ -379,7 +379,7 @@ export default function DocumentDetailPage() {
                       ) : (
                         <Download className="w-4 h-4" />
                       )}
-                      Download {format.toUpperCase()}
+                      ดาวน์โหลด {format.toUpperCase()}
                     </Button>
                     {downloadError ? <ErrorMessage error={downloadError} /> : null}
                   </div>
@@ -391,7 +391,7 @@ export default function DocumentDetailPage() {
                   {/* In-place rename — does not create a new document. */}
                   <div className="rounded-md border border-border-default p-4 bg-white">
                     <h3 className="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-3">
-                      Document name
+                      ชื่อเอกสาร
                     </h3>
                     <form
                       onSubmit={(e) => {
@@ -411,7 +411,7 @@ export default function DocumentDetailPage() {
                         value={editedName}
                         onChange={(e) => setEditedName(e.target.value)}
                         disabled={!perms.canEdit}
-                        placeholder="Document name"
+                        placeholder="ชื่อเอกสาร"
                         className="flex-1 px-3 py-2 rounded-md border border-border-default bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-surface-alt disabled:text-ink-muted"
                       />
                       {perms.canEdit ? (
@@ -429,7 +429,7 @@ export default function DocumentDetailPage() {
                           ) : (
                             <Save className="w-4 h-4" />
                           )}
-                          Rename
+                          เปลี่ยนชื่อ
                         </Button>
                       ) : null}
                     </form>
@@ -441,16 +441,16 @@ export default function DocumentDetailPage() {
                   {/* Form data — saving spawns a NEW document, leaves this one alone. */}
                   <div className="rounded-md border border-border-default p-4 bg-white">
                     <h3 className="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-3">
-                      Submitted data
+                      ข้อมูลที่ส่ง
                     </h3>
                     {perms.canEdit ? (
                       <p className="text-[11px] text-ink-muted mb-3">
-                        Editing values creates a new document; this one stays unchanged.
+                        การแก้ไขค่าจะสร้างเอกสารใหม่ ส่วนเอกสารนี้จะไม่เปลี่ยนแปลง
                       </p>
                     ) : null}
 
                     {dataRows.length === 0 ? (
-                      <p className="text-sm text-ink-muted">No data captured.</p>
+                      <p className="text-sm text-ink-muted">ไม่มีข้อมูลที่บันทึก</p>
                     ) : (
                       <form
                         onSubmit={(e) => {
@@ -553,7 +553,7 @@ export default function DocumentDetailPage() {
                                 )
                               }
                             >
-                              <RotateCcw className="w-4 h-4" /> Reset
+                              <RotateCcw className="w-4 h-4" /> รีเซ็ต
                             </Button>
                             <Button
                               type="submit"
@@ -564,7 +564,7 @@ export default function DocumentDetailPage() {
                               ) : (
                                 <Save className="w-4 h-4" />
                               )}
-                              Save as new document
+                              บันทึกเป็นเอกสารใหม่
                             </Button>
                           </div>
                         ) : null}
@@ -626,11 +626,11 @@ function Tabs({
   onChange: (t: Tab) => void;
 }) {
   const tabs: { value: Tab; label: string }[] = [
-    { value: 'preview', label: 'Download' },
-    { value: 'data', label: 'Form data' },
-    { value: 'comments', label: 'Comments' },
-    { value: 'activity', label: 'Activity' },
-    { value: 'signatures', label: 'Signatures' },
+    { value: 'preview', label: 'ดาวน์โหลด' },
+    { value: 'data', label: 'ข้อมูลฟอร์ม' },
+    { value: 'comments', label: 'ความคิดเห็น' },
+    { value: 'activity', label: 'กิจกรรม' },
+    { value: 'signatures', label: 'ลายเซ็น' },
   ];
   return (
     <div className="flex gap-1 overflow-x-auto">
@@ -658,9 +658,9 @@ function pickPrimaryTransition(
   if (!perms.canTransition) return null;
   switch (current) {
     case 'DRAFT':
-      return { label: 'Send for review', to: 'IN_REVIEW' };
+      return { label: 'ส่งเข้ารีวิว', to: 'IN_REVIEW' };
     case 'IN_REVIEW':
-      return { label: 'Mark approved', to: 'APPROVED' };
+      return { label: 'อนุมัติ', to: 'APPROVED' };
     case 'APPROVED':
       // Signing happens via the Signatures tab; offer no primary transition here.
       return null;

@@ -57,8 +57,8 @@ export default function InboxPage() {
   return (
     <div>
       <PageHeader
-        title="Inbox"
-        description="Notifications and documents waiting for your input."
+        title="กล่องข้อความ"
+        description="การแจ้งเตือนและเอกสารที่รอการดำเนินการของคุณ"
         actions={
           (notificationsQuery.data?.unreadCount ?? 0) > 0 ? (
             <Button
@@ -72,7 +72,7 @@ export default function InboxPage() {
               ) : (
                 <CheckCheck className="w-4 h-4" />
               )}
-              Mark all read
+              อ่านทั้งหมด
             </Button>
           ) : null
         }
@@ -81,7 +81,7 @@ export default function InboxPage() {
       <div className="px-6 py-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
         <section>
           <h2 className="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-3">
-            Notifications
+            การแจ้งเตือน
           </h2>
           {notificationsQuery.isLoading ? <PageLoader /> : null}
           {notificationsQuery.error ? (
@@ -92,7 +92,7 @@ export default function InboxPage() {
               {notificationsQuery.data.data.map((n) => {
                 const actor = n.actorUserId
                   ? userMap.get(n.actorUserId) ?? n.actorUserId
-                  : 'System';
+                  : 'ระบบ';
                 const message = describeNotification(n.type);
                 return (
                   <li
@@ -116,11 +116,11 @@ export default function InboxPage() {
                             if (!n.readAt) markReadMutation.mutate(n.id);
                           }}
                         >
-                          Open document
+                          เปิดเอกสาร
                         </Link>
                       ) : null}
                       <div className="text-[11px] text-ink-muted mt-1">
-                        {new Date(n.createdAt).toLocaleString()}
+                        {new Date(n.createdAt).toLocaleString('th-TH')}
                       </div>
                     </div>
                     {!n.readAt ? (
@@ -128,7 +128,7 @@ export default function InboxPage() {
                         onClick={() => markReadMutation.mutate(n.id)}
                         className="text-xs text-primary hover:underline whitespace-nowrap"
                       >
-                        Mark read
+                        อ่านแล้ว
                       </button>
                     ) : null}
                   </li>
@@ -136,13 +136,13 @@ export default function InboxPage() {
               })}
             </ul>
           ) : !notificationsQuery.isLoading ? (
-            <p className="text-sm text-ink-muted">You're all caught up.</p>
+            <p className="text-sm text-ink-muted">คุณอ่านครบทั้งหมดแล้ว</p>
           ) : null}
         </section>
 
         <section>
           <h2 className="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-3">
-            Awaiting your action
+            รอการดำเนินการของคุณ
           </h2>
           {awaitingQuery.isLoading ? <PageLoader /> : null}
           {awaitingQuery.error ? <ErrorMessage error={awaitingQuery.error} /> : null}
@@ -162,7 +162,7 @@ export default function InboxPage() {
                   <div className="text-[11px] text-ink-muted mt-1 flex items-center gap-2">
                     <LifecycleBadge status={doc.lifecycleStatus ?? 'DRAFT'} />
                     <span>
-                      Owner: {userMap.get(doc.ownerUserId ?? '') ?? doc.ownerUserId ?? '—'}
+                      เจ้าของ: {userMap.get(doc.ownerUserId ?? '') ?? doc.ownerUserId ?? '—'}
                     </span>
                   </div>
                 </li>
@@ -170,7 +170,7 @@ export default function InboxPage() {
             </ul>
           ) : !awaitingQuery.isLoading ? (
             <p className="text-sm text-ink-muted">
-              Nothing waiting on you right now.
+              ไม่มีรายการรอดำเนินการในตอนนี้
             </p>
           ) : null}
         </section>
@@ -182,15 +182,15 @@ export default function InboxPage() {
 function describeNotification(type: string): string {
   switch (type) {
     case 'SHARED_WITH_YOU':
-      return 'shared a document with you';
+      return 'แชร์เอกสารให้คุณ';
     case 'NEW_COMMENT':
-      return 'left a new comment';
+      return 'เพิ่มความคิดเห็นใหม่';
     case 'STATE_CHANGED':
-      return 'changed a document’s lifecycle';
+      return 'เปลี่ยนสถานะวงจรของเอกสาร';
     case 'SIGNATURE_REQUESTED':
-      return 'requested your signature';
+      return 'ขอลายเซ็นของคุณ';
     case 'SIGNED':
-      return 'signed a document';
+      return 'ลงนามเอกสารแล้ว';
     default:
       return type;
   }

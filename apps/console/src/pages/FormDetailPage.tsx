@@ -90,7 +90,7 @@ export default function FormDetailPage() {
   return (
     <div className="flex flex-col">
       <PageHeader
-        title={tpl?.displayName ?? tpl?.name ?? 'Template'}
+        title={tpl?.displayName ?? tpl?.name ?? 'เทมเพลต'}
         description={tpl?.description ?? undefined}
         breadcrumbs={
           <Link
@@ -98,7 +98,7 @@ export default function FormDetailPage() {
             className="inline-flex items-center gap-1 text-sm text-ink-muted hover:text-primary"
           >
             <ChevronLeft className="w-4 h-4" />
-            Back to Templates
+            กลับไปยังเทมเพลต
           </Link>
         }
         actions={
@@ -109,7 +109,7 @@ export default function FormDetailPage() {
                 className="inline-flex items-center gap-2 rounded-md border border-border-subtle bg-white px-4 py-2 text-sm font-medium hover:bg-surface-alt"
               >
                 <Pencil className="w-4 h-4" />{' '}
-                {showSettings ? 'Close settings' : 'Edit settings'}
+                {showSettings ? 'ปิดการตั้งค่า' : 'แก้ไขการตั้งค่า'}
               </button>
             ) : null}
             {canConfigure ? (
@@ -117,13 +117,13 @@ export default function FormDetailPage() {
                 to={`/templates/${templateId}/fields`}
                 className="inline-flex items-center gap-2 rounded-md border border-border-subtle bg-white px-4 py-2 text-sm font-medium hover:bg-surface-alt"
               >
-                <Settings className="w-4 h-4" /> Configure fields
+                <Settings className="w-4 h-4" /> ตั้งค่าฟิลด์
               </Link>
             ) : null}
             {canConfigure && tpl?.status === 'DRAFT' ? (
               <button
                 onClick={() => {
-                  if (confirm('Publish this template? It becomes available to fillers.')) {
+                  if (confirm('เผยแพร่เทมเพลตนี้หรือไม่? จะพร้อมให้ผู้กรอกใช้งาน')) {
                     publishMutation.mutate();
                   }
                 }}
@@ -131,7 +131,7 @@ export default function FormDetailPage() {
                 className="inline-flex items-center gap-2 rounded-md border border-emerald-300 bg-emerald-50 text-emerald-700 px-4 py-2 text-sm font-medium hover:bg-emerald-100 disabled:opacity-50"
               >
                 <Globe className="w-4 h-4" />
-                {publishMutation.isPending ? 'Publishing…' : 'Publish'}
+                {publishMutation.isPending ? 'กำลังเผยแพร่…' : 'เผยแพร่'}
               </button>
             ) : null}
             {canConfigure && tpl?.status === 'PUBLISHED' ? (
@@ -139,7 +139,7 @@ export default function FormDetailPage() {
                 onClick={() => {
                   if (
                     confirm(
-                      'Unpublish this template? It will return to draft and be hidden from fillers.',
+                      'ยกเลิกการเผยแพร่เทมเพลตนี้หรือไม่? จะกลับไปเป็นฉบับร่างและถูกซ่อนจากผู้กรอก',
                     )
                   ) {
                     unpublishMutation.mutate();
@@ -149,7 +149,7 @@ export default function FormDetailPage() {
                 className="inline-flex items-center gap-2 rounded-md border border-border-subtle bg-white text-ink-subtle px-4 py-2 text-sm font-medium hover:bg-bg-subtle disabled:opacity-50"
               >
                 <FileEdit className="w-4 h-4" />
-                {unpublishMutation.isPending ? 'Unpublishing…' : 'Unpublish'}
+                {unpublishMutation.isPending ? 'กำลังยกเลิกการเผยแพร่…' : 'ยกเลิกการเผยแพร่'}
               </button>
             ) : null}
             {canConfigure && tpl?.status === 'PUBLISHED' ? (
@@ -157,7 +157,7 @@ export default function FormDetailPage() {
                 onClick={() => {
                   if (
                     confirm(
-                      'Archive this template? It will be hidden from listings. You can restore it later.',
+                      'เก็บเทมเพลตนี้เข้าคลังหรือไม่? จะถูกซ่อนจากรายการ คุณสามารถนำกลับมาได้ภายหลัง',
                     )
                   ) {
                     archiveMutation.mutate();
@@ -167,7 +167,7 @@ export default function FormDetailPage() {
                 className="inline-flex items-center gap-2 rounded-md border border-border-subtle bg-white text-ink-subtle px-4 py-2 text-sm font-medium hover:bg-bg-subtle disabled:opacity-50"
               >
                 <Archive className="w-4 h-4" />
-                {archiveMutation.isPending ? 'Archiving…' : 'Archive'}
+                {archiveMutation.isPending ? 'กำลังเก็บเข้าคลัง…' : 'เก็บเข้าคลัง'}
               </button>
             ) : null}
             {/* Archived templates can be brought back via the same publish endpoint —
@@ -177,7 +177,7 @@ export default function FormDetailPage() {
                 onClick={() => {
                   if (
                     confirm(
-                      'Restore this template? It will be re-published and visible to fillers again.',
+                      'กู้คืนเทมเพลตนี้หรือไม่? จะถูกเผยแพร่ใหม่และผู้กรอกจะมองเห็นอีกครั้ง',
                     )
                   ) {
                     publishMutation.mutate();
@@ -187,7 +187,7 @@ export default function FormDetailPage() {
                 className="inline-flex items-center gap-2 rounded-md border border-emerald-300 bg-emerald-50 text-emerald-700 px-4 py-2 text-sm font-medium hover:bg-emerald-100 disabled:opacity-50"
               >
                 <Globe className="w-4 h-4" />
-                {publishMutation.isPending ? 'Restoring…' : 'Restore'}
+                {publishMutation.isPending ? 'กำลังกู้คืน…' : 'กู้คืน'}
               </button>
             ) : null}
             {canFill ? (
@@ -195,7 +195,7 @@ export default function FormDetailPage() {
                 to={`/templates/${templateId}/fill`}
                 className="inline-flex items-center gap-2 rounded-md bg-primary text-white px-4 py-2 text-sm font-medium hover:bg-primary-hover"
               >
-                <Pencil className="w-4 h-4" /> Fill out form
+                <Pencil className="w-4 h-4" /> กรอกฟอร์ม
               </Link>
             ) : null}
           </div>
@@ -231,7 +231,7 @@ export default function FormDetailPage() {
                   : 'text-ink-muted hover:bg-surface-alt'
               }`}
             >
-              Image
+              ภาพ
             </button>
             <button
               onClick={() => setPreviewMode('pdf')}
@@ -273,7 +273,7 @@ export default function FormDetailPage() {
                   className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded border border-border-default text-ink-muted hover:text-primary hover:border-primary disabled:opacity-50"
                 >
                   <Upload className="w-3 h-3" />
-                  {replaceHtmlMutation.isPending ? 'Uploading…' : 'Replace HTML'}
+                  {replaceHtmlMutation.isPending ? 'กำลังอัปโหลด…' : 'แทนที่ HTML'}
                 </button>
               </div>
             ) : null}
@@ -299,7 +299,7 @@ export default function FormDetailPage() {
                     ? getPreviewPdfUrl(tpl.id)
                     : `${getPreviewHtmlUrl(tpl.id)}${htmlBust ? `?v=${htmlBust}` : ''}`
                 }
-                title="Template preview"
+                title="ตัวอย่างเทมเพลต"
                 className="w-full flex-1 min-h-[60vh] bg-white"
               />
             )
@@ -308,40 +308,40 @@ export default function FormDetailPage() {
         <aside className="p-6 space-y-5">
           <div>
             <h3 className="text-[10px] font-medium text-ink-faint uppercase tracking-wider mb-2">
-              Classification
+              การจัดประเภท
             </h3>
             <dl className="text-[12px] space-y-1.5">
-              <Row label="Type" value={tpl?.type} />
-              <Row label="Tier" value={tpl?.tier} />
-              <Row label="Category" value={tpl?.category?.replace(/_/g, ' ')} />
-              <Row label="Status" value={tpl?.status} />
-              <Row label="Visibility" value={tpl?.visibility} />
-              <Row label="Orientation" value={tpl?.pageOrientation} />
+              <Row label="ประเภท" value={tpl?.type} />
+              <Row label="ระดับ" value={tpl?.tier} />
+              <Row label="หมวดหมู่" value={tpl?.category?.replace(/_/g, ' ')} />
+              <Row label="สถานะ" value={tpl?.status} />
+              <Row label="การมองเห็น" value={tpl?.visibility} />
+              <Row label="แนวกระดาษ" value={tpl?.pageOrientation} />
             </dl>
           </div>
 
           <div>
             <h3 className="text-[10px] font-medium text-ink-faint uppercase tracking-wider mb-2">
-              Provenance
+              ที่มา
             </h3>
             <dl className="text-[12px] space-y-1.5">
-              <Row label="Uploaded by" value={tpl?.owner?.name ?? tpl?.author ?? undefined} />
+              <Row label="อัปโหลดโดย" value={tpl?.owner?.name ?? tpl?.author ?? undefined} />
               {tpl?.owner?.email ? (
-                <Row label="Email" value={tpl.owner.email} mono />
+                <Row label="อีเมล" value={tpl.owner.email} mono />
               ) : null}
               {tpl?.organizationId ? (
                 <Row
-                  label="Tenant"
+                  label="ผู้เช่า"
                   value={tpl.organizationId.slice(0, 8) + '…'}
                   mono
                 />
               ) : null}
               <Row
-                label="Created"
+                label="สร้างเมื่อ"
                 value={tpl?.createdAt ? formatDateTime(tpl.createdAt) : undefined}
               />
               <Row
-                label="Updated"
+                label="อัปเดต"
                 value={tpl?.updatedAt ? formatDateTime(tpl.updatedAt) : undefined}
               />
             </dl>
@@ -350,16 +350,16 @@ export default function FormDetailPage() {
           {tpl?.originalFilename || tpl?.fileSize || tpl?.mimeType ? (
             <div>
               <h3 className="text-[10px] font-medium text-ink-faint uppercase tracking-wider mb-2">
-                File
+                ไฟล์
               </h3>
               <dl className="text-[12px] space-y-1.5">
                 <Row
-                  label="Filename"
+                  label="ชื่อไฟล์"
                   value={tpl?.originalFilename ?? undefined}
                   mono
                 />
                 <Row
-                  label="Size"
+                  label="ขนาด"
                   value={tpl?.fileSize ? formatBytes(tpl.fileSize) : undefined}
                 />
                 <Row label="Mime" value={tpl?.mimeType ?? undefined} mono />
@@ -368,10 +368,10 @@ export default function FormDetailPage() {
           ) : null}
           <div>
             <h3 className="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-2">
-              Fields ({fieldsQuery.data?.fieldDefinitions?.length ?? 0})
+              ฟิลด์ ({fieldsQuery.data?.fieldDefinitions?.length ?? 0})
             </h3>
             {fieldsQuery.isLoading ? (
-              <div className="text-xs text-ink-muted">Loading fields…</div>
+              <div className="text-xs text-ink-muted">กำลังโหลดฟิลด์…</div>
             ) : null}
             {fieldsQuery.data?.fieldDefinitions?.length ? (
               <ul className="space-y-1 text-sm">
@@ -421,7 +421,7 @@ function Row({
 function formatDateTime(iso: string): string {
   try {
     const d = new Date(iso);
-    return d.toLocaleString(undefined, {
+    return d.toLocaleString('th-TH', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -529,7 +529,7 @@ function TemplateSettingsPanel({
       onSaved();
     },
     onError: (err) => {
-      setError(err instanceof ApiError ? err.message : 'Failed to save');
+      setError(err instanceof ApiError ? err.message : 'บันทึกไม่สำเร็จ');
     },
   });
 
@@ -540,20 +540,20 @@ function TemplateSettingsPanel({
 
   const accessHint =
     template.visibility === 'GLOBAL'
-      ? 'Visible to every tenant on the platform.'
+      ? 'มองเห็นได้ทุกผู้เช่าในแพลตฟอร์ม'
       : template.organizationId
-        ? `Visible only to members of organization ${template.organizationId.slice(0, 8)}…`
-        : 'Visibility scope unknown.';
+        ? `มองเห็นได้เฉพาะสมาชิกขององค์กร ${template.organizationId.slice(0, 8)}…`
+        : 'ไม่ทราบขอบเขตการมองเห็น';
 
   return (
     <section className="px-6 py-5 bg-white border-b border-border-subtle">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h2 className="text-lg font-semibold text-ink">Template settings</h2>
+          <h2 className="text-lg font-semibold text-ink">การตั้งค่าเทมเพลต</h2>
           <p className="text-xs text-ink-muted">
             {accessHint}
             {!isGlobalAdmin
-              ? ' Tier and visibility are platform-level — only Global Admin can change them.'
+              ? ' ระดับและการมองเห็นเป็นระดับแพลตฟอร์ม — เฉพาะผู้ดูแลทั้งระบบเท่านั้นที่เปลี่ยนได้'
               : ''}
           </p>
         </div>
@@ -562,26 +562,26 @@ function TemplateSettingsPanel({
           onClick={onClose}
           className="text-sm text-ink-muted hover:text-ink"
         >
-          Close
+          ปิด
         </button>
       </div>
 
       <form onSubmit={onSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-        <Field label="Display name">
+        <Field label="ชื่อที่แสดง">
           <input
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             className="w-full px-2 py-1.5 border border-border-subtle rounded text-sm"
           />
         </Field>
-        <Field label="Author">
+        <Field label="ผู้เขียน">
           <input
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
             className="w-full px-2 py-1.5 border border-border-subtle rounded text-sm"
           />
         </Field>
-        <Field label="Description" className="md:col-span-2">
+        <Field label="คำอธิบาย" className="md:col-span-2">
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -589,7 +589,7 @@ function TemplateSettingsPanel({
             className="w-full px-2 py-1.5 border border-border-subtle rounded text-sm"
           />
         </Field>
-        <Field label="Type">
+        <Field label="ประเภท">
           <select
             value={type}
             onChange={(e) => setType(e.target.value)}
@@ -602,7 +602,7 @@ function TemplateSettingsPanel({
             ))}
           </select>
         </Field>
-        <Field label="Category">
+        <Field label="หมวดหมู่">
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
@@ -615,7 +615,7 @@ function TemplateSettingsPanel({
             ))}
           </select>
         </Field>
-        <Field label="Page orientation">
+        <Field label="แนวกระดาษ">
           <select
             value={pageOrientation}
             onChange={(e) =>
@@ -623,12 +623,12 @@ function TemplateSettingsPanel({
             }
             className="w-full px-2 py-1.5 border border-border-subtle rounded text-sm bg-white"
           >
-            <option value="PORTRAIT">Portrait</option>
-            <option value="LANDSCAPE">Landscape</option>
+            <option value="PORTRAIT">แนวตั้ง</option>
+            <option value="LANDSCAPE">แนวนอน</option>
           </select>
         </Field>
         {isGlobalAdmin ? (
-          <Field label="Tier" hint="Required user tier to use this template.">
+          <Field label="ระดับ" hint="ระดับผู้ใช้ที่ต้องการเพื่อใช้เทมเพลตนี้">
             <select
               value={tier}
               onChange={(e) => setTier(e.target.value)}
@@ -644,8 +644,8 @@ function TemplateSettingsPanel({
         ) : null}
         {isGlobalAdmin ? (
           <Field
-            label="Access / visibility"
-            hint="ORGANIZATION = only this tenant. GLOBAL = every tenant on the platform."
+            label="การเข้าถึง / การมองเห็น"
+            hint="ORGANIZATION = เฉพาะผู้เช่านี้เท่านั้น  GLOBAL = ทุกผู้เช่าในแพลตฟอร์ม"
             className="md:col-span-2"
           >
             <select
@@ -655,12 +655,12 @@ function TemplateSettingsPanel({
               }
               className="w-full px-2 py-1.5 border border-border-subtle rounded text-sm bg-white"
             >
-              <option value="ORGANIZATION">Organization-only</option>
-              <option value="GLOBAL">Global — all tenants</option>
+              <option value="ORGANIZATION">เฉพาะองค์กรเท่านั้น</option>
+              <option value="GLOBAL">ทั้งระบบ — ทุกผู้เช่า</option>
             </select>
           </Field>
         ) : null}
-        <Field label="Remarks" className="md:col-span-2">
+        <Field label="หมายเหตุ" className="md:col-span-2">
           <textarea
             value={remarks}
             onChange={(e) => setRemarks(e.target.value)}
@@ -675,8 +675,8 @@ function TemplateSettingsPanel({
         <div className="md:col-span-2 flex items-center justify-between">
           <span className="text-xs text-ink-muted">
             {savedAt
-              ? `Saved ${new Date(savedAt).toLocaleTimeString()}`
-              : 'Changes save when you click Save.'}
+              ? `บันทึกเมื่อ ${new Date(savedAt).toLocaleTimeString('th-TH')}`
+              : 'การเปลี่ยนแปลงจะถูกบันทึกเมื่อคุณคลิกบันทึก'}
           </span>
           <div className="flex gap-2">
             <button
@@ -684,7 +684,7 @@ function TemplateSettingsPanel({
               onClick={onClose}
               className="px-4 py-1.5 rounded border border-border-subtle text-sm"
             >
-              Cancel
+              ยกเลิก
             </button>
             <button
               type="submit"
@@ -692,7 +692,7 @@ function TemplateSettingsPanel({
               className="inline-flex items-center gap-1 px-4 py-1.5 rounded bg-primary text-white text-sm hover:bg-primary-hover disabled:opacity-50"
             >
               <Save className="w-3.5 h-3.5" />
-              {saveMutation.isPending ? 'Saving…' : 'Save changes'}
+              {saveMutation.isPending ? 'กำลังบันทึก…' : 'บันทึกการเปลี่ยนแปลง'}
             </button>
           </div>
         </div>

@@ -27,7 +27,7 @@ export default function LoginPage() {
       await login({ email, password });
       navigate(from, { replace: true });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Login failed');
+      setError(err instanceof ApiError ? err.message : 'เข้าสู่ระบบไม่สำเร็จ');
     } finally {
       setSubmitting(false);
     }
@@ -35,20 +35,20 @@ export default function LoginPage() {
 
   return (
     <AuthCard
-      title="Log in"
-      subtitle="Welcome back. Sign in to continue."
+      title="เข้าสู่ระบบ"
+      subtitle="ยินดีต้อนรับกลับมา เข้าสู่ระบบเพื่อใช้งานต่อ"
       footer={
         <>
-          Need an account?{' '}
+          ยังไม่มีบัญชี?{' '}
           <Link to="/auth/register" className="text-primary hover:underline">
-            Sign up
+            สมัครสมาชิก
           </Link>
         </>
       }
     >
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <div>
-          <label className={labelClass} htmlFor="email">Email</label>
+          <label className={labelClass} htmlFor="email">อีเมล</label>
           <input
             id="email"
             type="email"
@@ -60,7 +60,7 @@ export default function LoginPage() {
           />
         </div>
         <div>
-          <label className={labelClass} htmlFor="password">Password</label>
+          <label className={labelClass} htmlFor="password">รหัสผ่าน</label>
           <input
             id="password"
             type="password"
@@ -71,13 +71,13 @@ export default function LoginPage() {
           />
           <div className="text-right mt-1">
             <Link to="/auth/forgot-password" className="text-xs text-ink-muted hover:text-primary">
-              Forgot your password?
+              ลืมรหัสผ่าน?
             </Link>
           </div>
         </div>
         {error ? <div className="text-sm text-red-600">{error}</div> : null}
         <button type="submit" disabled={submitting} className={primaryBtn}>
-          {submitting ? 'Signing in…' : 'Sign in'}
+          {submitting ? 'กำลังเข้าสู่ระบบ…' : 'เข้าสู่ระบบ'}
         </button>
       </form>
     </AuthCard>

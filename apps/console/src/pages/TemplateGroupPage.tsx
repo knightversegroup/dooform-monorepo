@@ -29,7 +29,7 @@ export default function TemplateGroupPage() {
   return (
     <div>
       <PageHeader
-        title={docTypeQuery.data?.name ?? 'Document type'}
+        title={docTypeQuery.data?.name ?? 'ประเภทเอกสาร'}
         description={docTypeQuery.data?.description ?? undefined}
         breadcrumbs={
           <Link
@@ -37,7 +37,7 @@ export default function TemplateGroupPage() {
             className="inline-flex items-center gap-1 text-sm text-ink-muted hover:text-primary"
           >
             <ChevronLeft className="w-4 h-4" />
-            Back to Templates
+            กลับไปยังเทมเพลต
           </Link>
         }
       />
@@ -74,7 +74,7 @@ export default function TemplateGroupPage() {
             ))}
           </div>
         ) : !templatesQuery.isLoading ? (
-          <p className="text-sm text-ink-muted">No templates in this group yet.</p>
+          <p className="text-sm text-ink-muted">ยังไม่มีเทมเพลตในกลุ่มนี้</p>
         ) : null}
       </section>
     </div>

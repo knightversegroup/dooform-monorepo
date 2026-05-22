@@ -9,7 +9,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   if (status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center text-ink-muted text-sm">
-        Loading…
+        กำลังโหลด…
       </div>
     );
   }

@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom';
 export default function NotFoundPage() {
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-semibold mb-2">Page not found</h1>
+      <h1 className="text-2xl font-semibold mb-2">ไม่พบหน้าที่คุณค้นหา</h1>
       <p className="text-ink-muted mb-4">
-        The page you&apos;re looking for doesn&apos;t exist.
+        หน้านี้ไม่มีอยู่ในระบบ
       </p>
       <Link to="/templates" className="text-primary underline">
-        Go to Templates
+        ไปยังเทมเพลต
       </Link>
     </div>
   );

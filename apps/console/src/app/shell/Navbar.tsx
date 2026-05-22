@@ -84,7 +84,7 @@ function SettingsMenu({ sections }: { sections: NavMenuSection[] }) {
         }`}
       >
         <SettingsIcon className="w-5 h-5" strokeWidth={1.67} />
-        <span>Settings</span>
+        <span>การตั้งค่า</span>
         <ChevronDown
           className={`w-3.5 h-3.5 transition-transform ${open ? 'rotate-180' : ''}`}
         />
@@ -133,7 +133,7 @@ function Brand() {
     <Link to="/templates" className="flex items-center gap-2 p-1">
       <DooformLogo width={106} height={20} className="shrink-0" />
       <span className="text-[10px] font-medium uppercase tracking-wider text-neutral-500 px-1.5 py-0.5 rounded bg-neutral-200/70">
-        Console
+        คอนโซล
       </span>
     </Link>
   );
@@ -144,7 +144,7 @@ function SearchBox() {
     <div className="relative flex items-center w-64 h-8 px-3 py-1 bg-white border border-neutral-300 rounded">
       <input
         type="text"
-        placeholder="Search…"
+        placeholder="ค้นหา…"
         className="flex-1 text-sm font-medium text-neutral-700 placeholder-neutral-400 bg-transparent outline-none"
       />
       <Search className="w-4 h-4 text-neutral-400" />
@@ -190,7 +190,7 @@ function AccountMenu() {
         onClick={() => setOpen((v) => !v)}
         className="flex items-center gap-2.5 px-2 py-1 h-8 bg-blue-900 border border-blue-900 rounded text-white text-sm font-medium"
       >
-        <span>Account</span>
+        <span>บัญชี</span>
       </button>
 
       {open ? (
@@ -231,7 +231,7 @@ function AccountMenu() {
               className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
             >
               <UserIcon className="w-4 h-4 opacity-60" />
-              <span>Profile settings</span>
+              <span>ตั้งค่าโปรไฟล์</span>
             </Link>
             <Link
               to="/settings/organization"
@@ -239,7 +239,7 @@ function AccountMenu() {
               className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
             >
               <Building2 className="w-4 h-4 opacity-60" />
-              <span>Organization</span>
+              <span>องค์กร</span>
             </Link>
           </div>
           <div className="border-t border-neutral-100 py-1">
@@ -248,7 +248,7 @@ function AccountMenu() {
               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
             >
               <LogOut className="w-4 h-4 opacity-70" />
-              <span>Log out</span>
+              <span>ออกจากระบบ</span>
             </button>
           </div>
         </div>

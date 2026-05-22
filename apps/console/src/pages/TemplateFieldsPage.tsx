@@ -169,18 +169,18 @@ export default function TemplateFieldsPage() {
   return (
     <div>
       <PageHeader
-        title="Configure fields"
+        title="ตั้งค่าฟิลด์"
         description={
           tpl
-            ? `Define the data type and input control for each placeholder in “${tpl.displayName ?? tpl.name}”.`
-            : 'Define the data type and input control for each placeholder.'
+            ? `กำหนดประเภทข้อมูลและตัวควบคุมการกรอกของแต่ละ placeholder ใน “${tpl.displayName ?? tpl.name}”`
+            : 'กำหนดประเภทข้อมูลและตัวควบคุมการกรอกของแต่ละ placeholder'
         }
         breadcrumbs={
           <Link
             to={`/templates/${templateId}`}
             className="inline-flex items-center gap-1 text-sm text-ink-muted hover:text-primary"
           >
-            <ChevronLeft className="w-4 h-4" /> Back to Template
+            <ChevronLeft className="w-4 h-4" /> กลับไปยังเทมเพลต
           </Link>
         }
         actions={
@@ -189,10 +189,10 @@ export default function TemplateFieldsPage() {
               variant="outline"
               onClick={() => regenMutation.mutate()}
               disabled={regenMutation.isPending}
-              title="Re-detect placeholders from the DOCX. This overwrites your manual edits."
+              title="ตรวจหา placeholder จาก DOCX ใหม่ การกระทำนี้จะเขียนทับการแก้ไขด้วยมือ"
             >
               {regenMutation.isPending ? <Spinner /> : <Sparkles className="w-4 h-4" />}
-              Auto-detect from DOCX
+              ตรวจหาจาก DOCX อัตโนมัติ
             </Button>
             <Button
               variant="outline"
@@ -203,7 +203,7 @@ export default function TemplateFieldsPage() {
                 )
               }
             >
-              <RotateCcw className="w-4 h-4" /> Reset
+              <RotateCcw className="w-4 h-4" /> รีเซ็ต
             </Button>
             <Button
               disabled={!isDirty || saveMutation.isPending}
@@ -214,7 +214,7 @@ export default function TemplateFieldsPage() {
               ) : (
                 <Save className="w-4 h-4" />
               )}
-              Save fields
+              บันทึกฟิลด์
             </Button>
           </div>
         }
@@ -232,9 +232,9 @@ export default function TemplateFieldsPage() {
 
         {edited.length === 0 && !fieldsQuery.isLoading ? (
           <div className="rounded-md border border-border-default p-6 text-sm text-ink-muted bg-white">
-            No placeholders detected on this template. If the DOCX contains{' '}
-            <code className="font-mono">{'{{name}}'}</code> patterns, click
-            "Auto-detect from DOCX" above.
+            ไม่พบ placeholder ในเทมเพลตนี้ หาก DOCX มีรูปแบบ{' '}
+            <code className="font-mono">{'{{name}}'}</code> ให้คลิก
+            "ตรวจหาจาก DOCX อัตโนมัติ" ด้านบน
           </div>
         ) : null}
 
@@ -242,11 +242,11 @@ export default function TemplateFieldsPage() {
           <div className="rounded-md border border-border-default bg-white overflow-hidden">
             <div className="grid grid-cols-[minmax(140px,1fr)_minmax(160px,1fr)_minmax(160px,180px)_minmax(140px,160px)_70px_140px] gap-3 px-4 py-2 bg-surface-alt text-xs font-medium uppercase tracking-wide text-ink-muted">
               <div>Placeholder</div>
-              <div>Label</div>
-              <div>Data type</div>
-              <div>Input control</div>
-              <div className="text-center">Required</div>
-              <div className="text-right">Group</div>
+              <div>ป้ายชื่อ</div>
+              <div>ประเภทข้อมูล</div>
+              <div>ตัวควบคุมการกรอก</div>
+              <div className="text-center">บังคับ</div>
+              <div className="text-right">กลุ่ม</div>
             </div>
             <ul className="divide-y divide-border-default">
               {edited.map((field, idx) => {
@@ -267,8 +267,7 @@ export default function TemplateFieldsPage() {
                       </code>
                       {isGroup && field.radioOptions?.length ? (
                         <div className="text-[10px] text-primary mt-0.5">
-                          + {field.radioOptions.length - 1} more option
-                          {field.radioOptions.length - 1 === 1 ? '' : 's'}
+                          + ตัวเลือกอีก {field.radioOptions.length - 1} รายการ
                         </div>
                       ) : null}
                     </div>
@@ -311,9 +310,9 @@ export default function TemplateFieldsPage() {
                       return (
                         <span
                           className="px-2 py-1.5 text-xs rounded border border-border-default bg-surface-alt text-ink-muted truncate"
-                          title={`Inherited from data type "${
+                          title={`สืบทอดจากประเภทข้อมูล "${
                             resolvedDataType?.label ?? field.dataType
-                          }". Change in /settings/field-types to remap.`}
+                          }" — เปลี่ยนได้ที่ /settings/field-types`}
                         >
                           {inputLabel}
                         </span>
@@ -335,14 +334,14 @@ export default function TemplateFieldsPage() {
                           <button
                             onClick={() => setGroupModalIdx(idx)}
                             className="px-2 py-1 text-xs rounded border border-border-default hover:bg-surface-alt"
-                            title="Edit group options"
+                            title="แก้ไขตัวเลือกกลุ่ม"
                           >
-                            <LinkIcon className="w-3 h-3 inline" /> Edit
+                            <LinkIcon className="w-3 h-3 inline" /> แก้ไข
                           </button>
                           <button
                             onClick={() => handleUngroup(idx)}
                             className="p-1 text-red-500 hover:bg-red-50 rounded"
-                            title="Disband this group"
+                            title="ยกเลิกกลุ่มนี้"
                           >
                             <Unlink className="w-3.5 h-3.5" />
                           </button>
@@ -351,9 +350,9 @@ export default function TemplateFieldsPage() {
                         <button
                           onClick={() => setGroupModalIdx(idx)}
                           className="px-2 py-1 text-xs rounded border border-border-default hover:bg-surface-alt"
-                          title="Group this placeholder with others into a radio control"
+                          title="จัดกลุ่ม placeholder นี้กับ placeholder อื่นเป็นตัวควบคุมแบบเรดิโอ"
                         >
-                          <Layers className="w-3 h-3 inline" /> Group
+                          <Layers className="w-3 h-3 inline" /> จัดกลุ่ม
                         </button>
                       )}
                     </div>
@@ -367,31 +366,27 @@ export default function TemplateFieldsPage() {
         {edited.length > 0 ? (
           <div className="text-xs text-ink-muted mt-3 space-y-1">
             <p>
-              Saving updates the template's field metadata. The fill form and document
-              edit views pick up the new types on next load.
+              การบันทึกจะอัปเดต metadata ของฟิลด์ในเทมเพลต ฟอร์มกรอกและมุมมองแก้ไขเอกสารจะใช้
+              ประเภทใหม่เมื่อโหลดครั้งถัดไป
             </p>
             <p>
-              The Input control column is read-only — it follows whatever the chosen
-              data type's default input is. To remap a control globally (e.g. make
-              "Phone number" use a textarea instead of a tel input), edit the data
-              type in{' '}
+              คอลัมน์ "ตัวควบคุมการกรอก" เป็นแบบอ่านอย่างเดียว — จะเป็นไปตามค่าเริ่มต้นของประเภทข้อมูลที่เลือก
+              หากต้องการเปลี่ยนตัวควบคุมแบบทั่วทั้งระบบ (เช่น ให้ "เบอร์โทรศัพท์" ใช้ textarea แทน tel)
+              ให้แก้ไขประเภทข้อมูลใน{' '}
               <Link to="/settings/field-types" className="text-primary hover:underline">
                 /settings/field-types
               </Link>
-              .
             </p>
             <p>
-              Radio groups: the selected option's placeholder is filled with{' '}
-              <code className="font-mono">{DEFAULT_TICK}</code>; the others get an
-              empty string. Brackets like{' '}
-              <code className="font-mono">[{'{{S_1_1}}'}]</code> in the DOCX render as
-              ticked or empty boxes.
+              กลุ่มเรดิโอ: placeholder ของตัวเลือกที่ถูกเลือกจะถูกเติมด้วย{' '}
+              <code className="font-mono">{DEFAULT_TICK}</code>  ส่วนตัวอื่นจะเป็นสตริงว่าง
+              วงเล็บเช่น{' '}
+              <code className="font-mono">[{'{{S_1_1}}'}]</code> ใน DOCX จะแสดงเป็นช่องติ๊กหรือช่องว่าง
             </p>
             {groupConsumed.size > 0 ? (
               <p>
-                {groupConsumed.size} placeholder
-                {groupConsumed.size === 1 ? ' is' : 's are'} owned by radio groups
-                (hidden from the top-level list above).
+                มี placeholder {groupConsumed.size} รายการถูกใช้งานโดยกลุ่มเรดิโอ
+                (ถูกซ่อนจากรายการระดับบน)
               </p>
             ) : null}
           </div>

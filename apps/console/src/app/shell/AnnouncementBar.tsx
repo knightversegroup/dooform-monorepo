@@ -124,13 +124,13 @@ function SlideContent({ announcement }: { announcement: Announcement }) {
 
 function Clock() {
   const now = useNow(1000);
-  const time = now.toLocaleTimeString([], {
+  const time = now.toLocaleTimeString('th-TH', {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
     hour12: false,
   });
-  const date = now.toLocaleDateString([], {
+  const date = now.toLocaleDateString('th-TH', {
     year: 'numeric',
     month: 'short',
     day: '2-digit',

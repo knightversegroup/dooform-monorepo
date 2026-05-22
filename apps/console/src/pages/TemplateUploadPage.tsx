@@ -67,8 +67,8 @@ export default function TemplateUploadPage() {
 
   const uploadMutation = useMutation({
     mutationFn: () => {
-      if (!file) throw new Error('Please choose a DOCX file.');
-      if (!name.trim()) throw new Error('Please provide a template name.');
+      if (!file) throw new Error('กรุณาเลือกไฟล์ DOCX');
+      if (!name.trim()) throw new Error('กรุณาระบุชื่อเทมเพลต');
       return createTemplate({
         file,
         name,
@@ -92,14 +92,14 @@ export default function TemplateUploadPage() {
   return (
     <div>
       <PageHeader
-        title="Upload template"
-        description="Upload a DOCX file with {{placeholders}}. Fields will be auto-detected."
+        title="อัปโหลดเทมเพลต"
+        description="อัปโหลดไฟล์ DOCX ที่มี {{placeholders}} ระบบจะตรวจหาฟิลด์อัตโนมัติ"
         breadcrumbs={
           <Link
             to="/templates"
             className="inline-flex items-center gap-1 text-sm text-ink-muted hover:text-primary"
           >
-            <ChevronLeft className="w-4 h-4" /> Back to Templates
+            <ChevronLeft className="w-4 h-4" /> กลับไปยังเทมเพลต
           </Link>
         }
       />
@@ -112,10 +112,10 @@ export default function TemplateUploadPage() {
         }}
       >
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-ink-subtle">DOCX file</label>
+          <label className="text-sm font-medium text-ink-subtle">ไฟล์ DOCX</label>
           <label className="inline-flex items-center justify-center gap-2 px-4 py-6 border-2 border-dashed border-border-default rounded-md cursor-pointer hover:border-primary hover:bg-surface-alt text-sm">
             <Upload className="w-5 h-5 text-ink-muted" />
-            <span>{file ? file.name : 'Click to choose a .docx file'}</span>
+            <span>{file ? file.name : 'คลิกเพื่อเลือกไฟล์ .docx'}</span>
             <input
               type="file"
               accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -127,12 +127,12 @@ export default function TemplateUploadPage() {
 
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-ink-subtle">
-            Custom HTML preview <span className="text-ink-muted font-normal">(optional)</span>
+            ตัวอย่าง HTML แบบกำหนดเอง <span className="text-ink-muted font-normal">(ไม่บังคับ)</span>
           </label>
           <label className="inline-flex items-center justify-center gap-2 px-4 py-4 border-2 border-dashed border-border-default rounded-md cursor-pointer hover:border-primary hover:bg-surface-alt text-sm">
             <Upload className="w-5 h-5 text-ink-muted" />
             <span>
-              {htmlFile ? htmlFile.name : 'Click to choose a .html file to replace LibreOffice output'}
+              {htmlFile ? htmlFile.name : 'คลิกเพื่อเลือกไฟล์ .html ทดแทนผลลัพธ์จาก LibreOffice'}
             </span>
             <input
               type="file"
@@ -147,19 +147,19 @@ export default function TemplateUploadPage() {
               onClick={() => setHtmlFile(null)}
               className="self-start text-xs text-ink-muted hover:text-primary"
             >
-              Remove HTML file
+              ลบไฟล์ HTML
             </button>
           ) : (
             <span className="text-[11px] text-ink-muted">
-              When provided, this HTML is saved as the preview byte-for-byte. PDF and thumbnails are still generated from the DOCX.
+              เมื่อระบุไฟล์นี้ HTML จะถูกบันทึกเป็นตัวอย่างแบบไบต์ต่อไบต์ ส่วน PDF และภาพย่อยังคงสร้างจาก DOCX
             </span>
           )}
         </div>
 
-        <Input label="Name *" value={name} onChange={(e) => setName(e.target.value)} required />
-        <Input label="Display name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+        <Input label="ชื่อ *" value={name} onChange={(e) => setName(e.target.value)} required />
+        <Input label="ชื่อที่แสดง" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-ink-subtle">Description</label>
+          <label className="text-sm font-medium text-ink-subtle">คำอธิบาย</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -167,17 +167,17 @@ export default function TemplateUploadPage() {
             className="w-full px-3 py-2 rounded-md border border-border-default bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
-        <Input label="Author" value={author} onChange={(e) => setAuthor(e.target.value)} />
+        <Input label="ผู้เขียน" value={author} onChange={(e) => setAuthor(e.target.value)} />
 
         <div className="grid grid-cols-2 gap-3">
           <label className="flex flex-col gap-1">
-            <span className="text-sm font-medium text-ink-subtle">Type</span>
+            <span className="text-sm font-medium text-ink-subtle">ประเภท</span>
             <select
               value={type}
               onChange={(e) => setType(e.target.value)}
               className="px-3 py-2 rounded-md border border-border-default bg-white text-sm"
             >
-              {types.length === 0 ? <option value="">Loading…</option> : null}
+              {types.length === 0 ? <option value="">กำลังโหลด…</option> : null}
               {types.map((t) => (
                 <option key={t.id} value={t.code}>
                   {t.label}
@@ -187,30 +187,30 @@ export default function TemplateUploadPage() {
           </label>
           {isGlobalAdmin ? (
             <label className="flex flex-col gap-1">
-              <span className="text-sm font-medium text-ink-subtle">Tier</span>
+              <span className="text-sm font-medium text-ink-subtle">ระดับ</span>
               <select
                 value={tier}
                 onChange={(e) => setTier(e.target.value)}
                 className="px-3 py-2 rounded-md border border-border-default bg-white text-sm"
               >
-                {tiers.length === 0 ? <option value="">Loading…</option> : null}
+                {tiers.length === 0 ? <option value="">กำลังโหลด…</option> : null}
                 {tiers.map((t) => (
                   <option key={t.id} value={t.code}>
                     {t.label}
                   </option>
                 ))}
               </select>
-              <span className="text-[11px] text-ink-muted">Global admin only.</span>
+              <span className="text-[11px] text-ink-muted">เฉพาะผู้ดูแลทั้งระบบเท่านั้น</span>
             </label>
           ) : null}
           <label className="flex flex-col gap-1">
-            <span className="text-sm font-medium text-ink-subtle">Category</span>
+            <span className="text-sm font-medium text-ink-subtle">หมวดหมู่</span>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className="px-3 py-2 rounded-md border border-border-default bg-white text-sm"
             >
-              {categories.length === 0 ? <option value="">Loading…</option> : null}
+              {categories.length === 0 ? <option value="">กำลังโหลด…</option> : null}
               {categories.map((c) => (
                 <option key={c.id} value={c.code}>
                   {c.label}
@@ -219,29 +219,29 @@ export default function TemplateUploadPage() {
             </select>
           </label>
           <label className="flex flex-col gap-1">
-            <span className="text-sm font-medium text-ink-subtle">Page orientation</span>
+            <span className="text-sm font-medium text-ink-subtle">แนวกระดาษ</span>
             <select
               value={pageOrientation}
               onChange={(e) => setPageOrientation(e.target.value as 'PORTRAIT' | 'LANDSCAPE')}
               className="px-3 py-2 rounded-md border border-border-default bg-white text-sm"
             >
-              <option value="PORTRAIT">Portrait</option>
-              <option value="LANDSCAPE">Landscape</option>
+              <option value="PORTRAIT">แนวตั้ง</option>
+              <option value="LANDSCAPE">แนวนอน</option>
             </select>
           </label>
           {isGlobalAdmin ? (
             <label className="flex flex-col gap-1">
-              <span className="text-sm font-medium text-ink-subtle">Visibility</span>
+              <span className="text-sm font-medium text-ink-subtle">การมองเห็น</span>
               <select
                 value={visibility}
                 onChange={(e) => setVisibility(e.target.value as 'ORGANIZATION' | 'GLOBAL')}
                 className="px-3 py-2 rounded-md border border-border-default bg-white text-sm"
               >
-                <option value="ORGANIZATION">Organization (default)</option>
-                <option value="GLOBAL">Global — visible to all tenants</option>
+                <option value="ORGANIZATION">องค์กร (ค่าเริ่มต้น)</option>
+                <option value="GLOBAL">ทั้งระบบ — มองเห็นได้ทุกผู้เช่า</option>
               </select>
               <span className="text-[11px] text-ink-muted">
-                Global templates are visible to every organization.
+                เทมเพลตทั้งระบบมองเห็นได้จากทุกองค์กร
               </span>
             </label>
           ) : null}
@@ -251,11 +251,11 @@ export default function TemplateUploadPage() {
 
         <div className="flex items-center justify-end gap-2 pt-2">
           <Button type="button" variant="outline" onClick={() => navigate('/templates')}>
-            Cancel
+            ยกเลิก
           </Button>
           <Button type="submit" disabled={uploadMutation.isPending || !file || !name.trim()}>
             {uploadMutation.isPending ? <Spinner className="text-white" /> : <Upload className="w-4 h-4" />}
-            Upload template
+            อัปโหลดเทมเพลต
           </Button>
         </div>
       </form>

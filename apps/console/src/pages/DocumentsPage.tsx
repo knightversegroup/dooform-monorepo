@@ -45,13 +45,13 @@ export default function DocumentsPage() {
   return (
     <div>
       <PageHeader
-        title="Documents"
-        description="Documents you own or that have been shared with you."
+        title="เอกสาร"
+        description="เอกสารที่คุณเป็นเจ้าของหรือถูกแชร์มาให้คุณ"
       />
       <div className="px-6 py-4 flex flex-col md:flex-row md:items-center gap-3 border-b border-border-subtle">
         <ScopeTabs value={scope} onChange={(s) => { setScope(s); setPage(1); }} />
         <div className="md:ml-auto flex items-center gap-2">
-          <span className="text-xs text-ink-muted">Lifecycle:</span>
+          <span className="text-xs text-ink-muted">สถานะ:</span>
           <select
             value={lifecycle}
             onChange={(e) => {
@@ -60,7 +60,7 @@ export default function DocumentsPage() {
             }}
             className="px-3 py-1.5 rounded-md border border-border-subtle bg-white text-sm"
           >
-            <option value="">All states</option>
+            <option value="">ทุกสถานะ</option>
             {LIFECYCLE_ORDER.map((s) => (
               <option key={s} value={s}>
                 {s.replace('_', ' ')}
@@ -78,10 +78,10 @@ export default function DocumentsPage() {
             <table className="w-full text-sm">
               <thead className="bg-surface-alt text-ink-muted text-left">
                 <tr>
-                  <th className="px-4 py-2 font-medium">Document</th>
-                  <th className="px-4 py-2 font-medium">Lifecycle</th>
-                  <th className="px-4 py-2 font-medium">Owner</th>
-                  <th className="px-4 py-2 font-medium">Created</th>
+                  <th className="px-4 py-2 font-medium">เอกสาร</th>
+                  <th className="px-4 py-2 font-medium">สถานะ</th>
+                  <th className="px-4 py-2 font-medium">เจ้าของ</th>
+                  <th className="px-4 py-2 font-medium">สร้างเมื่อ</th>
                   <th className="px-4 py-2 font-medium" />
                 </tr>
               </thead>
@@ -104,14 +104,14 @@ export default function DocumentsPage() {
                       {doc.ownerUserId ?? '—'}
                     </td>
                     <td className="px-4 py-2 text-ink-muted">
-                      {doc.createdAt ? new Date(doc.createdAt).toLocaleString() : '—'}
+                      {doc.createdAt ? new Date(doc.createdAt).toLocaleString('th-TH') : '—'}
                     </td>
                     <td className="px-4 py-2 text-right">
                       <Link
                         to={`/documents/${doc.id}`}
                         className="text-sm text-primary hover:underline"
                       >
-                        Open
+                        เปิด
                       </Link>
                     </td>
                   </tr>
@@ -120,13 +120,13 @@ export default function DocumentsPage() {
             </table>
           </div>
         ) : !historyQuery.isLoading ? (
-          <p className="text-sm text-ink-muted">No documents yet.</p>
+          <p className="text-sm text-ink-muted">ยังไม่มีเอกสาร</p>
         ) : null}
 
         {totalPages > 1 ? (
           <div className="flex items-center justify-between text-sm">
             <span className="text-ink-muted">
-              Page {page} of {totalPages} · {total} total
+              หน้า {page} จาก {totalPages} · ทั้งหมด {total}
             </span>
             <div className="flex items-center gap-2">
               <Button
@@ -135,7 +135,7 @@ export default function DocumentsPage() {
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
               >
-                <ChevronLeft className="w-4 h-4" /> Previous
+                <ChevronLeft className="w-4 h-4" /> ก่อนหน้า
               </Button>
               <Button
                 variant="outline"
@@ -143,7 +143,7 @@ export default function DocumentsPage() {
                 disabled={page >= totalPages}
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               >
-                Next <ChevronRight className="w-4 h-4" />
+                ถัดไป <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
           </div>
@@ -161,9 +161,9 @@ function ScopeTabs({
   onChange: (s: Scope) => void;
 }) {
   const tabs: { value: Scope; label: string }[] = [
-    { value: 'all', label: 'All' },
-    { value: 'owned', label: 'My documents' },
-    { value: 'shared', label: 'Shared with me' },
+    { value: 'all', label: 'ทั้งหมด' },
+    { value: 'owned', label: 'เอกสารของฉัน' },
+    { value: 'shared', label: 'แชร์กับฉัน' },
   ];
   return (
     <div className="inline-flex rounded-md border border-border-subtle overflow-hidden">

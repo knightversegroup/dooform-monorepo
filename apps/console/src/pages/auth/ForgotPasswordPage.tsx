@@ -18,7 +18,7 @@ export default function ForgotPasswordPage() {
       await authApi.requestPasswordReset(email);
       setSubmitted(true);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Something went wrong');
+      setError(err instanceof ApiError ? err.message : 'เกิดข้อผิดพลาด');
     } finally {
       setSubmitting(false);
     }
@@ -27,11 +27,11 @@ export default function ForgotPasswordPage() {
   if (submitted) {
     return (
       <AuthCard
-        title="Check your email"
-        subtitle={`If an account exists for ${email}, we've sent a password reset link.`}
+        title="โปรดตรวจสอบอีเมล"
+        subtitle={`หากมีบัญชีที่ใช้ ${email} เราได้ส่งลิงก์รีเซ็ตรหัสผ่านไปแล้ว`}
         footer={
           <Link to="/auth/login" className="text-primary hover:underline">
-            Back to log in
+            กลับไปหน้าเข้าสู่ระบบ
           </Link>
         }
       >
@@ -42,22 +42,22 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthCard
-      title="Forgot your password?"
-      subtitle="Enter your email and we'll send you a reset link."
+      title="ลืมรหัสผ่าน?"
+      subtitle="กรอกอีเมลของคุณ เราจะส่งลิงก์รีเซ็ตรหัสผ่านให้"
       footer={
         <Link to="/auth/login" className="text-primary hover:underline">
-          Back to log in
+          กลับไปหน้าเข้าสู่ระบบ
         </Link>
       }
     >
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <div>
-          <label className={labelClass} htmlFor="email">Email</label>
+          <label className={labelClass} htmlFor="email">อีเมล</label>
           <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} required autoFocus />
         </div>
         {error ? <div className="text-sm text-red-600">{error}</div> : null}
         <button type="submit" disabled={submitting} className={primaryBtn}>
-          {submitting ? 'Sending…' : 'Send reset link'}
+          {submitting ? 'กำลังส่ง…' : 'ส่งลิงก์รีเซ็ต'}
         </button>
       </form>
     </AuthCard>

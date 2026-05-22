@@ -26,7 +26,7 @@ export function RequirePermission({
   if (status === 'loading') {
     return (
       <div className="min-h-[40vh] flex items-center justify-center text-sm text-ink-muted">
-        Loading…
+        กำลังโหลด…
       </div>
     );
   }

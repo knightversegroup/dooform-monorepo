@@ -37,7 +37,7 @@ export default function RegisterPage() {
       });
       navigate('/auth/onboarding', { replace: true });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Registration failed');
+      setError(err instanceof ApiError ? err.message : 'สมัครสมาชิกไม่สำเร็จ');
     } finally {
       setSubmitting(false);
     }
@@ -45,13 +45,13 @@ export default function RegisterPage() {
 
   return (
     <AuthCard
-      title="Create your account"
-      subtitle="Start with a 14-day free trial of the Pro tier."
+      title="สร้างบัญชีของคุณ"
+      subtitle="เริ่มต้นด้วยทดลองใช้แพ็กเกจ Pro ฟรี 14 วัน"
       footer={
         <>
-          Already have an account?{' '}
+          มีบัญชีอยู่แล้ว?{' '}
           <Link to="/auth/login" className="text-primary hover:underline">
-            Log in
+            เข้าสู่ระบบ
           </Link>
         </>
       }
@@ -66,7 +66,7 @@ export default function RegisterPage() {
               : 'border-border-default text-ink-muted'
           }`}
         >
-          Create organization
+          สร้างองค์กรใหม่
         </button>
         <button
           type="button"
@@ -77,37 +77,37 @@ export default function RegisterPage() {
               : 'border-border-default text-ink-muted'
           }`}
         >
-          Join with invite code
+          เข้าร่วมด้วยรหัสเชิญ
         </button>
       </div>
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <div>
-          <label className={labelClass} htmlFor="name">Full name</label>
+          <label className={labelClass} htmlFor="name">ชื่อ-นามสกุล</label>
           <input id="name" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} required />
         </div>
         <div>
-          <label className={labelClass} htmlFor="email">Email</label>
+          <label className={labelClass} htmlFor="email">อีเมล</label>
           <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} required />
         </div>
         <div>
-          <label className={labelClass} htmlFor="password">Password</label>
+          <label className={labelClass} htmlFor="password">รหัสผ่าน</label>
           <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className={inputClass} required minLength={8} />
-          <div className="text-xs text-ink-muted mt-1">At least 8 characters.</div>
+          <div className="text-xs text-ink-muted mt-1">อย่างน้อย 8 ตัวอักษร</div>
         </div>
         {mode === 'create' ? (
           <div>
-            <label className={labelClass} htmlFor="org">Organization name</label>
+            <label className={labelClass} htmlFor="org">ชื่อองค์กร</label>
             <input id="org" value={organizationName} onChange={(e) => setOrganizationName(e.target.value)} className={inputClass} required />
           </div>
         ) : (
           <div>
-            <label className={labelClass} htmlFor="invite">Invite code</label>
+            <label className={labelClass} htmlFor="invite">รหัสเชิญ</label>
             <input id="invite" value={inviteCode} onChange={(e) => setInviteCode(e.target.value)} className={inputClass} required />
           </div>
         )}
         {error ? <div className="text-sm text-red-600">{error}</div> : null}
         <button type="submit" disabled={submitting} className={primaryBtn}>
-          {submitting ? 'Creating account…' : 'Create account'}
+          {submitting ? 'กำลังสร้างบัญชี…' : 'สร้างบัญชี'}
         </button>
       </form>
     </AuthCard>

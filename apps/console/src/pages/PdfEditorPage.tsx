@@ -10,14 +10,14 @@ export default function PdfEditorPage() {
   return (
     <div>
       <PageHeader
-        title="PDF Editor"
-        description="Add text or strikethrough annotations, then finalize."
+        title="ตัวแก้ไข PDF"
+        description="เพิ่มข้อความหรือเส้นขีดฆ่าทับ แล้วยืนยันผลลัพธ์สุดท้าย"
         breadcrumbs={
           <Link
             to={`/documents/${documentId}`}
             className="inline-flex items-center gap-1 text-sm text-ink-muted hover:text-primary"
           >
-            <ChevronLeft className="w-4 h-4" /> Back to document
+            <ChevronLeft className="w-4 h-4" /> กลับไปยังเอกสาร
           </Link>
         }
       />
@@ -28,7 +28,7 @@ export default function PdfEditorPage() {
             onFinalized={() => navigate(`/documents/${documentId}`)}
           />
         ) : (
-          <p className="text-sm text-ink-muted">Missing document id.</p>
+          <p className="text-sm text-ink-muted">ไม่พบรหัสเอกสาร</p>
         )}
       </div>
     </div>

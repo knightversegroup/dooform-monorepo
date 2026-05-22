@@ -50,7 +50,7 @@ export default function OnboardingPage() {
   }, [status, user, navigate]);
 
   if (status === 'loading' || !user) {
-    return <AuthCard title="Loading…"><div /></AuthCard>;
+    return <AuthCard title="กำลังโหลด…"><div /></AuthCard>;
   }
 
   const isOrgAdmin = user.role === 'ORG_ADMIN' || user.role === 'GLOBAL_ADMIN';
@@ -71,7 +71,7 @@ export default function OnboardingPage() {
       setUser(updated);
       navigate('/', { replace: true });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Could not save profile');
+      setError(err instanceof ApiError ? err.message : 'ไม่สามารถบันทึกโปรไฟล์ได้');
     } finally {
       setSubmitting(false);
     }
@@ -79,48 +79,48 @@ export default function OnboardingPage() {
 
   return (
     <AuthCard
-      title={`Welcome, ${user.name || 'there'}!`}
-      subtitle="A few quick details before you get started."
+      title={`ยินดีต้อนรับ, ${user.name || 'คุณ'}!`}
+      subtitle="กรอกข้อมูลเล็กน้อยก่อนเริ่มต้นใช้งาน"
     >
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <div>
-          <label className={labelClass} htmlFor="name">Display name</label>
+          <label className={labelClass} htmlFor="name">ชื่อที่แสดง</label>
           <input id="name" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} required />
         </div>
         <div>
-          <label className={labelClass} htmlFor="avatarUrl">Avatar URL <span className="text-ink-muted font-normal">(optional)</span></label>
+          <label className={labelClass} htmlFor="avatarUrl">URL รูปโปรไฟล์ <span className="text-ink-muted font-normal">(ไม่บังคับ)</span></label>
           <input id="avatarUrl" value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)} className={inputClass} placeholder="https://…" />
         </div>
         <div>
-          <label className={labelClass} htmlFor="jobTitle">Job title <span className="text-ink-muted font-normal">(optional)</span></label>
+          <label className={labelClass} htmlFor="jobTitle">ตำแหน่งงาน <span className="text-ink-muted font-normal">(ไม่บังคับ)</span></label>
           <input id="jobTitle" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} className={inputClass} />
         </div>
         {isOrgAdmin ? (
           <div>
-            <label className={labelClass} htmlFor="org">Organization name</label>
+            <label className={labelClass} htmlFor="org">ชื่อองค์กร</label>
             <input
               id="org"
               value={organizationName}
               onChange={(e) => setOrganizationName(e.target.value)}
               className={inputClass}
-              placeholder="Leave blank to keep current"
+              placeholder="เว้นว่างเพื่อใช้ค่าปัจจุบัน"
             />
-            <div className="text-xs text-ink-muted mt-1">Only visible to org admins.</div>
+            <div className="text-xs text-ink-muted mt-1">เห็นได้เฉพาะผู้ดูแลองค์กรเท่านั้น</div>
           </div>
         ) : null}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={labelClass} htmlFor="timezone">Timezone</label>
+            <label className={labelClass} htmlFor="timezone">เขตเวลา</label>
             <input id="timezone" value={timezone} onChange={(e) => setTimezone(e.target.value)} className={inputClass} placeholder="Asia/Bangkok" />
           </div>
           <div>
-            <label className={labelClass} htmlFor="locale">Language</label>
-            <input id="locale" value={locale} onChange={(e) => setLocale(e.target.value)} className={inputClass} placeholder="en-US" />
+            <label className={labelClass} htmlFor="locale">ภาษา</label>
+            <input id="locale" value={locale} onChange={(e) => setLocale(e.target.value)} className={inputClass} placeholder="th-TH" />
           </div>
         </div>
         {error ? <div className="text-sm text-red-600">{error}</div> : null}
         <button type="submit" disabled={submitting} className={primaryBtn}>
-          {submitting ? 'Saving…' : 'Continue to Dooform'}
+          {submitting ? 'กำลังบันทึก…' : 'ไปยัง Dooform'}
         </button>
       </form>
     </AuthCard>

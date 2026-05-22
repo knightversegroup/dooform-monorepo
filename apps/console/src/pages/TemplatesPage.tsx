@@ -219,7 +219,7 @@ export default function TemplatesPage() {
     fn: (id: string) => Promise<unknown>,
   ) => {
     if (!selectedCount) return;
-    if (!confirm(`${confirmMsg} (${selectedCount})`)) return;
+    if (!confirm(`${confirmMsg} (${selectedCount} รายการ)`)) return;
     for (const id of selectedIds) {
       try {
         await fn(id);
@@ -234,13 +234,13 @@ export default function TemplatesPage() {
   return (
     <div className="flex flex-col">
       <PageHeader
-        title="Templates"
-        description="Browse, manage, and bulk-edit templates."
+        title="เทมเพลต"
+        description="ดู จัดการ และแก้ไขเทมเพลตแบบกลุ่ม"
         actions={
           canCreateTemplate ? (
             <Link to="/templates/new">
               <Button variant="primary" size="sm">
-                <Plus className="w-3.5 h-3.5" /> Upload template
+                <Plus className="w-3.5 h-3.5" /> อัปโหลดเทมเพลต
               </Button>
             </Link>
           ) : null
@@ -252,9 +252,9 @@ export default function TemplatesPage() {
         {docTypesQuery.data?.length ? (
           <section className="flex flex-col gap-[20px]">
             <div>
-              <h2 className="text-[24px] font-semibold text-black">Document type groups</h2>
+              <h2 className="text-[24px] font-semibold text-black">กลุ่มประเภทเอกสาร</h2>
               <p className="text-[16px] font-normal text-black mt-[2px]">
-                Jump into a category to manage variants in one place.
+                เข้าไปยังหมวดหมู่เพื่อจัดการเทมเพลตประเภทต่าง ๆ ในที่เดียว
               </p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
@@ -280,9 +280,9 @@ export default function TemplatesPage() {
         {recentTemplates.length > 0 && (
           <section className="flex flex-col gap-[20px]">
             <div>
-              <h2 className="text-[24px] font-semibold text-black">Recent templates</h2>
+              <h2 className="text-[24px] font-semibold text-black">เทมเพลตล่าสุด</h2>
               <p className="text-[16px] font-normal text-black mt-[2px]">
-                Lately updated templates from your workspace.
+                เทมเพลตที่อัปเดตล่าสุดในเวิร์กสเปซของคุณ
               </p>
             </div>
             <div className="relative">
@@ -299,9 +299,9 @@ export default function TemplatesPage() {
         {/* Sticky control bar */}
         <section className="sticky top-[112px] z-10 bg-white flex flex-col gap-[20px] pt-[20px] pb-[12px]">
           <div>
-            <h2 className="text-[24px] font-semibold text-black">All templates</h2>
+            <h2 className="text-[24px] font-semibold text-black">เทมเพลตทั้งหมด</h2>
             <p className="text-[16px] font-normal text-black mt-[2px]">
-              Search, filter, and operate on templates.
+              ค้นหา กรอง และดำเนินการกับเทมเพลต
             </p>
           </div>
 
@@ -315,7 +315,7 @@ export default function TemplatesPage() {
                     setSearch(e.target.value);
                     setActiveLetter(null);
                   }}
-                  placeholder="Search templates…"
+                  placeholder="ค้นหาเทมเพลต…"
                   className="w-full h-[31px] pl-3 pr-8 border-[0.5px] border-[#b3b3b3] rounded text-[14px] font-medium text-black placeholder:text-[#b3b3b3] focus:outline-none focus:border-blue-900 transition-colors"
                 />
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-[#b3b3b3]" />
@@ -324,7 +324,7 @@ export default function TemplatesPage() {
               <button
                 onClick={() => setSortDirection((d) => (d === 'asc' ? 'desc' : 'asc'))}
                 className="w-[31px] h-[31px] flex items-center justify-center border-[0.5px] border-[#b3b3b3] rounded hover:bg-stone-50 transition-colors"
-                title={sortDirection === 'asc' ? 'Sort A→Z' : 'Sort Z→A'}
+                title={sortDirection === 'asc' ? 'เรียง A→Z' : 'เรียง Z→A'}
               >
                 {sortDirection === 'asc' ? (
                   <ArrowDownAZ className="w-[18px] h-[18px] text-[#4d4d4d]" />
@@ -338,10 +338,10 @@ export default function TemplatesPage() {
                 onChange={(e) => setStatus(e.target.value)}
                 className="h-[31px] px-2 border-[0.5px] border-[#b3b3b3] rounded text-[14px] font-medium text-black bg-white focus:outline-none focus:border-blue-900 transition-colors"
               >
-                <option value="">All statuses</option>
-                <option value="DRAFT">Draft</option>
-                <option value="PUBLISHED">Published</option>
-                <option value="ARCHIVED">Archived</option>
+                <option value="">ทุกสถานะ</option>
+                <option value="DRAFT">ฉบับร่าง</option>
+                <option value="PUBLISHED">เผยแพร่แล้ว</option>
+                <option value="ARCHIVED">เก็บถาวร</option>
               </select>
             </div>
 
@@ -387,7 +387,7 @@ export default function TemplatesPage() {
           {selectedCount > 0 ? (
             <div className="flex items-center gap-2 px-3 py-2 bg-stone-50 border border-[#e6e6e6] rounded-md">
               <span className="text-[12px] text-neutral-700">
-                {selectedCount} selected
+                เลือกแล้ว {selectedCount} รายการ
               </span>
               <div className="ml-auto flex items-center gap-1.5">
                 {canUpdateTemplate ? (
@@ -397,36 +397,36 @@ export default function TemplatesPage() {
                       size="sm"
                       disabled={isMutating}
                       onClick={() =>
-                        runBulk('publish', 'Publish selected templates?', (id) =>
+                        runBulk('publish', 'เผยแพร่เทมเพลตที่เลือกหรือไม่?', (id) =>
                           publishMutation.mutateAsync(id),
                         )
                       }
                     >
-                      <Globe className="w-3.5 h-3.5" /> Publish
+                      <Globe className="w-3.5 h-3.5" /> เผยแพร่
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       disabled={isMutating}
                       onClick={() =>
-                        runBulk('unpublish', 'Unpublish selected templates?', (id) =>
+                        runBulk('unpublish', 'ยกเลิกการเผยแพร่เทมเพลตที่เลือกหรือไม่?', (id) =>
                           unpublishMutation.mutateAsync(id),
                         )
                       }
                     >
-                      <FileEdit className="w-3.5 h-3.5" /> Unpublish
+                      <FileEdit className="w-3.5 h-3.5" /> ยกเลิกการเผยแพร่
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       disabled={isMutating}
                       onClick={() =>
-                        runBulk('archive', 'Archive selected templates?', (id) =>
+                        runBulk('archive', 'เก็บเทมเพลตที่เลือกเข้าคลังหรือไม่?', (id) =>
                           archiveMutation.mutateAsync(id),
                         )
                       }
                     >
-                      <Archive className="w-3.5 h-3.5" /> Archive
+                      <Archive className="w-3.5 h-3.5" /> เก็บเข้าคลัง
                     </Button>
                   </>
                 ) : null}
@@ -438,18 +438,18 @@ export default function TemplatesPage() {
                     title={
                       canBulkDelete
                         ? undefined
-                        : 'Some selected templates are not yours — only the owner or a global admin can delete them.'
+                        : 'มีเทมเพลตบางรายการไม่ใช่ของคุณ — เฉพาะเจ้าของหรือผู้ดูแลทั้งระบบเท่านั้นที่ลบได้'
                     }
                     onClick={() =>
                       runBulk(
                         'delete',
-                        'Delete selected templates? This cannot be undone.',
+                        'ลบเทมเพลตที่เลือกหรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้',
                         (id) => deleteMutation.mutateAsync(id),
                       )
                     }
                     className="text-red-600 hover:bg-red-50 border-red-200"
                   >
-                    <Trash2 className="w-3.5 h-3.5" /> Delete
+                    <Trash2 className="w-3.5 h-3.5" /> ลบ
                   </Button>
                 ) : null}
                 <Button
@@ -457,7 +457,7 @@ export default function TemplatesPage() {
                   size="sm"
                   onClick={() => setSelectedIds(new Set())}
                 >
-                  Clear
+                  ล้าง
                 </Button>
               </div>
             </div>
@@ -490,11 +490,11 @@ export default function TemplatesPage() {
                 />
               </div>
               <div className="w-[56px] flex-shrink-0"></div>
-              <div className="flex-1 min-w-0">Name</div>
-              <div className="w-[120px] flex-shrink-0">Category</div>
-              <div className="w-[100px] flex-shrink-0">Visibility</div>
-              <div className="w-[120px] flex-shrink-0">Status</div>
-              <div className="w-[120px] flex-shrink-0">Updated</div>
+              <div className="flex-1 min-w-0">ชื่อ</div>
+              <div className="w-[120px] flex-shrink-0">หมวดหมู่</div>
+              <div className="w-[100px] flex-shrink-0">การมองเห็น</div>
+              <div className="w-[120px] flex-shrink-0">สถานะ</div>
+              <div className="w-[120px] flex-shrink-0">อัปเดต</div>
               <div className="w-[100px] flex-shrink-0"></div>
             </div>
 
@@ -582,7 +582,7 @@ function TemplateRow({
           title={
             canSelect
               ? undefined
-              : 'Only the template owner or a global admin can act on this template'
+              : 'เฉพาะเจ้าของเทมเพลตหรือผู้ดูแลทั้งระบบเท่านั้นที่ดำเนินการได้'
           }
           className="h-3.5 w-3.5 rounded border-neutral-300 accent-blue-900 disabled:cursor-not-allowed disabled:opacity-40"
         />
@@ -640,7 +640,7 @@ function TemplateRow({
 
       <div className="w-[120px] flex-shrink-0 text-[13px] text-neutral-700">
         {template.updatedAt
-          ? new Date(template.updatedAt).toLocaleDateString()
+          ? new Date(template.updatedAt).toLocaleDateString('th-TH')
           : '—'}
       </div>
 
@@ -649,7 +649,7 @@ function TemplateRow({
           to={`/templates/${template.id}/fields`}
           className="inline-flex items-center gap-1 text-[13px] text-black underline hover:text-blue-900 transition-colors"
         >
-          Edit fields
+          แก้ไขฟิลด์
           <ArrowUpRight className="w-3.5 h-3.5" />
         </Link>
       </div>
@@ -663,9 +663,9 @@ function EmptyState() {
       <div className="w-14 h-14 bg-stone-100 rounded-full flex items-center justify-center mb-4">
         <FileText className="w-6 h-6 text-neutral-400" />
       </div>
-      <p className="text-neutral-900 font-medium">No templates yet</p>
+      <p className="text-neutral-900 font-medium">ยังไม่มีเทมเพลต</p>
       <p className="text-sm text-neutral-500 mt-1">
-        Upload your first template to get started.
+        อัปโหลดเทมเพลตแรกของคุณเพื่อเริ่มต้น
       </p>
     </div>
   );
@@ -678,14 +678,14 @@ function EmptySearchState({ search, onClear }: { search: string; onClear: () => 
         <Search className="w-6 h-6 text-neutral-400" />
       </div>
       <p className="text-neutral-900 font-medium">
-        No templates match &ldquo;{search}&rdquo;
+        ไม่มีเทมเพลตที่ตรงกับ &ldquo;{search}&rdquo;
       </p>
       <button
         onClick={onClear}
         className="mt-3 inline-flex items-center gap-1 text-sm text-blue-900 hover:text-blue-900/80 font-medium"
       >
         <X className="w-4 h-4" />
-        Clear search
+        ล้างคำค้นหา
       </button>
     </div>
   );
