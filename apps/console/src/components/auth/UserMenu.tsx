@@ -3,6 +3,15 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Building2, ChevronUp, LogOut, User as UserIcon } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../lib/auth/AuthContext';
+import type { UserTier } from '../../lib/auth/types';
+
+const TIER_BADGE: Record<UserTier, { label: string; className: string }> = {
+  free:       { label: 'Free',       className: 'bg-neutral-100 text-neutral-700 border-neutral-200' },
+  basic:      { label: 'Basic',      className: 'bg-sky-50 text-sky-700 border-sky-200' },
+  pro:        { label: 'Pro',        className: 'bg-blue-50 text-blue-700 border-blue-200' },
+  advance:    { label: 'Advance',    className: 'bg-violet-50 text-violet-700 border-violet-200' },
+  enterprise: { label: 'Enterprise', className: 'bg-amber-50 text-amber-700 border-amber-200' },
+};
 
 /**
  * Pinned-to-bottom-of-sidebar user widget. Click to open a popover above with
@@ -72,8 +81,12 @@ export function UserMenu() {
               <span className="px-1 py-0.5 rounded bg-bg-subtle text-ink-muted border border-border-subtle">
                 {user.role.replace('_', ' ')}
               </span>
-              <span className="px-1 py-0.5 rounded bg-bg-subtle text-ink-muted border border-border-subtle">
-                {user.userTier}
+              <span
+                className={`px-1 py-0.5 rounded border normal-case ${
+                  (TIER_BADGE[user.userTier] ?? TIER_BADGE.free).className
+                }`}
+              >
+                {(TIER_BADGE[user.userTier] ?? TIER_BADGE.free).label}
               </span>
             </div>
           </div>

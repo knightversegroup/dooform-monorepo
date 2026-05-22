@@ -6,6 +6,7 @@ import { useCan } from '../../lib/auth/useCan';
 import { authApi } from '../../lib/auth/api';
 import { ApiError } from '../../lib/api/client';
 import type { OrganizationMember, UserRole, UserTier } from '../../lib/auth/types';
+import { TierGate } from '../../components/auth/TierGate';
 
 const inputCls =
   'w-full px-3 py-2 border border-border-subtle rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary';
@@ -15,6 +16,14 @@ const ROLE_LABELS: Record<UserRole, string> = {
   USER: 'สมาชิก',
   ORG_ADMIN: 'ผู้ดูแล',
   GLOBAL_ADMIN: 'ผู้ดูแลทั้งระบบ',
+};
+
+const TIER_BADGE: Record<UserTier, { label: string; className: string }> = {
+  free:       { label: 'Free',       className: 'bg-neutral-100 text-neutral-700 border-neutral-200' },
+  basic:      { label: 'Basic',      className: 'bg-sky-50 text-sky-700 border-sky-200' },
+  pro:        { label: 'Pro',        className: 'bg-blue-50 text-blue-700 border-blue-200' },
+  advance:    { label: 'Advance',    className: 'bg-violet-50 text-violet-700 border-violet-200' },
+  enterprise: { label: 'Enterprise', className: 'bg-amber-50 text-amber-700 border-amber-200' },
 };
 
 const TIERS: Array<{ code: UserTier; label: string; description: string }> = [
@@ -348,7 +357,15 @@ export default function OrganizationSettingsPage() {
                         <span className="text-xs px-2 py-0.5 rounded bg-surface-alt">{ROLE_LABELS[m.role]}</span>
                       )}
                     </td>
-                    <td className="py-2 pr-3 text-xs text-ink-muted">{m.userTier}</td>
+                    <td className="py-2 pr-3 text-xs">
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[11px] font-medium ${
+                          (TIER_BADGE[m.userTier] ?? TIER_BADGE.free).className
+                        }`}
+                      >
+                        {(TIER_BADGE[m.userTier] ?? TIER_BADGE.free).label}
+                      </span>
+                    </td>
                     {isAdmin ? (
                       <td className="py-2 pr-3 text-right">
                         {m.id !== user.id ? (
@@ -380,13 +397,18 @@ export default function OrganizationSettingsPage() {
               <h2 className="text-[14px] font-semibold text-ink tracking-tightish">รหัสเชิญ</h2>
               <p className="text-[12px] text-ink-muted">แชร์รหัสเหล่านี้เพื่อให้สมาชิกใหม่เข้าร่วมองค์กร</p>
             </div>
-            <button
-              onClick={() => createInviteMutation.mutate()}
-              disabled={createInviteMutation.isPending}
-              className="px-4 py-2 rounded-md bg-primary text-white text-sm font-medium hover:bg-primary-hover disabled:opacity-50"
+            <TierGate
+              limit="limit:max_members"
+              current={(membersQuery.data ?? []).length}
             >
-              {createInviteMutation.isPending ? 'กำลังสร้าง…' : 'รหัสเชิญใหม่'}
-            </button>
+              <button
+                onClick={() => createInviteMutation.mutate()}
+                disabled={createInviteMutation.isPending}
+                className="px-4 py-2 rounded-md bg-primary text-white text-sm font-medium hover:bg-primary-hover disabled:opacity-50"
+              >
+                {createInviteMutation.isPending ? 'กำลังสร้าง…' : 'รหัสเชิญใหม่'}
+              </button>
+            </TierGate>
           </div>
           {invitesQuery.isLoading ? (
             <div className="text-[12px] text-ink-muted">กำลังโหลด…</div>
