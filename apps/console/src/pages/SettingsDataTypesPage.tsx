@@ -139,15 +139,15 @@ export default function SettingsDataTypesPage() {
   return (
     <div>
       <PageHeader
-        title="Field types"
-        description="Define the data types available to template placeholders, their default input control, and (for select/radio) the choices they offer."
+        title="ประเภทฟิลด์"
+        description="กำหนดประเภทข้อมูลที่ใช้ได้กับ placeholder ของเทมเพลต ตัวควบคุมการกรอกค่าเริ่มต้น และตัวเลือก (สำหรับ select/radio)"
         actions={
           canManage ? (
             <div className="flex items-center gap-2">
               <span className="text-xs text-ink-muted">
                 {dirtyRows.length > 0
-                  ? `${dirtyRows.length} unsaved change${dirtyRows.length === 1 ? '' : 's'}`
-                  : 'All saved'}
+                  ? `มี ${dirtyRows.length} รายการที่ยังไม่ได้บันทึก`
+                  : 'บันทึกครบทั้งหมดแล้ว'}
               </span>
               <Button
                 variant="outline"
@@ -158,7 +158,7 @@ export default function SettingsDataTypesPage() {
                   }
                 }}
               >
-                <RotateCcw className="w-4 h-4" /> Reset all
+                <RotateCcw className="w-4 h-4" /> รีเซ็ตทั้งหมด
               </Button>
               <Button
                 disabled={dirtyRows.length === 0 || saveAllMutation.isPending}
@@ -169,11 +169,11 @@ export default function SettingsDataTypesPage() {
                 ) : (
                   <Save className="w-4 h-4" />
                 )}
-                Save all changes
+                บันทึกการเปลี่ยนแปลงทั้งหมด
               </Button>
             </div>
           ) : (
-            <span className="text-xs text-ink-muted">Read-only — manage permission required to edit.</span>
+            <span className="text-xs text-ink-muted">อ่านอย่างเดียว — ต้องมีสิทธิ์จัดการเพื่อแก้ไข</span>
           )
         }
       />
@@ -199,7 +199,7 @@ export default function SettingsDataTypesPage() {
                       <button
                         onClick={() => toggleExpanded(d.id)}
                         className="text-ink-muted hover:text-ink"
-                        title={isOpen ? 'Collapse' : 'Expand details'}
+                        title={isOpen ? 'ย่อ' : 'ขยายรายละเอียด'}
                       >
                         {isOpen ? (
                           <ChevronDown className="w-4 h-4" />
@@ -211,7 +211,7 @@ export default function SettingsDataTypesPage() {
                         {d.code}
                         {d.isBuiltIn ? (
                           <span className="ml-1 text-[10px] uppercase tracking-wide text-primary">
-                            built-in
+                            ติดมากับระบบ
                           </span>
                         ) : null}
                       </code>
@@ -242,7 +242,7 @@ export default function SettingsDataTypesPage() {
                         onChange={(e) =>
                           updateRow(d.id, { description: e.target.value })
                         }
-                        placeholder="(optional)"
+                        placeholder="(ไม่บังคับ)"
                         className="px-2 py-1.5 text-sm rounded border border-border-default focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                       <input
@@ -263,7 +263,7 @@ export default function SettingsDataTypesPage() {
                               if (orig) updateRow(d.id, { ...orig });
                             }}
                             className="p-1.5 rounded hover:bg-surface-alt text-ink-muted flex-shrink-0"
-                            title="Reset row"
+                            title="รีเซ็ตแถวนี้"
                           >
                             <RotateCcw className="w-4 h-4" />
                           </button>
@@ -279,17 +279,17 @@ export default function SettingsDataTypesPage() {
                           ) : (
                             <Save className="w-3.5 h-3.5" />
                           )}
-                          Save
+                          บันทึก
                         </Button>
                         {!d.isBuiltIn ? (
                           <button
                             onClick={() => {
-                              if (confirm(`Delete data type "${d.code}"?`)) {
+                              if (confirm(`ลบประเภทข้อมูล "${d.code}" หรือไม่?`)) {
                                 deleteMutation.mutate(d.id);
                               }
                             }}
                             className="p-1.5 rounded hover:bg-red-50 text-red-500 flex-shrink-0"
-                            title="Delete"
+                            title="ลบ"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -303,7 +303,7 @@ export default function SettingsDataTypesPage() {
                         {/* Options editor — shown for select/radio data types. */}
                         <div>
                           <h4 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">
-                            Choices {showOptions ? '' : '(only used by Dropdown / Radio group inputs)'}
+                            ตัวเลือก {showOptions ? '' : '(ใช้เฉพาะกับอินพุตแบบ Dropdown / Radio group)'}
                           </h4>
                           <OptionsEditor
                             options={d.options ?? []}
@@ -315,27 +315,26 @@ export default function SettingsDataTypesPage() {
                           />
                           <div className="text-[11px] text-ink-muted mt-2 space-y-1">
                             <p>
-                              <strong>Written value</strong> = what gets injected into the
-                              DOCX placeholder when the user selects this choice.
-                              <strong> Display label</strong> = what the user sees in the form.
+                              <strong>ค่าที่ถูกเขียน</strong> = ค่าที่จะถูกใส่ใน placeholder ของ
+                              DOCX เมื่อผู้ใช้เลือกตัวเลือกนี้
+                              <strong> ป้ายชื่อที่แสดง</strong> = สิ่งที่ผู้ใช้เห็นในฟอร์ม
                             </p>
                             <p>
-                              Examples:
+                              ตัวอย่าง:
                               <br />
-                              • Sex going into <code>{'{{sex}}'}</code> as plain text
-                              → <code>{'{value:"M",label:"Male"}'}</code>,{' '}
-                              <code>{'{value:"F",label:"Female"}'}</code> — picking
-                              Male writes <code>M</code>.
+                              • เพศใส่ใน <code>{'{{sex}}'}</code> เป็นข้อความ
+                              → <code>{'{value:"M",label:"ชาย"}'}</code>,{' '}
+                              <code>{'{value:"F",label:"หญิง"}'}</code> — เมื่อเลือก
+                              ชาย จะเขียน <code>M</code>
                               <br />
-                              • Sex going into <code>{'[{{sex}}]'}</code> as a tick
-                              → <code>{'{value:"/",label:"Male"}'}</code>,{' '}
-                              <code>{'{value:"",label:"Female"}'}</code> — picking
-                              Male writes <code>/</code> (so the bracket renders{' '}
-                              <code>[/]</code>), Female leaves the bracket empty.
+                              • เพศใส่ใน <code>{'[{{sex}}]'}</code> เป็นเครื่องหมายติ๊ก
+                              → <code>{'{value:"/",label:"ชาย"}'}</code>,{' '}
+                              <code>{'{value:"",label:"หญิง"}'}</code> — เมื่อเลือก
+                              ชาย จะเขียน <code>/</code> (วงเล็บแสดงเป็น{' '}
+                              <code>[/]</code>) ส่วนหญิงทำให้วงเล็บว่าง
                             </p>
                             <p>
-                              Use the <strong>Set tick</strong> shortcut on a row to
-                              fill the value with <code>/</code> in one click.
+                              ใช้ปุ่ม <strong>ตั้งเครื่องหมาย /</strong> เพื่อเติมค่าด้วย <code>/</code> ในคลิกเดียว
                             </p>
                           </div>
                         </div>
@@ -343,7 +342,7 @@ export default function SettingsDataTypesPage() {
                         <div className="space-y-4">
                           <div>
                             <h4 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">
-                              Default value
+                              ค่าเริ่มต้น
                             </h4>
                             <input
                               type="text"
@@ -353,17 +352,17 @@ export default function SettingsDataTypesPage() {
                                   defaultValue: e.target.value || null,
                                 })
                               }
-                              placeholder="(none)"
+                              placeholder="(ไม่มี)"
                               className="w-full px-2 py-1.5 text-sm rounded border border-border-default focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                             <p className="text-[11px] text-ink-muted mt-1">
-                              Pre-fills any new form input that uses this data type.
+                              เติมค่าล่วงหน้าให้กับอินพุตใหม่ที่ใช้ประเภทข้อมูลนี้
                             </p>
                           </div>
 
                           <div>
                             <h4 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">
-                              Suggested values
+                              ค่าที่แนะนำ
                             </h4>
                             <SuggestionsEditor
                               values={d.suggestedValues ?? []}
@@ -374,7 +373,7 @@ export default function SettingsDataTypesPage() {
                               }
                             />
                             <p className="text-[11px] text-ink-muted mt-1">
-                              Shown as quick-pick chips next to the input on the form.
+                              แสดงเป็นชิปตัวเลือกด่วนข้างอินพุตในฟอร์ม
                             </p>
                           </div>
                         </div>
@@ -390,7 +389,7 @@ export default function SettingsDataTypesPage() {
         {canManage ? (
         <div className="rounded-md border border-border-default bg-white p-4">
           <h3 className="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-3">
-            Add a custom data type
+            เพิ่มประเภทข้อมูลแบบกำหนดเอง
           </h3>
           <form
             onSubmit={(e) => {
@@ -400,27 +399,27 @@ export default function SettingsDataTypesPage() {
             className="grid grid-cols-1 md:grid-cols-[140px_1fr_200px_auto] gap-3 items-start"
           >
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-ink-muted">Code</label>
+              <label className="text-xs text-ink-muted">รหัส</label>
               <input
                 value={newCode}
                 onChange={(e) => setNewCode(e.target.value)}
-                placeholder="e.g. invoice_no"
+                placeholder="เช่น invoice_no"
                 className="px-2 py-1.5 text-sm rounded border border-border-default focus:outline-none focus:ring-2 focus:ring-primary"
                 required
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-ink-muted">Label</label>
+              <label className="text-xs text-ink-muted">ป้ายชื่อ</label>
               <input
                 value={newLabel}
                 onChange={(e) => setNewLabel(e.target.value)}
-                placeholder="Invoice number"
+                placeholder="เลขที่ใบแจ้งหนี้"
                 className="px-2 py-1.5 text-sm rounded border border-border-default focus:outline-none focus:ring-2 focus:ring-primary"
                 required
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-ink-muted">Default input</label>
+              <label className="text-xs text-ink-muted">อินพุตเริ่มต้น</label>
               <select
                 value={newInput}
                 onChange={(e) => setNewInput(e.target.value as InputType)}
@@ -447,7 +446,7 @@ export default function SettingsDataTypesPage() {
                 ) : (
                   <Plus className="w-4 h-4" />
                 )}
-                Create
+                สร้าง
               </Button>
             </div>
           </form>
@@ -455,10 +454,9 @@ export default function SettingsDataTypesPage() {
             <ErrorMessage error={createMutation.error} className="mt-2" />
           ) : null}
           <p className="text-[11px] text-ink-muted mt-3">
-            Codes must be lowercase letters, digits, underscore or dash. Built-in
-            types can be re-labelled, re-mapped, and have options/defaults edited
-            (but they can't be deleted). Click the chevron on any row to expand
-            options, default value, and suggested values.
+            รหัสต้องเป็นตัวอักษรพิมพ์เล็ก ตัวเลข ขีดล่าง หรือยัติภังค์เท่านั้น
+            ประเภทที่ติดมากับระบบสามารถเปลี่ยนชื่อ เปลี่ยนแปลงตัวเลือก/ค่าเริ่มต้นได้
+            (แต่ลบไม่ได้) คลิกที่ลูกศรของแถวเพื่อขยายดูตัวเลือก ค่าเริ่มต้น และค่าที่แนะนำ
           </p>
         </div>
         ) : null}
@@ -483,16 +481,16 @@ function OptionsEditor({
     <div className="space-y-2">
       {options.length > 0 ? (
         <div className="grid grid-cols-[120px_1fr_60px_36px] gap-2 text-[10px] uppercase tracking-wide text-ink-muted font-medium">
-          <div title="Injected into the DOCX placeholder when this choice is selected">
-            Written value
+          <div title="ค่าที่ใส่ใน placeholder ของ DOCX เมื่อเลือกตัวเลือกนี้">
+            ค่าที่ถูกเขียน
           </div>
-          <div title="Shown to the user in the form">Display label</div>
-          <div className="text-center">Tick</div>
+          <div title="สิ่งที่ผู้ใช้เห็นในฟอร์ม">ป้ายชื่อที่แสดง</div>
+          <div className="text-center">ติ๊ก</div>
           <div />
         </div>
       ) : null}
       {options.length === 0 ? (
-        <p className="text-xs text-ink-muted italic">No choices yet.</p>
+        <p className="text-xs text-ink-muted italic">ยังไม่มีตัวเลือก</p>
       ) : (
         options.map((opt, idx) => (
           <div
@@ -503,16 +501,16 @@ function OptionsEditor({
               type="text"
               value={opt.value}
               onChange={(e) => update(idx, { value: e.target.value })}
-              placeholder='e.g. M  or  /'
-              title="What gets written into the DOCX placeholder when the user picks this choice"
+              placeholder='เช่น M หรือ /'
+              title="สิ่งที่จะถูกเขียนใน placeholder ของ DOCX เมื่อผู้ใช้เลือกตัวเลือกนี้"
               className="px-2 py-1.5 text-sm rounded border border-border-default font-mono focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <input
               type="text"
               value={opt.label}
               onChange={(e) => update(idx, { label: e.target.value })}
-              placeholder="e.g. Male"
-              title="What the user sees on the form"
+              placeholder="เช่น ชาย"
+              title="สิ่งที่ผู้ใช้เห็นในฟอร์ม"
               className="px-2 py-1.5 text-sm rounded border border-border-default focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <button
@@ -523,14 +521,14 @@ function OptionsEditor({
                   ? 'bg-primary text-white border-primary'
                   : 'bg-white border-border-default hover:bg-surface-alt'
               }`}
-              title='Quick-set the written value to "/" so brackets like [{{sex}}] render as [/]'
+              title='ตั้งค่าที่ถูกเขียนเป็น "/" อย่างรวดเร็ว เพื่อให้วงเล็บ [{{sex}}] แสดงเป็น [/]'
             >
-              Set /
+              ตั้ง /
             </button>
             <button
               onClick={() => remove(idx)}
               className="p-1.5 text-red-500 hover:bg-red-50 rounded"
-              title="Remove choice"
+              title="ลบตัวเลือก"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -538,7 +536,7 @@ function OptionsEditor({
         ))
       )}
       <Button variant="outline" size="sm" onClick={add}>
-        <Plus className="w-3.5 h-3.5" /> Add choice
+        <Plus className="w-3.5 h-3.5" /> เพิ่มตัวเลือก
       </Button>
     </div>
   );
@@ -574,7 +572,7 @@ function SuggestionsEditor({
               <button
                 onClick={() => remove(v)}
                 className="text-primary/70 hover:text-primary"
-                title="Remove"
+                title="ลบ"
               >
                 ×
               </button>
@@ -593,11 +591,11 @@ function SuggestionsEditor({
               add();
             }
           }}
-          placeholder="Type a suggestion and press Enter"
+          placeholder="พิมพ์คำแนะนำแล้วกด Enter"
           className="flex-1 px-2 py-1.5 text-sm rounded border border-border-default focus:outline-none focus:ring-2 focus:ring-primary"
         />
         <Button variant="outline" size="sm" onClick={add} disabled={!draft.trim()}>
-          <Plus className="w-3.5 h-3.5" /> Add
+          <Plus className="w-3.5 h-3.5" /> เพิ่ม
         </Button>
       </div>
     </div>

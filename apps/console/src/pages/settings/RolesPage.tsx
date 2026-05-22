@@ -127,10 +127,10 @@ export default function RolesPage() {
     <div className="max-w-7xl mx-auto p-6 space-y-4">
       <header className="flex items-start justify-between">
         <div>
-          <h1 className="text-[18px] font-semibold text-ink tracking-tightish">Roles</h1>
+          <h1 className="text-[18px] font-semibold text-ink tracking-tightish">บทบาท</h1>
           <p className="text-[12px] text-ink-muted">
-            System roles are seeded and can have their permissions tuned but not renamed. Custom
-            roles are admin-defined bundles of permissions that can be assigned via the IAM page.
+            บทบาทระบบถูกสร้างไว้ตั้งแต่ต้น สามารถปรับสิทธิ์ได้แต่เปลี่ยนชื่อไม่ได้
+            บทบาทแบบกำหนดเองคือชุดสิทธิ์ที่ผู้ดูแลกำหนดและสามารถมอบให้ผ่านหน้า IAM
           </p>
         </div>
         {canCreate ? (
@@ -139,7 +139,7 @@ export default function RolesPage() {
             onClick={() => setShowCreateDialog(true)}
             className="inline-flex items-center gap-1 px-3 py-1 text-xs rounded bg-primary text-white"
           >
-            <Plus className="w-3 h-3" /> New role
+            <Plus className="w-3 h-3" /> บทบาทใหม่
           </button>
         ) : null}
       </header>
@@ -148,7 +148,7 @@ export default function RolesPage() {
         <aside className="bg-white border border-border-subtle rounded-lg overflow-hidden">
           <ul className="divide-y divide-border-subtle max-h-[70vh] overflow-y-auto">
             {rolesQuery.isLoading ? (
-              <li className="px-3 py-3 text-[12px] text-ink-muted">Loading…</li>
+              <li className="px-3 py-3 text-[12px] text-ink-muted">กำลังโหลด…</li>
             ) : null}
             {roles.map((r) => (
               <li key={r.id}>
@@ -162,11 +162,11 @@ export default function RolesPage() {
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-medium text-ink truncate">{r.name}</span>
                     <span className="text-[10px] uppercase tracking-wide text-ink-faint">
-                      {r.isSystem ? 'system' : 'custom'}
+                      {r.isSystem ? 'ระบบ' : 'กำหนดเอง'}
                     </span>
                   </div>
                   <div className="text-[11px] text-ink-muted">
-                    {r.code} · {r.permissions.length} permissions · {r.assigneeCount} users
+                    {r.code} · {r.permissions.length} สิทธิ์ · {r.assigneeCount} ผู้ใช้
                   </div>
                 </button>
               </li>
@@ -176,7 +176,7 @@ export default function RolesPage() {
 
         <section className="bg-white border border-border-subtle rounded-lg p-4 min-h-[60vh]">
           {!selectedRole ? (
-            <div className="text-[12px] text-ink-muted">Select a role on the left to edit.</div>
+            <div className="text-[12px] text-ink-muted">เลือกบทบาททางซ้ายเพื่อแก้ไข</div>
           ) : (
             <div className="space-y-4">
               <div className="flex items-start justify-between">
@@ -189,20 +189,20 @@ export default function RolesPage() {
                     className="w-full text-base font-semibold text-ink bg-transparent border-b border-transparent focus:border-border-default focus:outline-none disabled:text-ink-muted"
                   />
                   <p className="text-[11px] text-ink-faint">
-                    {selectedRole.code} · {selectedRole.assigneeCount} assignee(s)
+                    {selectedRole.code} · ผู้ได้รับ {selectedRole.assigneeCount} คน
                   </p>
                 </div>
                 {canDelete && !selectedRole.isSystem ? (
                   <button
                     type="button"
                     onClick={() => {
-                      if (confirm(`Delete role "${selectedRole.name}"?`)) deleteMutation.mutate(selectedRole.id);
+                      if (confirm(`ลบบทบาท "${selectedRole.name}" หรือไม่?`)) deleteMutation.mutate(selectedRole.id);
                     }}
                     disabled={deleteMutation.isPending || selectedRole.assigneeCount > 0}
                     title={
                       selectedRole.assigneeCount > 0
-                        ? 'Revoke from all assignees first'
-                        : 'Delete role'
+                        ? 'เพิกถอนจากผู้ได้รับทั้งหมดก่อน'
+                        : 'ลบบทบาท'
                     }
                     className="p-1 text-ink-muted hover:text-red-600 disabled:opacity-30"
                   >
@@ -214,7 +214,7 @@ export default function RolesPage() {
               <textarea
                 rows={2}
                 disabled={!canUpdate}
-                placeholder="Description"
+                placeholder="คำอธิบาย"
                 value={draftDescription}
                 onChange={(e) => setDraftDescription(e.target.value)}
                 className="w-full px-2 py-1 text-sm rounded border border-border-default disabled:bg-surface-alt"
@@ -222,7 +222,7 @@ export default function RolesPage() {
 
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-medium text-ink">
-                  Permissions{' '}
+                  สิทธิ์{' '}
                   <span className="text-[11px] text-ink-muted font-normal">
                     ({draftPermissions.size})
                   </span>
@@ -234,7 +234,7 @@ export default function RolesPage() {
                     onClick={() => updateMutation.mutate()}
                     className="px-3 py-1 text-xs rounded bg-primary text-white disabled:opacity-50"
                   >
-                    {updateMutation.isPending ? 'Saving…' : 'Save'}
+                    {updateMutation.isPending ? 'กำลังบันทึก…' : 'บันทึก'}
                   </button>
                 ) : null}
               </div>
@@ -328,14 +328,14 @@ function CreateRoleDialog({
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg w-[640px] max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between p-4 border-b border-border-subtle">
-          <h3 className="text-sm font-semibold text-ink">New custom role</h3>
+          <h3 className="text-sm font-semibold text-ink">บทบาทแบบกำหนดเองใหม่</h3>
           <button onClick={onCancel} className="p-1 text-ink-muted hover:text-ink">
             <X className="w-4 h-4" />
           </button>
         </div>
         <div className="p-4 space-y-3 overflow-y-auto">
           <label className="flex flex-col gap-1">
-            <span className="text-[11px] text-ink-muted">Code (lowercase, hyphen-separated)</span>
+            <span className="text-[11px] text-ink-muted">รหัส (ตัวพิมพ์เล็ก คั่นด้วยขีดกลาง)</span>
             <input
               type="text"
               value={code}
@@ -345,17 +345,17 @@ function CreateRoleDialog({
             />
           </label>
           <label className="flex flex-col gap-1">
-            <span className="text-[11px] text-ink-muted">Display name</span>
+            <span className="text-[11px] text-ink-muted">ชื่อที่แสดง</span>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Templates Admin"
+              placeholder="ผู้ดูแลเทมเพลต"
               className="px-2 py-1 rounded border border-border-default text-sm"
             />
           </label>
           <label className="flex flex-col gap-1">
-            <span className="text-[11px] text-ink-muted">Description</span>
+            <span className="text-[11px] text-ink-muted">คำอธิบาย</span>
             <textarea
               rows={2}
               value={description}
@@ -365,7 +365,7 @@ function CreateRoleDialog({
           </label>
 
           <div>
-            <div className="text-[11px] text-ink-muted mb-1">Permissions ({perms.size})</div>
+            <div className="text-[11px] text-ink-muted mb-1">สิทธิ์ ({perms.size})</div>
             <div className="space-y-3 max-h-[40vh] overflow-y-auto pr-1">
               {groups.map(([groupName, ps]) => (
                 <div key={groupName}>
@@ -412,7 +412,7 @@ function CreateRoleDialog({
             onClick={onCancel}
             className="px-3 py-1 text-xs rounded border border-border-default text-ink-muted"
           >
-            Cancel
+            ยกเลิก
           </button>
           <button
             type="button"
@@ -427,7 +427,7 @@ function CreateRoleDialog({
             }
             className="px-3 py-1 text-xs rounded bg-primary text-white disabled:opacity-50"
           >
-            {submitting ? 'Creating…' : 'Create'}
+            {submitting ? 'กำลังสร้าง…' : 'สร้าง'}
           </button>
         </div>
       </div>

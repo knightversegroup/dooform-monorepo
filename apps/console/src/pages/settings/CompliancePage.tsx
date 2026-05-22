@@ -39,20 +39,20 @@ const EMPTY_DRAFT: RuleDraft = {
 
 const PRESETS: Array<{ label: string; draft: Partial<RuleDraft> }> = [
   {
-    label: 'Any document share',
+    label: 'การแชร์เอกสารทุกครั้ง',
     draft: {
-      name: 'Document shared',
-      description: 'Fires every time a document is shared with another user.',
+      name: 'แชร์เอกสาร',
+      description: 'ทำงานทุกครั้งที่มีการแชร์เอกสารให้ผู้ใช้คนอื่น',
       actionPattern: 'documents.shares.*',
       severity: 'WARN',
     },
   },
   {
-    label: 'Sensitive document content (keyword scan)',
+    label: 'เนื้อหาเอกสารที่อ่อนไหว (สแกนคำสำคัญ)',
     draft: {
-      name: 'Sensitive document keywords',
+      name: 'คำสำคัญที่อ่อนไหวในเอกสาร',
       description:
-        'Scans every document/template create/update for sensitive keywords. Tweak the list to suit your compliance scope.',
+        'สแกนการสร้าง/แก้ไขเอกสาร/เทมเพลตทุกครั้งเพื่อตรวจหาคำสำคัญที่อ่อนไหว ปรับรายการคำได้ตามขอบเขตการกำกับดูแลของคุณ',
       actionPattern: 'documents.*',
       metadataKeywords:
         'ssn,passport,credit card,social security,national id,medical record',
@@ -60,42 +60,42 @@ const PRESETS: Array<{ label: string; draft: Partial<RuleDraft> }> = [
     },
   },
   {
-    label: 'Bulk document deletes',
+    label: 'การลบเอกสารจำนวนมาก',
     draft: {
-      name: 'Document deletes',
+      name: 'การลบเอกสาร',
       actionPattern: 'documents.delete',
       severity: 'WARN',
     },
   },
   {
-    label: 'Failed login attempts',
+    label: 'การพยายามเข้าสู่ระบบไม่สำเร็จ',
     draft: {
-      name: 'Failed logins',
+      name: 'การล็อกอินล้มเหลว',
       actionPattern: 'auth.login',
       outcome: 'failure',
       severity: 'WARN',
     },
   },
   {
-    label: 'Permission changes',
+    label: 'การเปลี่ยนแปลงสิทธิ์',
     draft: {
-      name: 'Role / permission changes',
+      name: 'การเปลี่ยนบทบาท / สิทธิ์',
       actionPattern: 'admin.permissions.*',
       severity: 'INFO',
     },
   },
   {
-    label: 'Member added or removed',
+    label: 'เพิ่มหรือลบสมาชิก',
     draft: {
-      name: 'Member changes',
+      name: 'การเปลี่ยนแปลงสมาชิก',
       actionPattern: 'organization.member*.*',
       severity: 'INFO',
     },
   },
   {
-    label: 'Catch-all: any failure',
+    label: 'รวมทุกอย่าง: ความล้มเหลวทุกแบบ',
     draft: {
-      name: 'All failures',
+      name: 'ความล้มเหลวทั้งหมด',
       actionPattern: '*',
       outcome: 'failure',
       severity: 'WARN',
@@ -171,7 +171,7 @@ export default function CompliancePage() {
       setError(null);
     },
     onError: (err) => {
-      setError(err instanceof ApiError ? err.message : 'Save failed');
+      setError(err instanceof ApiError ? err.message : 'บันทึกไม่สำเร็จ');
     },
   });
 
@@ -195,7 +195,7 @@ export default function CompliancePage() {
     e.preventDefault();
     if (!draft) return;
     if (!draft.name.trim() || !draft.actionPattern.trim()) {
-      setError('Name and action pattern are required.');
+      setError('ต้องระบุชื่อและรูปแบบของแอ็กชัน');
       return;
     }
     saveMutation.mutate(draft);
@@ -231,11 +231,10 @@ export default function CompliancePage() {
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
       <header>
-        <h1 className="text-[18px] font-semibold text-ink tracking-tightish">Compliance rules</h1>
+        <h1 className="text-[18px] font-semibold text-ink tracking-tightish">กฎการกำกับดูแล</h1>
         <p className="text-[12px] text-ink-muted">
-          Define rules that watch the audit log and alert you when sensitive actions happen.
-          Rules and keywords are stored in the database — no code changes needed to add or
-          tweak them.
+          กำหนดกฎที่เฝ้าดูบันทึกการตรวจสอบและแจ้งเตือนคุณเมื่อมีการกระทำที่อ่อนไหว
+          กฎและคำสำคัญถูกจัดเก็บในฐานข้อมูล — เพิ่มหรือปรับแก้ได้โดยไม่ต้องแก้โค้ด
         </p>
       </header>
 
@@ -244,17 +243,17 @@ export default function CompliancePage() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <BellRing className="w-4 h-4 text-ink" />
-            <h2 className="text-[14px] font-semibold text-ink tracking-tightish">Recent alerts</h2>
+            <h2 className="text-[14px] font-semibold text-ink tracking-tightish">การแจ้งเตือนล่าสุด</h2>
           </div>
           <span className="text-xs text-ink-muted">
-            {alertsQuery.data?.total ?? 0} total
+            ทั้งหมด {alertsQuery.data?.total ?? 0} รายการ
           </span>
         </div>
         {alertsQuery.isLoading ? (
-          <div className="text-[12px] text-ink-muted">Loading…</div>
+          <div className="text-[12px] text-ink-muted">กำลังโหลด…</div>
         ) : (alertsQuery.data?.data ?? []).length === 0 ? (
           <div className="text-sm text-ink-muted py-3">
-            No alerts yet. Create a rule below to start monitoring.
+            ยังไม่มีการแจ้งเตือน สร้างกฎด้านล่างเพื่อเริ่มเฝ้าดู
           </div>
         ) : (
           <ul className="divide-y divide-border-default">
@@ -267,21 +266,21 @@ export default function CompliancePage() {
                   <div className="text-sm text-ink font-medium">{a.ruleName}</div>
                   <div className="text-xs text-ink-muted">{a.message}</div>
                   <div className="flex flex-wrap gap-2 text-[10px] text-ink-muted mt-1">
-                    <span>{new Date(a.createdAt).toLocaleString()}</span>
-                    {a.actorEmail ? <span>by {a.actorEmail}</span> : null}
+                    <span>{new Date(a.createdAt).toLocaleString('th-TH')}</span>
+                    {a.actorEmail ? <span>โดย {a.actorEmail}</span> : null}
                     {a.action ? (
                       <span className="font-mono">{a.action}</span>
                     ) : null}
                     {a.matchedKeywords?.length ? (
                       <span className="text-amber-600">
-                        keywords: {a.matchedKeywords.join(', ')}
+                        คำสำคัญ: {a.matchedKeywords.join(', ')}
                       </span>
                     ) : null}
                   </div>
                 </div>
                 {a.acknowledgedAt ? (
                   <span className="text-[10px] uppercase text-green-700 px-2 py-0.5 rounded bg-green-100">
-                    Acknowledged
+                    รับทราบแล้ว
                   </span>
                 ) : (
                   <button
@@ -289,7 +288,7 @@ export default function CompliancePage() {
                     disabled={ackMutation.isPending}
                     className="text-xs px-2 py-1 border border-border-subtle rounded hover:border-primary inline-flex items-center gap-1"
                   >
-                    <Check className="w-3 h-3" /> Acknowledge
+                    <Check className="w-3 h-3" /> รับทราบ
                   </button>
                 )}
               </li>
@@ -302,9 +301,9 @@ export default function CompliancePage() {
       <section className="bg-white border border-border-subtle rounded-lg">
         <div className="px-5 py-4 border-b border-border-subtle flex items-center justify-between">
           <div>
-            <h2 className="text-[14px] font-semibold text-ink tracking-tightish">Active rules</h2>
+            <h2 className="text-[14px] font-semibold text-ink tracking-tightish">กฎที่ใช้งานอยู่</h2>
             <p className="text-xs text-ink-muted">
-              Each rule is evaluated against every audit event.
+              กฎแต่ละข้อจะถูกประเมินกับทุกเหตุการณ์ในบันทึกการตรวจสอบ
             </p>
           </div>
           {canManage ? (
@@ -312,14 +311,14 @@ export default function CompliancePage() {
               onClick={startNew}
               className="inline-flex items-center gap-1 px-3 py-1.5 text-sm rounded bg-primary text-white hover:bg-primary-hover"
             >
-              <Plus className="w-4 h-4" /> New rule
+              <Plus className="w-4 h-4" /> กฎใหม่
             </button>
           ) : null}
         </div>
         <ul className="divide-y divide-border-default">
           {(rulesQuery.data ?? []).length === 0 ? (
             <li className="px-5 py-6 text-[12px] text-ink-muted">
-              No rules yet. Create one above — start with a preset for common compliance scenarios.
+              ยังไม่มีกฎ สร้างใหม่ด้านบน — เริ่มจากพรีเซ็ตของสถานการณ์การกำกับดูแลที่พบบ่อย
             </li>
           ) : (
             rulesQuery.data!.map((r) => (
@@ -334,12 +333,12 @@ export default function CompliancePage() {
                     <div className="font-medium text-ink">{r.name}</div>
                     {r.organizationId === null ? (
                       <span className="text-[10px] uppercase px-1.5 py-0.5 rounded bg-violet-100 text-violet-700">
-                        Global
+                        ทั้งระบบ
                       </span>
                     ) : null}
                     {!r.enabled ? (
                       <span className="text-[10px] uppercase px-1.5 py-0.5 rounded bg-surface-alt text-ink-muted">
-                        Disabled
+                        ปิดใช้งาน
                       </span>
                     ) : null}
                   </div>
@@ -347,19 +346,19 @@ export default function CompliancePage() {
                     <div className="text-xs text-ink-muted">{r.description}</div>
                   ) : null}
                   <div className="text-[11px] text-ink-muted mt-1 space-x-2">
-                    <span className="font-mono">action: {r.conditions.actionPattern}</span>
+                    <span className="font-mono">แอ็กชัน: {r.conditions.actionPattern}</span>
                     {r.conditions.metadataKeywords?.length ? (
                       <span className="text-amber-700">
-                        keywords: {r.conditions.metadataKeywords.join(', ')}
+                        คำสำคัญ: {r.conditions.metadataKeywords.join(', ')}
                       </span>
                     ) : null}
                     {r.conditions.outcome && r.conditions.outcome !== 'any' ? (
-                      <span>outcome: {r.conditions.outcome}</span>
+                      <span>ผลลัพธ์: {r.conditions.outcome}</span>
                     ) : null}
                     {r.conditions.resourceType ? (
-                      <span>resource: {r.conditions.resourceType}</span>
+                      <span>รีซอร์ส: {r.conditions.resourceType}</span>
                     ) : null}
-                    {r.notifyEmails ? <span>notifies: {r.notifyEmails}</span> : null}
+                    {r.notifyEmails ? <span>แจ้งเตือน: {r.notifyEmails}</span> : null}
                   </div>
                 </div>
                 {canManage ? (
@@ -372,21 +371,21 @@ export default function CompliancePage() {
                           toggleMutation.mutate({ id: r.id, enabled: e.target.checked })
                         }
                       />
-                      Enabled
+                      เปิดใช้งาน
                     </label>
                     <button
                       onClick={() => editRule(r)}
                       className="p-1.5 rounded hover:bg-surface-alt text-ink-muted"
-                      title="Edit"
+                      title="แก้ไข"
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => {
-                        if (confirm(`Delete rule "${r.name}"?`)) deleteMutation.mutate(r.id);
+                        if (confirm(`ลบกฎ "${r.name}" หรือไม่?`)) deleteMutation.mutate(r.id);
                       }}
                       className="p-1.5 rounded hover:bg-red-50 text-red-500"
-                      title="Delete"
+                      title="ลบ"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -403,7 +402,7 @@ export default function CompliancePage() {
         <section className="bg-white border border-border-subtle rounded-lg p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[14px] font-semibold text-ink tracking-tightish">
-              {draft.id ? 'Edit rule' : 'New rule'}
+              {draft.id ? 'แก้ไขกฎ' : 'กฎใหม่'}
             </h2>
             <button
               onClick={() => {
@@ -412,13 +411,13 @@ export default function CompliancePage() {
               }}
               className="text-sm text-ink-muted hover:text-ink"
             >
-              Cancel
+              ยกเลิก
             </button>
           </div>
 
           {!draft.id ? (
             <div className="mb-4 flex flex-wrap gap-2 text-xs">
-              <span className="text-ink-muted self-center">Quick start:</span>
+              <span className="text-ink-muted self-center">เริ่มต้นด่วน:</span>
               {PRESETS.map((p) => (
                 <button
                   key={p.label}
@@ -433,7 +432,7 @@ export default function CompliancePage() {
           ) : null}
 
           <form onSubmit={onSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <Field label="Name" required>
+            <Field label="ชื่อ" required>
               <input
                 value={draft.name}
                 onChange={(e) => setDraft({ ...draft, name: e.target.value })}
@@ -441,7 +440,7 @@ export default function CompliancePage() {
                 required
               />
             </Field>
-            <Field label="Severity">
+            <Field label="ระดับความรุนแรง">
               <select
                 value={draft.severity}
                 onChange={(e) =>
@@ -454,18 +453,18 @@ export default function CompliancePage() {
                 <option value="CRITICAL">CRITICAL</option>
               </select>
             </Field>
-            <Field label="Description" className="md:col-span-2">
+            <Field label="คำอธิบาย" className="md:col-span-2">
               <input
                 value={draft.description}
                 onChange={(e) => setDraft({ ...draft, description: e.target.value })}
                 className="w-full px-2 py-1.5 border border-border-subtle rounded text-sm"
-                placeholder="What is this rule watching for?"
+                placeholder="กฎนี้กำลังเฝ้าดูสิ่งใด?"
               />
             </Field>
             <Field
-              label="Action pattern"
+              label="รูปแบบของแอ็กชัน"
               required
-              hint='Glob match against the audit action key. e.g. "documents.share", "documents.*", "*"'
+              hint='จับคู่แบบ glob กับคีย์ของแอ็กชันในบันทึกการตรวจสอบ เช่น "documents.share", "documents.*", "*"'
               className="md:col-span-2"
             >
               <input
@@ -478,8 +477,8 @@ export default function CompliancePage() {
               />
             </Field>
             <Field
-              label="Sensitive keywords"
-              hint="Comma-separated. Fires when ANY keyword appears in the request metadata. Leave empty to match every event."
+              label="คำสำคัญที่อ่อนไหว"
+              hint="คั่นด้วยจุลภาค ทำงานเมื่อพบคำสำคัญใด ๆ ใน metadata ของคำขอ เว้นว่างเพื่อจับคู่ทุกเหตุการณ์"
               className="md:col-span-2"
             >
               <input
@@ -491,7 +490,7 @@ export default function CompliancePage() {
                 className="w-full px-2 py-1.5 border border-border-subtle rounded text-sm"
               />
             </Field>
-            <Field label="Outcome">
+            <Field label="ผลลัพธ์">
               <select
                 value={draft.outcome}
                 onChange={(e) =>
@@ -502,12 +501,12 @@ export default function CompliancePage() {
                 }
                 className="w-full px-2 py-1.5 border border-border-subtle rounded text-sm bg-white"
               >
-                <option value="any">Any</option>
-                <option value="success">Success</option>
-                <option value="failure">Failure</option>
+                <option value="any">ทั้งหมด</option>
+                <option value="success">สำเร็จ</option>
+                <option value="failure">ล้มเหลว</option>
               </select>
             </Field>
-            <Field label="Resource type" hint="Optional, e.g. documents, templates">
+            <Field label="ประเภทรีซอร์ส" hint="ไม่บังคับ เช่น documents, templates">
               <input
                 value={draft.resourceType}
                 onChange={(e) => setDraft({ ...draft, resourceType: e.target.value })}
@@ -515,8 +514,8 @@ export default function CompliancePage() {
               />
             </Field>
             <Field
-              label="Actor roles"
-              hint="Comma-separated. Only fires when actor's role matches one. Leave empty for any role."
+              label="บทบาทของผู้กระทำ"
+              hint="คั่นด้วยจุลภาค ทำงานเฉพาะเมื่อบทบาทของผู้กระทำตรงกับรายการ เว้นว่างเพื่อรับทุกบทบาท"
               className="md:col-span-2"
             >
               <input
@@ -527,8 +526,8 @@ export default function CompliancePage() {
               />
             </Field>
             <Field
-              label="Notify emails"
-              hint="Comma-separated. Each match emails these addresses. Leave empty to record alerts in-app only."
+              label="อีเมลผู้รับการแจ้งเตือน"
+              hint="คั่นด้วยจุลภาค ทุกครั้งที่ตรงกับกฎจะส่งอีเมลไปยังที่อยู่เหล่านี้ เว้นว่างเพื่อบันทึกการแจ้งเตือนเฉพาะในแอป"
               className="md:col-span-2"
             >
               <input
@@ -539,7 +538,7 @@ export default function CompliancePage() {
               />
             </Field>
             {isGlobalAdmin ? (
-              <Field label="Scope">
+              <Field label="ขอบเขต">
                 <select
                   value={draft.scope}
                   onChange={(e) =>
@@ -551,12 +550,12 @@ export default function CompliancePage() {
                   className="w-full px-2 py-1.5 border border-border-subtle rounded text-sm bg-white"
                   disabled={!!draft.id}
                 >
-                  <option value="tenant">My organization only</option>
-                  <option value="global">Global — every tenant</option>
+                  <option value="tenant">เฉพาะองค์กรของฉันเท่านั้น</option>
+                  <option value="global">ทั้งระบบ — ทุกผู้เช่า</option>
                 </select>
               </Field>
             ) : null}
-            <Field label="Enabled">
+            <Field label="เปิดใช้งาน">
               <label className="inline-flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -564,7 +563,7 @@ export default function CompliancePage() {
                   onChange={(e) => setDraft({ ...draft, enabled: e.target.checked })}
                 />
                 <span className="text-xs text-ink-muted">
-                  When off, the rule still exists but never fires.
+                  เมื่อปิดอยู่ กฎยังคงอยู่ในระบบแต่จะไม่ทำงาน
                 </span>
               </label>
             </Field>
@@ -581,14 +580,14 @@ export default function CompliancePage() {
                 onClick={() => setDraft(null)}
                 className="px-4 py-1.5 rounded border border-border-subtle text-sm"
               >
-                Cancel
+                ยกเลิก
               </button>
               <button
                 type="submit"
                 disabled={saveMutation.isPending}
                 className="px-4 py-1.5 rounded bg-primary text-white text-sm hover:bg-primary-hover disabled:opacity-50"
               >
-                {saveMutation.isPending ? 'Saving…' : draft.id ? 'Save changes' : 'Create rule'}
+                {saveMutation.isPending ? 'กำลังบันทึก…' : draft.id ? 'บันทึกการเปลี่ยนแปลง' : 'สร้างกฎ'}
               </button>
             </div>
           </form>

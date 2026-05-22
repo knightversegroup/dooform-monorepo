@@ -164,19 +164,19 @@ export default function IamPage() {
       <header>
         <h1 className="text-[18px] font-semibold text-ink tracking-tightish">IAM</h1>
         <p className="text-[12px] text-ink-muted">
-          Grant roles to principals. A user can hold multiple roles; their effective permissions
-          are the union of all assigned role grants minus any DENY overrides.
+          มอบบทบาทให้กับผู้ใช้ ผู้ใช้สามารถมีหลายบทบาทพร้อมกัน สิทธิ์ที่ใช้งานได้จริง
+          คือผลรวมของสิทธิ์จากบทบาททั้งหมดที่ได้รับ ลบด้วย override แบบ DENY
         </p>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4">
         <aside className="bg-white border border-border-subtle rounded-lg overflow-hidden">
           <div className="px-3 py-2 border-b border-border-subtle text-[11px] uppercase tracking-wide text-ink-muted">
-            Principals
+            ผู้ใช้
           </div>
           <ul className="divide-y divide-border-subtle max-h-[70vh] overflow-y-auto">
             {membersQuery.isLoading ? (
-              <li className="px-3 py-3 text-[12px] text-ink-muted">Loading…</li>
+              <li className="px-3 py-3 text-[12px] text-ink-muted">กำลังโหลด…</li>
             ) : null}
             {members.map((m) => (
               <li key={m.id}>
@@ -193,7 +193,7 @@ export default function IamPage() {
               </li>
             ))}
             {!membersQuery.isLoading && members.length === 0 ? (
-              <li className="px-3 py-3 text-[12px] text-ink-muted">No principals.</li>
+              <li className="px-3 py-3 text-[12px] text-ink-muted">ไม่มีผู้ใช้</li>
             ) : null}
           </ul>
         </aside>
@@ -201,8 +201,7 @@ export default function IamPage() {
         <section className="bg-white border border-border-subtle rounded-lg p-4 min-h-[60vh]">
           {!selectedMember ? (
             <div className="text-[12px] text-ink-muted">
-              Select a principal on the left to view their assigned roles, overrides, and effective
-              permissions.
+              เลือกผู้ใช้ทางซ้ายเพื่อดูบทบาทที่ได้รับ override และสิทธิ์ที่ใช้งานได้จริง
             </div>
           ) : (
             <div className="space-y-5">
@@ -218,18 +217,18 @@ export default function IamPage() {
                       onClick={() => {
                         if (
                           confirm(
-                            `Reset IAM for ${selectedMember.email}? This drops every role assignment beyond their primary role and clears all permission overrides.`,
+                            `รีเซ็ต IAM ของ ${selectedMember.email} หรือไม่? การกระทำนี้จะลบการมอบบทบาททั้งหมดยกเว้นบทบาทหลัก และล้าง override สิทธิ์ทั้งหมด`,
                           )
                         ) {
                           resetMutation.mutate();
                         }
                       }}
                       disabled={resetMutation.isPending}
-                      title="Reset to default for primary role"
+                      title="รีเซ็ตเป็นค่าเริ่มต้นของบทบาทหลัก"
                       className="inline-flex items-center gap-1 px-3 py-1 text-xs rounded border border-border-default text-ink-muted hover:text-red-600 disabled:opacity-50"
                     >
                       <RotateCcw className="w-3 h-3" />
-                      {resetMutation.isPending ? 'Resetting…' : 'Reset IAM'}
+                      {resetMutation.isPending ? 'กำลังรีเซ็ต…' : 'รีเซ็ต IAM'}
                     </button>
                   ) : null}
                   {canAssignRole ? (
@@ -238,7 +237,7 @@ export default function IamPage() {
                       onClick={() => setShowGrantDialog(true)}
                       className="inline-flex items-center gap-1 px-3 py-1 text-xs rounded bg-primary text-white"
                     >
-                      <Plus className="w-3 h-3" /> Grant role
+                      <Plus className="w-3 h-3" /> มอบบทบาท
                     </button>
                   ) : null}
                 </div>
@@ -246,11 +245,11 @@ export default function IamPage() {
 
               {/* Assigned roles */}
               <div>
-                <h3 className="text-sm font-medium text-ink mb-2">Assigned roles</h3>
+                <h3 className="text-sm font-medium text-ink mb-2">บทบาทที่ได้รับ</h3>
                 {assignmentsQuery.isLoading ? (
-                  <div className="text-[12px] text-ink-muted">Loading…</div>
+                  <div className="text-[12px] text-ink-muted">กำลังโหลด…</div>
                 ) : assignments.length === 0 ? (
-                  <div className="text-[12px] text-ink-muted">No roles assigned.</div>
+                  <div className="text-[12px] text-ink-muted">ยังไม่มีบทบาทที่ได้รับ</div>
                 ) : (
                   <ul className="divide-y divide-border-subtle border border-border-subtle rounded">
                     {assignments.map((a) => (
@@ -261,11 +260,11 @@ export default function IamPage() {
                             <span className="text-ink-faint"> ({a.roleCode})</span>
                           </div>
                           <div className="text-[11px] text-ink-muted">
-                            Granted {new Date(a.grantedAt).toLocaleDateString()}
+                            ได้รับเมื่อ {new Date(a.grantedAt).toLocaleDateString('th-TH')}
                             {a.expiresAt
-                              ? ` · expires ${new Date(a.expiresAt).toLocaleDateString()}`
+                              ? ` · หมดอายุ ${new Date(a.expiresAt).toLocaleDateString('th-TH')}`
                               : ''}
-                            {a.condition ? ` · conditional` : ''}
+                            {a.condition ? ` · มีเงื่อนไข` : ''}
                           </div>
                         </div>
                         {canAssignRole ? (
@@ -274,7 +273,7 @@ export default function IamPage() {
                             onClick={() => revokeMutation.mutate(a.id)}
                             disabled={revokeMutation.isPending}
                             className="p-1 text-ink-muted hover:text-red-600 disabled:opacity-50"
-                            title="Revoke"
+                            title="เพิกถอน"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -294,7 +293,7 @@ export default function IamPage() {
               {userPermissionsQuery.data ? (
                 <div>
                   <h3 className="text-sm font-medium text-ink mb-2">
-                    Effective permissions{' '}
+                    สิทธิ์ที่ใช้งานได้จริง{' '}
                     <span className="text-[11px] text-ink-muted font-normal">
                       ({userPermissionsQuery.data.effectivePermissions.length})
                     </span>
@@ -306,7 +305,7 @@ export default function IamPage() {
                       </span>
                     ))}
                     {userPermissionsQuery.data.effectivePermissions.length === 0 ? (
-                      <span>No effective permissions.</span>
+                      <span>ไม่มีสิทธิ์ที่ใช้งานได้</span>
                     ) : null}
                   </div>
                 </div>
@@ -317,9 +316,9 @@ export default function IamPage() {
                 <div className="border-t border-border-subtle pt-3">
                   <div className="flex items-center justify-between mb-2">
                     <div>
-                      <h3 className="text-sm font-medium text-ink">Permission overrides</h3>
+                      <h3 className="text-sm font-medium text-ink">การ override สิทธิ์</h3>
                       <p className="text-[11px] text-ink-muted">
-                        Click a row to cycle inherit → allow → deny. DENY wins over role grants.
+                        คลิกที่แถวเพื่อสลับ สืบทอด → อนุญาต → ปฏิเสธ การปฏิเสธจะชนะการมอบจากบทบาท
                       </p>
                     </div>
                     <button
@@ -328,7 +327,7 @@ export default function IamPage() {
                       disabled={!overridesDirty || overridesMutation.isPending}
                       className="px-3 py-1 text-xs rounded bg-primary text-white disabled:opacity-50"
                     >
-                      {overridesMutation.isPending ? 'Saving…' : 'Save overrides'}
+                      {overridesMutation.isPending ? 'กำลังบันทึก…' : 'บันทึก override'}
                     </button>
                   </div>
                   <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-1">
@@ -396,14 +395,14 @@ function OverrideBadge({
   if (override === 'DENY') {
     return (
       <span className="px-2 py-0.5 rounded text-[10px] uppercase tracking-wide bg-red-100 text-red-700 border border-red-200">
-        deny
+        ปฏิเสธ
       </span>
     );
   }
   if (override === 'ALLOW') {
     return (
       <span className="px-2 py-0.5 rounded text-[10px] uppercase tracking-wide bg-green-100 text-green-700 border border-green-200">
-        allow
+        อนุญาต
       </span>
     );
   }
@@ -415,7 +414,7 @@ function OverrideBadge({
           : 'bg-surface-alt text-ink-muted border border-border-subtle'
       }`}
     >
-      {inEffective ? 'from role' : 'no access'}
+      {inEffective ? 'จากบทบาท' : 'ไม่มีสิทธิ์'}
     </span>
   );
 }
@@ -453,15 +452,15 @@ function GrantRoleDialog({
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg w-[420px] p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-ink">Grant role</h3>
+          <h3 className="text-sm font-semibold text-ink">มอบบทบาท</h3>
           <button onClick={onCancel} className="p-1 text-ink-muted hover:text-ink">
             <X className="w-4 h-4" />
           </button>
         </div>
-        <p className="text-[12px] text-ink-muted">Granting to {principalLabel}</p>
+        <p className="text-[12px] text-ink-muted">มอบให้กับ {principalLabel}</p>
 
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] text-ink-muted">Role</span>
+          <span className="text-[11px] text-ink-muted">บทบาท</span>
           <select
             value={roleId}
             onChange={(e) => setRoleId(e.target.value)}
@@ -469,14 +468,14 @@ function GrantRoleDialog({
           >
             {roles.map((r) => (
               <option key={r.id} value={r.id}>
-                {r.name} ({r.code}){r.isSystem ? ' · system' : ''}
+                {r.name} ({r.code}){r.isSystem ? ' · ระบบ' : ''}
               </option>
             ))}
           </select>
         </label>
 
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] text-ink-muted">Expires at (optional)</span>
+          <span className="text-[11px] text-ink-muted">วันหมดอายุ (ไม่บังคับ)</span>
           <input
             type="datetime-local"
             value={expiresAt}
@@ -487,7 +486,7 @@ function GrantRoleDialog({
 
         <label className="flex flex-col gap-1">
           <span className="text-[11px] text-ink-muted">
-            Action glob (optional, comma-separated)
+            Glob ของแอ็กชัน (ไม่บังคับ คั่นด้วยจุลภาค)
           </span>
           <input
             type="text"
@@ -497,7 +496,7 @@ function GrantRoleDialog({
             className="px-2 py-1 rounded border border-border-default bg-white text-sm"
           />
           <span className="text-[10px] text-ink-faint">
-            Role only applies when the requested action matches one of these patterns.
+            บทบาทจะใช้งานได้เฉพาะเมื่อแอ็กชันที่ขอตรงกับรูปแบบใดรูปแบบหนึ่งเหล่านี้
           </span>
         </label>
 
@@ -507,7 +506,7 @@ function GrantRoleDialog({
             onClick={onCancel}
             className="px-3 py-1 text-xs rounded border border-border-default text-ink-muted"
           >
-            Cancel
+            ยกเลิก
           </button>
           <button
             type="button"
@@ -515,7 +514,7 @@ function GrantRoleDialog({
             disabled={!roleId || submitting}
             className="px-3 py-1 text-xs rounded bg-primary text-white disabled:opacity-50"
           >
-            {submitting ? 'Granting…' : 'Grant'}
+            {submitting ? 'กำลังมอบ…' : 'มอบ'}
           </button>
         </div>
       </div>
