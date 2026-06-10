@@ -14,22 +14,26 @@ import {
   Plus,
   Search,
   Trash2,
+  Wand2,
   X,
 } from 'lucide-react';
 import {
   archiveTemplate,
   deleteTemplate,
+  getFieldDefinitions,
   getThumbnailUrl,
   listTemplates,
   publishTemplate,
+  suggestAliases,
   unpublishTemplate,
+  updateFieldDefinitions,
 } from '../lib/api/templates';
 import { listDocumentTypes } from '../lib/api/documentTypes';
 import { queryKeys } from '../lib/queryClient';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
-import { PageLoader } from '../components/ui/Spinner';
+import { PageLoader, Spinner } from '../components/ui/Spinner';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
 import type { Template } from '../lib/api/types';
 import { useCan } from '../lib/auth/useCan';
@@ -64,6 +68,12 @@ export default function TemplatesPage() {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkAiProgress, setBulkAiProgress] = useState<{
+    running: boolean;
+    current: number;
+    total: number;
+    currentName: string;
+  } | null>(null);
 
   const params = useMemo(
     () => ({
@@ -231,19 +241,99 @@ export default function TemplatesPage() {
     invalidate();
   };
 
+  const runBulkAiSuggest = async () => {
+    const templates = allTemplates;
+    if (templates.length === 0) return;
+    if (
+      !confirm(
+        `ใช้ AI แนะนำชื่อฟิลด์สำหรับเทมเพลตทั้งหมด ${templates.length} รายการ?\n\nกระบวนการนี้อาจใช้เวลาสักครู่`,
+      )
+    )
+      return;
+
+    setBulkAiProgress({ running: true, current: 0, total: templates.length, currentName: '' });
+    let successCount = 0;
+    let fieldsUpdated = 0;
+
+    for (let i = 0; i < templates.length; i++) {
+      const t = templates[i];
+      const name = t.displayName || t.name || '';
+      setBulkAiProgress({ running: true, current: i + 1, total: templates.length, currentName: name });
+
+      try {
+        // Get field definitions
+        const fieldsRes = await getFieldDefinitions(t.id);
+        const fields = fieldsRes.fieldDefinitions || [];
+        if (fields.length === 0) continue;
+
+        // Get AI suggestions
+        const placeholders = fields.map((f) => f.placeholder);
+        const suggestRes = await suggestAliases(t.id, placeholders, name);
+        const suggestions = suggestRes.suggestions || [];
+        if (suggestions.length === 0) continue;
+
+        // Apply suggestions
+        const updated = fields.map((f) => {
+          const s = suggestions.find((x) => x.placeholder === f.placeholder);
+          if (s) {
+            fieldsUpdated++;
+            return { ...f, label: `${s.label_th} / ${s.label_en}` };
+          }
+          return f;
+        });
+
+        // Save
+        await updateFieldDefinitions(t.id, updated);
+        successCount++;
+      } catch (err) {
+        console.error(`AI suggest failed for ${t.id}:`, err);
+      }
+
+      // Small delay to avoid rate limiting
+      await new Promise((r) => setTimeout(r, 300));
+    }
+
+    setBulkAiProgress(null);
+    alert(
+      `เสร็จสิ้น!\n\n✅ สำเร็จ: ${successCount}/${templates.length} เทมเพลต\n📝 อัปเดตฟิลด์: ${fieldsUpdated} รายการ`,
+    );
+    invalidate();
+  };
+
   return (
     <div className="flex flex-col">
       <PageHeader
         title="เทมเพลต"
         description="ดู จัดการ และแก้ไขเทมเพลตแบบกลุ่ม"
         actions={
-          canCreateTemplate ? (
-            <Link to="/templates/new">
-              <Button variant="primary" size="sm">
-                <Plus className="w-3.5 h-3.5" /> อัปโหลดเทมเพลต
+          <div className="flex items-center gap-2">
+            {bulkAiProgress ? (
+              <div className="flex items-center gap-2 text-sm text-neutral-600">
+                <Spinner className="w-4 h-4" />
+                <span>
+                  {bulkAiProgress.current}/{bulkAiProgress.total}
+                </span>
+                <span className="max-w-[150px] truncate">{bulkAiProgress.currentName}</span>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={runBulkAiSuggest}
+                disabled={allTemplates.length === 0}
+                title="ใช้ AI แนะนำชื่อฟิลด์สำหรับเทมเพลตทั้งหมด"
+              >
+                <Wand2 className="w-3.5 h-3.5" /> AI แนะนำชื่อทั้งหมด
               </Button>
-            </Link>
-          ) : null
+            )}
+            {canCreateTemplate ? (
+              <Link to="/templates/new">
+                <Button variant="primary" size="sm">
+                  <Plus className="w-3.5 h-3.5" /> อัปโหลดเทมเพลต
+                </Button>
+              </Link>
+            ) : null}
+          </div>
         }
       />
 
@@ -392,6 +482,43 @@ export default function TemplatesPage() {
               <div className="ml-auto flex items-center gap-1.5">
                 {canUpdateTemplate ? (
                   <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={isMutating || !!bulkAiProgress}
+                      onClick={async () => {
+                        if (!confirm(`ใช้ AI แนะนำชื่อฟิลด์สำหรับ ${selectedCount} เทมเพลตที่เลือก?`)) return;
+                        const selected = selectedTemplates;
+                        setBulkAiProgress({ running: true, current: 0, total: selected.length, currentName: '' });
+                        let fieldsUpdated = 0;
+                        for (let i = 0; i < selected.length; i++) {
+                          const t = selected[i];
+                          const name = t.displayName || t.name || '';
+                          setBulkAiProgress({ running: true, current: i + 1, total: selected.length, currentName: name });
+                          try {
+                            const fieldsRes = await getFieldDefinitions(t.id);
+                            const fields = fieldsRes.fieldDefinitions || [];
+                            if (fields.length === 0) continue;
+                            const suggestRes = await suggestAliases(t.id, fields.map((f) => f.placeholder), name);
+                            const suggestions = suggestRes.suggestions || [];
+                            if (suggestions.length === 0) continue;
+                            const updated = fields.map((f) => {
+                              const s = suggestions.find((x) => x.placeholder === f.placeholder);
+                              if (s) { fieldsUpdated++; return { ...f, label: `${s.label_th} / ${s.label_en}` }; }
+                              return f;
+                            });
+                            await updateFieldDefinitions(t.id, updated);
+                          } catch (err) { console.error(`AI failed for ${t.id}`, err); }
+                          await new Promise((r) => setTimeout(r, 300));
+                        }
+                        setBulkAiProgress(null);
+                        setSelectedIds(new Set());
+                        alert(`เสร็จสิ้น! อัปเดตฟิลด์ ${fieldsUpdated} รายการ`);
+                        invalidate();
+                      }}
+                    >
+                      <Wand2 className="w-3.5 h-3.5" /> AI แนะนำชื่อ
+                    </Button>
                     <Button
                       variant="outline"
                       size="sm"

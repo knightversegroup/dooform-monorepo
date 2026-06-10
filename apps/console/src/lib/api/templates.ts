@@ -138,3 +138,28 @@ export function getPreviewPdfUrl(id: string): string {
 export function getThumbnailUrl(id: string): string {
   return `${apiBaseUrl}/templates/${id}/thumbnail`;
 }
+
+// AI Alias Suggestion
+export interface AliasSuggestion {
+  placeholder: string;
+  label_th: string;
+  label_en: string;
+  confidence: number;
+}
+
+export interface AliasSuggestionResponse {
+  suggestions: AliasSuggestion[];
+  model: string;
+  provider: string;
+  message: string;
+}
+
+export function suggestAliases(
+  id: string,
+  placeholders: string[],
+  documentName?: string,
+): Promise<AliasSuggestionResponse> {
+  return http.post<AliasSuggestionResponse>(`/templates/${id}/suggest-aliases`, {
+    body: { placeholders, documentName },
+  });
+}
