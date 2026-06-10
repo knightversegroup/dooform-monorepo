@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
 import {
   getFieldDefinitions,
   getTemplate,
@@ -94,6 +94,7 @@ export default function FormFillPage() {
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
+  const [zoom, setZoom] = useState(1);
   const pdfDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // For the live preview we feed the EXPANDED values (radio-group masters get
@@ -149,7 +150,7 @@ export default function FormFillPage() {
   }, [tpl?.id, previewValues]);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)]"> 
+    <div className="flex flex-col h-[calc(100vh-7rem)] overflow-hidden"> 
       <PageHeader
         title={`กรอก: ${tpl?.displayName ?? tpl?.name ?? 'เทมเพลต'}`}
         description="กรอกฟิลด์ด้านล่างและสร้างเอกสาร"
@@ -162,7 +163,7 @@ export default function FormFillPage() {
           </Link>
         }
       />
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,420px)_1fr] gap-0 flex-1 min-h-0">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,420px)_1fr] gap-0 flex-1 min-h-0 overflow-hidden">
         <div className="px-6 py-6 border-r border-border-default overflow-y-auto">
           {isLoading ? <PageLoader /> : null}
           {fieldsQuery.error ? (
@@ -241,7 +242,7 @@ export default function FormFillPage() {
           </form>
         </div>
 
-        <div className="flex flex-col bg-surface-alt min-h-[60vh]">
+        <div className="flex flex-col bg-surface-alt flex-1 min-h-0">
           <div className="flex items-center gap-1 border-b border-border-default bg-white px-3 py-2">
             <span className="text-xs font-medium text-ink-default">PDF Live</span>
             <span className="text-[11px] text-ink-muted ml-2">
@@ -249,7 +250,7 @@ export default function FormFillPage() {
             </span>
           </div>
           {tpl ? (
-              <div className="flex flex-col flex-1 bg-gray-100">
+              <div className="flex flex-col flex-1 min-h-0 bg-gray-100">
                 {pdfError ? (
                   <div className="p-4">
                     <ErrorMessage error={pdfError} />
@@ -260,36 +261,68 @@ export default function FormFillPage() {
                   </div>
                 ) : pdfPages.length > 0 ? (
                   <>
-                    <div className="flex-1 overflow-auto flex items-start justify-center p-4">
+                    <div
+                      className={`flex-1 min-h-0 p-4 ${zoom > 1 ? 'overflow-auto' : 'flex items-center justify-center'}`}
+                      onWheel={(e) => {
+                        if (e.ctrlKey || e.metaKey) {
+                          e.preventDefault();
+                          setZoom((z) => Math.max(1, z - e.deltaY * 0.01));
+                        }
+                      }}
+                    >
                       <img
                         src={pdfPages[currentPage]}
                         alt={`Page ${currentPage + 1}`}
-                        className="max-w-full h-auto shadow-lg bg-white"
+                        className="shadow-lg bg-white"
+                        style={zoom === 1 ? { maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' } : { transform: `scale(${zoom})`, transformOrigin: 'top center' }}
                       />
                     </div>
-                    {pdfPages.length > 1 && (
-                      <div className="flex items-center justify-center gap-2 py-2 bg-white border-t border-border-default">
+                    <div className="flex items-center justify-center gap-4 py-2 bg-white border-t border-border-default">
+                      <div className="flex items-center gap-1">
                         <button
                           type="button"
-                          onClick={() => setCurrentPage((p) => Math.max(0, p - 1))}
-                          disabled={currentPage === 0}
+                          onClick={() => setZoom((z) => Math.max(1, z - 0.25))}
+                          disabled={zoom <= 1}
                           className="p-1 rounded hover:bg-surface-alt disabled:opacity-30"
+                          title="ซูมออก"
                         >
-                          <ChevronLeft className="w-5 h-5" />
+                          <ZoomOut className="w-4 h-4" />
                         </button>
-                        <span className="text-sm text-ink-muted">
-                          {currentPage + 1} / {pdfPages.length}
-                        </span>
+                        <span className="text-xs text-ink-muted w-12 text-center">{Math.round(zoom * 100)}%</span>
                         <button
                           type="button"
-                          onClick={() => setCurrentPage((p) => Math.min(pdfPages.length - 1, p + 1))}
-                          disabled={currentPage === pdfPages.length - 1}
+                          onClick={() => setZoom((z) => z + 0.25)}
+                          disabled={false}
                           className="p-1 rounded hover:bg-surface-alt disabled:opacity-30"
+                          title="ซูมเข้า"
                         >
-                          <ChevronRight className="w-5 h-5" />
+                          <ZoomIn className="w-4 h-4" />
                         </button>
                       </div>
-                    )}
+                      {pdfPages.length > 1 && (
+                        <div className="flex items-center gap-1 border-l border-border-default pl-4">
+                          <button
+                            type="button"
+                            onClick={() => setCurrentPage((p) => Math.max(0, p - 1))}
+                            disabled={currentPage === 0}
+                            className="p-1 rounded hover:bg-surface-alt disabled:opacity-30"
+                          >
+                            <ChevronLeft className="w-5 h-5" />
+                          </button>
+                          <span className="text-sm text-ink-muted">
+                            {currentPage + 1} / {pdfPages.length}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setCurrentPage((p) => Math.min(pdfPages.length - 1, p + 1))}
+                            disabled={currentPage === pdfPages.length - 1}
+                            className="p-1 rounded hover:bg-surface-alt disabled:opacity-30"
+                          >
+                            <ChevronRight className="w-5 h-5" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </>
                 ) : (
                   <div className="flex items-center justify-center flex-1">
