@@ -138,3 +138,17 @@ export function getPreviewPdfUrl(id: string): string {
 export function getThumbnailUrl(id: string): string {
   return `${apiBaseUrl}/templates/${id}/thumbnail`;
 }
+
+/**
+ * Generate a live PDF preview with placeholder values filled in.
+ * Returns a blob containing the PDF.
+ */
+export function generateLivePdfPreview(
+  id: string,
+  values: Record<string, string>
+): Promise<Blob> {
+  return http.post<Blob>(`/templates/${id}/preview-pdf`, {
+    body: { values },
+    responseType: 'blob',
+  });
+}
