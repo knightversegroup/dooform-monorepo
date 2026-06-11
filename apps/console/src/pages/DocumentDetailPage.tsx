@@ -577,7 +577,6 @@ export default function DocumentDetailPage() {
                   <LiveTemplatePreview
                     templateId={doc.templateId}
                     values={expandAllRadioGroups(editedData, fieldDefs)}
-                    hoverField={editHoverField}
                     className="rounded-md border border-border-default overflow-hidden"
                   />
                 ) : null}

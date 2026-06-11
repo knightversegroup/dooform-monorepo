@@ -79,10 +79,11 @@ export function replaceTemplateFile(id: string, file: File) {
 export function replaceTemplateHtml(id: string, htmlFile: File) {
   const formData = new FormData();
   formData.append('htmlPreview', htmlFile);
-  return http.post<{ id: string; filePathHTML: string | null; updatedAt: string }>(
-    `/templates/${id}/preview-html`,
-    { formData }
-  );
+  return http.post<{
+    id: string;
+    filePathHTML: string | null;
+    updatedAt: string;
+  }>(`/templates/${id}/preview-html`, { formData });
 }
 
 export interface ListTemplatesParams {
@@ -112,19 +113,27 @@ export function getPlaceholders(id: string) {
 }
 
 export function getFieldDefinitions(id: string) {
-  return http.get<FieldDefinitionsResponse>(`/templates/${id}/field-definitions`);
+  return http.get<FieldDefinitionsResponse>(
+    `/templates/${id}/field-definitions`,
+  );
 }
 
 export function regenerateFieldDefinitions(id: string) {
   return http.post<FieldDefinitionsResponse>(
-    `/templates/${id}/field-definitions/regenerate`
+    `/templates/${id}/field-definitions/regenerate`,
   );
 }
 
-export function updateFieldDefinitions(id: string, fieldDefinitions: FieldDefinition[]) {
-  return http.put<FieldDefinitionsResponse>(`/templates/${id}/field-definitions`, {
-    body: { fieldDefinitions },
-  });
+export function updateFieldDefinitions(
+  id: string,
+  fieldDefinitions: FieldDefinition[],
+) {
+  return http.put<FieldDefinitionsResponse>(
+    `/templates/${id}/field-definitions`,
+    {
+      body: { fieldDefinitions },
+    },
+  );
 }
 
 export function getPreviewHtmlUrl(id: string): string {
@@ -159,7 +168,24 @@ export function suggestAliases(
   placeholders: string[],
   documentName?: string,
 ): Promise<AliasSuggestionResponse> {
-  return http.post<AliasSuggestionResponse>(`/templates/${id}/suggest-aliases`, {
-    body: { placeholders, documentName },
+  return http.post<AliasSuggestionResponse>(
+    `/templates/${id}/suggest-aliases`,
+    {
+      body: { placeholders, documentName },
+    },
+  );
+}
+
+/**
+ * Generate a live PDF preview with placeholder values filled in.
+ * Returns a blob containing the PDF.
+ */
+export function generateLivePdfPreview(
+  id: string,
+  values: Record<string, string>,
+): Promise<Blob> {
+  return http.post<Blob>(`/templates/${id}/preview-pdf`, {
+    body: { values },
+    responseType: 'blob',
   });
 }

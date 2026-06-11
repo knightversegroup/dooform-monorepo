@@ -412,6 +412,46 @@ export class TemplateController extends LazyBaseController {
     res.send(value.buffer)
   }
 
+  @Post(':id/preview-pdf')
+  @RequirePermission('templates:read')
+  @ApiOperation({ summary: 'Generate live PDF preview with filled placeholder values' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['values'],
+      properties: {
+        values: {
+          type: 'object',
+          additionalProperties: { type: 'string' },
+          description: 'Map of placeholder names to values',
+          example: { name: 'John Doe', email: 'john@example.com' },
+        },
+      },
+    },
+  })
+  async generateLivePdfPreview(
+    @Param('id') id: string,
+    @Body() body: { values: Record<string, string> },
+    @Res() res: Response,
+    @CurrentUser() user?: UserContext,
+  ) {
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/generate-live-pdf-preview/generate-live-pdf-preview.use-case.module'),
+      () => import('../../../application/use-cases/generate-live-pdf-preview/generate-live-pdf-preview.use-case'),
+    )
+    const value = getResultValue(await uc.execute({
+      id,
+      values: body.values ?? {},
+      callerOrganizationId: user?.organizationId,
+    })) as { buffer: Buffer; filename: string }
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'inline; filename="preview.pdf"',
+      'Content-Length': value.buffer.length.toString(),
+    })
+    res.send(value.buffer)
+  }
+
   @Get(':id/thumbnail')
   @RequirePermission('templates:read')
   @ApiOperation({ summary: 'Get template thumbnail image' })
