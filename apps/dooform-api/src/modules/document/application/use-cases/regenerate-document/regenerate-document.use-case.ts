@@ -11,6 +11,7 @@ import type { IDocumentRepository } from '../../../domain/repositories/document.
 import type { IStorageService } from '../../../domain/services/storage.service'
 import type { ITemplateProcessorService } from '../../../domain/services/template-processor.service'
 import type { IPdfConverterService } from '../../../domain/services/pdf-converter.service'
+import type { ITemplateRepository } from '../../../../template/domain/repositories/template.repository'
 import type { IDocumentShareRepository } from '../../../../workflow/domain/repositories/document-share.repository'
 import { ShareRole } from '../../../../workflow/domain/enums/workflow.enum'
 import { RegenerateDocumentDto } from '../../dtos/regenerate-document.dto'
@@ -30,6 +31,8 @@ export class RegenerateDocumentUseCase implements UseCase<RegenerateDocumentDto,
   constructor(
     @Inject('IDocumentRepository')
     private readonly documentRepository: IDocumentRepository,
+    @Inject('ITemplateRepository')
+    private readonly templateRepository: ITemplateRepository,
     @Inject('IStorageService')
     private readonly storageService: IStorageService,
     @Inject('ITemplateProcessorService')
@@ -66,9 +69,22 @@ export class RegenerateDocumentUseCase implements UseCase<RegenerateDocumentDto,
     // Use the caller's overridden data when provided, else replay the stored payload.
     const data = dto.data ?? existingDoc.data
 
-    // Re-process using the chosen data
-    const templatePath = `templates/${existingDoc.templateId}/template.docx`
-    const templateBuffer = await this.storageService.read(templatePath)
+    // Fetch the template record to get the actual file path
+    const template = await this.templateRepository.findById(existingDoc.templateId)
+    if (!template) {
+      throw new EntityNotFoundException(`Template with id ${existingDoc.templateId} not found`)
+    }
+
+    // Re-process using the chosen data. Use the stored path from the template record,
+    // falling back to legacy path for backward compatibility.
+    let templateBuffer: Buffer
+    if (template.filePath && await this.storageService.exists(template.filePath)) {
+      templateBuffer = await this.storageService.read(template.filePath)
+    } else {
+      // Legacy fallback: pre-multi-tenancy templates
+      const legacyPath = `templates/${existingDoc.templateId}/template.docx`
+      templateBuffer = await this.storageService.read(legacyPath)
+    }
     const processedDocx = await this.templateProcessor.processTemplate(templateBuffer, data)
 
     // Create new document. The actor becomes the owner of the spawn so they manage

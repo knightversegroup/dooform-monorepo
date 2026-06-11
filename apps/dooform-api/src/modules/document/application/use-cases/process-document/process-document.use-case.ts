@@ -13,6 +13,7 @@ import type { IStorageService } from '../../../domain/services/storage.service'
 import type { ITemplateProcessorService } from '../../../domain/services/template-processor.service'
 import type { IPdfConverterService } from '../../../domain/services/pdf-converter.service'
 import type { WatermarkConfig } from '../../../domain/entities/watermark-preset.entity'
+import type { ITemplateRepository } from '../../../../template/domain/repositories/template.repository'
 import { PdfLibManipulatorService } from '../../../infrastructure/services/pdf-lib-manipulator.service'
 import { ProcessDocumentDto } from '../../dtos/process-document.dto'
 import { OrgPath } from '../../../../../common/storage/org-path'
@@ -39,6 +40,8 @@ export class ProcessDocumentUseCase implements UseCase<ProcessDocumentDto, Proce
   constructor(
     @Inject('IDocumentRepository')
     private readonly documentRepository: IDocumentRepository,
+    @Inject('ITemplateRepository')
+    private readonly templateRepository: ITemplateRepository,
     @Inject('IStorageService')
     private readonly storageService: IStorageService,
     @Inject('ITemplateProcessorService')
@@ -65,26 +68,34 @@ export class ProcessDocumentUseCase implements UseCase<ProcessDocumentDto, Proce
       throw new Error('organizationId is required to process documents')
     }
 
-    // 1. Get template DOCX: use uploaded file, or read from storage
-    //    Template files are looked up first by their org-scoped path, falling back to
-    //    the legacy unscoped path so pre-multi-tenancy templates keep working.
+    // 1. Fetch template record to get the actual stored file path
+    const template = await this.templateRepository.findById(templateId)
+    if (!template) {
+      throw new Error(`Template with id ${templateId} not found`)
+    }
+
+    // 2. Get template DOCX: use uploaded file, or read from storage using the stored path
     let templateBuffer: Buffer
     const orgTemplateKey = OrgPath.for(organizationId, 'templates', templateId, 'template.docx')
-    const legacyTemplateKey = `templates/${templateId}/template.docx`
     if (templateFile) {
       templateBuffer = templateFile.buffer
       await this.storageService.save(orgTemplateKey, templateBuffer)
+    } else if (template.filePath && await this.storageService.exists(template.filePath)) {
+      // Primary: use the actual stored path from the template record
+      templateBuffer = await this.storageService.read(template.filePath)
     } else if (await this.storageService.exists(orgTemplateKey)) {
+      // Fallback: org-scoped path
       templateBuffer = await this.storageService.read(orgTemplateKey)
     } else {
-      // Legacy fallback: pre-multi-tenancy templates were stored without an org prefix.
+      // Legacy fallback: pre-multi-tenancy templates were stored without an org prefix
+      const legacyTemplateKey = `templates/${templateId}/template.docx`
       templateBuffer = await this.storageService.read(legacyTemplateKey)
     }
 
-    // 2. Process template with docxtemplater
+    // 3. Process template with docxtemplater
     const processedDocx = await this.templateProcessor.processTemplate(templateBuffer, data)
 
-    // 3. Create document entity. If the caller passed a custom filename, sanitize it
+    // 4. Create document entity. If the caller passed a custom filename, sanitize it
     //    (no path separators, ensure .docx extension); otherwise fall back to a
     //    timestamped default.
     const filename = customFilename
@@ -98,7 +109,7 @@ export class ProcessDocumentUseCase implements UseCase<ProcessDocumentDto, Proce
       organizationId,
     })
 
-    // 4. Quota-check + save processed DOCX to org-scoped storage
+    // 5. Quota-check + save processed DOCX to org-scoped storage
     await this.quota.assertCanWrite(organizationId, processedDocx.length)
     const docxPath = OrgPath.for(organizationId, 'documents', document.id, filename)
     await this.storageService.save(docxPath, processedDocx)
@@ -107,13 +118,13 @@ export class ProcessDocumentUseCase implements UseCase<ProcessDocumentDto, Proce
     document.setFileSize(processedDocx.length)
     document.setMimeType('application/vnd.openxmlformats-officedocument.wordprocessingml.document')
 
-    // 5. Convert to PDF via LibreOffice
+    // 6. Convert to PDF via LibreOffice
     try {
       const isAvailable = await this.pdfConverter.isAvailable()
       if (isAvailable) {
         let pdfBuffer = await this.pdfConverter.convertDocxToPdf(processedDocx)
 
-        // 6. Apply branding watermark unless the org's tier includes the
+        // 7. Apply branding watermark unless the org's tier includes the
         // remove_watermark capability. Resolved server-side from the org's
         // tier_configs row + any per-tier overrides. Falls back to "stamp on"
         // when the org has no recognised tier.
@@ -138,7 +149,7 @@ export class ProcessDocumentUseCase implements UseCase<ProcessDocumentDto, Proce
       new Logger('ProcessDocumentUseCase').error('PDF conversion failed, continuing without PDF', err instanceof Error ? err : undefined)
     }
 
-    // 7. Mark completed and save
+    // 8. Mark completed and save
     document.markCompleted()
     const saved = await this.documentRepository.save(document)
     const props = saved.getProps()
