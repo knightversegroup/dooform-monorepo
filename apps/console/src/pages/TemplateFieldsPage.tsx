@@ -9,12 +9,14 @@ import {
   Save,
   Sparkles,
   Unlink,
+  Wand2,
 } from 'lucide-react';
 import {
   getFieldDefinitions,
   getPlaceholders,
   getTemplate,
   regenerateFieldDefinitions,
+  suggestAliases,
   updateFieldDefinitions,
 } from '../lib/api/templates';
 import {
@@ -92,6 +94,40 @@ export default function TemplateFieldsPage() {
         queryKeys.templates.fieldDefinitions(templateId),
         res,
       );
+    },
+  });
+
+  const suggestAliasesMutation = useMutation({
+    mutationFn: () =>
+      suggestAliases(
+        templateId,
+        edited.map((f) => f.placeholder),
+        templateQuery.data?.displayName || templateQuery.data?.name,
+      ),
+    onSuccess: (res) => {
+      console.log('AI suggestions response:', res);
+      // Apply AI suggestions to the edited fields
+      if (!res.suggestions || res.suggestions.length === 0) {
+        console.warn('No suggestions returned from AI');
+        return;
+      }
+      setEdited((prev) =>
+        prev.map((f) => {
+          const suggestion = res.suggestions.find(
+            (s) => s.placeholder === f.placeholder
+          );
+          console.log(`Matching ${f.placeholder}:`, suggestion);
+          if (suggestion) {
+            // Combine Thai and English labels
+            const label = `${suggestion.label_th} / ${suggestion.label_en}`;
+            return { ...f, label };
+          }
+          return f;
+        })
+      );
+    },
+    onError: (err) => {
+      console.error('AI suggestion error:', err);
     },
   });
 
@@ -193,6 +229,15 @@ export default function TemplateFieldsPage() {
             >
               {regenMutation.isPending ? <Spinner /> : <Sparkles className="w-4 h-4" />}
               ตรวจหาจาก DOCX อัตโนมัติ
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => suggestAliasesMutation.mutate()}
+              disabled={suggestAliasesMutation.isPending || edited.length === 0}
+              title="ใช้ AI แนะนำชื่อฟิลด์ภาษาไทย"
+            >
+              {suggestAliasesMutation.isPending ? <Spinner /> : <Wand2 className="w-4 h-4" />}
+              AI แนะนำชื่อ
             </Button>
             <Button
               variant="outline"
