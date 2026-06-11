@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Building2,
@@ -10,6 +10,7 @@ import {
   Plus,
   Save,
   Trash2,
+  Upload,
   User,
   X,
 } from 'lucide-react';
@@ -383,6 +384,11 @@ function CollectionEntriesView({
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<DictionaryEntry | null>(null);
   const [showNew, setShowNew] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [importProgress, setImportProgress] = useState<{
+    current: number;
+    total: number;
+  } | null>(null);
 
   const params = useMemo(
     () => ({ search: search || undefined, page: 0, pageSize: 500 }),
@@ -401,6 +407,71 @@ function CollectionEntriesView({
       }),
   });
 
+  const handleCsvImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const text = await file.text();
+    const lines = text.split('\n').filter((l) => l.trim());
+
+    // Skip header if it looks like one
+    const startIdx = lines[0]?.toLowerCase().includes('thai') ||
+                     lines[0]?.toLowerCase().includes('english') ? 1 : 0;
+
+    const entries: { termTh: string; term: string }[] = [];
+    for (let i = startIdx; i < lines.length; i++) {
+      const line = lines[i].replace(/^\uFEFF/, ''); // Remove BOM
+      // Handle CSV with possible quoted values
+      const match = line.match(/^"?([^",]*)"?,\s*"?([^"]*)"?$/);
+      if (match) {
+        const [, thai, english] = match;
+        if (thai?.trim() && english?.trim()) {
+          entries.push({ termTh: thai.trim(), term: english.trim() });
+        }
+      } else {
+        // Simple split
+        const parts = line.split(',');
+        if (parts.length >= 2 && parts[0]?.trim() && parts[1]?.trim()) {
+          entries.push({ termTh: parts[0].trim(), term: parts[1].trim() });
+        }
+      }
+    }
+
+    if (entries.length === 0) {
+      alert('ไม่พบข้อมูลในไฟล์ CSV');
+      return;
+    }
+
+    if (!confirm(`นำเข้า ${entries.length} รายการจากไฟล์ "${file.name}"?`)) {
+      e.target.value = '';
+      return;
+    }
+
+    setImportProgress({ current: 0, total: entries.length });
+    let successCount = 0;
+
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      setImportProgress({ current: i + 1, total: entries.length });
+      try {
+        await createEntry(collection.id, {
+          term: entry.term,
+          termTh: entry.termTh,
+          definition: entry.term,
+          definitionTh: entry.termTh,
+        });
+        successCount++;
+      } catch (err) {
+        console.error(`Failed to import: ${entry.term}`, err);
+      }
+    }
+
+    setImportProgress(null);
+    e.target.value = '';
+    queryClient.invalidateQueries({ queryKey: queryKeys.dictionary.all });
+    alert(`นำเข้าสำเร็จ ${successCount}/${entries.length} รายการ`);
+  };
+
   return (
     <div className="flex flex-col">
       <PageHeader
@@ -409,9 +480,34 @@ function CollectionEntriesView({
         actions={
           <div className="flex items-center gap-2">
             {ownsCollection ? (
-              <Button variant="primary" size="sm" onClick={() => setShowNew(true)}>
-                <Plus className="w-3.5 h-3.5" /> เพิ่มคำ
-              </Button>
+              <>
+                {importProgress ? (
+                  <div className="flex items-center gap-2 text-sm text-ink-muted">
+                    <Spinner className="w-4 h-4" />
+                    <span>{importProgress.current}/{importProgress.total}</span>
+                  </div>
+                ) : (
+                  <>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".csv"
+                      onChange={handleCsvImport}
+                      className="hidden"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Upload className="w-3.5 h-3.5" /> นำเข้า CSV
+                    </Button>
+                  </>
+                )}
+                <Button variant="primary" size="sm" onClick={() => setShowNew(true)}>
+                  <Plus className="w-3.5 h-3.5" /> เพิ่มคำ
+                </Button>
+              </>
             ) : null}
             <Button variant="outline" size="sm" onClick={onBack}>
               <ChevronLeft className="w-3.5 h-3.5" /> ย้อนกลับ
