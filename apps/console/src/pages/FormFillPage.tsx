@@ -1,15 +1,13 @@
-import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
 import {
   getFieldDefinitions,
-  getPreviewHtmlUrl,
-  getPreviewPdfUrl,
   getTemplate,
+  generateLivePdfPreview,
 } from '../lib/api/templates';
 import { processTemplate } from '../lib/api/documents';
-import { getActiveUserId, getActiveUserTier } from '../lib/api/client';
 import { expandAllRadioGroups } from '../lib/radioGroups';
 import { listDataTypes, type DataTypeDto } from '../lib/api/dataTypes';
 import { queryKeys } from '../lib/queryClient';
@@ -91,36 +89,13 @@ export default function FormFillPage() {
   const tpl = templateQuery.data;
   const isLoading = templateQuery.isLoading || fieldsQuery.isLoading;
 
-  const [previewMode, setPreviewMode] = useState<'html' | 'pdf'>('html');
-  const previewRef = useRef<HTMLIFrameElement>(null);
-  const [rawHtml, setRawHtml] = useState<string | null>(null);
-  const [htmlError, setHtmlError] = useState<string | null>(null);
-  const [hoverField, setHoverField] = useState<string | null>(null);
-
-  // Fetch raw HTML once per template
-  useEffect(() => {
-    if (!tpl) return;
-    let cancelled = false;
-    setRawHtml(null);
-    setHtmlError(null);
-    fetch(getPreviewHtmlUrl(tpl.id), {
-      headers: {
-        'x-user-id': getActiveUserId(),
-        'x-user-tier': getActiveUserTier(),
-      },
-    })
-      .then(async (res) => {
-        if (!res.ok) throw new Error(`โหลดตัวอย่าง HTML ไม่สำเร็จ (HTTP ${res.status})`);
-        const text = await res.text();
-        if (!cancelled) setRawHtml(text);
-      })
-      .catch((err) => {
-        if (!cancelled) setHtmlError(err instanceof Error ? err.message : 'แสดงตัวอย่างไม่สำเร็จ');
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [tpl?.id]);
+  // Live PDF preview state
+  const [pdfPages, setPdfPages] = useState<string[]>([]);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [zoom, setZoom] = useState(1);
+  const pdfDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // For the live preview we feed the EXPANDED values (radio-group masters get
   // turned into per-placeholder ticks) so brackets render `[/]` vs `[ ]` in real
@@ -129,46 +104,53 @@ export default function FormFillPage() {
     () => expandAllRadioGroups(values, fields),
     [values, fields],
   );
-  const deferredValues = useDeferredValue(previewValues);
 
-  const previewHtml = useMemo(() => {
-    if (!rawHtml) return null;
+  // Generate live PDF when values change
+  useEffect(() => {
+    if (!tpl?.id) return;
 
-    // Decode any HTML-entity-escaped braces (LibreOffice sometimes emits `&#123;&#123;`)
-    let html = rawHtml.replace(/&#123;/g, '{').replace(/&#125;/g, '}');
+    if (pdfDebounceRef.current) clearTimeout(pdfDebounceRef.current);
 
-    // Build a case-insensitive lookup
-    const lookup: Record<string, string> = {};
-    for (const [k, v] of Object.entries(deferredValues)) lookup[k.toLowerCase()] = v ?? '';
+    pdfDebounceRef.current = setTimeout(async () => {
+      setPdfLoading(true);
+      setPdfError(null);
+      try {
+        const blob = await generateLivePdfPreview(tpl.id, previewValues);
+        // Convert PDF blob to page images using pdf.js
+        const arrayBuffer = await blob.arrayBuffer();
+        const pdfjs = await import('pdfjs-dist');
+        // Set worker from CDN
+        // Use local worker file (copied to public/ folder) - no external CDN dependency
+        pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+        const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
 
-    // Replace every {{name}} with the value (or the empty placeholder pill).
-    // The hovered field gets a stronger highlight.
-    const hoverLower = hoverField?.toLowerCase() ?? null;
-    html = html.replace(/\{\{\s*([\w.-]+)\s*\}\}/g, (_match, name: string) => {
-      const v = lookup[name.toLowerCase()] ?? '';
-      const isHover = hoverLower !== null && name.toLowerCase() === hoverLower;
-      const safeName = escapeHtml(name);
-      const safeValue = escapeHtml(v);
-      if (v.length > 0) {
-        const style = isHover
-          ? 'background-color:#6ee7b7;box-shadow:0 0 0 2px #10b981;color:#064e3b;padding:0 2px;border-radius:2px;font-weight:500;'
-          : 'background-color:#fff3a3;padding:0 2px;border-radius:2px;font-weight:500;';
-        return `<mark style="${style}" data-ph="${safeName}">${safeValue}</mark>`;
+        const pages: string[] = [];
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const viewport = page.getViewport({ scale: 2 });
+          const canvas = document.createElement('canvas');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const ctx = canvas.getContext('2d')!;
+          await page.render({ canvasContext: ctx, viewport }).promise;
+          pages.push(canvas.toDataURL('image/png'));
+        }
+        setPdfPages(pages);
+        setCurrentPage(0);
+      } catch (err) {
+        setPdfError(err instanceof Error ? err.message : 'สร้าง PDF ไม่สำเร็จ');
+      } finally {
+        setPdfLoading(false);
       }
-      const style = isHover
-        ? 'background-color:#6ee7b7;box-shadow:0 0 0 2px #10b981;color:#064e3b;padding:0 2px;border-radius:2px;'
-        : 'background-color:#ffd6d6;color:#b00020;padding:0 2px;border-radius:2px;';
-      return `<mark style="${style}" data-ph="${safeName}">{{${safeName}}}</mark>`;
-    });
+    }, 600);
 
-    return html;
-  }, [rawHtml, deferredValues, hoverField]);
-
-  // Hover wiring (parent-side only; iframe is rebuilt on every keystroke and can't talk back)
-  const setActiveField = (name: string | null) => setHoverField(name);
+    return () => {
+      if (pdfDebounceRef.current) clearTimeout(pdfDebounceRef.current);
+    };
+  }, [tpl?.id, previewValues]);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)]"> // add fixed height to make it scrollable
+    <div className="flex flex-col h-[calc(100vh-7rem)] overflow-hidden"> 
       <PageHeader
         title={`กรอก: ${tpl?.displayName ?? tpl?.name ?? 'เทมเพลต'}`}
         description="กรอกฟิลด์ด้านล่างและสร้างเอกสาร"
@@ -181,7 +163,7 @@ export default function FormFillPage() {
           </Link>
         }
       />
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,420px)_1fr] gap-0 flex-1 min-h-0">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,420px)_1fr] gap-0 flex-1 min-h-0 overflow-hidden">
         <div className="px-6 py-6 border-r border-border-default overflow-y-auto">
           {isLoading ? <PageLoader /> : null}
           {fieldsQuery.error ? (
@@ -222,13 +204,7 @@ export default function FormFillPage() {
             </div>
 
             {fields.map((field) => (
-              <div
-                key={field.placeholder}
-                onMouseEnter={() => setActiveField(field.placeholder)}
-                onMouseLeave={() => setActiveField(null)}
-                onFocus={() => setActiveField(field.placeholder)}
-                onBlur={() => setActiveField(null)}
-              >
+              <div key={field.placeholder}>
                 <FieldRow
                   field={field}
                   dataType={dataTypeByCode.get(field.dataType ?? '')}
@@ -266,58 +242,94 @@ export default function FormFillPage() {
           </form>
         </div>
 
-        <div className="flex flex-col bg-surface-alt min-h-[60vh]">
+        <div className="flex flex-col bg-surface-alt flex-1 min-h-0">
           <div className="flex items-center gap-1 border-b border-border-default bg-white px-3 py-2">
-            <button
-              type="button"
-              onClick={() => setPreviewMode('html')}
-              className={`px-3 py-1 text-xs rounded ${
-                previewMode === 'html'
-                  ? 'bg-primary text-white'
-                  : 'text-ink-muted hover:bg-surface-alt'
-              }`}
-            >
-              HTML สด
-            </button>
-            <button
-              type="button"
-              onClick={() => setPreviewMode('pdf')}
-              className={`px-3 py-1 text-xs rounded ${
-                previewMode === 'pdf'
-                  ? 'bg-primary text-white'
-                  : 'text-ink-muted hover:bg-surface-alt'
-              }`}
-            >
-              PDF (เทมเพลต)
-            </button>
+            <span className="text-xs font-medium text-ink-default">PDF Live</span>
             <span className="text-[11px] text-ink-muted ml-2">
-              HTML อัปเดตขณะพิมพ์ · PDF แสดงเทมเพลตที่ยังไม่ได้กรอก
+              {pdfLoading ? 'กำลังสร้าง PDF...' : 'อัปเดตหลังหยุดพิมพ์'}
             </span>
           </div>
           {tpl ? (
-            previewMode === 'html' ? (
-              htmlError ? (
-                <div className="p-4">
-                  <ErrorMessage error={htmlError} />
-                </div>
-              ) : previewHtml ? (
-                <iframe
-                  ref={previewRef}
-                  srcDoc={previewHtml}
-                  sandbox="allow-same-origin"
-                  title="ตัวอย่างเทมเพลต"
-                  className="w-full flex-1 min-h-[60vh] bg-white"
-                />
-              ) : (
-                <div className="p-4 text-sm text-ink-muted">กำลังโหลดตัวอย่าง HTML…</div>
-              )
-            ) : (
-              <iframe
-                src={getPreviewPdfUrl(tpl.id)}
-                title="Template preview"
-                className="w-full flex-1 min-h-[60vh] bg-white"
-              />
-            )
+              <div className="flex flex-col flex-1 min-h-0 bg-gray-100">
+                {pdfError ? (
+                  <div className="p-4">
+                    <ErrorMessage error={pdfError} />
+                  </div>
+                ) : pdfLoading && pdfPages.length === 0 ? (
+                  <div className="flex items-center justify-center flex-1">
+                    <div className="text-sm text-ink-muted">กำลังสร้าง PDF...</div>
+                  </div>
+                ) : pdfPages.length > 0 ? (
+                  <>
+                    <div
+                      className={`flex-1 min-h-0 p-4 ${zoom > 1 ? 'overflow-auto' : 'flex items-center justify-center'}`}
+                      onWheel={(e) => {
+                        if (e.ctrlKey || e.metaKey) {
+                          e.preventDefault();
+                          setZoom((z) => Math.max(1, z - e.deltaY * 0.01));
+                        }
+                      }}
+                    >
+                      <img
+                        src={pdfPages[currentPage]}
+                        alt={`Page ${currentPage + 1}`}
+                        className="shadow-lg bg-white"
+                        style={zoom === 1 ? { maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' } : { transform: `scale(${zoom})`, transformOrigin: 'top center' }}
+                      />
+                    </div>
+                    <div className="flex items-center justify-center gap-4 py-2 bg-white border-t border-border-default">
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => setZoom((z) => Math.max(1, z - 0.25))}
+                          disabled={zoom <= 1}
+                          className="p-1 rounded hover:bg-surface-alt disabled:opacity-30"
+                          title="ซูมออก"
+                        >
+                          <ZoomOut className="w-4 h-4" />
+                        </button>
+                        <span className="text-xs text-ink-muted w-12 text-center">{Math.round(zoom * 100)}%</span>
+                        <button
+                          type="button"
+                          onClick={() => setZoom((z) => z + 0.25)}
+                          disabled={false}
+                          className="p-1 rounded hover:bg-surface-alt disabled:opacity-30"
+                          title="ซูมเข้า"
+                        >
+                          <ZoomIn className="w-4 h-4" />
+                        </button>
+                      </div>
+                      {pdfPages.length > 1 && (
+                        <div className="flex items-center gap-1 border-l border-border-default pl-4">
+                          <button
+                            type="button"
+                            onClick={() => setCurrentPage((p) => Math.max(0, p - 1))}
+                            disabled={currentPage === 0}
+                            className="p-1 rounded hover:bg-surface-alt disabled:opacity-30"
+                          >
+                            <ChevronLeft className="w-5 h-5" />
+                          </button>
+                          <span className="text-sm text-ink-muted">
+                            {currentPage + 1} / {pdfPages.length}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setCurrentPage((p) => Math.min(pdfPages.length - 1, p + 1))}
+                            disabled={currentPage === pdfPages.length - 1}
+                            className="p-1 rounded hover:bg-surface-alt disabled:opacity-30"
+                          >
+                            <ChevronRight className="w-5 h-5" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex items-center justify-center flex-1">
+                    <div className="text-sm text-ink-muted">กำลังโหลด...</div>
+                  </div>
+                )}
+              </div>
           ) : null}
         </div>
       </div>
@@ -536,13 +548,4 @@ function FieldRow({
       ) : null}
     </div>
   );
-}
-
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
 }
