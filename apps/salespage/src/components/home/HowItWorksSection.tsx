@@ -25,35 +25,27 @@ export type HowItWorksDict = {
 
 export default function HowItWorksSection({ dict }: { dict: HowItWorksDict }) {
   return (
-    <Section padding="lg" className="bg-[#e9f1ff]">
+    <Section id="how-it-works" padding="lg" className="bg-white">
       <Container>
         <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-[1.2fr_1fr] md:gap-12">
           <div className="flex flex-col gap-4">
-            <div className="inline-flex items-center gap-2 self-start rounded-full bg-white/70 px-4 py-1.5">
+            <div className="inline-flex items-center gap-2 self-start rounded-full bg-df-grey px-5 py-2">
               <Typography
                 as="span"
-                variant="body-sm"
-                weight="medium"
+                variant="body"
+                weight="bold"
                 tone="inherit"
-                className="text-[#1B1464]"
+                className="text-neutral-900"
               >
                 {dict.eyebrow}
               </Typography>
               <DooformLogo width={80} height={16} />
             </div>
 
-            <Typography
-              variant="h1"
-              tone="inherit"
-              className="text-[#1B1464]"
-            >
+            <Typography variant="h1" as="h2">
               {dict.headingLine1}
               <br />
-              {dict.headingLine2}
-            </Typography>
-
-            <Typography variant="lead" tone="muted">
-              {dict.subtitle}
+              <span className="text-df-link">{dict.headingLine2}</span>
             </Typography>
           </div>
 
@@ -68,29 +60,31 @@ export default function HowItWorksSection({ dict }: { dict: HowItWorksDict }) {
           </div>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
+        {/* Navy tab sitting on top of the step cards. */}
+        <div className="mt-12 inline-flex rounded-t-3xl bg-df-navy px-8 py-3">
+          <Typography as="span" variant="h5" weight="bold" tone="inverse">
+            {dict.subtitle}
+          </Typography>
+        </div>
+
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
           {dict.steps.map((step, index) => (
             <div
               key={step.title}
-              className="flex flex-col gap-4 rounded-3xl bg-white p-6 shadow-[0px_4px_18px_0px_rgba(15,23,42,0.06)]"
+              className="flex flex-col gap-4 rounded-3xl bg-[#f5f5f5] p-6 md:rounded-[40px]"
             >
               <div className="flex items-center gap-3">
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#1B1464]">
+                <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-df-navy">
                   <Typography
                     as="span"
-                    variant="body-sm"
+                    variant="body"
                     weight="bold"
                     tone="inverse"
                   >
                     {index + 1}
                   </Typography>
                 </span>
-                <Typography
-                  variant="h5"
-                  as="h3"
-                  tone="inherit"
-                  className="text-[#1B1464]"
-                >
+                <Typography variant="h5" as="h3">
                   {step.title}
                 </Typography>
               </div>
@@ -99,8 +93,8 @@ export default function HowItWorksSection({ dict }: { dict: HowItWorksDict }) {
                 {step.description}
               </Typography>
 
-              <div className="mt-auto flex aspect-[4/3] items-center justify-center rounded-2xl bg-[#f3f4f6] p-4 text-center">
-                <Typography variant="caption" tone="muted">
+              <div className="mt-auto flex aspect-[4/3] items-center justify-center rounded-2xl bg-df-sky p-4 text-center">
+                <Typography variant="caption" tone="inherit" className="text-neutral-700">
                   {step.previewLabel}
                 </Typography>
               </div>
@@ -109,13 +103,13 @@ export default function HowItWorksSection({ dict }: { dict: HowItWorksDict }) {
 
           <a
             href={dict.sample.href}
-            className="group flex flex-col justify-between gap-4 rounded-3xl bg-[#eef0f4] p-6 transition-colors hover:bg-[#e3e6ec]"
+            className="group flex flex-col justify-between gap-4 rounded-3xl bg-[#f5f5f5] p-6 transition-colors hover:bg-[#ececec] md:rounded-[40px]"
           >
             <Typography
               variant="body"
-              weight="semibold"
+              weight="bold"
               tone="inherit"
-              className="text-[#1B1464]"
+              className="text-df-link"
             >
               {dict.sample.title}
             </Typography>
@@ -124,7 +118,7 @@ export default function HowItWorksSection({ dict }: { dict: HowItWorksDict }) {
                 <span className="h-12 w-9 rounded-md bg-white shadow-sm" />
                 <span className="h-12 w-9 rounded-md bg-white shadow-sm" />
               </span>
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#ff6700] text-white transition-transform group-hover:translate-x-0.5">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-df-orange text-white transition-transform group-hover:translate-x-0.5">
                 <ArrowRight className="h-4 w-4" />
               </span>
             </span>

@@ -34,7 +34,7 @@ const INPUT_CLASS =
 
 export default function ContactSection({ dict }: { dict: ContactDict }) {
   return (
-    <Section padding="lg">
+    <Section id="contact" padding="lg">
       <Container>
         <div className="overflow-hidden rounded-2xl md:grid md:grid-cols-2">
           {/* Left — Dark side */}

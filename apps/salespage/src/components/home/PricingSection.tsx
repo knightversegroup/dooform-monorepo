@@ -1,22 +1,12 @@
-'use client';
-
-import { useState } from 'react';
-import { Check, Lightbulb } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { Container, Section, Typography } from '@dooform/ui';
-
-type BillingPeriod = 'monthly' | 'annual';
 
 type PlanDict = {
   audience: string;
   name: string;
-  monthlyPrice: string;
-  monthlySuffix: string;
-  annualPrice: string;
-  annualSuffix: string;
-  monthlyAnnualNote: string;
-  annualAnnualNote: string;
+  price: string;
+  suffix: string;
   ctaLabel: string;
-  previousPlanFeatures: string;
   features: string[];
 };
 
@@ -24,18 +14,8 @@ export type PricingDict = {
   eyebrow: string;
   heading: string;
   subtitle: string;
-  billing: {
-    monthly: string;
-    annual: string;
-    savings: string;
-  };
   bestValueLabel: string;
   recommendBadge: string;
-  training: {
-    title: string;
-    items: string[];
-  };
-  brandLabel: string;
   footnote: string;
   plans: {
     trial: PlanDict;
@@ -50,43 +30,34 @@ type PlanKey = keyof PricingDict['plans'];
 
 type PlanConfig = {
   key: PlanKey;
-  /* `enterprise` is the BEST VALUE / recommended plan in the new design. */
   recommended?: boolean;
+  /* Enterprise gets the orange "Contact us" CTA in the new design. */
+  ctaStyle?: 'orange';
 };
 
 const PLAN_ORDER: PlanConfig[] = [
   { key: 'trial' },
   { key: 'starter' },
-  { key: 'plus' },
+  { key: 'plus', recommended: true },
   { key: 'advance' },
-  { key: 'enterprise', recommended: true },
+  { key: 'enterprise', ctaStyle: 'orange' },
 ];
 
 export default function PricingSection({ dict }: { dict: PricingDict }) {
-  const [billing, setBilling] = useState<BillingPeriod>('monthly');
-
   return (
-    <Section padding="lg">
+    <Section id="pricing" padding="lg">
       <Container>
         {/* ── Header ──────────────────────────────────────────────── */}
         <div className="flex flex-col items-center text-center">
-          <Typography variant="overline" tone="inherit" className="text-blue-600">
+          <Typography variant="overline" tone="inherit" className="text-df-link">
             {dict.eyebrow}
           </Typography>
           <Typography variant="h1" as="h2" className="mt-3">
             {dict.heading}
           </Typography>
-        </div>
-
-        {/* ── Billing toggle ──────────────────────────────────────── */}
-        <div className="mt-10 flex flex-col items-center gap-3 md:mt-12 md:flex-row md:justify-center md:gap-5">
-          <BillingToggle
-            billing={billing}
-            onChange={setBilling}
-            monthlyLabel={dict.billing.monthly}
-            annualLabel={dict.billing.annual}
-          />
-          <SavingsBadge label={dict.billing.savings} />
+          <Typography variant="body" tone="muted" className="mt-3">
+            {dict.subtitle}
+          </Typography>
         </div>
 
         {/* ── Plan cards ──────────────────────────────────────────── */}
@@ -96,11 +67,9 @@ export default function PricingSection({ dict }: { dict: PricingDict }) {
               key={config.key}
               plan={dict.plans[config.key]}
               recommended={!!config.recommended}
-              billing={billing}
+              orangeCta={config.ctaStyle === 'orange'}
               bestValueLabel={dict.bestValueLabel}
               recommendBadge={dict.recommendBadge}
-              training={dict.training}
-              brandLabel={dict.brandLabel}
             />
           ))}
         </div>
@@ -118,117 +87,27 @@ export default function PricingSection({ dict }: { dict: PricingDict }) {
   );
 }
 
-/* ── Billing toggle ──────────────────────────────────────────────── */
-
-function BillingToggle({
-  billing,
-  onChange,
-  monthlyLabel,
-  annualLabel,
-}: {
-  billing: BillingPeriod;
-  onChange: (b: BillingPeriod) => void;
-  monthlyLabel: string;
-  annualLabel: string;
-}) {
-  return (
-    <div className="flex items-center gap-3">
-      <Typography
-        as="span"
-        variant="body"
-        weight={billing === 'monthly' ? 'semibold' : 'regular'}
-        tone="inherit"
-        className={billing === 'monthly' ? 'text-slate-900' : 'text-slate-500'}
-      >
-        {monthlyLabel}
-      </Typography>
-
-      {/* Switch */}
-      <button
-        type="button"
-        role="switch"
-        aria-checked={billing === 'annual'}
-        aria-label={billing === 'monthly' ? annualLabel : monthlyLabel}
-        onClick={() => onChange(billing === 'monthly' ? 'annual' : 'monthly')}
-        className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors ${
-          billing === 'annual' ? 'bg-blue-600' : 'bg-blue-600'
-        }`}
-      >
-        <span
-          className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
-            billing === 'annual' ? 'translate-x-6' : 'translate-x-1'
-          }`}
-        />
-      </button>
-
-      <Typography
-        as="span"
-        variant="body"
-        weight={billing === 'annual' ? 'semibold' : 'regular'}
-        tone="inherit"
-        className={billing === 'annual' ? 'text-slate-900' : 'text-slate-500'}
-      >
-        {annualLabel}
-      </Typography>
-    </div>
-  );
-}
-
-/* ── Savings badge (the orange "ประหยัดกว่า 17%" pill) ───────────── */
-
-function SavingsBadge({ label }: { label: string }) {
-  return (
-    <span className="relative inline-flex items-center rounded-md border-2 border-amber-400 bg-amber-50 px-3 py-1 text-amber-700">
-      <Typography as="span" variant="body-sm" weight="bold" tone="inherit">
-        {label}
-      </Typography>
-      {/* Decorative arrow pointing up-left toward the toggle. */}
-      <svg
-        aria-hidden
-        className="absolute -left-6 -top-3 h-5 w-5 text-amber-400"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      >
-        <path d="M2 16 Q 6 4 18 8" />
-        <path d="M14 4 L18 8 L14 12" />
-      </svg>
-    </span>
-  );
-}
-
 /* ── Plan card ──────────────────────────────────────────────────── */
 
 function PlanCard({
   plan,
   recommended,
-  billing,
+  orangeCta,
   bestValueLabel,
   recommendBadge,
-  training,
-  brandLabel,
 }: {
   plan: PlanDict;
   recommended: boolean;
-  billing: BillingPeriod;
+  orangeCta: boolean;
   bestValueLabel: string;
   recommendBadge: string;
-  training: PricingDict['training'];
-  brandLabel: string;
 }) {
-  const price = billing === 'monthly' ? plan.monthlyPrice : plan.annualPrice;
-  const suffix = billing === 'monthly' ? plan.monthlySuffix : plan.annualSuffix;
-  const annualNote =
-    billing === 'monthly' ? plan.monthlyAnnualNote : plan.annualAnnualNote;
-
   return (
     <div className="relative flex h-full flex-col">
       {/* BEST VALUE banner — floats ABOVE the card via absolute positioning so
        * non-recommended cards reserve zero space and content rows stay aligned. */}
       {recommended && (
-        <div className="pointer-events-none absolute inset-x-4 -top-4 z-10 rounded-md bg-blue-500 py-1.5 text-center shadow-sm">
+        <div className="pointer-events-none absolute inset-x-4 -top-4 z-10 rounded-md bg-df-link py-1.5 text-center shadow-sm">
           <Typography
             as="span"
             variant="caption"
@@ -242,35 +121,43 @@ function PlanCard({
       )}
 
       <div
-        className={`flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-[0_4px_24px_rgba(0,0,0,0.06)] ${
-          recommended ? 'border-2 border-blue-500' : 'border border-neutral-200'
+        className={`flex h-full flex-col overflow-hidden rounded-3xl bg-white shadow-[0_4px_24px_rgba(0,0,0,0.06)] ${
+          recommended ? 'border-2 border-df-link' : 'border border-neutral-200'
         }`}
       >
-      {/* ── Top section: audience, name, price, CTA, training ─────
-       * Each row of content is given a fixed-height slot so CTAs align
-       * vertically across cards regardless of whether a plan has an
-       * annual note or not. */}
-      <div className="flex flex-col gap-5 p-8">
-        <Typography
-          variant="body-sm"
-          align="center"
-          tone="inherit"
-          className="text-slate-700 min-h-[44px]"
-        >
-          {plan.audience}
-        </Typography>
-
-        <div className="flex items-center justify-center gap-2">
-          <Typography variant="h3" as="h3" weight="bold">
-            {plan.name}
+        {/* ── Top section: audience, name, price, CTA ─────────────
+         * Each row gets a fixed-height slot so CTAs align vertically
+         * across cards regardless of copy length. */}
+        <div className="flex flex-col gap-5 p-6 lg:p-5 xl:p-6">
+          <Typography
+            variant="body-sm"
+            align="center"
+            tone="inherit"
+            className="min-h-[66px] text-slate-700"
+          >
+            {plan.audience}
           </Typography>
-          {recommended && <RecommendBadge label={recommendBadge} />}
-        </div>
 
-        {/* Price block — fixed height keeps CTAs aligned across cards even
-         * when the Free plan has no `*เหมาจ่าย` line. */}
-        <div className="flex min-h-[88px] flex-col items-center justify-center gap-1">
-          <div className="flex flex-wrap items-baseline justify-center gap-x-2 gap-y-0">
+          <div className="flex items-center justify-center gap-2">
+            <Typography
+              variant="h3"
+              as="h3"
+              weight="bold"
+              tone="inherit"
+              className="text-blue-600"
+            >
+              {plan.name}
+            </Typography>
+            {recommended && (
+              <span className="rounded-md bg-df-orange px-2 py-0.5">
+                <Typography as="span" variant="caption" weight="bold" tone="inverse">
+                  {recommendBadge}
+                </Typography>
+              </span>
+            )}
+          </div>
+
+          <div className="flex min-h-[88px] flex-col items-center justify-center gap-1">
             <Typography
               as="span"
               variant="h2"
@@ -278,99 +165,48 @@ function PlanCard({
               tone="inherit"
               className="text-blue-600"
             >
-              {price}
+              {plan.price}
             </Typography>
-            <Typography as="span" variant="caption" tone="muted">
-              {suffix}
+            <Typography as="span" variant="caption" tone="muted" align="center">
+              {plan.suffix}
             </Typography>
           </div>
-          {/* Always render the annual-note slot so heights match. */}
-          <Typography
-            variant="caption"
-            tone="muted"
-            className="min-h-[16px]"
+
+          <a
+            href={orangeCta ? '/#contact' : '#trial'}
+            className={`inline-flex items-center justify-center rounded-full px-5 py-3 transition-colors ${
+              orangeCta
+                ? 'border border-black bg-df-orange text-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] hover:bg-[#f57f15]'
+                : recommended
+                  ? 'bg-df-link text-white hover:bg-blue-600'
+                  : 'border border-neutral-300 bg-neutral-100 text-neutral-900 hover:bg-neutral-200'
+            }`}
           >
-            {annualNote ? `*${annualNote}` : ' '}
-          </Typography>
-        </div>
-
-        {/* CTA — bigger, more rounded to match the FlowAccount-style design. */}
-        <a
-          href="#trial"
-          className={`inline-flex items-center justify-center rounded-lg px-5 py-3 transition-colors ${
-            recommended
-              ? 'bg-blue-600 text-white hover:bg-blue-700'
-              : 'border border-blue-600 bg-white text-blue-600 hover:bg-blue-50'
-          }`}
-        >
-          <Typography as="span" variant="body-sm" weight="semibold" tone="inherit">
-            {plan.ctaLabel}
-          </Typography>
-        </a>
-
-        {/* Training callout — present on all plans for visual parity. */}
-        <div className="flex flex-col gap-2 pt-3">
-          <div className="flex items-center gap-1.5 text-blue-600">
-            <Lightbulb className="h-4 w-4" />
-            <Typography as="span" variant="body-sm" weight="semibold" tone="inherit">
-              {training.title}
+            <Typography as="span" variant="body-sm" weight="bold" tone="inherit">
+              {plan.ctaLabel}
             </Typography>
+          </a>
+        </div>
+
+        {/* ── Feature panel — light blue per the new design. ──────── */}
+        <div className="flex flex-1 flex-col gap-3 px-4 pb-4">
+          <div className="flex h-full flex-col gap-3 rounded-2xl bg-df-panel p-5">
+            <ul className="flex flex-col gap-3">
+              {plan.features.map((feature) => (
+                <li key={feature} className="flex items-start gap-2">
+                  <Check
+                    className="mt-0.5 h-4 w-4 shrink-0 text-df-link"
+                    strokeWidth={2.5}
+                  />
+                  <Typography as="span" variant="body-sm" tone="body">
+                    {feature}
+                  </Typography>
+                </li>
+              ))}
+            </ul>
           </div>
-          <ul className="flex flex-col gap-1.5">
-            {training.items.map((item) => (
-              <li key={item} className="flex items-start gap-2">
-                <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-600" strokeWidth={3} />
-                <Typography as="span" variant="caption" tone="inherit" className="text-slate-700">
-                  {item}
-                </Typography>
-              </li>
-            ))}
-          </ul>
         </div>
-      </div>
-
-      {/* ── Bottom section: brand label + features ────────────────
-       * `flex-1` lets this section grow to fill the rest of the card so
-       * the gray background extends to the bottom even when the feature
-       * list is short. Without it, mt-auto would create whitespace inside
-       * the top section instead. */}
-      <div className="flex flex-1 flex-col gap-3 border-t border-neutral-100 bg-neutral-50 p-6">
-        <div className="flex items-center gap-2">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600">
-            <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />
-          </span>
-          <Typography as="span" variant="body-sm" weight="semibold" tone="heading">
-            {brandLabel}
-          </Typography>
-        </div>
-
-        <Typography variant="body-sm" weight="semibold" tone="heading">
-          {plan.previousPlanFeatures}
-        </Typography>
-
-        <ul className="flex flex-col gap-2">
-          {plan.features.map((feature) => (
-            <li key={feature} className="flex items-start gap-2">
-              <Check className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" strokeWidth={2.5} />
-              <Typography as="span" variant="body-sm" tone="body">
-                {feature}
-              </Typography>
-            </li>
-          ))}
-        </ul>
-      </div>
       </div>
     </div>
-  );
-}
-
-/* Small "แนะนำ!" pill that sits beside the plan name on the recommended card. */
-function RecommendBadge({ label }: { label: string }) {
-  return (
-    <span className="rounded-md bg-amber-400 px-2 py-0.5">
-      <Typography as="span" variant="caption" weight="bold" tone="inverse">
-        {label}
-      </Typography>
-    </span>
   );
 }

@@ -8,6 +8,14 @@ module.exports = {
   ],
   theme: {
     extend: {
+      colors: {
+        'df-orange': '#ff8d28',
+        'df-navy': '#1b1464',
+        'df-sky': '#cce8f4',
+        'df-link': '#0088ff',
+        'df-grey': '#f1f1f0',
+        'df-panel': '#f0f8ff',
+      },
       fontFamily: {
         inter: ['var(--font-inter)', 'sans-serif'],
         sans: [

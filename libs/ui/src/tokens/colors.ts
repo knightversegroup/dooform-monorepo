@@ -36,6 +36,14 @@ export const salespage = {
     darkBg: '#262626',
     darkHover: '#404040',
   },
+  accent: {
+    orange: '#ff8d28',
+    navy: '#1b1464',
+    sky: '#cce8f4',
+    link: '#0088ff',
+    grey: '#f1f1f0',
+    panel: '#f0f8ff',
+  },
 } as const;
 
 export type SalespageColors = typeof salespage;

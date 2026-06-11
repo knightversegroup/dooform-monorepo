@@ -35,6 +35,14 @@
   --ui-cta-dark-bg: #262626;
   --ui-cta-dark-hover: #404040;
 
+  /* Landing page accents (Figma "Desktop - 10") */
+  --ui-accent-orange: #ff8d28;
+  --ui-accent-navy: #1b1464;
+  --ui-accent-sky: #cce8f4;
+  --ui-accent-link: #0088ff;
+  --ui-surface-grey: #f1f1f0;
+  --ui-surface-panel: #f0f8ff;
+
   /* Container */
   --ui-container-max-width: 1280px;
 }

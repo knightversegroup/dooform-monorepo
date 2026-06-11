@@ -40,46 +40,34 @@ const NAV: NavItem[] = [
     label: 'ผลิตภัณฑ์',
     children: [
       {
-        label: 'เอกสาร',
-        description: 'เครื่องมือเขียนและจัดการเอกสารแบบบล็อก',
-        href: '/#workspace',
+        label: 'แพลตฟอร์มสำหรับธุรกิจ',
+        description: 'บริหารงานแปลเอกสารทั้งองค์กรในที่เดียว',
+        href: '/#business-features',
       },
       {
-        label: 'ฐานความรู้',
-        description: 'แหล่งข้อมูลเดียวสำหรับทีมและตัวแทน',
-        href: '/#workspace',
+        label: 'แอปพลิเคชันสำหรับนักแปล',
+        description: 'เครื่องมือแปลเอกสารครบวงจรสำหรับนักแปล',
+        href: '/#translator-features',
       },
       {
-        label: 'โปรเจกต์',
-        description: 'จัดการงานและเส้นทางอนุมัติในที่เดียว',
-        href: '/#workspace',
+        label: 'รายการเอกสาร',
+        description: 'เทมเพลตเอกสารราชการกว่า 100 ฟอร์ม',
+        href: '/templates',
       },
     ],
   },
   {
     key: 'features',
-    label: 'ฟีเจอร์',
+    label: 'ฟังก์ชั่น',
     children: [
-      { label: 'สร้างเอกสารได้ไม่จำกัด', description: 'เอกสารราชการไทยกว่า 80 ประเภท', href: '/#features' },
-      { label: 'OCR และเติมข้อมูลอัตโนมัติ', description: 'อ่านและเติมฟอร์มอัตโนมัติ', href: '/#features' },
-      { label: 'แสตมป์ ลายเซ็น และลายน้ำ', description: 'ใช้แบรนด์องค์กรบนทุกฉบับ', href: '/#features' },
-      { label: 'ทำงานร่วมกันเป็นทีม', description: 'แชร์ แก้ไข อนุมัติ พร้อมกัน', href: '/#features' },
-      { label: 'โดเมนเฉพาะ (White-label)', description: 'docs.yourgov.go.th ของคุณเอง', href: '/#features' },
-      { label: 'ความปลอดภัยและ PDPA', description: 'SSO, ISO 27001, audit log', href: '/#features' },
+      { label: 'ฟังก์ชั่นสำหรับธุรกิจ', description: 'จัดการทีม สิทธิ์การเข้าถึง และตราปั๊มองค์กร', href: '/#business-features' },
+      { label: 'ฟังก์ชั่นสำหรับนักแปล', description: 'AI แปลภาษา OCR และคลังคำศัพท์ราชการ', href: '/#translator-features' },
+      { label: 'ตัวอย่างการใช้งาน', description: 'แปลเอกสารครบจบใน 4 ขั้นตอน', href: '/#how-it-works' },
     ],
   },
-  { key: 'pricing', label: 'ราคา', href: '/pricing' },
-  { key: 'templates', label: 'เทมเพลต', href: '/templates' },
-  {
-    key: 'useCases',
-    label: 'กรณีศึกษา',
-    children: [
-      { label: 'นักแปลอิสระ', description: 'ทำงานง่ายขึ้น ส่งงานเร็วขึ้น', href: '/#use-cases' },
-      { label: 'เจ้าของสำนักงานแปล', description: 'บริหารทีมและงานลูกค้าจากที่เดียว', href: '/#use-cases' },
-      { label: 'ทีมเอกสารองค์กร', description: 'ตรวจสอบ AI + audit trail ครบ', href: '/#use-cases' },
-    ],
-  },
-  { key: 'contact', label: 'ติดต่อเรา', href: '/#contact' },
+  { key: 'pricing', label: 'ราคาและแพ็กเกจ', href: '/pricing' },
+  { key: 'templates', label: 'รายการเอกสาร', href: '/templates' },
+  { key: 'articles', label: 'บทความ', href: '/#articles' },
 ];
 
 export function SiteHeader() {
@@ -93,9 +81,9 @@ export function SiteHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-30 border-b border-neutral-200 bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-neutral-200 bg-df-grey/95 backdrop-blur">
       {/* ── Top utility bar ─────────────────────────────────────────── */}
-      <div className="hidden border-b border-neutral-100 bg-neutral-50 md:block">
+      <div className="hidden border-b border-neutral-200/60 bg-white md:block">
         <div className="mx-auto flex max-w-7xl items-center justify-end gap-6 px-6 py-2 lg:px-8">
           <a
             href={CONTACT_HASH}
@@ -139,17 +127,17 @@ export function SiteHeader() {
         <div className="hidden items-center gap-2 md:flex">
           <a
             href={REGISTER_URL}
-            className="inline-flex items-center rounded-full bg-[#2C2585] px-4 py-2 text-white transition-colors hover:bg-[#231E6B]"
+            className="inline-flex items-center rounded-full border border-black bg-df-orange px-4 py-2 text-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] transition-colors hover:bg-[#f57f15]"
           >
-            <Typography as="span" variant="body-sm" weight="medium" tone="inverse">
-              สมัครใช้งานฟรี
+            <Typography as="span" variant="body-sm" weight="semibold" tone="inverse">
+              ทดลองใช้งานฟรี
             </Typography>
           </a>
           <a
             href={CONTACT_HASH}
-            className="inline-flex items-center rounded-full border border-[#2C2585] px-4 py-2 text-[#2C2585] transition-colors hover:bg-[#2C2585]/5"
+            className="inline-flex items-center rounded-full border border-black bg-white px-4 py-2 text-neutral-900 transition-colors hover:bg-neutral-100"
           >
-            <Typography as="span" variant="body-sm" weight="medium" tone="inherit">
+            <Typography as="span" variant="body-sm" weight="semibold" tone="inherit">
               นัดสาธิตการใช้งาน
             </Typography>
           </a>
@@ -177,7 +165,7 @@ export function SiteHeader() {
                     key={item.key}
                     href={item.href}
                     onClick={closeMobile}
-                    className="border-b border-neutral-100 py-3 text-neutral-800 transition-colors hover:text-[#2C2585]"
+                    className="border-b border-neutral-100 py-3 text-neutral-800 transition-colors hover:text-df-navy"
                   >
                     <Typography as="span" variant="body" weight="medium" tone="inherit">
                       {item.label}
@@ -194,7 +182,7 @@ export function SiteHeader() {
                       setMobileExpanded(isExpanded ? null : item.key)
                     }
                     aria-expanded={isExpanded}
-                    className="flex w-full items-center justify-between py-3 text-left text-neutral-800 transition-colors hover:text-[#2C2585]"
+                    className="flex w-full items-center justify-between py-3 text-left text-neutral-800 transition-colors hover:text-df-navy"
                   >
                     <Typography as="span" variant="body" weight="medium" tone="inherit">
                       {item.label}
@@ -212,7 +200,7 @@ export function SiteHeader() {
                           key={child.label}
                           href={child.href}
                           onClick={closeMobile}
-                          className="flex flex-col text-neutral-700 transition-colors hover:text-[#2C2585]"
+                          className="flex flex-col text-neutral-700 transition-colors hover:text-df-navy"
                         >
                           <Typography as="span" variant="body-sm" weight="medium" tone="inherit">
                             {child.label}
@@ -234,18 +222,18 @@ export function SiteHeader() {
             <div className="mt-4 flex flex-col gap-2">
               <a
                 href={REGISTER_URL}
-                className="inline-flex items-center justify-center rounded-full bg-[#2C2585] px-4 py-2.5 text-white transition-colors hover:bg-[#231E6B]"
+                className="inline-flex items-center justify-center rounded-full border border-black bg-df-orange px-4 py-2.5 text-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] transition-colors hover:bg-[#f57f15]"
               >
-                <Typography as="span" variant="body-sm" weight="medium" tone="inverse">
-                  สมัครใช้งานฟรี
+                <Typography as="span" variant="body-sm" weight="semibold" tone="inverse">
+                  ทดลองใช้งานฟรี
                 </Typography>
               </a>
               <a
                 href={CONTACT_HASH}
                 onClick={closeMobile}
-                className="inline-flex items-center justify-center rounded-full border border-[#2C2585] px-4 py-2.5 text-[#2C2585] transition-colors hover:bg-[#2C2585]/5"
+                className="inline-flex items-center justify-center rounded-full border border-black bg-white px-4 py-2.5 text-neutral-900 transition-colors hover:bg-neutral-100"
               >
-                <Typography as="span" variant="body-sm" weight="medium" tone="inherit">
+                <Typography as="span" variant="body-sm" weight="semibold" tone="inherit">
                   นัดสาธิตการใช้งาน
                 </Typography>
               </a>
@@ -333,7 +321,7 @@ function NavMenuItem({
                   variant="body-sm"
                   weight="semibold"
                   tone="inherit"
-                  className="block text-neutral-900 transition-colors group-hover:text-[#2C2585]"
+                  className="block text-neutral-900 transition-colors group-hover:text-df-navy"
                 >
                   {child.label}
                 </Typography>
@@ -348,7 +336,7 @@ function NavMenuItem({
                   </Typography>
                 )}
               </div>
-              <ChevronRight className="mt-1 h-3.5 w-3.5 shrink-0 text-neutral-300 transition-colors group-hover:text-[#2C2585]" />
+              <ChevronRight className="mt-1 h-3.5 w-3.5 shrink-0 text-neutral-300 transition-colors group-hover:text-df-navy" />
             </Link>
           ))}
         </div>

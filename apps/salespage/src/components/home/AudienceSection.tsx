@@ -1,5 +1,6 @@
 import {
   ArrowRight,
+  Award,
   FileSpreadsheet,
   Footprints,
   ShieldCheck,
@@ -31,6 +32,7 @@ export type AudienceDict = {
 
 const featureIcons: Record<string, typeof FileSpreadsheet> = {
   spreadsheet: FileSpreadsheet,
+  diploma: Award,
   speed: Footprints,
   'ai-human': Sparkles,
   secure: ShieldCheck,
@@ -50,19 +52,19 @@ function AudienceCardBlock({
         as="h3"
         tone="inherit"
         align="center"
-        className="text-[#1B1464]"
+        className="text-df-navy"
       >
         {card.title}
       </Typography>
 
-      <div className="flex flex-1 flex-col overflow-hidden rounded-3xl bg-white shadow-[0px_4px_24px_0px_rgba(0,0,0,0.08)]">
+      <div className="flex flex-1 flex-col overflow-hidden rounded-3xl bg-df-grey">
         <div className="grid flex-1 grid-cols-1 gap-6 p-6 md:grid-cols-[1fr_auto] md:items-center md:gap-8 md:p-8">
           <ul className="flex flex-col gap-2.5">
             {card.highlights.map((item) => (
               <li key={item} className="flex items-start gap-2">
                 <span
                   aria-hidden
-                  className="mt-2 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[#1B1464]"
+                  className="mt-2 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-df-navy"
                 />
                 <Typography variant="body-sm">{item}</Typography>
               </li>
@@ -81,7 +83,7 @@ function AudienceCardBlock({
         <div className="border-t border-gray-100 px-6 py-4 md:px-8">
           <a
             href="#trial"
-            className="group inline-flex items-center gap-2 text-[#1B1464] transition-transform hover:translate-x-0.5"
+            className="group inline-flex items-center gap-2 text-df-navy transition-transform hover:translate-x-0.5"
           >
             <Typography
               as="span"
@@ -91,7 +93,7 @@ function AudienceCardBlock({
             >
               {readMore}
             </Typography>
-            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#ff6700] text-white">
+            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-df-orange text-white">
               <ArrowRight className="h-3.5 w-3.5" />
             </span>
           </a>
@@ -109,7 +111,7 @@ export default function AudienceSection({ dict }: { dict: AudienceDict }) {
           variant="h2"
           align="center"
           tone="inherit"
-          className="text-[#1B1464]"
+          className="text-df-navy"
         >
           {dict.heading}
         </Typography>
@@ -125,7 +127,7 @@ export default function AudienceSection({ dict }: { dict: AudienceDict }) {
           />
         </div>
 
-        <div className="mt-14 rounded-full bg-[#f5f0ea] px-6 py-5 md:px-10">
+        <div className="mt-14 rounded-3xl bg-[#f5f5f5] px-6 py-5 md:rounded-full md:px-10">
           <ul className="flex flex-col items-stretch gap-6 md:flex-row md:items-center md:justify-between md:gap-4">
             {dict.features.map((feature, index) => {
               const Icon = featureIcons[feature.icon] ?? FileSpreadsheet;
@@ -136,7 +138,7 @@ export default function AudienceSection({ dict }: { dict: AudienceDict }) {
                 >
                   <span
                     aria-hidden
-                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#1B1464] shadow-sm"
+                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-df-navy shadow-sm"
                   >
                     <Icon className="h-5 w-5" />
                   </span>
@@ -146,7 +148,7 @@ export default function AudienceSection({ dict }: { dict: AudienceDict }) {
                       variant="body-sm"
                       weight="semibold"
                       tone="inherit"
-                      className="text-[#1B1464]"
+                      className="text-df-navy"
                     >
                       {feature.title}
                     </Typography>

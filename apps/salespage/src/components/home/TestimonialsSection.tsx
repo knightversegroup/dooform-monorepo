@@ -74,10 +74,7 @@ export default function TestimonialsSection({
   }, [videoId]);
 
   return (
-    <Section
-      padding="lg"
-      className="bg-gradient-to-b from-sky-50 via-blue-50 to-sky-100"
-    >
+    <Section padding="lg" className="bg-df-sky/40">
       <Container>
         {/* ── Header ──────────────────────────────────────────────── */}
         <div className="flex flex-col items-center text-center">
@@ -168,11 +165,7 @@ export default function TestimonialsSection({
                       strokeWidth={2.5}
                       aria-hidden
                     />
-                    <Typography
-                      variant="lead"
-                      tone="muted"
-                      className="leading-relaxed"
-                    >
+                    <Typography variant="lead" tone="muted">
                       &ldquo;{item.quote}&rdquo;
                     </Typography>
                     <div className="h-px w-16 bg-blue-300" />

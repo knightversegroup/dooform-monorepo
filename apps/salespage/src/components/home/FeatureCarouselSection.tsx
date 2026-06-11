@@ -41,16 +41,25 @@ const PILL_BASE_CLASS =
 
 /* Round arrow button used on left/right of the active slide. */
 const ARROW_BUTTON_CLASS =
-  'flex h-12 w-12 items-center justify-center rounded-full border border-blue-100 bg-blue-50 text-blue-600 shadow-sm transition-colors hover:bg-blue-100';
+  'flex h-12 w-12 items-center justify-center rounded-full border border-neutral-200 bg-df-grey text-df-navy shadow-sm transition-colors hover:bg-neutral-200';
 
 export default function FeatureCarouselSection({
   dict,
   className,
+  id,
+  imageSrc,
+  logosStrip,
 }: {
   dict: FeatureCarouselDict;
   /* Optional Tailwind classes forwarded to the outer <Section>. Used by
    * page.tsx to stripe alternating instances with different backgrounds. */
   className?: string;
+  id?: string;
+  /* When set, every slide shows this screenshot instead of the default
+   * workspace-preview cycle. */
+  imageSrc?: string;
+  /* Optional partner/customer logos strip image rendered under the slides. */
+  logosStrip?: string;
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const total = dict.slides.length;
@@ -60,11 +69,11 @@ export default function FeatureCarouselSection({
   const goNext = () => setActiveIndex((i) => (i + 1) % total);
 
   return (
-    <Section padding="lg" className={className}>
+    <Section padding="lg" className={className} id={id}>
       <Container>
         {/* ── Header ───────────────────────────────────────────────── */}
         <div className="flex flex-col items-center text-center">
-          <Typography variant="overline" tone="inherit" className="text-blue-600">
+          <Typography variant="overline" tone="inherit" className="text-df-link">
             {dict.eyebrow}
           </Typography>
           <Typography variant="h2" as="h2" className="mt-3 max-w-2xl">
@@ -74,7 +83,7 @@ export default function FeatureCarouselSection({
           </Typography>
           <a
             href="#trial"
-            className="mt-4 inline-flex items-center gap-1 text-blue-600 hover:text-blue-700"
+            className="mt-4 inline-flex items-center gap-1 text-df-link hover:text-blue-700"
           >
             <Typography
               as="span"
@@ -101,8 +110,8 @@ export default function FeatureCarouselSection({
                   aria-pressed={isActive}
                   className={`${PILL_BASE_CLASS} ${
                     isActive
-                      ? 'border-blue-600 bg-white text-blue-600 shadow-sm'
-                      : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300 hover:text-neutral-900'
+                      ? 'border-df-link bg-df-panel text-df-link shadow-sm'
+                      : 'border-transparent bg-df-grey text-neutral-700 hover:bg-neutral-200 hover:text-neutral-900'
                   }`}
                 >
                   {s.pillLabel}
@@ -139,7 +148,7 @@ export default function FeatureCarouselSection({
           <div className="relative grid md:mx-16 lg:mx-20">
             {dict.slides.map((s, i) => {
               const isActive = i === activeIndex;
-              const slideImage = SLIDE_IMAGES[i % SLIDE_IMAGES.length];
+              const slideImage = imageSrc ?? SLIDE_IMAGES[i % SLIDE_IMAGES.length];
               return (
                 <div
                   key={s.id}
@@ -155,7 +164,7 @@ export default function FeatureCarouselSection({
                     <Typography
                       variant="overline"
                       tone="inherit"
-                      className="text-blue-600"
+                      className="text-df-link"
                     >
                       {s.eyebrow}
                     </Typography>
@@ -168,7 +177,7 @@ export default function FeatureCarouselSection({
                     <a
                       href="#trial"
                       tabIndex={isActive ? 0 : -1}
-                      className="inline-flex items-center gap-1 self-start rounded-full bg-blue-50 px-4 py-2 text-blue-600 transition-colors hover:bg-blue-100"
+                      className="inline-flex items-center gap-1 self-start rounded-full bg-df-panel px-4 py-2 text-df-link transition-colors hover:bg-df-sky"
                     >
                       <Typography
                         as="span"
@@ -184,7 +193,7 @@ export default function FeatureCarouselSection({
 
                   {/* Right: mockup card with screenshot + decorative icon. */}
                   <div className="relative">
-                    <div className="relative aspect-[3/2] overflow-hidden rounded-3xl bg-blue-50 p-4 md:p-6">
+                    <div className="relative aspect-[3/2] overflow-hidden rounded-3xl bg-df-sky p-4 md:p-6">
                       <div className="h-full w-full overflow-hidden rounded-xl shadow-[0_12px_40px_-12px_rgba(37,99,235,0.25)]">
                         <img
                           src={slideImage}
@@ -194,7 +203,7 @@ export default function FeatureCarouselSection({
                         />
                       </div>
                     </div>
-                    <div className="absolute -bottom-3 left-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 shadow-[0_12px_24px_-8px_rgba(37,99,235,0.5)] md:left-6">
+                    <div className="absolute -bottom-3 left-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-df-navy shadow-[0_12px_24px_-8px_rgba(27,20,100,0.5)] md:left-6">
                       <Box className="h-7 w-7 text-white" strokeWidth={2} />
                     </div>
                   </div>
@@ -217,13 +226,25 @@ export default function FeatureCarouselSection({
                 aria-current={isActive ? 'true' : undefined}
                 className={`h-2 rounded-full transition-all duration-200 ${
                   isActive
-                    ? 'w-6 bg-blue-600'
+                    ? 'w-6 bg-df-link'
                     : 'w-2 bg-neutral-300 hover:bg-neutral-400'
                 }`}
               />
             );
           })}
         </div>
+
+        {/* ── Optional customer logos strip ─────────────────────────── */}
+        {logosStrip && (
+          <div className="mt-12 flex justify-center">
+            <img
+              src={logosStrip}
+              alt=""
+              className="max-h-16 w-auto max-w-full object-contain"
+              loading="lazy"
+            />
+          </div>
+        )}
       </Container>
     </Section>
   );

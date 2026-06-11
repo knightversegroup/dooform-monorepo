@@ -20,7 +20,7 @@ const categoryIcons: Record<string, typeof Newspaper> = {
 
 export default function ArticlesSection({ dict }: { dict: ArticlesDict }) {
   return (
-    <Section padding="lg" className="bg-white">
+    <Section id="articles" padding="lg" className="bg-white">
       <Container>
         <Typography
           variant="h2"
