@@ -37,19 +37,17 @@ export class GenerateLivePdfPreviewUseCase implements UseCase<GenerateLivePdfPre
       throw new EntityNotFoundException(`Template with id ${id} not found`)
     }
 
-    // 2. Read DOCX from storage
-    // Try org-scoped path first, fall back to legacy path
+    // 2. Read DOCX from storage using the stored path, falling back to
+    //    org-scoped then legacy paths for pre-multi-tenancy templates.
     let templateBuffer: Buffer
     const organizationId = callerOrganizationId ?? template.organizationId
-    if (organizationId) {
-      const orgDocxPath = OrgPath.for(organizationId, 'templates', id, 'template.docx')
-      if (await this.storageService.exists(orgDocxPath)) {
-        templateBuffer = await this.storageService.read(orgDocxPath)
-      } else {
-        // Legacy fallback
-        const legacyPath = `templates/${id}/template.docx`
-        templateBuffer = await this.storageService.read(legacyPath)
-      }
+    const orgDocxPath = organizationId
+      ? OrgPath.for(organizationId, 'templates', id, 'template.docx')
+      : null
+    if (template.filePath && await this.storageService.exists(template.filePath)) {
+      templateBuffer = await this.storageService.read(template.filePath)
+    } else if (orgDocxPath && await this.storageService.exists(orgDocxPath)) {
+      templateBuffer = await this.storageService.read(orgDocxPath)
     } else {
       const legacyPath = `templates/${id}/template.docx`
       templateBuffer = await this.storageService.read(legacyPath)
