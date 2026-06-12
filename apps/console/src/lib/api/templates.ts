@@ -189,3 +189,26 @@ export function generateLivePdfPreview(
     responseType: 'blob',
   });
 }
+
+// ── Favorites ───────────────────────────────────────────────────────────────
+
+export interface FavoriteTemplateIdsResponse {
+  templateIds: string[];
+}
+
+export function getFavoriteTemplateIds(): Promise<FavoriteTemplateIdsResponse> {
+  return http.get<FavoriteTemplateIdsResponse>('/templates/favorites/ids');
+}
+
+export interface ToggleFavoriteResponse {
+  templateId: string;
+  isFavorite: boolean;
+}
+
+export function addTemplateFavorite(id: string): Promise<ToggleFavoriteResponse> {
+  return http.post<ToggleFavoriteResponse>(`/templates/${id}/favorite`);
+}
+
+export function removeTemplateFavorite(id: string): Promise<ToggleFavoriteResponse> {
+  return http.delete<ToggleFavoriteResponse>(`/templates/${id}/favorite`);
+}
