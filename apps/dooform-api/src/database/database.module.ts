@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
 import { TemplateModel } from '../modules/template/infrastructure/persistence/typeorm/models/template.model'
+import { TemplateFavoriteModel } from '../modules/template/infrastructure/persistence/typeorm/models/template-favorite.model'
 import { DocumentTypeModel } from '../modules/template/infrastructure/persistence/typeorm/models/document-type.model'
 import { DocumentModel } from '../modules/document/infrastructure/persistence/typeorm/models/document.model'
 import { DocumentAnnotationModel } from '../modules/document/infrastructure/persistence/typeorm/models/document-annotation.model'
@@ -34,6 +35,7 @@ import { AnnouncementModel } from '../modules/announcement/infrastructure/persis
 
 const entities = [
   TemplateModel,
+  TemplateFavoriteModel,
   DocumentTypeModel,
   DocumentModel,
   DocumentAnnotationModel,

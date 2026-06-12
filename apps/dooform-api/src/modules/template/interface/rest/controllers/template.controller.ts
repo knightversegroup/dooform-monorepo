@@ -150,6 +150,17 @@ export class TemplateController extends LazyBaseController {
     return getResultValue(result)
   }
 
+  @Get('favorites/ids')
+  @RequirePermission('templates:read')
+  @ApiOperation({ summary: 'Get favorite template IDs for current user' })
+  async getFavoriteTemplateIds(@CurrentUser() user: UserContext) {
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/get-favorite-template-ids/get-favorite-template-ids.use-case.module'),
+      () => import('../../../application/use-cases/get-favorite-template-ids/get-favorite-template-ids.use-case'),
+    )
+    return getResultValue(await uc.execute({ userId: user.userId }))
+  }
+
   @Get(':id')
   @RequirePermission('templates:read')
   @ApiOperation({ summary: 'Get a template by ID' })
@@ -468,5 +479,27 @@ export class TemplateController extends LazyBaseController {
     const value = getResultValue(await uc.execute({ id, size })) as { buffer: Buffer; filename: string }
     res.set({ 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=60', 'Content-Length': value.buffer.length.toString() })
     res.send(value.buffer)
+  }
+
+  @Post(':id/favorite')
+  @RequirePermission('templates:read')
+  @ApiOperation({ summary: 'Add template to favorites' })
+  async addFavorite(@Param('id') id: string, @CurrentUser() user: UserContext) {
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/toggle-template-favorite/toggle-template-favorite.use-case.module'),
+      () => import('../../../application/use-cases/toggle-template-favorite/toggle-template-favorite.use-case'),
+    )
+    return getResultValue(await uc.execute({ templateId: id, userId: user.userId, action: 'add' }))
+  }
+
+  @Delete(':id/favorite')
+  @RequirePermission('templates:read')
+  @ApiOperation({ summary: 'Remove template from favorites' })
+  async removeFavorite(@Param('id') id: string, @CurrentUser() user: UserContext) {
+    const uc = await this.loadUseCase<any>(
+      () => import('../../../application/use-cases/toggle-template-favorite/toggle-template-favorite.use-case.module'),
+      () => import('../../../application/use-cases/toggle-template-favorite/toggle-template-favorite.use-case'),
+    )
+    return getResultValue(await uc.execute({ templateId: id, userId: user.userId, action: 'remove' }))
   }
 }

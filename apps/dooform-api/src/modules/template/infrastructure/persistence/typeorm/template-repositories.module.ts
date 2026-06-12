@@ -5,12 +5,14 @@ import { UnitOfWorkTypeOrmModule } from '@dooform-api-core/infrastructure/persis
 
 import { TemplateModel } from './models/template.model'
 import { DocumentTypeModel } from './models/document-type.model'
+import { TemplateFavoriteModel } from './models/template-favorite.model'
 import { TypeOrmTemplateRepository } from './repositories/template.repository'
 import { TypeOrmDocumentTypeRepository } from './repositories/document-type.repository'
+import { TypeOrmTemplateFavoriteRepository } from './repositories/template-favorite.repository'
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([TemplateModel, DocumentTypeModel]),
+    TypeOrmModule.forFeature([TemplateModel, DocumentTypeModel, TemplateFavoriteModel]),
     UnitOfWorkTypeOrmModule,
   ],
   providers: [
@@ -22,7 +24,11 @@ import { TypeOrmDocumentTypeRepository } from './repositories/document-type.repo
       provide: 'IDocumentTypeRepository',
       useClass: TypeOrmDocumentTypeRepository,
     },
+    {
+      provide: 'ITemplateFavoriteRepository',
+      useClass: TypeOrmTemplateFavoriteRepository,
+    },
   ],
-  exports: ['ITemplateRepository', 'IDocumentTypeRepository'],
+  exports: ['ITemplateRepository', 'IDocumentTypeRepository', 'ITemplateFavoriteRepository'],
 })
 export class TemplateRepositoriesModule {}

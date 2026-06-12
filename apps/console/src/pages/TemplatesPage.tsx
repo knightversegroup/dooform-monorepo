@@ -13,17 +13,21 @@ import {
   Globe,
   Plus,
   Search,
+  Star,
   Trash2,
   Wand2,
   X,
 } from 'lucide-react';
 import {
+  addTemplateFavorite,
   archiveTemplate,
   deleteTemplate,
   getFieldDefinitions,
+  getFavoriteTemplateIds,
   getThumbnailUrl,
   listTemplates,
   publishTemplate,
+  removeTemplateFavorite,
   suggestAliases,
   unpublishTemplate,
   updateFieldDefinitions,
@@ -94,7 +98,13 @@ export default function TemplatesPage() {
     queryFn: () => listDocumentTypes(),
   });
 
+  const favoritesQuery = useQuery({
+    queryKey: ['template-favorites'],
+    queryFn: () => getFavoriteTemplateIds(),
+  });
+
   const allTemplates = templatesQuery.data?.data ?? [];
+  const favoriteIds = new Set(favoritesQuery.data?.templateIds ?? []);
 
   const invalidate = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: queryKeys.templates.all });
@@ -117,6 +127,19 @@ export default function TemplatesPage() {
     onSuccess: invalidate,
   });
 
+  const toggleFavoriteMutation = useMutation({
+    mutationFn: async ({ id, isFavorite }: { id: string; isFavorite: boolean }) => {
+      if (isFavorite) {
+        return removeTemplateFavorite(id);
+      } else {
+        return addTemplateFavorite(id);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['template-favorites'] });
+    },
+  });
+
   const recentTemplates = useMemo(() => {
     return [...allTemplates]
       .filter((t) => !!t.updatedAt)
@@ -126,6 +149,10 @@ export default function TemplatesPage() {
       )
       .slice(0, 8);
   }, [allTemplates]);
+
+  const favoriteTemplates = useMemo(() => {
+    return allTemplates.filter((t) => favoriteIds.has(t.id));
+  }, [allTemplates, favoriteIds]);
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -378,7 +405,47 @@ export default function TemplatesPage() {
             <div className="relative">
               <div className="flex gap-[12px] overflow-x-auto pb-2 scrollbar-hide">
                 {recentTemplates.map((tmpl) => (
-                  <RecentTemplateCard key={tmpl.id} template={tmpl} />
+                  <FavoriteTemplateCard
+                    key={tmpl.id}
+                    template={tmpl}
+                    isFavorite={favoriteIds.has(tmpl.id)}
+                    onToggleFavorite={() =>
+                      toggleFavoriteMutation.mutate({
+                        id: tmpl.id,
+                        isFavorite: favoriteIds.has(tmpl.id),
+                      })
+                    }
+                  />
+                ))}
+              </div>
+              <div className="absolute top-0 right-0 w-[180px] h-full pointer-events-none bg-gradient-to-l from-white to-transparent" />
+            </div>
+          </section>
+        )}
+
+        {/* Favorite templates strip */}
+        {favoriteTemplates.length > 0 && (
+          <section className="flex flex-col gap-[20px]">
+            <div>
+              <h2 className="text-[24px] font-semibold text-black">เทมเพลตที่ชื่นชอบ</h2>
+              <p className="text-[16px] font-normal text-black mt-[2px]">
+                เทมเพลตที่คุณติดดาวไว้
+              </p>
+            </div>
+            <div className="relative">
+              <div className="flex gap-[12px] overflow-x-auto pb-2 scrollbar-hide">
+                {favoriteTemplates.map((tmpl) => (
+                  <FavoriteTemplateCard
+                    key={tmpl.id}
+                    template={tmpl}
+                    isFavorite={true}
+                    onToggleFavorite={() =>
+                      toggleFavoriteMutation.mutate({
+                        id: tmpl.id,
+                        isFavorite: true,
+                      })
+                    }
+                  />
                 ))}
               </div>
               <div className="absolute top-0 right-0 w-[180px] h-full pointer-events-none bg-gradient-to-l from-white to-transparent" />
@@ -644,6 +711,13 @@ export default function TemplatesPage() {
                     selected={selectedIds.has(t.id)}
                     canSelect={canEditTemplate(t)}
                     onToggleSelect={() => toggleSelected(t)}
+                    isFavorite={favoriteIds.has(t.id)}
+                    onToggleFavorite={() =>
+                      toggleFavoriteMutation.mutate({
+                        id: t.id,
+                        isFavorite: favoriteIds.has(t.id),
+                      })
+                    }
                   />
                 ))}
               </div>
@@ -655,30 +729,56 @@ export default function TemplatesPage() {
   );
 }
 
-function RecentTemplateCard({ template }: { template: Template }) {
+function FavoriteTemplateCard({
+  template,
+  isFavorite,
+  onToggleFavorite,
+}: {
+  template: Template;
+  isFavorite: boolean;
+  onToggleFavorite: () => void;
+}) {
   const [imgError, setImgError] = useState(false);
   const thumb = getThumbnailUrl(template.id);
   const name = displayNameOf(template);
   return (
-    <Link to={`/templates/${template.id}`} className="flex-shrink-0 block">
-      <div className="relative w-[180px] h-[256px] border border-[#cdcdcd] rounded overflow-hidden bg-white hover:shadow-md transition-shadow">
-        {thumb && !imgError ? (
-          <img
-            src={thumb}
-            alt={name}
-            className="w-full h-full object-contain"
-            onError={() => setImgError(true)}
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-stone-50 to-stone-100 flex items-center justify-center">
-            <span className="text-3xl font-semibold text-neutral-300">
-              {name.charAt(0)}
-            </span>
-          </div>
-        )}
+    <div className="flex-shrink-0">
+      <div className="relative w-[180px] h-[256px] border border-[#cdcdcd] rounded overflow-hidden bg-white hover:shadow-md transition-shadow group">
+        <Link to={`/templates/${template.id}`} className="block w-full h-full">
+          {thumb && !imgError ? (
+            <img
+              src={thumb}
+              alt={name}
+              className="w-full h-full object-contain"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-stone-50 to-stone-100 flex items-center justify-center">
+              <span className="text-3xl font-semibold text-neutral-300">
+                {name.charAt(0)}
+              </span>
+            </div>
+          )}
+        </Link>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onToggleFavorite();
+          }}
+          className={`absolute top-2 right-2 z-10 w-8 h-8 flex items-center justify-center rounded-full transition-all ${
+            isFavorite
+              ? 'bg-yellow-400 text-white'
+              : 'bg-white/80 text-neutral-400 opacity-0 group-hover:opacity-100 hover:bg-white hover:text-yellow-500'
+          }`}
+          title={isFavorite ? 'เอาออกจากรายการโปรด' : 'เพิ่มในรายการโปรด'}
+        >
+          <Star className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
+        </button>
       </div>
       <p className="mt-2 text-sm text-neutral-700 truncate w-[180px]">{name}</p>
-    </Link>
+    </div>
   );
 }
 
@@ -687,18 +787,22 @@ function TemplateRow({
   selected,
   canSelect,
   onToggleSelect,
+  isFavorite,
+  onToggleFavorite,
 }: {
   template: Template;
   selected: boolean;
   canSelect: boolean;
   onToggleSelect: () => void;
+  isFavorite: boolean;
+  onToggleFavorite: () => void;
 }) {
   const [imgError, setImgError] = useState(false);
   const thumb = getThumbnailUrl(template.id);
   const name = displayNameOf(template);
 
   return (
-    <div className="flex items-center gap-[20px] py-[12px] border-b border-[#e6e6e6] hover:bg-stone-50/50 transition-colors">
+    <div className="flex items-center gap-[20px] py-[12px] border-b border-[#e6e6e6] hover:bg-stone-50/50 transition-colors group">
       <div className="w-[24px] flex-shrink-0">
         <input
           type="checkbox"
@@ -715,7 +819,7 @@ function TemplateRow({
         />
       </div>
 
-      <div className="w-[56px] h-[56px] flex-shrink-0 rounded border border-[#e6e6e6] bg-white overflow-hidden flex items-center justify-center">
+      <div className="w-[56px] h-[56px] flex-shrink-0 rounded border border-[#e6e6e6] bg-white overflow-hidden flex items-center justify-center relative">
         {thumb && !imgError ? (
           <img
             src={thumb}
@@ -727,6 +831,22 @@ function TemplateRow({
         ) : (
           <FileText className="w-5 h-5 text-neutral-300" />
         )}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onToggleFavorite();
+          }}
+          className={`absolute -top-1 -right-1 z-10 w-5 h-5 flex items-center justify-center rounded-full transition-all ${
+            isFavorite
+              ? 'bg-yellow-400 text-white'
+              : 'bg-white text-neutral-300 border border-neutral-200 opacity-0 group-hover:opacity-100 hover:text-yellow-500 hover:border-yellow-400'
+          }`}
+          title={isFavorite ? 'เอาออกจากรายการโปรด' : 'เพิ่มในรายการโปรด'}
+        >
+          <Star className={`w-3 h-3 ${isFavorite ? 'fill-current' : ''}`} />
+        </button>
       </div>
 
       <div className="flex-1 min-w-0">
